@@ -1,0 +1,270 @@
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 全局样式 */
+html, body, #root, .app-container {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+/* 左侧侧栏 */
+.sidebar {
+  width: 200px; /* 侧栏宽度 */
+  background-color: #2c3e50; /* 深蓝色背景 */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar-box {
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  background-color: #3498db; /* 蓝色背景 */
+  color: white; /* 白色文字 */
+  text-align: center;
+  border-radius: 10px; /* 圆角 */
+  cursor: pointer;
+  transition: background-color 0.2s ease; /* 背景颜色变化的过渡效果 */
+}
+
+.sidebar-box:hover {
+  background-color: #2980b9; /* 鼠标悬停时变深蓝色 */
+}
+
+
+/* 右侧内容区域 */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #ecf0f1; /* 浅灰色背景 */
+}
+
+
+
+.title-bar {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.title-bar h1 {
+  font-family: '黑体', sans-serif; /* 黑体字体 */
+  font-weight: bold; /* 加粗 */
+  font-size: 24px; /* 字体大小 */
+  margin: 0; /* 去除默认外边距 */
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+
+/* 输入框容器 */
+.input-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* 两个输入框之间的间距 */
+  margin-top: 20px; /* 与上方内容的间距 */
+}
+
+/* 输入框包装器 */
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 输入框样式 */
+.input-box {
+  width: 200px; /* 初始宽度 */
+  padding: 10px;
+  border: 4px solid gray; /* 灰色粗边框 */
+  border-radius: 10px; /* 圆角 */
+  font-size: 16px;
+  transition: width 0.3s ease; /* 宽度变化时的过渡效果 */
+}
+
+/* 错误提示样式 */
+.error-message {
+  color: red; /* 红色文字 */
+  font-size: 14px;
+  margin-top: 5px; /* 与输入框的间距 */
+  white-space: nowrap; /* 防止文字换行 */
+}
+
+/* 计算按钮样式 */
+.calculate-button {
+  margin-top: 20px; /* 与输入框的间距 */
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #007bff; /* 蓝色背景 */
+  color: white; /* 白色文字 */
+  cursor: pointer;
+  transition: all 0.2s ease; /* 所有属性的过渡效果 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+  position: relative; /* 用于动画效果 */
+}
+
+/* 按钮按下时的效果 */
+.calculate-button:active {
+  transform: scale(0.95); /* 缩小按钮 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 减小阴影 */
+  background-color: #0056b3; /* 背景颜色变深 */
+}
+
+/* 按钮文字动画 */
+.calculate-button:active span {
+  display: inline-block;
+  transform: scale(0.9); /* 文字缩小 */
+  transition: transform 0.2s ease; /* 平滑过渡 */
+}
+
+.calculate-button:hover {
+  background-color: #0056b3; /* 鼠标悬停时变深蓝色 */
+}
+
+/* 结果框容器 */
+.result-container {
+  margin-top: 20px; /* 与按钮的间距 */
+}
+
+/* 结果框样式 */
+.result-box {
+  width: 200px; /* 初始宽度 */
+  padding: 10px;
+  border: 4px solid gray; /* 灰色粗边框 */
+  border-radius: 10px; /* 圆角 */
+  font-size: 16px;
+  text-align: center;
+  background-color: #f0f0f0; /* 浅灰色背景 */
+  transition: width 0.3s ease; /* 宽度变化时的过渡效果 */
+}
+
+/* 历史记录方框 */
+.history-box {
+  width: 70%; /* 宽度为页面的 70% */
+  height: 2000px; /* 高度为 2000px */
+  margin: 20px auto; /* 居中显示 */
+  padding: 20px;
+  background-color: #f9f9f9; /* 浅灰色背景 */
+  border: 4px solid gray; /* 灰色粗边框 */
+  border-radius: 15px; /* 圆角 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+  overflow-y: auto; /* 如果内容超出高度，显示滚动条 */
+}
+
+.history-box h2 {
+  font-family: '黑体', sans-serif; /* 黑体字体 */
+  font-weight: bold; /* 加粗 */
+  font-size: 24px; /* 字体大小 */
+  margin-bottom: 20px; /* 与内容的间距 */
+}
+
+.history-box ul {
+  list-style-type: none; /* 去除列表符号 */
+  padding: 0;
+}
+
+.history-box li {
+  font-size: 18px;
+  margin-bottom: 10px; /* 列表项之间的间距 */
+}
+
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px; /* 与内容的间距 */
+}
+
+.calculate-button:hover {
+  background-color: #0056b3; /* 鼠标悬停时变深蓝色 */
+}
+
+/* 清空历史按钮样式 */
+.clear-history-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #dc3545; /* 红色背景 */
+  color: white; /* 白色文字 */
+  cursor: pointer;
+  transition: background-color 0.2s ease; /* 背景颜色变化的过渡效果 */
+}
+
+.clear-history-button:hover {
+  background-color: #c82333; /* 鼠标悬停时变深红色 */
+}
+
+
+
+/* 响应式布局 */
+@media (max-width: 600px) {
+  .title-bar {
+    width: 90%; /* 页面宽度较小时，标题栏宽度缩小 */
+  }
+
+  .input-container {
+    flex-direction: column; /* 页面宽度小于 600px 时，输入框垂直排列 */
+    align-items: center;
+  }
+
+  .result-box,
+  .input-box {
+    width: 80%; /* 页面宽度较小时，输入框宽度缩小 */
+  }
+
+  .history-box {
+    width: 90%; /* 页面宽度较小时，历史记录方框宽度缩小 */
+  }
+}
