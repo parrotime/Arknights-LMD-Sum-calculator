@@ -1,0 +1,433 @@
+
+
+/* 全局黑底红框 */
+/** {
+  background-color: black !important; /* 全局背景设置为黑色 */
+  /*border: 1px solid red !important; /* 全局边框设置为红色 */
+  /*box-sizing: border-box; /* 确保边框宽度包含在元素尺寸内 */
+  /*color: white;
+}
+
+/* 全局样式 */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  display: flex;
+  height: 100%; /* 确保容器占满整个页面高度 */
+  overflow: hidden; /* 隐藏容器内部的滚动条 */
+}
+
+
+/* 左侧区域（包含侧栏和中间输入区域） */
+.left-container {
+  display: flex;
+  width: 100%; /* 左侧占页面宽度的 60% */
+  height: 100vh; /* 高度占满整个视口 */
+}
+
+/* 首页特殊布局 - 通过.is-index类覆盖 */
+.left-container.is-index {
+  width: 60%; /* 首页时左侧占60% */
+}
+
+/* 左侧侧栏 */
+.sidebar {
+  max-width: 270px; /* 侧栏宽度 */
+  background-color: #509beb; /* 深蓝色背景 */
+  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 200px;
+  align-items: center;
+  transition: width 0.3s ease; /* 侧栏宽度变化的过渡效果 */
+}
+
+.sidebar-title {
+  width: 100%;
+  padding: 20px 40px;
+  margin-bottom: 0px;
+  background-color: #216fcf; /* 蓝色背景 */
+  color: white; /* 白色文字 */
+  text-align: center;
+  font-size: 30px; /* 字体大小 */
+  font-weight: bold; /* 加粗 */
+}
+
+.sidebar-box {
+  width: 100%; /* 侧栏项宽度 */
+  /*border-bottom: 1px solid rgb(25, 58, 130); /* 白色分隔线 */
+  background-color: #498df3;
+  padding: 5px;
+  margin-top: 3px;
+}
+
+.sidebar-box a {
+  color: white; /* 设置文字为白色 */
+  font-weight: bold; /* 设置文字加粗 */
+  text-decoration: none; /* 去掉链接下划线 */
+  display: block; /* 让链接占据整块区域 */
+  padding: 10px;
+  text-align: center; /* 文字居中 */
+  font-size: 20px;
+}
+
+.sidebar-box a:hover {
+  background-color: #2a61b3; /* 鼠标悬停时变深蓝色 */
+  cursor: pointer; /* 鼠标悬停时改变光标 */
+}
+.sidebar-box:hover {
+  background-color: #2a61b3; /* 鼠标悬停时变深蓝色 */
+}
+
+/* 中间输入区域 */
+.input-area {
+  width: 520px;
+  flex: 1; /* 让输入区域占据父容器剩余的空间（如果父容器是 Flexbox 布局） */
+  display: flex;
+  flex-direction: column; /*设置子元素的排列方向为垂直方向(从上到下)  */
+  align-items: center; /*设置子元素在水平方向上居中对齐 */
+  padding: 20px;
+  padding-top: 13px;
+  background-color: #afd3f3; /* 浅灰色背景 */
+  overflow-y: visible; /* 如果内容超出高度，显示滚动条 */
+  height: 100vh; /* 新增 */
+}
+
+/* 标题 */
+.title-bar {
+  max-width: 100%; /* 最大宽度为父容器的宽度 */
+  text-align: center; /* 文字居中 */
+  background-color: #f9fdff; /* 背景颜色 */
+  margin-top: 0px; /* 顶部外边距设置为 0，靠近页面顶部 */
+  margin-bottom: 10px; /* 底部外边距 */
+  padding: 15px 50px; /* 内边距：上下 15px，左右 30px */
+  display: inline-block; /* 让宽度根据内容自适应 而不是占满 */
+  border-radius: 50px; /* 圆角，值越大越圆 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影的偏移量为 0（水平）和 2px（垂直），模糊半径为 4px，颜色为黑色（透明度 10%） */
+}
+
+.title-bar h1 {
+  font-family: '黑体', sans-serif; /* 黑体字体 */
+  font-weight: bold; /* 加粗 */
+  font-size: 24px; /* 字体大小 */
+  margin: 0; /* 去除默认外边距 */
+  white-space: nowrap; /* 防止文字换行 */
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 显示省略号 */
+}
+
+.main-content {
+  flex: 1 1 auto; /* 允许伸缩，基础大小为自动 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 输入框 */
+.input-container {
+  flex-direction: column; /* 改为垂直排列 */
+  align-items: center; /* 让子元素水平居中 */
+  gap: 0px; /* 两个输入框之间的间距 */
+  margin-top: 0px; /* 与上方内容的间距 */
+  display: inline-block; /* 让宽度根据内容自适应 */
+}
+
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-wrapper-text{
+  display: flex;
+  color: black; 
+  align-items: center; /* 垂直居中 */
+  font-weight: bold; /* 字体加粗 */
+  margin-top: 0px; /* 与上方内容的距离增大 */
+  margin-bottom: 0px; /* 与下方内容的距离缩小 */
+  width: 200px; /* 与输入框和结果框的宽度一致 */
+  padding-left: 10px; /* 与输入框和结果框的左内边距一致 */
+}
+
+.title-text{
+  color: black; 
+  text-align: center; /* 文字居中 */
+  font-weight: bold; /* 字体加粗 */
+  line-height: 10px;
+}
+
+
+.input-box {
+  width: 200px; /* 初始宽度 */
+  padding: 10px;
+  border: 4px solid gray; /* 灰色粗边框 */
+  border-radius: 10px; /* 圆角 */
+  font-size:16px;
+  text-align: center;
+  transition: width 0.3s ease; /* 宽度变化时的过渡效果 */
+  transition: border-color 0.3s ease; /* 添加过渡动画 */
+}
+
+.input-box:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+  outline: none;
+}
+
+
+
+.error-message {
+  color: red; /* 红色文字 */
+  font-size: 14px;
+  margin-top: 5px; /* 与输入框的间距 */
+  white-space: nowrap; /* 防止文字换行 */
+}
+
+.calculate-button {
+  margin-top: 15px; /* 与输入框的间距 */
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #007bff; /* 蓝色背景 */
+  color: white; /* 白色文字 */
+  cursor: pointer;
+  transition: all 0.2s ease; /* 所有属性的过渡效果 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+}
+
+/* 按钮按下时的效果 */
+.calculate-button:active {
+  transform: scale(0.95); /* 缩小按钮 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 减小阴影 */
+  background-color: #0056b3; /* 背景颜色变深 */
+}
+
+/* 按钮文字动画 */
+.calculate-button:active span {
+  display: inline-block;
+  transform: scale(0.9); /* 文字缩小 */
+  transition: transform 0.2s ease; /* 平滑过渡 */
+}
+
+
+.calculate-button:hover {
+  background-color: #0056b3; /* 鼠标悬停时变深蓝色 */
+}
+
+/* 结果框容器 */
+.result-container {
+  margin-top: 0px; /* 与按钮的间距 */
+  display: inline-block; /* 让宽度根据内容自适应 */
+}
+
+/* 结果框样式 */
+.output-container {
+  flex-direction: column; /* 改为垂直排列 */
+  align-items: center; /* 让子元素水平居中 */
+  gap: 0px; /* 两个输入框之间的间距 */
+  margin-top: 0px; /* 与上方内容的间距 */
+  display: inline-block; /* 让宽度根据内容自适应 */
+}
+
+.output-wrapper-text{
+  display: flex;
+  color: black; 
+  align-items: center; /* 垂直居中 */
+  font-weight: bold; /* 字体加粗 */
+  margin-top: 0px; /* 与上方内容的距离增大 */
+  margin-bottom: 0px; /* 与下方内容的距离缩小 */
+  width: 200px; /* 与输入框和结果框的宽度一致 */
+  padding-left: 10px; /* 与输入框和结果框的左内边距一致 */
+}
+
+
+.result-box {
+  width: 200px; /* 初始宽度 */
+  padding: 10px;
+  border: 4px solid gray; /* 灰色粗边框 */
+  border-radius: 10px; /* 圆角 */
+  font-size: 16px;
+  text-align: center;
+  background-color: #f0f0f0; /* 浅灰色背景 */
+  transition: width 0.3s ease; /* 宽度变化时的过渡效果 */
+}
+
+
+/* 右侧输出区域 */
+.output-area {
+  width: 900px; /* 右侧区域宽度 */
+  padding-left: 30px;
+  background-color: #f9f9f9; /* 浅灰色背景 */
+  border-left: 4px solid gray; /* 左侧边框 */
+  display: flex; /* 设置为 Flexbox 容器 */
+  justify-content: center; /* 水平居中 */
+
+    min-height: 100vh; /* 初始高度为页面高度，内容超出时自动扩展 */
+    overflow-y: auto; /* 内容超出时显示滚动条 */
+
+}
+
+.history-box {
+  margin-top: 10px;
+  margin-right: 20px;
+  width: 90%;
+  height: 100%;
+  padding: 12px 20px;
+  background-color: #f9f9f9; /* 浅灰色背景 */
+  border-radius: 15px; /* 圆角 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+
+    overflow-y: visible; /* 内容超出时显示滚动条 */
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 20px; /* 与内容的间距 */
+}
+
+.history-box h2 {
+  font-family: '黑体', sans-serif; /* 黑体字体 */
+  font-weight: bold; /* 加粗 */
+  font-size: 24px; /* 字体大小 */
+  margin: 0; /* 去除默认外边距 */
+}
+
+.history-box ul {
+  list-style-type: none; /* 去除列表符号 */
+  padding: 0;
+}
+
+.history-box li {
+  font-size: 18px;
+  margin-bottom: 10px; /* 列表项之间的间距 */
+}
+
+.clear-history-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #dc3545; /* 红色背景 */
+  color: white; /* 白色文字 */
+  cursor: pointer;
+  transition: all 0.2s ease; /* 背景颜色变化的过渡效果 */
+}
+
+.clear-history-button:hover {
+  background-color: #c82333; /* 鼠标悬停时变深红色 */
+}
+
+/* 按钮按下时的效果 */
+.clear-history-button:active {
+  transform: scale(0.95); /* 缩小按钮 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 减小阴影 */
+  background-color: #990000; /* 背景颜色变深 */
+}
+
+/* 按钮文字动画 */
+.clear-history-button:active span {
+  display: inline-block;
+  transform: scale(0.9); /* 文字缩小 */
+  transition: transform 0.2s ease; /* 平滑过渡 */
+}
+
+
+.content-area.full-width {
+  width: calc(100% - 200px); /* 减去侧栏宽度 */
+}
+
+
+
+/* 响应式布局 */
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 150px; /* 页面宽度较小时，侧栏宽度缩小 */
+  }
+
+  .output-area {
+    width: 50%; /* 右侧区域宽度缩小 */
+  }
+}
+
+@media (max-width: 800px) {
+  .app-container {
+    flex-direction: column; /* 垂直排列 */
+      height: 100vh; /* 高度自适应内容 */
+    overflow: visible; /* 移除滚动条 */
+  }
+
+  .left-container {
+    width: 100%; /* 占满整个页面宽度 */
+    height: auto; /* 高度自适应内容 */
+    position: static; /* 取消固定定位 */
+    flex-direction: column; /* 垂直排列 */
+  }
+
+  .sidebar {
+    width: 100%; /* 侧栏宽度占满整个页面 */
+    flex-direction: row; /* 侧栏内容水平排列 */
+    justify-content: space-around;
+    padding: 10px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    height: auto;
+      top: 0; /* 保持在顶部 */
+  }
+
+  .sidebar-title {
+    display: none; /* 隐藏侧栏标题 */
+  }
+
+  .sidebar-box {
+    width: auto; /* 侧栏按钮宽度 */
+    margin: 5px 0;
+    white-space: nowrap; /* 防止文字换行 */
+    overflow: hidden; /* 隐藏溢出内容 */
+    text-overflow: ellipsis; /* 显示省略号 */
+    font-size: 16px; /* 缩小字体大小 */
+  }
+
+  .input-area {
+    width: 100%; /* 占满整个页面宽度 */
+    padding: 50px 0px; /* 减少内边距 */
+    margin-bottom: 0; /* 与输出区域的间距 */
+    height: auto; /* 高度自适应内容 */
+  }
+
+  .title-bar {
+    padding: 10px 40px; /* 减少内边距 */
+  }
+
+  .output-area {
+    width: 100%; /* 占满整个页面宽度 */
+    border-left: none; /* 去除左侧边框 */
+    border-top: 4px solid gray; /* 添加上边框 */
+    padding-left: 0; /* 去除左侧内边距 */
+    padding-top: 20px; /* 添加上边距 */
+    height: auto; /* 高度自适应内容 */
+    min-height: unset; /* 移除最小高度 */
+    overflow-y: visible; /* 移除滚动条 */
+    justify-content: flex-start; /* 内容靠左对齐 */
+  }
+
+  .history-box {
+    margin-top: 10px;
+    margin-right: 20px;
+    margin-left: 20px; /* 添加左侧外边距 */
+    width: 100%; /* 宽度减去左右外边距 */
+    height: auto; /* 高度自适应内容 */
+    padding: 12px 20px;
+    background-color: #f9f9f9; /* 浅灰色背景 */
+    border-radius: 15px; /* 圆角 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+    overflow-y: visible; /* 移除滚动条 */
+  }
+}
