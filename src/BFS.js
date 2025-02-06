@@ -1,56 +1,61 @@
-const tableData = [
-  [0, 1, 1, 1, 1, null],
-  [1, -718, -333, -125, -61, null],
-  [5, -775, -367, -141, -69, null],
-  [10, -848, -408, -159, -79, null],
-  [15, -1022, -462, -177, -88, null],
-  [20, -1394, -654, -251, -122, null],
-  [25, -1747, -836, -324, -162, null],
-  [30, -2116, -1026, -404, -202, null],
-  [35, -2507, -1226, -484, -242, null],
-  [40, -2891, -1420, -564, -282, null],
-  [45, -3283, -1617, -644, -322, null]
-];
+// BFS.js
+import { classifyData } from './DataService';
 
-
-const extractNumbers = () => {
-  const numbers = new Set();
-  for (let i = 1; i < tableData.length; i++) {
-    for (let j = 1; j < tableData[i].length; j++) {
-      const value = tableData[i][j];
-      if (value !== null) {
-        numbers.add(value);
-      }
-    }
-  }
-  return Array.from(numbers);
+const createPathKey = (path) => {
+  const counts = new Map();
+  path.forEach(item => {
+    counts.set(item.id, (counts.get(item.id) || 0) + 1)
+  });
+  return Array.from(counts.entries()).sort().toString();
 };
 
-
-export const findShortestPath = (target) => {
-  const numbers = extractNumbers(); 
-  const queue = [[0, []]]; 
-  const visited = new Set(); 
-
+export const findPath = (target) => {
+  const validItems = classifyData.filter(d => d.item_value !== 0);
+  const queue = [[0, [], new Map()]]; // [currentSum, path, itemCounts]
+  const visited = new Set();
+  const candidates = [];
+  
   while (queue.length > 0) {
-    const [currentSum, path] = queue.shift();
-
-    if (currentSum === target) {
-      return path;
+    const [sum, path, countMap] = queue.shift();
+    
+    // 结果收集条件
+    if (sum === target) {
+      candidates.push(path);
+      if (candidates.length >=5) break;
+      continue;
     }
 
-    if (path.length >= 15) {
-      return null; 
-    }
+    // 剪枝条件
+    if (path.length >=15 || Math.abs(target - sum) > 5000) continue;
 
-    for (const number of numbers) {
-      const newSum = currentSum + number;
-      if (!visited.has(newSum)) {
-        visited.add(newSum);
-        queue.push([newSum, [...path, number]]);
+    // 遍历所有合法物品
+    for (const item of validItems) {
+      const newSum = sum + item.item_value;
+      const newCount = (countMap.get(item.id) || 0) + 1;
+      
+      // 有效性校验
+      if (newSum * target < 0) continue; // 防止反向增长
+      
+      // 生成新路径标识
+      const newCountMap = new Map(countMap).set(item.id, newCount);
+      const pathKey = `${item.id}:${newCount}`;
+      
+      if (!visited.has(pathKey)) {
+        visited.add(pathKey);
+        queue.push([
+          newSum,
+          [...path, item], 
+          newCountMap
+        ]);
       }
     }
+    
+    // 动态排序队列（优先接近目标值）
+    queue.sort((a,b) => 
+      Math.abs(target - a[0]) - Math.abs(target - b[0]) || 
+      a[1].length - b[1].length
+    );
   }
 
-  return null;
+  return candidates;
 };
