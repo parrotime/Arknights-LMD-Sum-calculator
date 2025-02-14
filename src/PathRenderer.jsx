@@ -1,25 +1,25 @@
 import React from 'react';
+import "./PathRender.css";
 
-
-// Ï¡ÓĞ¶ÈÅäÉ«·½°¸
+// ç¨€æœ‰åº¦é…è‰²æ–¹æ¡ˆ
 const RARITY_COLORS = {
-  1: '#006400',  // »ù´¡¼¶£¨ÉîÂÌ£©
-  2: '#00008B',  // ±ê×¼¼¶£¨ÉîÀ¶£© 
-  3: '#4B0082',  // ¾«Ó¢¼¶£¨µåÀ¶£©
-  4: '#800080',  // ¾«Ò»£¨×ÏÉ«£©
-  5: '#FF8C00'   // ¾«¶ş£¨³Èºì£©
+  1: '#006400',  // åŸºç¡€çº§ï¼ˆæ·±ç»¿ï¼‰
+  2: '#00008B',  // æ ‡å‡†çº§ï¼ˆæ·±è“ï¼‰ 
+  3: '#4B0082',  // ç²¾è‹±çº§ï¼ˆé›è“ï¼‰
+  4: '#800080',  // ç²¾ä¸€ï¼ˆç´«è‰²ï¼‰
+  5: '#FF8C00'   // ç²¾äºŒï¼ˆæ©™çº¢ï¼‰
 };
 
-// Â·¾¶äÖÈ¾ºËĞÄ×é¼ş
+// è·¯å¾„æ¸²æŸ“æ ¸å¿ƒç»„ä»¶
 const PathRenderer = ({ paths, startValue }) => {
   if (!paths?.length) {
     return (
       <div className="path-error">
-        ?? Ã»ÓĞÕÒµ½¿ÉĞĞÂ·¾¶£¬Çë³¢ÊÔÒÔÏÂ·½Ê½£º
+        âš ï¸ æ²¡æœ‰æ‰¾åˆ°å¯è¡Œè·¯å¾„ï¼Œè¯·å°è¯•ä»¥ä¸‹æ–¹å¼ï¼š
         <ul>
-          <li>µ÷ÕûÊäÈëÊıÖµ·¶Î§(²îÖµ²»³¬¹ı5000)</li>
-          <li>·Å¿í×ÊÔ´ÀàĞÍ¹ıÂËÌõ¼ş</li>
-          <li>ÔÊĞíÊ¹ÓÃĞÅÓÃÉÌµê²ÄÁÏ</li>
+          <li>è°ƒæ•´è¾“å…¥æ•°å€¼èŒƒå›´(å·®å€¼ä¸è¶…è¿‡5000)</li>
+          <li>æ”¾å®½èµ„æºç±»å‹è¿‡æ»¤æ¡ä»¶</li>
+          <li>å…è®¸ä½¿ç”¨ä¿¡ç”¨å•†åº—ææ–™</li>
         </ul>
       </div>
     );
@@ -33,9 +33,9 @@ const PathRenderer = ({ paths, startValue }) => {
         return (
           <div key={`path-${pathIndex}`} className="path-card">
             <h3 className="path-title">
-              Â·¾¶·½°¸ {pathIndex + 1}
+              è·¯å¾„æ–¹æ¡ˆ {pathIndex + 1}
               <span className="path-stats">
-                ({path.length}²½£ü×Ü²î¶î£º{Math.abs(path.reduce((sum, item) => sum + item.item_value, 0))})
+                ({path.length}æ­¥ï½œæ€»å·®é¢ï¼š{Math.abs(path.reduce((sum, item) => sum + item.item_value, 0))})
               </span>
             </h3>
 
@@ -52,7 +52,7 @@ const PathRenderer = ({ paths, startValue }) => {
                         className="item-rarity-tag"
                         style={{ backgroundColor: RARITY_COLORS[item.rarity] }}
                       >
-                        {['»ù´¡', '±ê×¼', '¾«Ó¢', '¾«Ò»', '¾«¶ş'][item.rarity - 1]}
+                        {['åŸºç¡€', 'æ ‡å‡†', 'ç²¾è‹±', 'ç²¾ä¸€', 'ç²¾äºŒ'][item.rarity - 1]}
                       </span>
                     </div>
                     
@@ -65,13 +65,13 @@ const PathRenderer = ({ paths, startValue }) => {
                       </span>
                       
                       <span className={`operation-type ${isGain ? 'gain' : 'cost'}`}>
-                        {isGain ? '»ñµÃ' : 'ÏûºÄ'}
+                        {isGain ? 'è·å¾—' : 'æ¶ˆè€—'}
                         <strong>{Math.abs(item.item_value)}</strong>
-                        ×ÊÔ´
+                        èµ„æº
                       </span>
 
                       <span className="current-sum">
-                        µ±Ç°×ÜÁ¿£º{currentSum.toLocaleString()}
+                        å½“å‰æ€»é‡ï¼š{currentSum.toLocaleString()}
                       </span>
                     </div>
                   </div>

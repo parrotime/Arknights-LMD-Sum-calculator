@@ -1,10 +1,10 @@
-/* Â·¾¶ÈİÆ÷ */
+/* è·¯å¾„å®¹å™¨ */
 .path-container {
   max-width: 800px;
   margin: 20px auto;
 }
 
-/* µ¥Ò»Â·¾¶¿¨Æ¬ */
+/* å•ä¸€è·¯å¾„å¡ç‰‡ */
 .path-card {
   background: #f8f9fa;
   border-radius: 8px;
@@ -13,7 +13,7 @@
   padding: 20px;
 }
 
-/* Â·¾¶±êÌâ */
+/* è·¯å¾„æ ‡é¢˜ */
 .path-title {
   color: #2c3e50;
   font-size: 1.25rem;
@@ -28,7 +28,7 @@
   margin-left: 12px;
 }
 
-/* ²½ÖèÏî */
+/* æ­¥éª¤é¡¹ */
 .step-item {
   background: white;
   border-left: 4px solid #3498db;
@@ -56,7 +56,7 @@
   font-size: 0.75rem;
 }
 
-/* ²Ù×÷ÀàĞÍ±êÊ¶ */
+/* æ“ä½œç±»å‹æ ‡è¯† */
 .operation-type {
   display: inline-block;
   margin: 0 12px;
