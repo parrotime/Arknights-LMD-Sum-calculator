@@ -266,20 +266,21 @@ return (
       <div className="history-box">
         <div className="history-header">
           <h2>计算路径历史</h2>
-          <button
-            className="clear-history-button"
-            onClick={handleClearHistory}
-            disabled={history.length === 0}
-          >
-            清空历史
-          </button>
 
-          <button onClick={handleChangePath}>更换路径</button>
-          {clickCount >= 5 && (
-            <p>你已经尝试了五条路径，要不要考虑更换输入值？</p>
-          )}
+          <div className="header-buttons">
+            <button
+              className="clear-history-button"
+              onClick={handleClearHistory}
+              disabled={history.length === 0}
+            >
+              清空历史
+            </button>
+            <button onClick={handleChangePath} className="change-path-button">
+              更换路径
+            </button>
+          </div>
         </div>
-        
+
         {pathCache.length > 0 ? (
           <PathRenderer
             path={pathCache[currentPathIndex] || []}
@@ -307,6 +308,12 @@ return (
               </div>
             );
           })}
+        </div>
+
+        <div className="change-over-text">
+          {clickCount >= 5 && (
+            <p>你已经尝试了五条路径，要不要考虑更换输入值？</p>
+          )}
         </div>
       </div>
     </div>

@@ -448,8 +448,12 @@ input:checked + .slider:before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   margin-bottom: 20px; /* 与内容的间距 */
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px; /* 按钮间距 */
 }
 
 .history-box h2 {
@@ -496,6 +500,44 @@ input:checked + .slider:before {
   display: inline-block;
   transform: scale(0.9); /* 文字缩小 */
   transition: transform 0.2s ease; /* 平滑过渡 */
+}
+
+
+.change-path-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #007bff; 
+  color: white; /* 白色文字 */
+  cursor: pointer;
+  transition: all 0.2s ease; /* 背景颜色变化的过渡效果 */
+}
+
+.change-path-button:hover {
+  background-color: #0056b3; 
+}
+
+/* 按钮按下时的效果 */
+.change-path-button:active {
+  transform: scale(0.95); /* 缩小按钮 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 减小阴影 */
+  background-color: #0056b3; /* 背景颜色变深 */
+}
+
+/* 按钮文字动画 */
+.change-path-button:active span {
+  display: inline-block;
+  transform: scale(0.9); /* 文字缩小 */
+  transition: transform 0.2s ease; /* 平滑过渡 */
+}
+
+.change-over-text{
+  color: #007bff;
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  text-align: center;
+  font-weight: bold;
 }
 
 

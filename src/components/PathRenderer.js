@@ -18,9 +18,9 @@ const PathRenderer = ({ path, initialLMD }) => {
 
   let currentLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
 
-console.log(`safePath:`, safePath);
+/*console.log(`safePath:`, safePath);
 console.log(`path:`, path);
-console.log(`initialLMD:`, initialLMD);
+console.log(`initialLMD:`, initialLMD);*/
 
   return (
     <div className="path-container">
@@ -39,17 +39,17 @@ console.log(`initialLMD:`, initialLMD);
 
           const item = getItemById(Number(step.id));
 
-          console.log(`item is :`, item);
+          /*console.log(`item is :`, item);
           console.log(`step.id is :`, step.id);
-          console.log(`2222222222222222`);
+          console.log(`2222222222222222`);*/
 
-          console.log(`[调试A] 步骤${stepIndex}物品详情:`, {
+          /*console.log(`[调试A] 步骤${stepIndex}物品详情:`, {
             Id: item.id,
             itemName: item.item_name,
             itemValue: item.item_value,
             rarity: item.rarity,
             stepCount: step.count,
-          });
+          });*/
 
 
 
@@ -63,13 +63,13 @@ console.log(`initialLMD:`, initialLMD);
 
 
           // 新增调试日志
-          console.log(`[调试B] 步骤${stepIndex}数据:`, {
+          /*console.log(`[调试B] 步骤${stepIndex}数据:`, {
             stepData: step,
             itemId: step.item_id,
             Id: step.id,
             itemExists: !!item,
 
-          });
+          });*/
 
           if (!item) {
             return (
@@ -88,7 +88,7 @@ console.log(`initialLMD:`, initialLMD);
           currentLMD += stepValue;
 
           // 打印关键字段值
-          console.log(`[调试C] 步骤${stepIndex}物品详情:`, {
+          /*console.log(`[调试C] 步骤${stepIndex}物品详情:`, {
             Id: item.id,
             itemName: item.item_name,
             itemValue: item.item_value,
@@ -104,7 +104,7 @@ console.log(`initialLMD:`, initialLMD);
             step_name: itemName,
             stepValue: stepValue,
             currentLMD: currentLMD,
-          });
+          });*/
 
           return (
             <div key={`step-${stepIndex}`} className="step_item">
