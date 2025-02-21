@@ -102,7 +102,8 @@ export const classifyData = [
   { id: 101, item_id: '3-2', item_name: '基建加工站合成蓝色材料', item_value: -200, rarity: 2, type: '材料合成' },
   { id: 102, item_id: '3-3', item_name: '基建加工站合成紫色材料', item_value: -300, rarity: 3, type: '材料合成' },
   { id: 103, item_id: '3-4', item_name: '基建加工站合成橙色材料', item_value: -400, rarity: 5, type: '材料合成' },
-  { id: 104, item_id: '4-2', item_name: '危机合约商店使用1代币换取70龙门币', item_value: 70, rarity: 5, type: '活动商店' }
+  { id: 104, item_id: '4-2', item_name: '危机合约商店使用1代币换取70龙门币', item_value: 70, rarity: 5, type: '活动商店' },
+  { id: 105, item_id: '4-3', item_name: '活动商店使用1代币换取10龙门币', item_value: 10, rarity: 5, type: '活动商店' }
 ];
 
 

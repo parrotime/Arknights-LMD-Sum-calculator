@@ -230,7 +230,9 @@ return (
 
         {/* 右侧说明面板 */}
         <div className="content-panel right-panel">
-          <div className="toggle-title">设置区域</div>
+          <div className="title-bar">
+            <h1>设置区域</h1>
+          </div>
 
           {/* 开关容器模板 - 五个相同结构的设置项 */}
           {[
@@ -238,8 +240,9 @@ return (
             "是否允许使用理智三星通关",
             "是否允许使用理智二星通关",
             "是否允许基建物品合成",
-            "是否存在/使用活动商店...",
-            "是否存在/使用危机合约...",
+            "是否存在/使用活动商店1代币换20龙门币",
+            "是否存在/使用活动商店1代币换10龙门币",
+            "是否存在/使用危机合约1代币换70龙门币",
           ].map((text, index) => (
             <div className="toggle-container" key={index}>
               <div className="toggle-text">{text}</div>

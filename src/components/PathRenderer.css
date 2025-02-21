@@ -6,8 +6,7 @@
   border-radius: 8px;
   background-color: #f9f9f9;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 98%;
 }
 
 /* 标题样式 */
@@ -27,6 +26,7 @@
   border-radius: 6px;
   background-color: #fff;
   transition: background-color 0.3s ease;
+  margin-bottom: 5px;
 }
 
 .step-item:hover {

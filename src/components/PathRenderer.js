@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getItemById } from '../DataService'; // 只导入实际存在的函数
-
+import './PathRenderer.css';
 
 let renderCount = 0;
 const PathRenderer = ({ path, initialLMD }) => {
@@ -39,19 +39,6 @@ console.log(`initialLMD:`, initialLMD);*/
 
           const item = getItemById(Number(step.id));
 
-          /*console.log(`item is :`, item);
-          console.log(`step.id is :`, step.id);
-          console.log(`2222222222222222`);*/
-
-          /*console.log(`[调试A] 步骤${stepIndex}物品详情:`, {
-            Id: item.id,
-            itemName: item.item_name,
-            itemValue: item.item_value,
-            rarity: item.rarity,
-            stepCount: step.count,
-          });*/
-
-
 
           if (!step || typeof step !== "object") {
             return (
@@ -61,15 +48,6 @@ console.log(`initialLMD:`, initialLMD);*/
             );
           }
 
-
-          // 新增调试日志
-          /*console.log(`[调试B] 步骤${stepIndex}数据:`, {
-            stepData: step,
-            itemId: step.item_id,
-            Id: step.id,
-            itemExists: !!item,
-
-          });*/
 
           if (!item) {
             return (
@@ -87,28 +65,10 @@ console.log(`initialLMD:`, initialLMD);*/
           const stepValue = itemValue * step.count;
           currentLMD += stepValue;
 
-          // 打印关键字段值
-          /*console.log(`[调试C] 步骤${stepIndex}物品详情:`, {
-            Id: item.id,
-            itemName: item.item_name,
-            itemValue: item.item_value,
-            rarity: item.rarity,
-            stepCount: step.count,
-          });
-
-          console.log(`33333333333333333`);
-          console.log(`[调试D] 步骤${stepIndex}物品详情:`, {
-            stepIndex: stepIndex,
-            step_count: step.count,
-            itemValue: itemValue,
-            step_name: itemName,
-            stepValue: stepValue,
-            currentLMD: currentLMD,
-          });*/
-
           return (
             <div key={`step-${stepIndex}`} className="step_item">
-              步骤 {stepIndex + 1}：通过【{step.count}】次使用【
+              <span style={{ fontWeight: "bold" }}>步骤 {stepIndex + 1}：</span>
+              通过【{step.count}】次使用【
               <span style={{ color: getRarityColor(rarity) }}>{itemName}</span>
               】，【{itemValue > 0 ? "获得" : "花费"}】 【{Math.abs(stepValue)}
               】个龙门币， 当前龙门币数量为【{currentLMD}】
