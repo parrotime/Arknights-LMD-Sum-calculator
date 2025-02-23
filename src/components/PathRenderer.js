@@ -9,7 +9,7 @@ const PathRenderer = ({ path, initialLMD }) => {
   const safePath = Array.isArray(path) ? path : [];
   // 数据校验保持不变
   if (!Array.isArray(path)) {
-    return <div className="path-error"></div>;
+    return <div></div>;
   }
 
   if (path.length === 0) {
@@ -35,7 +35,7 @@ console.log(`initialLMD:`, initialLMD);*/
           // WRONG!!! console.log(`item is :`, item);
           console.log('stepindex is :',stepIndex);
 
-          console.log(`okkkkkkkkkkkkkkkkkkk`);
+          //console.log(`okkkkkkkkkkkkkkkkkkk`);
 
           const item = getItemById(Number(step.id));
 

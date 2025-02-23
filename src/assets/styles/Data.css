@@ -1,38 +1,32 @@
 
 .main-data-content{
-  width: 100%; /* 右侧区域宽度 */
+  width: 100%;
   padding-left: 30px;
-  background-color: #afd3f3; /* 浅灰色背景 */
-
-  display: flex; /* 设置为 Flexbox 容器 */
-
-
-  flex-direction: column; /* 改为纵向排列 */
-  gap: 15px; /* 面板间距 */
-  
-  min-height: 100vh; /* 初始高度为页面高度，内容超出时自动扩展 */
-  margin-left: 230px; /* 新增左边距避开侧栏 */
-
-  align-items: flex-start; /* 改为左对齐 */
-box-sizing: border-box;
+  background-color: #afd3f3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 100vh;
+  margin-left: 230px;
+  align-items: flex-start;
+  box-sizing: border-box;
 }
-
-
 
 /* 折叠面板通用样式 */
 .accordion-panel {
   width: 96%;
-  background: #fff;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
-margin: 0 auto;
-    overflow: hidden; /* 新增 */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  margin: 0 auto;
+  overflow: hidden;
+  will-change: transform;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .accordion-panel:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
 }
 
 
@@ -42,45 +36,61 @@ margin: 0 auto;
 }
 
 .accordion-panel:first-child {
-  margin-top: 20px; /* 首项顶部留白 */
+  margin-top: 25px; /* 首项顶部留白 */
 }
 
 /* 面板标题样式 */
 .panel-header {
-  padding: 15px 20px;
-  background: #5c9edc;
-  border-radius: 12px ;
+  padding: 15px 25px;
+  background: linear-gradient(135deg, #5c9edc 0%, #468acb 100%);
+  border-radius: 12px;
   color: white;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
-    align-items: center;
-  transition: border-radius 0.3s;
+  align-items: center;
+  transition: all 0.3s ease;
+}
 
+.panel-header:hover {
+  background: linear-gradient(135deg, #6aa8e8 0%, #5497d7 100%);
+}
+
+.panel-header:active {
+  transform: scale(0.98);
 }
 
 /* 折叠指示箭头 */
 .panel-header::after {
   content: '▼';
+  font-size: 12px;
   transition: transform 0.3s;
 }
 
 /* 面板内容区域 */
 .panel-content {
-  padding: 20px;
-  max-height: 1000px; /* 初始展开高度 */
-  overflow: hidden;
-  transition: 
-    max-height 0.3s ease-out,
-    padding 0.3s ease;
-  transform-origin: top; /* 修改折叠方向 */
+  padding: 25px;
+  opacity: 1;
+  transform: scaleY(1);
+  transform-origin: top;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel-content.active {
+  transform: scale(0.98); /* 点击时缩小至 98% */
+  transition: transform 0.3s ease; /* 与 header 保持一致 */
 }
 
 /* 折叠状态样式 */
 .accordion-panel.collapsed .panel-content {
-  max-height: 0;
-  padding: 0 20px;
-    transform: scaleY(0);
+  padding: 0 25px;
+  opacity: 0;
+  transform: scaleY(0);
+  height: 0;
+}
+
+.accordion-panel.collapsed .panel-header {
+  border-radius: 12px;
 }
 
 .accordion-panel.collapsed .panel-header::after {
@@ -97,5 +107,13 @@ margin: 0 auto;
   
   .accordion-panel {
     width: 100%;
+  }
+  
+  .panel-header {
+    padding: 12px 20px;
+  }
+  
+  .panel-content {
+    padding: 20px;
   }
 }

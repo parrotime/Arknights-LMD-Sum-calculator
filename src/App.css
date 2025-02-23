@@ -495,6 +495,7 @@ input:checked + .slider:before {
   background-color: #990000; /* 背景颜色变深 */
 }
 
+
 /* 按钮文字动画 */
 .clear-history-button:active span {
   display: inline-block;

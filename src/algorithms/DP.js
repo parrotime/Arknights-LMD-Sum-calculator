@@ -12,8 +12,9 @@ export const findPaths = (target, items, epsilon = 1e-6) => {
   }
 
   const MAX_STEPS = 6;
-  const MAX_PATHS_PER_SUM = 10;
+  const MAX_PATHS_PER_SUM = 20;
   const dp = new Map([[0, [[]]]]);
+
   const validItems = items.filter(
     (item) => Math.abs(item.item_value) > epsilon
   );
@@ -23,36 +24,32 @@ export const findPaths = (target, items, epsilon = 1e-6) => {
     validItems.map((i) => `${i.item_name}(${i.item_value})`)
   );
 
-  // 计算单个物品的最大可能次数，提前缓存
-  const itemMaxCounts = new Map();
-  for (const item of validItems) {
-    const maxCount = Math.min(
-      5, // 限制最大重复次数
-      Math.ceil(Math.abs(target * 2) / Math.abs(item.item_value))
-    );
-    itemMaxCounts.set(item.id, maxCount);
-  }
-
-  // 第一阶段：单步路径（提前计算并缓存）
+  // 第一阶段：单步路径
   for (const item of validItems) {
     const itemValue = item.item_value;
-    const maxCount = itemMaxCounts.get(item.id);
+    let newSum = 0;
+    let count = 0;
 
-    for (let count = 1; count <= maxCount; count++) {
-      const newSum = itemValue * count;
-      if (Math.abs(newSum - target) > Math.abs(target) * 2) break; // 提前剪枝
+    while (
+      count <= 5 && // 限制单一物品使用次数，避免单一解霸占
+      Math.abs(newSum - target) <=
+        Math.max(Math.abs(target) * 2, Math.abs(itemValue) * MAX_STEPS)
+    ) {
+      count++;
+      newSum = itemValue * count;
 
       const newPath = [{ id: item.id, count }];
-      const pathKey = `${item.id}x${count}`;
+      const pathKey = newPath.map((s) => `${s.id}x${s.count}`).join("_");
 
       if (!dp.has(newSum)) dp.set(newSum, []);
       const existingPaths = dp.get(newSum);
 
       if (
         existingPaths.length < MAX_PATHS_PER_SUM &&
-        !existingPaths.some(
-          (p) => p.length === 1 && p[0].id === item.id && p[0].count === count
-        )
+        !existingPaths.some((p) => {
+          const key = p.map((s) => `${s.id}x${s.count}`).join("_");
+          return key === pathKey;
+        })
       ) {
         existingPaths.push(newPath);
         console.log(`单步保存路径: ${newSum} -> ${pathKey}`);
@@ -64,32 +61,33 @@ export const findPaths = (target, items, epsilon = 1e-6) => {
     }
   }
 
-  // 第二阶段：多步路径（基于已有路径扩展）
+  // 第二阶段：多步路径
   for (let step = 2; step <= MAX_STEPS; step++) {
-    const currentStates = Array.from(dp.entries()).filter(
-      ([sum]) => Math.abs(sum - target) <= Math.abs(target) * 2
-    ); // 只处理接近 target 的状态
-
     for (const item of validItems) {
       const itemValue = item.item_value;
-      const maxCount = itemMaxCounts.get(item.id);
+      const currentStates = Array.from(dp.entries());
 
       for (const [currentSum, paths] of currentStates) {
-        for (let count = 1; count <= maxCount; count++) {
-          const newSum = currentSum + itemValue * count;
+        let newSum = currentSum;
+        let count = 0;
 
-          // 提前剪枝：如果超出范围则跳过
-          if (Math.abs(newSum - target) > Math.abs(target) * 2) break;
+        while (
+          count <= 5 && // 限制单一物品重复次数
+          Math.abs(newSum - target) <=
+            Math.max(Math.abs(target) * 2, Math.abs(itemValue) * MAX_STEPS)
+        ) {
+          count++;
+          newSum = currentSum + itemValue * count;
 
           if (
             Math.abs(newSum - target) <= epsilon ||
-            Math.abs(newSum - target) <= Math.abs(target) * 2
+            Math.abs(newSum - target) <=
+              Math.abs(target) * 2 + Math.abs(itemValue)
           ) {
             for (const oldPath of paths) {
-              if (oldPath.length >= step) continue; // 限制路径长度
-
-              const newPath = [...oldPath, { id: item.id, count }];
+              const newPath = [...oldPath, { id: item.id, count }]; // 直接添加新项，避免合并丢失多样性
               const pathKey = newPath
+                .sort((a, b) => a.id - b.id)
                 .map((s) => `${s.id}x${s.count}`)
                 .join("_");
 
@@ -98,17 +96,19 @@ export const findPaths = (target, items, epsilon = 1e-6) => {
 
               if (
                 existingPaths.length < MAX_PATHS_PER_SUM &&
-                !existingPaths.some((p) =>
-                  p.every(
-                    (s, i) =>
-                      i < newPath.length &&
-                      s.id === newPath[i].id &&
-                      s.count === newPath[i].count
-                  )
-                )
+                !existingPaths.some((p) => {
+                  const key = p.map((s) => `${s.id}x${s.count}`).join("_");
+                  return key === pathKey;
+                })
               ) {
                 existingPaths.push(newPath);
                 console.log(`多步保存路径: ${newSum} -> ${pathKey}`);
+              } else if (existingPaths.length >= MAX_PATHS_PER_SUM) {
+                existingPaths.push(newPath);
+                existingPaths.sort(
+                  (a, b) => a.length - b.length || a[0].id - b[0].id
+                );
+                existingPaths.splice(MAX_PATHS_PER_SUM);
               }
 
               if (Math.abs(newSum - target) <= epsilon) {
@@ -121,11 +121,12 @@ export const findPaths = (target, items, epsilon = 1e-6) => {
     }
 
     const targetPaths = dp.get(target) || [];
-    if (targetPaths.length >= MAX_PATHS_PER_SUM) break;
+    if (targetPaths.length >= MAX_PATHS_PER_SUM) break; // 调整为更宽松的终止条件
   }
 
   // 返回结果
   const result = dp.get(target) || [];
+
   console.log("dp.get(target) 完整内容:", result);
   console.log(
     "dp.get(target) 原始路径:",
@@ -134,12 +135,13 @@ export const findPaths = (target, items, epsilon = 1e-6) => {
 
   const uniquePaths = new Set();
   const finalResult = result
-    .filter((path) => {
+    .map((path) => {
       const key = path.map((s) => `${s.id}x${s.count}`).join("_");
-      if (uniquePaths.has(key)) return false;
+      if (uniquePaths.has(key)) return null;
       uniquePaths.add(key);
-      return true;
+      return path;
     })
+    .filter(Boolean)
     .sort((a, b) => a.length - b.length || a[0].id - b[0].id);
 
   console.log("去重后的路径集合:", Array.from(uniquePaths));

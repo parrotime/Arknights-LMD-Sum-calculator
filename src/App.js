@@ -5,7 +5,7 @@ import NotePage from './pages/Note';
 import DataPage from './pages/Data';
 import AboutPage from './pages/About';
 import PathRenderer from './components/PathRenderer';
-import { classifyData, getItemById } from './DataService'; // 导入物品数据
+import { classifyData } from './DataService'; // 导入物品数据
 import './App.css';
 
 
@@ -87,8 +87,12 @@ const MainCalculator = () => {
       return;
     }
 
-    setDifferenceError("");
+    setDifferenceError(""); // 清空错误信息
     setResult(difference.toString());
+
+    // 重置更换路径计数
+    setClickCount(0);
+    setCurrentPathIndex(0);
 
     // 根据开关状态过滤物品
     const filteredItems = classifyData.filter((item) => {
@@ -128,18 +132,19 @@ const MainCalculator = () => {
 
   // 路径切换逻辑
   const handleChangePath = () => {
-    if (currentPathIndex < pathCache.length - 1) {
-      setCurrentPathIndex((prev) => prev + 1);
-    } else {
-      // 如果已经展示到最后一条路径，回到第一条
-      setCurrentPathIndex(0);
+    if (pathCache.length > 0) {
+      if (currentPathIndex < pathCache.length - 1) {
+        setCurrentPathIndex((prev) => prev + 1);
+      } else {
+        setCurrentPathIndex(0);
+      }
+      setClickCount((prev) => prev + 1);
     }
-    setClickCount((prev) => prev + 1);
   };
 
-  const handleClearHistory = () => {
+  /*const handleClearHistory = () => {
     setHistory([]);
-  };
+  };*/
 
   // 公共侧边栏组件
   const Sidebar = () => (
@@ -275,7 +280,7 @@ const MainCalculator = () => {
                 text: "不存在/不使用危机合约1代币换70龙门币",
                 key: "disableStore70",
               },
-            ].map(({text, key}) => (
+            ].map(({ text, key }) => (
               <div className="toggle-container" key={key}>
                 <div className="toggle-text">{text}</div>
                 <label className="toggle-switch">
@@ -305,29 +310,40 @@ const MainCalculator = () => {
         <div className="history-box">
           <div className="history-header">
             <h2>计算路径历史</h2>
-
             <div className="header-buttons">
-              <button
+              {/*<button
                 className="clear-history-button"
                 onClick={handleClearHistory}
                 disabled={history.length === 0}
               >
                 清空历史
-              </button>
+              </button>*/}
+
               <button onClick={handleChangePath} className="change-path-button">
                 更换路径
               </button>
             </div>
           </div>
 
+          {/* 路径方案显示，整合错误信息 */}
           {pathCache.length > 0 ? (
             <PathRenderer
               path={pathCache[currentPathIndex] || []}
               initialLMD={parseInt(num1) || 0}
             />
           ) : (
-            <div className="no-path">没有找到可行路径</div>
+            <div className="no-path">
+              {""}
+            </div>
           )}
+
+          {/* 点击5次后的提示 */}
+          {clickCount >= 5 && pathCache.length > 0 && (
+            <div className="change-over-text">
+              <p>你已经尝试了五条路径，要不要考虑更换输入值？</p>
+            </div>
+          )}
+
           {/* 修改历史记录渲染方式 */}
           <div className="history-list">
             {history.map((entry, index) => {
@@ -347,12 +363,6 @@ const MainCalculator = () => {
                 </div>
               );
             })}
-          </div>
-
-          <div className="change-over-text">
-            {clickCount >= 5 && (
-              <p>你已经尝试了五条路径，要不要考虑更换输入值？</p>
-            )}
           </div>
         </div>
       </div>
