@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { findPaths } from './algorithms/DP';
 import NotePage from './pages/Note';
@@ -18,10 +18,10 @@ const MainCalculator = () => {
   const [error2, setError2] = useState("");
   const [history, setHistory] = useState([]);
   const [differenceError, setDifferenceError] = useState("");
-
   const [pathCache, setPathCache] = useState([]); // 所有合格路径
   const [currentPathIndex, setCurrentPathIndex] = useState(0); // 当前展示路径索引
   const [clickCount, setClickCount] = useState(0); // 按钮点击次数
+  const [isCalculating, setIsCalculating] = useState(false); // 新增计算状态
 
   // 添加开关状态，默认全部关闭（false）
   const [settings, setSettings] = useState({
@@ -31,6 +31,7 @@ const MainCalculator = () => {
     disableStore20: false, // 不存在/不使用活动商店1代币换20龙门币
     disableStore10: false, // 不存在/不使用活动商店1代币换10龙门币
     disableStore70: false, // 不存在/不使用危机合约1代币换70龙门币
+    disableExt25: false,
   });
 
   // 开关变化处理函数
@@ -66,7 +67,7 @@ const MainCalculator = () => {
   };
 
   // 增强计算逻辑
-  const handleCalculate = () => {
+  const handleCalculate = async () => {
     if (!num1 || !num2) {
       setDifferenceError("请填写完整数字");
       return;
@@ -94,6 +95,8 @@ const MainCalculator = () => {
     setClickCount(0);
     setCurrentPathIndex(0);
 
+    setIsCalculating(true); // 开始计算，显示加载状态
+
     // 根据开关状态过滤物品
     const filteredItems = classifyData.filter((item) => {
       if (settings.disable3Star && item.type === "3_star") return false;
@@ -102,11 +105,14 @@ const MainCalculator = () => {
       if (settings.disableStore20 && item.type === "store_20") return false;
       if (settings.disableStore10 && item.type === "store_10") return false;
       if (settings.disableStore70 && item.type === "store_70") return false;
+      if (settings.disableExt25 && item.type === "ext_25") return false;
       return true;
     });
 
-    // 路径计算
-    const paths = findPaths(difference, filteredItems);
+// 模拟异步计算
+    const paths = await new Promise((resolve) => {
+      setTimeout(() => resolve(findPaths(difference, filteredItems)), 100); // 模拟延迟
+    });
 
     // 确保总是二维数组
     const validPaths = Array.isArray(paths)
@@ -115,6 +121,7 @@ const MainCalculator = () => {
 
     setPathCache(validPaths);
     setCurrentPathIndex(0);
+    setIsCalculating(false); // 计算结束，隐藏加载状态
 
     if (validPaths.length > 0) {
       setHistory((prev) => [
@@ -130,18 +137,19 @@ const MainCalculator = () => {
     }
   };
 
-  // 路径切换逻辑
   const handleChangePath = () => {
     if (pathCache.length > 0) {
-      if (currentPathIndex < pathCache.length - 1) {
-        setCurrentPathIndex((prev) => prev + 1);
-      } else {
-        setCurrentPathIndex(0);
-      }
+      setCurrentPathIndex((prev) => (prev + 1) % pathCache.length); // 循环切换
       setClickCount((prev) => prev + 1);
     }
   };
 
+  const handlePrevPath = () => {
+    if (pathCache.length > 0) {
+      setCurrentPathIndex((prev) => (prev - 1 + pathCache.length) % pathCache.length); // 循环向前
+      setClickCount((prev) => prev + 1);
+    }
+  };
   /*const handleClearHistory = () => {
     setHistory([]);
   };*/
@@ -232,8 +240,12 @@ const MainCalculator = () => {
                 </div>
               </div>
 
-              <button className="calculate-button" onClick={handleCalculate}>
-                立即计算
+              <button
+                className="calculate-button"
+                onClick={handleCalculate}
+                disabled={isCalculating}
+              >
+                {isCalculating ? "计算中..." : "立即计算"}
               </button>
 
               <div className="result-section">
@@ -280,6 +292,10 @@ const MainCalculator = () => {
                 text: "不存在/不使用危机合约1代币换70龙门币",
                 key: "disableStore70",
               },
+              {
+                text: "不存在/不使用代理剿灭25理智获取250龙门币",
+                key: "disableExt25",
+              },
             ].map(({ text, key }) => (
               <div className="toggle-container" key={key}>
                 <div className="toggle-text">{text}</div>
@@ -310,37 +326,34 @@ const MainCalculator = () => {
         <div className="history-box">
           <div className="history-header">
             <h2>计算路径历史</h2>
-            <div className="header-buttons">
-              {/*<button
-                className="clear-history-button"
-                onClick={handleClearHistory}
-                disabled={history.length === 0}
-              >
-                清空历史
-              </button>*/}
-
-              <button onClick={handleChangePath} className="change-path-button">
-                更换路径
-              </button>
-            </div>
           </div>
 
-          {/* 路径方案显示，整合错误信息 */}
-          {pathCache.length > 0 ? (
+          {isCalculating ? (
+            <div className="loading-container">
+              <div className="progress-bar">
+                <div className="progress-bar-fill"></div>
+              </div>
+              <p>正在计算路径，请稍候...</p>
+            </div>
+          ) : pathCache.length > 0 ? (
             <PathRenderer
               path={pathCache[currentPathIndex] || []}
               initialLMD={parseInt(num1) || 0}
+              totalPaths={pathCache.length}
+              currentIndex={currentPathIndex}
+              onPrevPath={handlePrevPath}
+              onNextPath={handleChangePath}
             />
           ) : (
-            <div className="no-path">
-              {""}
-            </div>
+            <div className="no-path">{""}</div>
           )}
-
-          {/* 点击5次后的提示 */}
           {clickCount >= 5 && pathCache.length > 0 && (
             <div className="change-over-text">
-              <p>你已经尝试了五条路径，要不要考虑更换输入值？</p>
+              <p>
+                {clickCount < 10
+                  ? "你已经尝试了五条路径，要不要考虑更换输入值？"
+                  : "真的不考虑更换输入值吗？"}
+              </p>
             </div>
           )}
 

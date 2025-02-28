@@ -7,7 +7,6 @@
   justify-content: center; /* 水平居中 */
 
     min-height: 100vh; /* 初始高度为页面高度，内容超出时自动扩展 */
-    overflow-y: auto; /* 内容超出时显示滚动条 */
 
 }
 
@@ -21,5 +20,5 @@
   border-radius: 15px; /* 圆角 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
 
-    overflow-y: visible; /* 内容超出时显示滚动条 */
+  margin-left: 230px;
 }

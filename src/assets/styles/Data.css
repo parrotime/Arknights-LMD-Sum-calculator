@@ -98,6 +98,65 @@
 }
 
 
+.explain-text{
+  text-align: center;;
+}
+
+
+
+/* 数据表格 */
+.tables-container {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.material-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  flex: 1;
+}
+
+.material-table th,
+.material-table td {
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: 14px;
+}
+
+.material-table th {
+  background: #f8f9fa;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.material-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.material-table tr:hover {
+  background-color: #f5f7fa;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* 移动端适配 */
 @media (max-width: 768px) {
   .main-data-content {

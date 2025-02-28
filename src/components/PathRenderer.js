@@ -1,13 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { getItemById } from '../DataService'; // 只导入实际存在的函数
-import './PathRenderer.css';
+import React from "react";
+import PropTypes from "prop-types";
+import { getItemById } from "../DataService";
+import "./PathRenderer.css";
 
-let renderCount = 0;
-const PathRenderer = ({ path, initialLMD }) => {
-  // 增加空值检查
+const PathRenderer = ({
+  path,
+  initialLMD,
+  totalPaths,
+  currentIndex,
+  onPrevPath,
+  onNextPath,
+}) => {
   const safePath = Array.isArray(path) ? path : [];
-  // 数据校验保持不变
   if (!Array.isArray(path)) {
     return <div></div>;
   }
@@ -18,28 +22,12 @@ const PathRenderer = ({ path, initialLMD }) => {
 
   let currentLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
 
-/*console.log(`safePath:`, safePath);
-console.log(`path:`, path);
-console.log(`initialLMD:`, initialLMD);*/
-
   return (
     <div className="path-container">
       <div className="path-group">
         <h3>路径方案</h3>
         {safePath.map((step, stepIndex) => {
-          // 添加步骤数据校验
-          renderCount++;
-          console.log(`第${renderCount}次渲染`);
-          //console.log(`正在渲染步骤 ${stepIndex}`, step);
-          //console.log(`step is :`, step);
-          // WRONG!!! console.log(`item is :`, item);
-          console.log('stepindex is :',stepIndex);
-
-          //console.log(`okkkkkkkkkkkkkkkkkkk`);
-
           const item = getItemById(Number(step.id));
-
-
           if (!step || typeof step !== "object") {
             return (
               <div key={`step-${stepIndex}`} className="error">
@@ -47,8 +35,6 @@ console.log(`initialLMD:`, initialLMD);*/
               </div>
             );
           }
-
-
           if (!item) {
             return (
               <div key={`step-${stepIndex}`} className="error">
@@ -57,11 +43,9 @@ console.log(`initialLMD:`, initialLMD);*/
             );
           }
 
-          // 从物品对象中直接获取所需属性
-          const itemValue = item.item_value; // 假设数据服务返回的对象包含value字段
-          const itemName = item.item_name; // 假设包含name字段
-          const rarity = item.rarity; // 假设包含rarity字段
-
+          const itemValue = item.item_value;
+          const itemName = item.item_name;
+          const rarity = item.rarity;
           const stepValue = itemValue * step.count;
           currentLMD += stepValue;
 
@@ -76,21 +60,31 @@ console.log(`initialLMD:`, initialLMD);*/
           );
         })}
       </div>
+      {totalPaths > 1 && (
+        <div className="pagination">
+          <button className="nav-button prev-button" onClick={onPrevPath}>
+            ← 上一路径
+          </button>
+          {Array.from({ length: totalPaths }).map((_, index) => (
+            <span
+              key={index}
+              className={`dot ${index === currentIndex ? "active" : ""}`}
+            ></span>
+          ))}
+          <button className="nav-button next-button" onClick={onNextPath}>
+            下一路径 →
+          </button>
+        </div>
+      )}
     </div>
   );
 };
 
-// 保持颜色映射函数不变
 const getRarityColor = (rarity) => {
-  const colorMap = {
-    1: "darkgreen",
-    2: "darkblue",
-    5: "orange",
-  };
+  const colorMap = { 1: "darkgreen", 2: "darkblue", 5: "orange" };
   return colorMap[rarity] || "black";
 };
 
-// 保持PropTypes不变
 PathRenderer.propTypes = {
   path: PropTypes.arrayOf(
     PropTypes.shape({
@@ -99,6 +93,10 @@ PathRenderer.propTypes = {
     })
   ).isRequired,
   initialLMD: PropTypes.number.isRequired,
+  totalPaths: PropTypes.number,
+  currentIndex: PropTypes.number,
+  onPrevPath: PropTypes.func,
+  onNextPath: PropTypes.func,
 };
 
 export default PathRenderer;

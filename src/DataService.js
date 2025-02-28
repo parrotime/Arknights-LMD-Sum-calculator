@@ -839,6 +839,14 @@ export const classifyData = [
     rarity: 5,
     type: "store_10",
   },
+  {
+    id: 106,
+    item_id: "2-4-25",
+    item_name: "代理剿灭25理智获取250龙门币",
+    item_value: 250,
+    rarity: 5,
+    type: "ext_25",
+  },
 ];
 
 /**

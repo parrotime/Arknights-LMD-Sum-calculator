@@ -75,3 +75,115 @@
   padding: 15px;
   margin-bottom: 20px;
 }
+
+
+/* 新增进度条样式 */
+.loading-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.progress-bar {
+  width: 80%;
+  height: 10px;
+  background-color: #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 0 auto 10px;
+}
+
+.progress-bar-fill {
+  width: 100%;
+  height: 100%;
+  background-color: #007bff;
+  animation: loading 2s infinite;
+}
+
+@keyframes loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 新增小圆点导航样式 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 15px;
+}
+
+.nav-button {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #007bff;
+  background-color: #fff;
+  border: 2px solid #007bff;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px; /* 增大点击区域 */
+}
+
+.nav-button:hover {
+  background-color: #007bff;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
+  padding: 10px 10px; /* 悬浮时增大内边距 */
+
+  border-radius: 25px; /* 略微增大圆角 */
+}
+
+.nav-button:active {
+  transform: scale(0.95);
+  box-shadow: none;
+}
+
+
+.prev-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #007bff;
+  padding: 0 10px;
+}
+
+.prev-button:hover {
+  color: #d1dde9;
+}
+
+.next-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #007bff;
+  padding: 0 10px;
+}
+
+.next-button:hover {
+  color: #d1dde9;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: #ccc;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.dot.active {
+  width: 20px;
+  background-color: #333;
+  border-radius: 5px;
+}
+
+
+
+
+
+
+
