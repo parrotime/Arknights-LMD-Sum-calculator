@@ -167,6 +167,14 @@
   color: #d1dde9;
 }
 
+.dot-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  max-width: 100%;
+}
+
 .dot {
   width: 10px;
   height: 10px;
@@ -181,7 +189,147 @@
   border-radius: 5px;
 }
 
+@media (max-width: 800px) {
+/* Pagination 调整：按钮分上下，小黑点居中 */
 
+  /* 调整整体容器布局 */
+  .app-container {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* 侧边栏调整（保持两行两列，无需修改） */
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 10px;
+    height: auto;
+    position: static;
+    top: unset;
+    left: unset;
+    gap: 5px;
+  }
+
+  .sidebar-title {
+    display: none;
+  }
+
+  .sidebar-box {
+    width: 48%;
+    margin: 0;
+    padding: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  /* 输入区域调整 */
+  .input-area {
+    width: 100%;
+    padding: 20px;
+    margin-left: 0;
+    height: auto;
+  }
+
+  /* 主内容容器调整 */
+  .main-content-container {
+    flex-direction: column;
+    width: 100%;
+    min-height: unset;
+    gap: 20px;
+  }
+
+  .left-panel {
+    width: 100%;
+    height: auto;
+  }
+
+  .right-panel {
+    width: 100%;
+    height: auto;
+  }
+
+  .history-box {
+    width: 94%;
+    height: auto;
+    margin: 20px auto;
+    padding: 12px 20px;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow-y: visible;
+  }
+
+  /* Pagination 调整：按钮上下，小黑点水平排列并换行 */
+  .pagination {
+    display: flex;
+    flex-direction: column; /* 整体垂直排列 */
+    align-items: center; /* 水平居中 */
+    gap: 10px; /* 按钮和圆点容器间距 */
+    padding: 10px 0;
+  }
+
+  .nav-button.prev-button {
+    order: -1; /* 上方 */
+    min-width: 80px;
+    font-size: 12px;
+    padding: 6px 12px;
+    background-color: #fff;
+    border: 2px solid #007bff;
+    border-radius: 20px;
+  }
+
+  .nav-button.next-button {
+    order: 1; /* 下方 */
+    min-width: 80px;
+    font-size: 12px;
+    padding: 6px 12px;
+    background-color: #fff;
+    border: 2px solid #007bff;
+    border-radius: 20px;
+  }
+
+  /* 小黑点容器 */
+  .dot-container {
+    display: flex;
+    flex-wrap: wrap; /* 允许换行 */
+    justify-content: center; /* 水平居中 */
+    gap: 5px; /* 圆点间距 */
+    max-width: 100%; /* 限制宽度，防止溢出 */
+    order: 0; /* 居中位置 */
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    margin: 0; /* 移除默认外边距，依靠 gap 控制间距 */
+    background-color: #ccc;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+
+  .dot.active {
+    width: 16px;
+    height: 8px;
+    background-color: #333;
+    border-radius: 5px;
+  }
+
+
+  /* 返回顶部按钮调整 */
+  .back-to-top {
+    bottom: 15px;
+    right: 15px;
+    padding: 10px 15px;
+  }
+
+
+}
 
 
 

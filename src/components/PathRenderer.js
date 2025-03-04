@@ -65,12 +65,14 @@ const PathRenderer = ({
           <button className="nav-button prev-button" onClick={onPrevPath}>
             ← 上一路径
           </button>
-          {Array.from({ length: totalPaths }).map((_, index) => (
-            <span
-              key={index}
-              className={`dot ${index === currentIndex ? "active" : ""}`}
-            ></span>
-          ))}
+          <div className="dot-container">
+            {Array.from({ length: totalPaths }).map((_, index) => (
+              <span
+                key={index}
+                className={`dot ${index === currentIndex ? "active" : ""}`}
+              ></span>
+            ))}
+          </div>
           <button className="nav-button next-button" onClick={onNextPath}>
             下一路径 →
           </button>

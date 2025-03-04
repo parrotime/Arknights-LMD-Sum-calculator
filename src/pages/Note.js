@@ -61,7 +61,7 @@ function NotePage() {
               <div className="notice-content">
                 1. 输入要求：两个非负整数（0 或正整数）
                 <br />
-                2. 差值限制：|数值1 - 数值2| ≤ 1000（当前版本限制）
+                2. 差值限制：|数值1 - 数值2| ≤ 500（当前版本限制，大于500小于1000的数字理论上也算的出来，但是网页很容易卡死）
                 <br />
                 3. 输入示例：
                 <br />
@@ -99,7 +99,7 @@ function NotePage() {
                 <br />
                 具体公式介绍请参见这个NGA帖子：
                 <a
-                  href="https://ngabbs.com/read.php?tid=16847042&rand=227"
+                  href="https://ngabbs.com/read.php?tid=16847042"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="external-link"
@@ -156,15 +156,9 @@ function NotePage() {
 
             {/* 注意事项 3 - 带图片 */}
             <div className="notice-item">
-              <div className="notice-title">使用原则</div>
+              <div className="notice-title">使用原则3</div>
               <div className="notice-content">
-                1.
-                单次使用多个记录时，需确保干员经验值不跨越等级阈值（即避免「升级临界」状态）。
-                <br />
-                2. 单记录使用时若触发升级，系统将自动应用预设的跨级补偿算法。
-                <br />
-                以下是示例图片：
-                <br />
+
 
               </div>
             </div>

@@ -82,8 +82,8 @@ const MainCalculator = () => {
     }
 
     const difference = num2Val - num1Val;
-    if (Math.abs(difference) > 1000) {
-      setDifferenceError("差值需在-1000~1000之间");
+    if (Math.abs(difference) > 500) {
+      setDifferenceError("差值需在-500~500之间");
       setResult("");
       return;
     }
@@ -184,198 +184,214 @@ const MainCalculator = () => {
       </button>
 
       <div className="input-area">
-        {/* 主内容容器 */}
-        <div className="main-content-container">
-          {/* 左侧计算面板 */}
-          <div className="content-panel left-panel">
-            <div className="title-bar">
-              <h1>龙门币凑数计算器</h1>
-            </div>
+        <div className="main-container">
+          {/* 主内容容器 */}
+          <div className="main-content-container">
+            {/* 左侧计算面板 */}
+            <div className="content-panel left-panel">
+              <div className="title-bar">
+                <h1>龙门币凑数计算器</h1>
+              </div>
 
-            <div className="title-text">
-              <p>请输入两个大于0的整数</p>
-              <p>且两数差值处于-1000~1000之间</p>
-            </div>
+              <div className="title-text">
+                <p>请输入两个大于0的整数</p>
+                <p>且两数差值处于-500~500之间</p>
+              </div>
 
-            <div className="main-content">
-              <div className="input-container">
-                {/* 当前数量输入 */}
-                <div className="input-group">
-                  <div className="input-wrapper-text">
-                    <p>当前龙门币数量:</p>
+              <div className="main-content">
+                <div className="input-container">
+                  {/* 当前数量输入 */}
+                  <div className="input-group">
+                    <div className="input-wrapper-text">
+                      <p>当前龙门币数量:</p>
+                    </div>
+                    <div className="input-wrapper">
+                      <input
+                        type="text"
+                        className="input-box"
+                        placeholder="请输入数字"
+                        value={num1}
+                        onChange={(e) =>
+                          handleInputChange(e, setNum1, setError1)
+                        }
+                        onKeyPress={(e) =>
+                          !/[0-9]/.test(e.key) && e.preventDefault()
+                        }
+                      />
+                      {error1 && <div className="error-message">{error1}</div>}
+                    </div>
                   </div>
-                  <div className="input-wrapper">
+
+                  {/* 目标数量输入 */}
+                  <div className="input-group">
+                    <div className="input-wrapper-text">
+                      <p>目标龙门币数量:</p>
+                    </div>
+                    <div className="input-wrapper">
+                      <input
+                        type="text"
+                        className="input-box"
+                        placeholder="请输入数字"
+                        value={num2}
+                        onChange={(e) =>
+                          handleInputChange(e, setNum2, setError2)
+                        }
+                        onKeyPress={(e) =>
+                          !/[0-9]/.test(e.key) && e.preventDefault()
+                        }
+                      />
+                      {error2 && <div className="error-message">{error2}</div>}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  className="calculate-button"
+                  onClick={handleCalculate}
+                  disabled={isCalculating}
+                >
+                  {isCalculating ? "计算中..." : "立即计算"}
+                </button>
+
+                <div className="result-section">
+                  {/* ...原有结果框代码... */}
+                  <div className="output-wrapper-text">
+                    <p>计算还需要龙门币数量:</p>
+                  </div>
+                  <div className="result-container">
                     <input
                       type="text"
-                      className="input-box"
-                      placeholder="请输入数字"
-                      value={num1}
-                      onChange={(e) => handleInputChange(e, setNum1, setError1)}
-                      onKeyPress={(e) =>
-                        !/[0-9]/.test(e.key) && e.preventDefault()
-                      }
+                      className="result-box"
+                      value={result || "两者相差"}
+                      readOnly
                     />
-                    {error1 && <div className="error-message">{error1}</div>}
                   </div>
+                  {differenceError && (
+                    <div className="error-message">{differenceError}</div>
+                  )}
                 </div>
+              </div>
+            </div>
 
-                {/* 目标数量输入 */}
-                <div className="input-group">
-                  <div className="input-wrapper-text">
-                    <p>目标龙门币数量:</p>
-                  </div>
-                  <div className="input-wrapper">
+            {/* 右侧说明面板 */}
+            <div className="content-panel right-panel">
+              <div className="title-bar">
+                <h1>设置区域</h1>
+              </div>
+
+              {/* 开关容器模板 - 五个相同结构的设置项 */}
+              {[
+                // 创建设置项配置数组优化代码结构
+                { text: "不允许使用理智三星通关", key: "disable3Star" },
+                { text: "不允许使用理智二星通关", key: "disable2Star" },
+                { text: "不允许使用基建物品合成", key: "disableMaterial" },
+                {
+                  text: "不存在/不使用sidestory活动商店1代币换20龙门币",
+                  key: "disableStore20",
+                },
+                {
+                  text: "不存在/不使用故事集活动商店1代币换10龙门币",
+                  key: "disableStore10",
+                },
+                {
+                  text: "不存在/不使用危机合约1代币换70龙门币",
+                  key: "disableStore70",
+                },
+                {
+                  text: "不存在/不使用代理剿灭25理智获取250龙门币",
+                  key: "disableExt25",
+                },
+              ].map(({ text, key }) => (
+                <div className="toggle-container" key={key}>
+                  <div className="toggle-text">{text}</div>
+                  <label className="toggle-switch">
                     <input
-                      type="text"
-                      className="input-box"
-                      placeholder="请输入数字"
-                      value={num2}
-                      onChange={(e) => handleInputChange(e, setNum2, setError2)}
-                      onKeyPress={(e) =>
-                        !/[0-9]/.test(e.key) && e.preventDefault()
-                      }
+                      type="checkbox"
+                      checked={settings[key]}
+                      onChange={() => handleToggleChange(key)}
                     />
-                    {error2 && <div className="error-message">{error2}</div>}
-                  </div>
+                    <span className="slider"></span>
+                  </label>
                 </div>
-              </div>
+              ))}
 
-              <button
-                className="calculate-button"
-                onClick={handleCalculate}
-                disabled={isCalculating}
-              >
-                {isCalculating ? "计算中..." : "立即计算"}
-              </button>
-
-              <div className="result-section">
-                {/* ...原有结果框代码... */}
-                <div className="output-wrapper-text">
-                  <p>计算还需要龙门币数量:</p>
+              <div className="usage-guide">
+                <div className="notice-title">龙门币数值输入规范</div>
+                <div className="notice-content">
+                  1. 输入要求：两个差值小于500的非负整数（0 或正整数）
+                  <br />
+                  2. 输入示例：
+                  <br />
+                  &nbsp;&nbsp;&nbsp;✓ 有效输入：① 300 与 800 ② 500 与 500 ③ 0 与
+                  1000
+                  <br />
+                  &nbsp;&nbsp;&nbsp;✗ 无效输入：① -50 与 1500 ② 300 与 非整数
+                  <br />
+                  3.
+                  点击“立即计算”按钮开始计算，点击“上一路径”和“下一路径”可以切换路径方案
                 </div>
-                <div className="result-container">
-                  <input
-                    type="text"
-                    className="result-box"
-                    value={result || "两者相差"}
-                    readOnly
-                  />
-                </div>
-                {differenceError && (
-                  <div className="error-message">{differenceError}</div>
-                )}
               </div>
             </div>
           </div>
 
-          {/* 右侧说明面板 */}
-          <div className="content-panel right-panel">
-            <div className="title-bar">
-              <h1>设置区域</h1>
+          {/* 历史记录框 */}
+          <div className="history-box">
+            <div className="history-header">
+              <h2>计算路径历史</h2>
             </div>
 
-            {/* 开关容器模板 - 五个相同结构的设置项 */}
-            {[
-              // 创建设置项配置数组优化代码结构
-              { text: "不允许使用理智三星通关", key: "disable3Star" },
-              { text: "不允许使用理智二星通关", key: "disable2Star" },
-              { text: "不允许使用基建物品合成", key: "disableMaterial" },
-              {
-                text: "不存在/不使用活动商店1代币换20龙门币",
-                key: "disableStore20",
-              },
-              {
-                text: "不存在/不使用活动商店1代币换10龙门币",
-                key: "disableStore10",
-              },
-              {
-                text: "不存在/不使用危机合约1代币换70龙门币",
-                key: "disableStore70",
-              },
-              {
-                text: "不存在/不使用代理剿灭25理智获取250龙门币",
-                key: "disableExt25",
-              },
-            ].map(({ text, key }) => (
-              <div className="toggle-container" key={key}>
-                <div className="toggle-text">{text}</div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={settings[key]}
-                    onChange={() => handleToggleChange(key)}
-                  />
-                  <span className="slider"></span>
-                </label>
+            {isCalculating ? (
+              <div className="loading-container">
+                <div className="progress-bar">
+                  <div className="progress-bar-fill"></div>
+                </div>
+                <p>正在计算路径，请稍候...</p>
               </div>
-            ))}
-
-            <div className="usage-guide">
-              <h3>使用说明</h3>
-              <ul>
-                <li>输入当前持有龙门币数量</li>
-                <li>输入目标需要达到的数量</li>
-                <li>点击计算获取最优路径</li>
-                <li>历史记录自动保存最近10条</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* 历史记录框 */}
-        <div className="history-box">
-          <div className="history-header">
-            <h2>计算路径历史</h2>
-          </div>
-
-          {isCalculating ? (
-            <div className="loading-container">
-              <div className="progress-bar">
-                <div className="progress-bar-fill"></div>
+            ) : pathCache.length > 0 ? (
+              <PathRenderer
+                path={pathCache[currentPathIndex] || []}
+                initialLMD={parseInt(num1) || 0}
+                totalPaths={pathCache.length}
+                currentIndex={currentPathIndex}
+                onPrevPath={handlePrevPath}
+                onNextPath={handleChangePath}
+              />
+            ) : (
+              <div className="no-path">{""}</div>
+            )}
+            {clickCount >= 5 && pathCache.length > 0 && (
+              <div className="change-over-text">
+                <p>
+                  {clickCount < 10
+                    ? "你已经尝试了五条路径，要不要考虑更换输入值？"
+                    : "真的不考虑更换输入值吗？"}
+                </p>
               </div>
-              <p>正在计算路径，请稍候...</p>
-            </div>
-          ) : pathCache.length > 0 ? (
-            <PathRenderer
-              path={pathCache[currentPathIndex] || []}
-              initialLMD={parseInt(num1) || 0}
-              totalPaths={pathCache.length}
-              currentIndex={currentPathIndex}
-              onPrevPath={handlePrevPath}
-              onNextPath={handleChangePath}
-            />
-          ) : (
-            <div className="no-path">{""}</div>
-          )}
-          {clickCount >= 5 && pathCache.length > 0 && (
-            <div className="change-over-text">
-              <p>
-                {clickCount < 10
-                  ? "你已经尝试了五条路径，要不要考虑更换输入值？"
-                  : "真的不考虑更换输入值吗？"}
-              </p>
-            </div>
-          )}
+            )}
 
-          {/* 修改历史记录渲染方式 */}
-          <div className="history-list">
-            {history.map((entry, index) => {
-              // 如果是字符串（无有效路径的情况）
-              if (typeof entry === "string") {
+            {/* 修改历史记录渲染方式 */}
+            <div className="history-list">
+              {history.map((entry, index) => {
+                // 如果是字符串（无有效路径的情况）
+                if (typeof entry === "string") {
+                  return (
+                    <div key={index} className="history-item">
+                      {entry}
+                    </div>
+                  );
+                }
+
+                // 如果是路径数组，使用 PathRenderer 渲染
                 return (
                   <div key={index} className="history-item">
-                    {entry}
+                    <PathRenderer
+                      path={entry}
+                      initialLMD={parseInt(num1) || 0}
+                    />
                   </div>
                 );
-              }
-
-              // 如果是路径数组，使用 PathRenderer 渲染
-              return (
-                <div key={index} className="history-item">
-                  <PathRenderer path={entry} initialLMD={parseInt(num1) || 0} />
-                </div>
-              );
-            })}
+              })}
+            </div>
           </div>
         </div>
       </div>
