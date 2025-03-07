@@ -1,0 +1,241 @@
+
+.main-data-content{
+  width: 100%;
+  padding-left: 30px;
+  background-color: #afd3f3;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  min-height: 100vh;
+  margin-left: 230px;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+/* 折叠面板通用样式 */
+.accordion-panel {
+  width: 96%;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  margin: 0 auto;
+  overflow: hidden;
+  will-change: transform;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 更自然的动画曲线 */
+}
+
+.accordion-panel:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+
+/* 展开时顶部圆角 */
+.accordion-panel:not(.collapsed) .panel-header {
+  border-radius: 16px 16px 0 0;
+}
+
+.accordion-panel:first-child {
+  margin-top: 25px; /* 首项顶部留白 */
+}
+
+/* 面板标题样式 */
+.panel-header {
+  padding: 15px 25px;
+  background: linear-gradient(135deg, #5da8f0 0%, #8dc1f5 100%); /* 更现代的渐变 */
+  border-radius: 16px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.panel-header:hover {
+  background: linear-gradient(135deg, #4e9ae6 0%, #7bb3e8 100%);
+}
+
+.panel-header:active {
+  transform: scale(0.98);
+}
+
+/* 折叠指示箭头 */
+.panel-header::after {
+  content: '▼';
+  font-size: 18px;
+  transition: transform 0.3s;
+}
+
+/* 面板内容区域 */
+.panel-content {
+  padding: 25px;
+  opacity: 1;
+  transform: scaleY(1);
+  transform-origin: top;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.panel-content.active {
+  transform: scale(0.98); /* 点击时缩小至 98% */
+  transition: transform 0.3s ease; /* 与 header 保持一致 */
+}
+
+/* 折叠状态样式 */
+.accordion-panel.collapsed .panel-content {
+  padding: 0 25px;
+  opacity: 0;
+  transform: scaleY(0);
+  height: 0;
+}
+
+.accordion-panel.collapsed .panel-header {
+  border-radius: 12px;
+}
+
+.accordion-panel.collapsed .panel-header::after {
+  transform: rotate(-90deg);
+}
+
+
+.explain-text{
+  text-align: left; /* 改为左对齐，增强可读性 */
+  color: #34495e; /* 更高对比度的文字颜色 */
+  line-height: 1.6; /* 增加行距 */
+  margin-bottom: 20px;
+}
+
+
+/* 数据表格 */
+.tables-container {
+  display: flex;
+  flex-wrap: wrap; /* 允许换行 */
+  gap: 30px;
+  width: 100%;
+  margin-top: 20px;
+  justify-content: center; /* 居中对齐 */
+}
+
+.material-table {
+  border-collapse: collapse;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  flex: 0 1 auto; /* 防止拉伸 */
+}
+
+.material-table th,
+.material-table td {
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: 14px;
+}
+
+.material-table th {
+  background: #f1f5f9; /* 更浅的表头背景 */
+  color: #1a3c64; /* 更高对比度 */
+  font-weight: 700;
+}
+
+.material-table tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.material-table tr:hover {
+  background-color: #eef2f7;
+  transition: background-color 0.2s ease;
+}
+
+/* A 表格（generateStaticTable）样式 */
+.table-a {
+  width: 48%;
+}
+
+/* B 表格（generateStaticTable2）样式 */
+.table-b {
+  width: 48%;
+}
+
+/* C 表格（generateStaticTable3）样式 */
+.table-c {
+  width: 100%; /* 全屏时拉长到 96% */
+}
+
+/* 移动端适配 */
+@media (max-width: 800px) {
+  .main-data-content {
+    margin-left: 0;
+    padding: 10px;
+    padding-top: 0px;
+  }
+  
+  .accordion-panel {
+    width: 100%;
+  }
+  
+  .panel-header {
+    padding: 12px 20px;
+  }
+  
+  .panel-content {
+    padding: 20px;
+    overflow-x: auto;
+  }
+
+/* 表格改为纵向排列 */
+  .tables-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+/* A 表格变窄 */
+  .table-a {
+    width: 100%; /* 整体变窄 */
+    min-width: 300px;
+  }
+
+  .table-a th:nth-child(2),
+  .table-a td:nth-child(2),
+  .table-a th:nth-child(3),
+  .table-a td:nth-child(3) {
+    width: 30%; /* 第 2、3 列变窄 */
+    padding: 12px 10px; /* 调整内边距 */
+  }
+
+  /* B 表格保持现状 */
+  .table-b {
+    width: 100%;
+    min-width: 300px;
+  }
+
+  /* C 表格调整 */
+  .table-c {
+    width: 100%;
+    min-width: 300px;
+  }
+
+  .table-c th:nth-child(1),
+  .table-c td:nth-child(1) {
+    width: 20%; /* 第 1 列变窄 */
+    padding: 12px 10px;
+  }
+
+  .table-c th:nth-child(2),
+  .table-c td:nth-child(2) {
+    width: 80%; /* 第 2 列变宽 */
+    padding: 12px 15px;
+  }
+
+
+
+
+
+
+
+
+
+
+
+}

@@ -8,7 +8,11 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <App />
+<<<<<<< HEAD
   </React.StrictMode>
+=======
+  </React.StrictMode>,
+>>>>>>> test_v13
 );
 
 // If you want to start measuring performance in your app, pass a function

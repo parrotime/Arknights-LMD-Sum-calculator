@@ -1,0 +1,143 @@
+.main-note-content {
+  width: 100%;
+  padding-left: 30px;
+  background-color: #afd3f3;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  box-sizing: border-box; /* 确保边距不影响宽度计算 */
+}
+
+.note-page {
+  margin-top: 24px;
+  margin-right: 20px;
+  width: 100%;
+  padding: 12px 20px;
+  background-color: #f9f9f9;
+  border-radius: 15px;
+  margin-left: 224px;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  border: 2px solid #e0e0e0;
+}
+
+.note-page h1 {
+  font-family: 'Segoe UI', system-ui;
+  font-size: 2.4rem;
+  font-weight: bold;
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #5c9edc;
+  letter-spacing: 0.05em;
+}
+
+.notice-list .notice-item {
+  padding: 18px 25px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  color: #2c3e50;
+  line-height: 1.6;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 15px;
+}
+
+.notice-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem; /* 小标题与内容间距较小 */
+}
+
+.notice-content {
+  padding-left: 10px;
+  font-size: 1rem; /* 统一字体大小 */
+}
+
+.formula {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3rem;
+  color: #2c3e50;
+  padding: 15px;
+  display: block;
+  text-align: center; /* 公式居中显示 */
+}
+
+.external-link {
+  color: #5c9edc;
+  text-decoration: none;
+  border-bottom: 2px dotted rgba(92, 158, 220, 0.3);
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.external-link:hover {
+  color: #468acb;
+  border-bottom-style: solid;
+  border-bottom-color: currentColor;
+}
+
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 1.5rem;
+}
+
+.image-item {
+  text-align: center;
+}
+
+.image-gallery img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.image-gallery img:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(92, 158, 220, 0.2);
+}
+
+.image-caption {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+.main-note-content {
+    margin-left: 0; /* 移除左侧边距，与 Sidebar 分离 */
+    padding-left: 0; /* 移除内边距 */
+    padding-top: 20px; /* 与上方 Sidebar 保持间距 */
+  }
+
+  .note-page {
+    margin: 0 auto; /* 水平居中 */
+    width: 88%; /* 限制宽度，适配小屏幕 */
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .note-page h1 {
+    font-size: 1.8rem;
+  }
+
+  .notice-list .notice-item {
+    padding: 15px;
+    font-size: 1rem;
+  }
+
+  .image-gallery {
+    grid-template-columns: 1fr; /* 单列布局 */
+  }
+
+  .image-gallery img {
+    height: 150px; /* 适配小屏幕 */
+  }
+}

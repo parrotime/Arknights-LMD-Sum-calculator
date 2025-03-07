@@ -1,0 +1,24 @@
+.main-about-content{
+  width: 100%; /* 右侧区域宽度 */
+  padding-left: 30px;
+  background-color: #afd3f3; /* 浅灰色背景 */
+
+  display: flex; /* 设置为 Flexbox 容器 */
+  justify-content: center; /* 水平居中 */
+
+    min-height: 100vh; /* 初始高度为页面高度，内容超出时自动扩展 */
+
+}
+
+.about-page {
+  margin-top: 10px;
+  margin-right: 20px;
+  width: 100%;
+  height: 100%;
+  padding: 12px 20px;
+  background-color: #f9f9f9; /* 浅灰色背景 */
+  border-radius: 15px; /* 圆角 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+
+  margin-left: 230px;
+}

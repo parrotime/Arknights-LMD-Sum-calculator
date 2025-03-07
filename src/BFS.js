@@ -1,61 +1,63 @@
-// ±í¸ñÊı¾İ
-const tableData = [
-  [0, 1, 1, 1, 1, null],
-  [1, -718, -333, -125, -61, null],
-  [5, -775, -367, -141, -69, null],
-  [10, -848, -408, -159, -79, null],
-  [15, -1022, -462, -177, -88, null],
-  [20, -1394, -654, -251, -122, null],
-  [25, -1747, -836, -324, -162, null],
-  [30, -2116, -1026, -404, -202, null],
-  [35, -2507, -1226, -484, -242, null],
-  [40, -2891, -1420, -564, -282, null],
-  [45, -3283, -1617, -644, -322, null]
-];
 
-// ´Ó±í¸ñÖĞÌáÈ¡ËùÓĞÓĞĞ§µÄÊıÖµ
-const extractNumbers = () => {
-  const numbers = new Set();
-  for (let i = 1; i < tableData.length; i++) {
-    for (let j = 1; j < tableData[i].length; j++) {
-      const value = tableData[i][j];
-      if (value !== null) {
-        numbers.add(value);
-      }
-    }
-  }
-  return Array.from(numbers);
+// BFS.js
+import { classifyData } from './DataService';
+
+const createPathKey = (path) => {
+  const counts = new Map();
+  path.forEach(item => {
+    counts.set(item.id, (counts.get(item.id) || 0) + 1)
+  });
+  return Array.from(counts.entries()).sort().toString();
 };
 
-// ²éÕÒÄÜ¹»×éºÏ³öÄ¿±ê²îÖµµÄ×î¶ÌÂ·¾¶
-export const findShortestPath = (target) => {
-  const numbers = extractNumbers(); // »ñÈ¡±í¸ñÖĞµÄËùÓĞÓĞĞ§ÊıÖµ
-  const queue = [[0, []]]; // ¶ÓÁĞ´æ´¢ (current_sum, path)
-  const visited = new Set(); // ¼ÇÂ¼ÒÑ¾­·ÃÎÊ¹ıµÄ current_sum
-
+export const findPath = (target) => {
+  const validItems = classifyData.filter(d => d.item_value !== 0);
+  const queue = [[0, [], new Map()]]; // [currentSum, path, itemCounts]
+  const visited = new Set();
+  const candidates = [];
+  
   while (queue.length > 0) {
-    const [currentSum, path] = queue.shift();
-
-    // Èç¹ûµ±Ç°ºÍµÈÓÚÄ¿±ê²îÖµ£¬·µ»ØÂ·¾¶
-    if (currentSum === target) {
-      return path;
+    const [sum, path, countMap] = queue.shift();
+    
+    // ç»“æœæ”¶é›†æ¡ä»¶
+    if (sum === target) {
+      candidates.push(path);
+      if (candidates.length >=5) break;
+      continue;
     }
 
-    // Èç¹ûÂ·¾¶²½Êı³¬¹ı 15 ²½£¬Í£Ö¹ËÑË÷
-    if (path.length >= 15) {
-      return null; // ·µ»Ø null ±íÊ¾²½Êı¹ı¶à
-    }
+    // å‰ªææ¡ä»¶
+    if (path.length >=15 || Math.abs(target - sum) > 5000) continue;
 
-    // ±éÀúËùÓĞÊıÖµ£¬³¢ÊÔ×éºÏ
-    for (const number of numbers) {
-      const newSum = currentSum + number;
-      if (!visited.has(newSum)) {
-        visited.add(newSum);
-        queue.push([newSum, [...path, number]]);
+    // éå†æ‰€æœ‰åˆæ³•ç‰©å“
+    for (const item of validItems) {
+      const newSum = sum + item.item_value;
+      const newCount = (countMap.get(item.id) || 0) + 1;
+      
+      // æœ‰æ•ˆæ€§æ ¡éªŒ
+      if (newSum * target < 0) continue; // é˜²æ­¢åå‘å¢é•¿
+      
+      // ç”Ÿæˆæ–°è·¯å¾„æ ‡è¯†
+      const newCountMap = new Map(countMap).set(item.id, newCount);
+      const pathKey = `${item.id}:${newCount}`;
+      
+      if (!visited.has(pathKey)) {
+        visited.add(pathKey);
+        queue.push([
+          newSum,
+          [...path, item], 
+          newCountMap
+        ]);
       }
     }
+    
+    // åŠ¨æ€æ’åºé˜Ÿåˆ—ï¼ˆä¼˜å…ˆæ¥è¿‘ç›®æ ‡å€¼ï¼‰
+    queue.sort((a,b) => 
+      Math.abs(target - a[0]) - Math.abs(target - b[0]) || 
+      a[1].length - b[1].length
+    );
   }
 
-  // Èç¹ûÃ»ÓĞÕÒµ½×éºÏ£¬·µ»Ø null
-  return null;
+  return candidates;
 };
+
