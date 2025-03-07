@@ -13,7 +13,6 @@ for (let i = 1; i <= 11; i++) {
   images.push(requireImages(`./note${i}.png`));
 }
 
-
 // Sidebar 组件保持不变
 const Sidebar = () => (
   <div className="sidebar">

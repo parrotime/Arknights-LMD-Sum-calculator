@@ -42,98 +42,88 @@ function DataPage() {
   };
 
   // 生成预定义数据的静态表格
-  const generateStaticTable = (data) => {
-    return (
-      <table className="material-table">
-        <thead>
-          <tr>
-            <th>等级</th>
-            <th>使用1个基础作战记录</th>
-            <th>使用1个初级作战记录</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, i) => (
-            <tr key={i}>
-              <td>{row.name}</td>
-              <td>{row.value1}</td>
-              <td>{row.value2}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  };
-
-  const generateStaticTable2 = (data) => {
-    return (
-      <table className="material-table">
-        <thead>
-          <tr>
-            <th>使用方式</th>
-            <th>对应的龙门币</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, i) => (
-            <tr key={i}>
-              <td>{row.name}</td>
-              <td>{row.value}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  };
-
-const generateStaticTable3 = (data) => {
-  return (
-    <table className="material-table">
-      <thead>
-        <tr>
-          <th>两数之差范围</th>
-          <th>推荐路径</th>
+const generateStaticTable = (data) => (
+  <table className="material-table table-a">
+    <thead>
+      <tr>
+        <th>等级</th>
+        <th>使用1个基础作战记录</th>
+        <th>使用1个初级作战记录</th>
+      </tr>
+    </thead>
+    <tbody>
+      {data.map((row, i) => (
+        <tr key={i}>
+          <td>{row.name}</td>
+          <td>{row.value1}</td>
+          <td>{row.value2}</td>
         </tr>
-      </thead>
-      <tbody>
-        {data.reduce((acc, row, index, array) => {
-          if (index % 2 === 0) {
-            const nextRow = array[index + 1];
-            // Split the way content at the period and join with line break
-            const formatWay = (way) => {
-              if (way.includes("。")) {
-                const parts = way.split("。");
-                return parts.map((part, i) => (
+      ))}
+    </tbody>
+  </table>
+);
+
+const generateStaticTable2 = (data) => (
+  <table className="material-table table-b">
+    <thead>
+      <tr>
+        <th>使用方式</th>
+        <th>对应的龙门币</th>
+      </tr>
+    </thead>
+    <tbody>
+      {data.map((row, i) => (
+        <tr key={i}>
+          <td>{row.name}</td>
+          <td>{row.value}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
+// 修改 generateStaticTable3，优化换行显示
+const generateStaticTable3 = (data) => (
+  <table className="material-table table-c">
+    <thead>
+      <tr>
+        <th>两数之差范围</th>
+        <th>推荐路径</th>
+      </tr>
+    </thead>
+    <tbody>
+      {data.reduce((acc, row, index, array) => {
+        if (index % 2 === 0) {
+          const nextRow = array[index + 1];
+          const formatWay = (way) =>
+            way.includes("。")
+              ? way.split("。").map((part, i) => (
                   <React.Fragment key={i}>
                     {part}
-                    {i < parts.length - 1 && <br />}
+                    {i < way.split("。").length - 1 && <br />}
                   </React.Fragment>
-                ));
-              }
-              return way;
-            };
+                ))
+              : way;
 
-            acc.push(
-              <tr key={index}>
-                <td rowSpan="2">{`${row.num}  ${
-                  nextRow ? nextRow.num : row.num
-                }`}</td>
-                <td>{formatWay(row.way)}</td>
-              </tr>,
-              nextRow && (
-                <tr key={index + 1}>
-                  <td>{formatWay(nextRow.way)}</td>
-                </tr>
-              )
-            );
-          }
-          return acc;
-        }, [])}
-      </tbody>
-    </table>
-  );
-};
-
+          acc.push(
+            <tr key={index}>
+              <td rowSpan="2">{`${row.num} ${
+                nextRow ? nextRow.num : row.num
+              }`}</td>
+              <td>{formatWay(row.way)}</td>
+            </tr>,
+            nextRow && (
+              <tr key={index + 1}>
+                <td>{formatWay(nextRow.way)}</td>
+              </tr>
+            )
+          );
+        }
+        return acc;
+      }, [])}
+    </tbody>
+  </table>
+);
   
 
   return (

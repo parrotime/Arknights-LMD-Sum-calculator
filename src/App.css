@@ -132,6 +132,7 @@ html, body, #root {
   display: flex;
   gap: 1.5rem;
   width: 100%;
+  
 }
 
 /* 新增：左右面板通用样式 */
@@ -142,6 +143,7 @@ html, body, #root {
   box-shadow: 0 2px 15px rgba(0,0,0,0.1);
   border: 2px solid #e0e0e0;
   flex: 1;
+  
 }
 
 /* 左侧计算面板 */
@@ -246,6 +248,10 @@ input:checked + .slider:before {
     transform: translateX(32px);
 }
 
+/* 禁用非数字输入的视觉反馈 */
+input:invalid {
+  border-color: #e74c3c;
+}
 
 /* 输入区域 */
 .input-area {
@@ -326,6 +332,7 @@ input:checked + .slider:before {
   font-size: 1rem;
   text-align: center;
   transition: border-color 0.3s ease;
+
 }
 
 .input-box:focus {
