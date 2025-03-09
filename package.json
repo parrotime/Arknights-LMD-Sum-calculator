@@ -2,14 +2,12 @@
   "name": "main",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://github.com/parrotime/Arknights-LMD-Sum-calculator",
   "dependencies": {
     "cra-template": "1.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-<<<<<<< HEAD
-=======
     "react-router-dom": "^7.1.5",
->>>>>>> test_v13
     "react-scripts": "5.0.1",
     "web-vitals": "^4.2.4"
   },
@@ -38,10 +36,7 @@
     ]
   },
   "devDependencies": {
-<<<<<<< HEAD
-=======
     "@types/prop-types": "^15.7.14",
->>>>>>> test_v13
     "@types/react": "^19.0.7"
   }
 }
