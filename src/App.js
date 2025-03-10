@@ -1,26 +1,22 @@
-
-import React, { useState, useEffect, useReducer } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { findPaths } from './algorithms/DP';
-import NotePage from './pages/Note';
-import DataPage from './pages/Data';
-import AboutPage from './pages/About';
-import PathRenderer from './components/PathRenderer';
-import { classifyData } from './DataService'; // 导入物品数据
-import './App.css';
-
-
-
+import React, { useState, useEffect, useReducer } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { findPaths } from "./algorithms/DP";
+import NotePage from "./pages/Note";
+import DataPage from "./pages/Data";
+import AboutPage from "./pages/About";
+import PathRenderer from "./components/PathRenderer";
+import { classifyData } from "./DataService"; // 导入物品数据
+import "./App.css";
 
 // 状态管理 Reducer
 const initialState = {
-  num1: '',
-  num2: '',
-  result: '',
-  error1: '',
-  error2: '',
+  num1: "",
+  num2: "",
+  result: "",
+  error1: "",
+  error2: "",
   history: [],
-  differenceError: '',
+  differenceError: "",
   pathCache: [],
   currentPathIndex: 0,
   clickCount: 0,
@@ -35,7 +31,6 @@ const initialState = {
     disableExt25: false,
   },
 };
-
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -83,12 +78,11 @@ const reducer = (state, action) => {
 
 // 主计算组件
 const MainCalculator = () => {
-
   const [state, dispatch] = useReducer(reducer, initialState);
 
   // 开关变化处理函数
   const handleToggleChange = (key) => {
-    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
+    dispatch({ type: "TOGGLE_SETTING", key });
   };
 
   // 优化后的输入验证
@@ -194,18 +188,14 @@ const MainCalculator = () => {
   };
 
   const handleChangePath = () => {
-    if (pathCache.length > 0) {
-      setCurrentPathIndex((prev) => (prev + 1) % pathCache.length); // 循环切换
-      setClickCount((prev) => prev + 1);
+    if (state.pathCache.length > 0) {
+      dispatch({ type: "CHANGE_PATH", delta: 1 });
     }
   };
 
   const handlePrevPath = () => {
-    if (pathCache.length > 0) {
-      setCurrentPathIndex(
-        (prev) => (prev - 1 + pathCache.length) % pathCache.length
-      ); // 循环向前
-      setClickCount((prev) => prev + 1);
+    if (state.pathCache.length > 0) {
+      dispatch({ type: "CHANGE_PATH", delta: -1 });
     }
   };
   /*const handleClearHistory = () => {
@@ -275,15 +265,15 @@ const MainCalculator = () => {
                         type="text"
                         className="input-box"
                         placeholder="请输入数字"
-                        value={num1}
-                        onChange={(e) =>
-                          handleInputChange(e, setNum1, setError1)
-                        }
+                        value={state.num1}
+                        onChange={(e) => handleInputChange(e, "num1")}
                         onKeyPress={(e) =>
                           !/[0-9]/.test(e.key) && e.preventDefault()
                         }
                       />
-                      {error1 && <div className="error-message">{error1}</div>}
+                      {state.error1 && (
+                        <div className="error-message">{state.error1}</div>
+                      )}
                     </div>
                   </div>
 
@@ -297,15 +287,15 @@ const MainCalculator = () => {
                         type="text"
                         className="input-box"
                         placeholder="请输入数字"
-                        value={num2}
-                        onChange={(e) =>
-                          handleInputChange(e, setNum2, setError2)
-                        }
+                        value={state.num2}
+                        onChange={(e) => handleInputChange(e, "num2")}
                         onKeyPress={(e) =>
                           !/[0-9]/.test(e.key) && e.preventDefault()
                         }
                       />
-                      {error2 && <div className="error-message">{error2}</div>}
+                      {state.error2 && (
+                        <div className="error-message">{state.error2}</div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -313,9 +303,9 @@ const MainCalculator = () => {
                 <button
                   className="calculate-button"
                   onClick={handleCalculate}
-                  disabled={isCalculating}
+                  disabled={state.isCalculating}
                 >
-                  {isCalculating ? "计算中..." : "立即计算"}
+                  {state.isCalculating ? "计算中..." : "立即计算"}
                 </button>
 
                 <div className="result-section">
@@ -327,12 +317,12 @@ const MainCalculator = () => {
                     <input
                       type="text"
                       className="result-box"
-                      value={result || "两者相差"}
+                      value={state.result || "两者相差"}
                       readOnly
                     />
                   </div>
-                  {differenceError && (
-                    <div className="error-message">{differenceError}</div>
+                  {state.differenceError && (
+                    <div className="error-message">{state.differenceError}</div>
                   )}
                 </div>
               </div>
@@ -372,7 +362,7 @@ const MainCalculator = () => {
                   <label className="toggle-switch">
                     <input
                       type="checkbox"
-                      checked={settings[key]}
+                      checked={state.settings[key]}
                       onChange={() => handleToggleChange(key)}
                     />
                     <span className="slider"></span>
@@ -405,65 +395,41 @@ const MainCalculator = () => {
               <h2>计算路径历史</h2>
             </div>
 
-            {isCalculating ? (
+            {state.isCalculating ? (
               <div className="loading-container">
                 <div className="progress-bar">
                   <div className="progress-bar-fill"></div>
                 </div>
                 <p>正在计算路径，请稍候...</p>
               </div>
-            ) : pathCache.length > 0 ? (
+            ) : state.pathCache.length > 0 ? (
               <PathRenderer
-                path={pathCache[currentPathIndex] || []}
-                initialLMD={parseInt(num1) || 0}
-                totalPaths={pathCache.length}
-                currentIndex={currentPathIndex}
+                path={state.pathCache[state.currentPathIndex] || []}
+                initialLMD={parseInt(state.num1) || 0}
+                totalPaths={state.pathCache.length}
+                currentIndex={state.currentPathIndex}
                 onPrevPath={handlePrevPath}
                 onNextPath={handleChangePath}
               />
             ) : (
               <div className="no-path">{""}</div>
             )}
-            {clickCount >= 5 && pathCache.length > 0 && (
+            {state.clickCount >= 5 && state.pathCache.length > 0 && (
               <div className="change-over-text">
                 <p>
-                  {clickCount < 10
+                  {state.clickCount < 10
                     ? "你已经尝试了五条路径，要不要考虑更换输入值？"
                     : "真的不考虑更换输入值吗？"}
                 </p>
               </div>
             )}
 
-            {/* 修改历史记录渲染方式 */}
-            <div className="history-list">
-              {history.map((entry, index) => {
-                // 如果是字符串（无有效路径的情况）
-                if (typeof entry === "string") {
-                  return (
-                    <div key={index} className="history-item">
-                      {entry}
-                    </div>
-                  );
-                }
-
-                // 如果是路径数组，使用 PathRenderer 渲染
-                return (
-                  <div key={index} className="history-item">
-                    <PathRenderer
-                      path={entry}
-                      initialLMD={parseInt(num1) || 0}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+            
           </div>
-
         </div>
       </div>
     </div>
   );
-
 };
 
 // 主应用组件

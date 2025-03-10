@@ -8,24 +8,17 @@
       "type": "image/x-icon"
     },
     {
-<<<<<<< HEAD
-=======
       "src": "LMD32n.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
->>>>>>> test_v13
       "src": "logo192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-<<<<<<< HEAD
-      "src": "logo512.png",
-=======
       "src": "LMD.png",
->>>>>>> test_v13
       "type": "image/png",
       "sizes": "512x512"
     }
