@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useReducer } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+//import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { findPaths } from "./algorithms/DP";
 import NotePage from "./pages/Note";
 import DataPage from "./pages/Data";

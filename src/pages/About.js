@@ -1,6 +1,7 @@
 import React from 'react';
 import '../../src/assets/styles/About.css';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+//import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 
   const Sidebar = () => (
     <div className="sidebar">

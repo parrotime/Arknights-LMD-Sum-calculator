@@ -1,7 +1,7 @@
 import React from "react";
 import "../../src/assets/styles/Note.css";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-
+//import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 const requireImages = require.context(
   "../assets/images/",
