@@ -2,7 +2,7 @@
   "name": "main",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/parrotime/Arknights-LMD-Sum-calculator",
+  "homepage": "https://parrotime.github.io/Arknights-LMD-Sum-calculator",
   "dependencies": {
     "cra-template": "1.2.0",
     "react": "^18.2.0",
@@ -12,6 +12,8 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -37,6 +39,7 @@
   },
   "devDependencies": {
     "@types/prop-types": "^15.7.14",
-    "@types/react": "^19.0.7"
+    "@types/react": "^19.0.7",
+    "gh-pages": "^6.3.0"
   }
 }
