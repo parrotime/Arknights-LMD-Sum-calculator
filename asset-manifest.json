@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/Arknights-LMD-Sum-calculator/static/css/main.6ecd4872.css",
+    "main.js": "/Arknights-LMD-Sum-calculator/static/js/main.afc7149a.js",
+    "static/js/488.05b91dca.chunk.js": "/Arknights-LMD-Sum-calculator/static/js/488.05b91dca.chunk.js",
+    "static/media/note6.png": "/Arknights-LMD-Sum-calculator/static/media/note6.8b52110bf428604c4921.png",
+    "static/media/note5.png": "/Arknights-LMD-Sum-calculator/static/media/note5.9661732f0b4528a7d79f.png",
+    "static/media/note4.png": "/Arknights-LMD-Sum-calculator/static/media/note4.13e6e0b96df618f4a232.png",
+    "static/media/note2.png": "/Arknights-LMD-Sum-calculator/static/media/note2.8f25830b8f5224928343.png",
+    "static/media/note3.png": "/Arknights-LMD-Sum-calculator/static/media/note3.22109c548de64bee62c9.png",
+    "static/media/note1.png": "/Arknights-LMD-Sum-calculator/static/media/note1.e59cfa0810bdd302ea9b.png",
+    "static/media/note10.png": "/Arknights-LMD-Sum-calculator/static/media/note10.c41d80708955a59b5c16.png",
+    "static/media/note8.png": "/Arknights-LMD-Sum-calculator/static/media/note8.a661986b29479787de40.png",
+    "static/media/note11.png": "/Arknights-LMD-Sum-calculator/static/media/note11.6ba6bf05c1358a732f0e.png",
+    "static/media/note9.png": "/Arknights-LMD-Sum-calculator/static/media/note9.beab3d30cd59e77f8b57.png",
+    "static/media/note7.png": "/Arknights-LMD-Sum-calculator/static/media/note7.424a44ad8271b2433139.png",
+    "index.html": "/Arknights-LMD-Sum-calculator/index.html",
+    "main.6ecd4872.css.map": "/Arknights-LMD-Sum-calculator/static/css/main.6ecd4872.css.map",
+    "main.afc7149a.js.map": "/Arknights-LMD-Sum-calculator/static/js/main.afc7149a.js.map",
+    "488.05b91dca.chunk.js.map": "/Arknights-LMD-Sum-calculator/static/js/488.05b91dca.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.6ecd4872.css",
+    "static/js/main.afc7149a.js"
+  ]
+}
