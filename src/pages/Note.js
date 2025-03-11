@@ -6,11 +6,11 @@ import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 const requireImages = require.context(
   "../assets/images/",
   false,
-  /note\d+\.png$/
+  /note\d+\.webp$/
 );
 const images = [];
 for (let i = 1; i <= 11; i++) {
-  images.push(requireImages(`./note${i}.png`));
+  images.push(requireImages(`./note${i}.webp`));
 }
 
 // Sidebar 组件保持不变
