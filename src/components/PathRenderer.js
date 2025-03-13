@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { getItemById } from "../DataService";
 import "./PathRenderer.css";
 
+// 路径渲染器
 const PathRenderer = ({
   path,
   initialLMD,
@@ -16,10 +17,12 @@ const PathRenderer = ({
     return <div></div>;
   }
 
+  // 路径为空
   if (path.length === 0) {
     return <div className="path-error">没有找到合适的路径</div>;
   }
 
+  // 初始龙门币数量
   let currentLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
 
   return (
@@ -82,11 +85,13 @@ const PathRenderer = ({
   );
 };
 
+// 字符串颜色标记
 const getRarityColor = (rarity) => {
-  const colorMap = { 1: "darkgreen", 2: "darkblue", 5: "orange" };
+  const colorMap = { 1: "darkgreen", 2: "darkblue", 3: "purple", 5: "orange" };
   return colorMap[rarity] || "black";
 };
 
+// Check
 PathRenderer.propTypes = {
   path: PropTypes.arrayOf(
     PropTypes.shape({

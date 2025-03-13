@@ -29,7 +29,7 @@ const scrollToTop = () => {
 };
 
 function DataPage() {
-  const [activePanels, setActivePanels] = useState([0, 1, 2]);
+  const [activePanels, setActivePanels] = useState([]);
   const [clickedPanel, setClickedPanel] = useState(null); // 新增状态跟踪点击的面板
 
   const togglePanel = (index) => {
@@ -43,89 +43,112 @@ function DataPage() {
   };
 
   // 生成预定义数据的静态表格
-const generateStaticTable = (data) => (
-  <table className="material-table table-a">
-    <thead>
-      <tr>
-        <th>等级</th>
-        <th>使用1个基础作战记录</th>
-        <th>使用1个初级作战记录</th>
-      </tr>
-    </thead>
-    <tbody>
-      {data.map((row, i) => (
-        <tr key={i}>
-          <td>{row.name}</td>
-          <td>{row.value1}</td>
-          <td>{row.value2}</td>
+  const generateStaticTable = (data) => (
+    <table className="material-table table-a">
+      <thead>
+        <tr>
+          <th>等级</th>
+          <th>使用1个基础作战记录</th>
+          <th>使用1个初级作战记录</th>
         </tr>
-      ))}
-    </tbody>
-  </table>
-);
+      </thead>
+      <tbody>
+        {data.map((row, i) => (
+          <tr key={i}>
+            <td>{row.name}</td>
+            <td>{row.value1}</td>
+            <td>{row.value2}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 
-const generateStaticTable2 = (data) => (
-  <table className="material-table table-b">
-    <thead>
-      <tr>
-        <th>使用方式</th>
-        <th>对应的龙门币</th>
-      </tr>
-    </thead>
-    <tbody>
-      {data.map((row, i) => (
-        <tr key={i}>
-          <td>{row.name}</td>
-          <td>{row.value}</td>
+  const generateStaticTable2 = (data) => (
+    <table className="material-table table-b">
+      <thead>
+        <tr>
+          <th>使用方式</th>
+          <th>对应的龙门币</th>
         </tr>
-      ))}
-    </tbody>
-  </table>
-);
+      </thead>
+      <tbody>
+        {data.map((row, i) => (
+          <tr key={i}>
+            <td>{row.name}</td>
+            <td>{row.value}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 
-// 修改 generateStaticTable3，优化换行显示
-const generateStaticTable3 = (data) => (
-  <table className="material-table table-c">
-    <thead>
-      <tr>
-        <th>两数之差范围</th>
-        <th>推荐路径</th>
-      </tr>
-    </thead>
-    <tbody>
-      {data.reduce((acc, row, index, array) => {
-        if (index % 2 === 0) {
-          const nextRow = array[index + 1];
-          const formatWay = (way) =>
-            way.includes("。")
-              ? way.split("。").map((part, i) => (
-                  <React.Fragment key={i}>
-                    {part}
-                    {i < way.split("。").length - 1 && <br />}
-                  </React.Fragment>
-                ))
-              : way;
+  // 修改 generateStaticTable3，优化换行显示
+  const generateStaticTable3 = (data) => (
+    <table className="material-table table-c">
+      <thead>
+        <tr>
+          <th>两数之差范围</th>
+          <th>推荐路径</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.reduce((acc, row, index, array) => {
+          if (index % 2 === 0) {
+            const nextRow = array[index + 1];
+            const formatWay = (way) =>
+              way.includes("。")
+                ? way.split("。").map((part, i) => (
+                    <React.Fragment key={i}>
+                      {part}
+                      {i < way.split("。").length - 1 && <br />}
+                    </React.Fragment>
+                  ))
+                : way;
 
-          acc.push(
-            <tr key={index}>
-              <td rowSpan="2">{`${row.num} ${
-                nextRow ? nextRow.num : row.num
-              }`}</td>
-              <td>{formatWay(row.way)}</td>
-            </tr>,
-            nextRow && (
-              <tr key={index + 1}>
-                <td>{formatWay(nextRow.way)}</td>
-              </tr>
-            )
-          );
-        }
-        return acc;
-      }, [])}
-    </tbody>
-  </table>
-);
-  
+            acc.push(
+              <tr key={index}>
+                <td rowSpan="2">{`${row.num} ${
+                  nextRow ? nextRow.num : row.num
+                }`}</td>
+                <td>{formatWay(row.way)}</td>
+              </tr>,
+              nextRow && (
+                <tr key={index + 1}>
+                  <td>{formatWay(nextRow.way)}</td>
+                </tr>
+              )
+            );
+          }
+          return acc;
+        }, [])}
+      </tbody>
+    </table>
+  );
+
+  // 新增：生成 31 行 4 列的表格函数
+  const generateUpgradeTable4 = (data) => (
+    <table className="material-table table-d">
+      <thead>
+        <tr>
+          <th>使用基础作战记录数量</th>
+          <th>精零1级对应龙门币</th>
+          <th>精一1级对应龙门币</th>
+          <th>精二1级对应龙门币</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, i) => (
+          <tr key={i}>
+            <td>{i+1}</td>
+            <td>{row.value1}</td>
+            <td>{row.value2}</td>
+            <td>{row.value3}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 
   return (
     <div className="app-container">
@@ -191,7 +214,7 @@ const generateStaticTable3 = (data) => (
                 { name: "精一60级", value1: "-210", value2: "-420" },
                 { name: "精一65级", value1: "-221", value2: "-442" },
                 { name: "精一70级", value1: "-232", value2: "-464" },
-                { name: "精一75级", value1: "-?????", value2: "-?????" },
+                { name: "精一75级", value1: "-243", value2: "-486" },
                 { name: "精二1级", value1: "-80", value2: "-162" },
                 { name: "精二5级", value1: "-87", value2: "-175" },
                 { name: "精二10级", value1: "-96", value2: "-192" },
@@ -230,9 +253,13 @@ const generateStaticTable3 = (data) => (
                 { name: "三星通关9理智关卡", value: "+108" },
                 { name: "三星通关10理智关卡", value: "+120" },
                 { name: "三星通关15理智关卡", value: "+180" },
-                { name: "三星通关18理智关卡", value: "+216" },
+                { name: "三星通关18理智关卡(等效刷3次1-7)", value: "+216" },
+                { name: "三星通关20理智关卡", value: "+240" },
                 { name: "三星通关21理智关卡", value: "+252" },
+                { name: "三星通关25理智关卡", value: "+300" },
                 { name: "三星通关25理智常驻剿灭关卡", value: "+250" },
+                { name: "三星通关30理智关卡(等效刷5次1-7)", value: "+360" },
+                { name: "三星通关36理智关卡(等效刷6次1-7)", value: "+432" },
                 { name: "二星通关6理智关卡", value: "+60" },
                 { name: "二星通关9理智关卡", value: "+90" },
                 { name: "二星通关10理智关卡", value: "+100" },
@@ -241,7 +268,11 @@ const generateStaticTable3 = (data) => (
               {generateStaticTable2([
                 { name: "二星通关15理智关卡", value: "+150" },
                 { name: "二星通关18理智关卡", value: "+180" },
+                { name: "二星通关20理智关卡", value: "+200" },
                 { name: "二星通关21理智关卡", value: "+210" },
+                { name: "二星通关25理智关卡", value: "+250" },
+                { name: "二星通关30理智关卡", value: "+300" },
+                { name: "二星通关36理智关卡(等效刷5次1-7)", value: "+360" },
                 { name: "基建合成绿色材料", value: "-100" },
                 { name: "基建合成蓝色材料", value: "-200" },
                 { name: "基建合成紫色材料", value: "-300" },
@@ -251,9 +282,46 @@ const generateStaticTable3 = (data) => (
                 { name: "危机合约活动商店使用1代币", value: "+70" },
               ])}
             </div>
+
+            {/* 新增：31行4列表格 */}
+            <div className="tables-container">
+              {generateUpgradeTable4([
+                { value1: "-61", value2: "-81", value3: "-80" },
+                { value1: "-125", value2: "-165", value3: "-162" },
+                { value1: "-192", value2: "-251", value3: "-244" },
+                { value1: "-262", value2: "-338", value3: "-328" },
+                { value1: "-338", value2: "-427", value3: "-412" },
+                { value1: "-407", value2: "-516", value3: "-497" },
+                { value1: "-482", value2: "-607", value3: "-583" },
+                { value1: "-559", value2: "-700", value3: "-670" },
+                { value1: "-638", value2: "-793", value3: "-757" },
+                { value1: "-718", value2: "-886", value3: "-844" },
+                { value1: "-800", value2: "-982", value3: "-933" },
+                { value1: "-883", value2: "-1077", value3: "-1022" },
+                { value1: "-967", value2: "-1175", value3: "-1110" },
+                { value1: "-1053", value2: "-1273", value3: "-1199" },
+                { value1: "-1139", value2: "-1371", value3: "-1290" },
+                { value1: "-1228", value2: "-1471", value3: "-1381" },
+                { value1: "-1317", value2: "-1570", value3: "-1472" },
+                { value1: "-1407", value2: "-1671", value3: "-1563" },
+                { value1: "-1503", value2: "-1772", value3: "-1654" },
+                { value1: "-1601", value2: "-1874", value3: "-1747" },
+                { value1: "-1707", value2: "-1976", value3: "-1839" },
+                { value1: "-1812", value2: "-2081", value3: "-1932" },
+                { value1: "-1926", value2: "-2185", value3: "-2024" },
+                { value1: "-2040", value2: "-2289", value3: "-2118" },
+                { value1: "-2162", value2: "-2395", value3: "-2213" },
+                { value1: "-2284", value2: "-2502", value3: "-2307" },
+                { value1: "-2413", value2: "-2608", value3: "-2401" },
+                { value1: "-2542", value2: "-2714", value3: "-2496" },
+                { value1: "-2678", value2: "-2823", value3: "-2591" },
+                { value1: "-2815", value2: "-2931", value3: "-2687" },
+              ])}
+            </div>
           </div>
         </div>
 
+        {/* 新增：第二个面板（待填入内容） */}
         <div
           className={`accordion-panel ${
             !activePanels.includes(1) ? "collapsed" : ""
@@ -263,10 +331,30 @@ const generateStaticTable3 = (data) => (
             className={`panel-header ${clickedPanel === 1 ? "active" : ""}`}
             onClick={() => togglePanel(1)}
           >
-            <h3>推荐路径快速查找：目标龙门币 - 现有龙门币 &gt; 0 的情况</h3>
+            <h3>速查表</h3>
           </div>
           <div
             className={`panel-content ${clickedPanel === 1 ? "active" : ""}`}
+          >
+            <div className="explain-text">
+              <p>待填入内容</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`accordion-panel ${
+            !activePanels.includes(2) ? "collapsed" : ""
+          }`}
+        >
+          <div
+            className={`panel-header ${clickedPanel === 2 ? "active" : ""}`}
+            onClick={() => togglePanel(2)}
+          >
+            <h3>推荐路径快速查找：目标龙门币 - 现有龙门币 &gt; 0 的情况</h3>
+          </div>
+          <div
+            className={`panel-content ${clickedPanel === 2 ? "active" : ""}`}
           >
             <div className="explain-text">
               <p>
@@ -330,17 +418,17 @@ const generateStaticTable3 = (data) => (
 
         <div
           className={`accordion-panel ${
-            !activePanels.includes(2) ? "collapsed" : ""
+            !activePanels.includes(3) ? "collapsed" : ""
           }`}
         >
           <div
-            className={`panel-header ${clickedPanel === 2 ? "active" : ""}`}
-            onClick={() => togglePanel(2)}
+            className={`panel-header ${clickedPanel === 3 ? "active" : ""}`}
+            onClick={() => togglePanel(3)}
           >
             <h3>推荐路径快速查找：目标龙门币 - 现有龙门币 &lt; 0 的情况</h3>
           </div>
           <div
-            className={`panel-content ${clickedPanel === 2 ? "active" : ""}`}
+            className={`panel-content ${clickedPanel === 3 ? "active" : ""}`}
           >
             <div className="explain-text">
               <p>

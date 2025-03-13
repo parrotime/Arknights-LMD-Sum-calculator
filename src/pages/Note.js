@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "../../src/assets/styles/Note.css";
 //import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
@@ -40,6 +40,19 @@ const scrollToTop = () => {
 };
 
 function NotePage() {
+
+  const [zoomedImage, setZoomedImage] = useState(null); // 管理放大图片的状态
+
+  // 点击图片时显示放大图片
+  const handleImageClick = (imageSrc) => {
+    setZoomedImage(imageSrc); // 设置当前放大的图片
+  };
+
+  // 点击遮罩层关闭放大图片
+  const handleOverlayClick = () => {
+    setZoomedImage(null); // 清除放大图片状态
+  };
+
   return (
     <div className="app-container">
       <Sidebar />
@@ -60,7 +73,8 @@ function NotePage() {
               <div className="notice-content">
                 1. 输入要求：两个非负整数（0 或正整数）
                 <br />
-                2. 差值限制：|数值1 - 数值2| ≤ 500（当前版本限制，大于500小于1000的数字理论上也算的出来，但是网页很容易卡死）
+                2. 差值限制：|数值1 - 数值2| ≤
+                500（当前版本限制，大于500小于1000的数字理论上也算的出来，但是网页很容易卡死）
                 <br />
                 3. 输入示例：
                 <br />
@@ -83,7 +97,7 @@ function NotePage() {
                 可以给干员同时使用多个作战记录，但是请注意不要让干员得到升级（即「跨级现象」）。
                 <br />
                 2.
-                只使用一个作战记录时，如果发生跨级现象，则不需要考虑跨级影响，因为相关数据已经提前设定好了。
+                当且仅当使用一个作战记录时，如果发生跨级现象，则不需要考虑跨级影响，因为相关数据已经提前设定好了。
                 <br />
                 3. 龙门币消耗与经验计算公式：
                 <br />
@@ -112,41 +126,70 @@ function NotePage() {
                 <br />
                 <div className="image-gallery">
                   <div className="image-item">
-                    <img src={images[0]} alt="示例图片1" />
+                    <img
+                      src={images[0]}
+                      alt="示例图片1"
+                      onClick={() => handleImageClick(images[0])}
+                      style={{ cursor: "pointer" }}
+                    />
                     <span className="image-caption">初始值</span>
                   </div>
                   <div className="image-item">
-                    <img src={images[1]} alt="示例图片2" />
+                    <img
+                      src={images[1]}
+                      alt="示例图片2"
+                      onClick={() => handleImageClick(images[1])}
+                      style={{ cursor: "pointer" }}
+                    />
                     <span className="image-caption">
                       只使用一个基础作战记录，发生正常的跨级现象
                     </span>
                   </div>
                   <div className="image-item">
-                    <img src={images[2]} alt="示例图片3" />
+                    <img
+                      src={images[2]}
+                      alt="示例图片3"
+                      onClick={() => handleImageClick(images[2])}
+                      style={{ cursor: "pointer" }}
+                    />
                     <span className="image-caption">
                       只使用一个初级作战记录，发生正常的跨级现象
                     </span>
                   </div>
                 </div>
-
                 <br />
                 对于只使用一个作战记录时，发生跨级现象是正常的，不需要考虑跨级的影响，因为相关数据已经提前设定好了。
                 <br />
                 <div className="image-gallery">
                   <div className="image-item">
-                    <img src={images[6]} alt="示例图片1" />
+                    <img
+                      src={images[6]}
+                      alt="示例图片1"
+                      onClick={() => handleImageClick(images[6])}
+                      style={{ cursor: "pointer" }}
+                    />
                     <span className="image-caption">初始值</span>
                   </div>
                   <div className="image-item">
-                    <img src={images[10]} alt="示例图片2" />
+                    <img
+                      src={images[10]}
+                      alt="示例图片2"
+                      onClick={() => handleImageClick(images[10])}
+                      style={{ cursor: "pointer" }}
+                    />
                     <span className="image-caption">
-                      只使用一个初级作战记录，发生正常的跨级现象
+                      只使用一个初级作战记录，没有发生跨级现象
                     </span>
                   </div>
                   <div className="image-item">
-                    <img src={images[9]} alt="示例图片3" />
+                    <img
+                      src={images[9]}
+                      alt="示例图片3"
+                      onClick={() => handleImageClick(images[9])}
+                      style={{ cursor: "pointer" }}
+                    />
                     <span className="image-caption">
-                      这里使用多个初级作战记录，发生跨级现象，导致误差
+                      这里使用多个初级作战记录，发生跨级现象，导致误差（从15级跳到了16级）
                     </span>
                   </div>
                 </div>
@@ -156,14 +199,18 @@ function NotePage() {
             {/* 注意事项 3 - 带图片 */}
             <div className="notice-item">
               <div className="notice-title">使用原则3</div>
-              <div className="notice-content">
-
-
-              </div>
+              <div className="notice-content"></div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* 遮罩层，用于显示放大图片 */}
+      {zoomedImage && (
+        <div className="image-overlay" onClick={handleOverlayClick}>
+          <img src={zoomedImage} alt="放大图片" className="zoomed-image" />
+        </div>
+      )}
     </div>
   );
 }

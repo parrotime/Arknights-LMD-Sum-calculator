@@ -1,78 +1,153 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 
-// ´´½¨½á¹û´æ´¢Êı×é
+// åˆ›å»ºç»“æœå­˜å‚¨æ•°ç»„
 const results = [];
 
 async function runTest() {
-  // Æô¶¯ä¯ÀÀÆ÷
+  // å¯åŠ¨æµè§ˆå™¨
   const browser = await puppeteer.launch({
-    headless: false, // ÉèÖÃÎªtrue¿ÉÒÔÔÚºóÌ¨ÔËĞĞ
-    slowMo: 50, // ·ÅÂı²Ù×÷ËÙ¶È£¬±ãÓÚ¹Û²ì
+    headless: false, // è®¾ç½®ä¸º false ä»¥ä¾¿è§‚å¯Ÿ
+    slowMo: 50, // æ”¾æ…¢æ“ä½œé€Ÿåº¦ï¼Œä¾¿äºè§‚å¯Ÿ
   });
 
   const page = await browser.newPage();
 
-  // µ¼º½µ½Ä¿±êÍøÒ³
-  await page.goto("https://example.io/index.html");
+  // å¯¼èˆªåˆ°ç›®æ ‡ç½‘é¡µ
+  try {
+    await page.goto(
+      //"https://parrotime.github.io/Arknights-LMD-Sum-calculator/",
+      "http://localhost:3000/Arknights-LMD-Sum-calculator",
+      {
+        waitUntil: "networkidle2",
+      }
+    );
+    console.log("é¡µé¢åŠ è½½å®Œæˆ");
+  } catch (error) {
+    console.error("é¡µé¢åŠ è½½å¤±è´¥:", error);
+    await browser.close();
+    return;
+  }
 
-  // µÚÒ»¸öÊäÈë¿ò¹Ì¶¨ÊäÈë500
-  await page.type("input:nth-of-type(1)", "500");
+  // ç­‰å¾…ç¬¬ä¸€ä¸ªè¾“å…¥æ¡†å‡ºç°
+  try {
+    await page.waitForSelector(".input-group:nth-child(1) .input-box", {
+      timeout: 10000,
+    });
+    console.log("æ‰¾åˆ°ç¬¬ä¸€ä¸ªè¾“å…¥æ¡†");
+  } catch (error) {
+    console.error("æœªæ‰¾åˆ°ç¬¬ä¸€ä¸ªè¾“å…¥æ¡†:", error);
+    await page.screenshot({ path: "error-first-input.png" });
+    await browser.close();
+    return;
+  }
 
-  // ¶ÔµÚ¶ş¸öÊäÈë¿òÒÀ´ÎÊäÈë0~1000µÄÕûÊı²¢¼ÇÂ¼½á¹û
-  for (let i = 0; i <= 1000; i++) {
-    // Çå¿ÕµÚ¶ş¸öÊäÈë¿ò
+  // æ¸…ç©ºå¹¶è¾“å…¥500åˆ°ç¬¬ä¸€ä¸ªè¾“å…¥æ¡†
+  await page.evaluate(() => {
+    const input = document.querySelector(
+      ".input-group:nth-child(1) .input-box"
+    );
+    if (!input) throw new Error("ç¬¬ä¸€ä¸ªè¾“å…¥æ¡†ä¸å­˜åœ¨");
+    input.value = "";
+  });
+  await page.type(".input-group:nth-child(1) .input-box", "500");
+
+  // ç­‰å¾…ç¬¬äºŒä¸ªè¾“å…¥æ¡†å‡ºç°
+  try {
+    await page.waitForSelector(".input-group:nth-child(2) .input-box", {
+      timeout: 10000,
+    });
+    console.log("æ‰¾åˆ°ç¬¬äºŒä¸ªè¾“å…¥æ¡†");
+  } catch (error) {
+    console.error("æœªæ‰¾åˆ°ç¬¬äºŒä¸ªè¾“å…¥æ¡†:", error);
+    await page.screenshot({ path: "error-second-input.png" });
+    await browser.close();
+    return;
+  }
+
+  // å¯¹ç¬¬äºŒä¸ªè¾“å…¥æ¡†ä¾æ¬¡è¾“å…¥0~20çš„æ•´æ•°å¹¶è®°å½•ç»“æœ
+  for (let i = 0; i <= 20; i++) {
+    // æ¸…ç©ºç¬¬äºŒä¸ªè¾“å…¥æ¡†
     await page.evaluate(() => {
-      document.querySelector("input:nth-of-type(2)").value = "";
+      const input = document.querySelector(
+        ".input-group:nth-child(2) .input-box"
+      );
+      if (!input) throw new Error("ç¬¬äºŒä¸ªè¾“å…¥æ¡†ä¸å­˜åœ¨");
+      input.value = "";
     });
 
-    // ÊäÈëµ±Ç°Öµ
-    await page.type("input:nth-of-type(2)", i.toString());
+    // è¾“å…¥å½“å‰å€¼
+    await page.type(".input-group:nth-child(2) .input-box", i.toString());
 
-    // ¼ÙÉèÓĞÒ»¸öÌá½»°´Å¥£¬µã»÷Ëü´¥·¢¼ÆËã
-    // Èç¹ûÃ»ÓĞ°´Å¥¶øÊÇ×Ô¶¯¼ÆËã£¬¿ÉÒÔÊ¡ÂÔÕâÒ»²½
-    await page.click('button[type="submit"]');
+    // ç‚¹å‡»â€œç«‹å³è®¡ç®—â€æŒ‰é’®è§¦å‘è®¡ç®—
+    await page.waitForSelector(".calculate-button");
+    const startTime = performance.now(); // å¼€å§‹è®¡æ—¶
+    await page.click(".calculate-button");
 
-    // ¿ªÊ¼¼ÆÊ±
-    const startTime = performance.now();
-
-    // µÈ´ıÊä³ö¿òÄÚÈİ¸üĞÂ£¨¿ÉÄÜĞèÒªµ÷ÕûÑ¡ÔñÆ÷£©
+    // ç­‰å¾…è®¡ç®—å®Œæˆ
     await page.waitForFunction(
-      'document.querySelector("output").textContent !== ""',
-      { timeout: 5000 }
+      'document.querySelector(".result-box").value !== "ä¸¤è€…ç›¸å·®"',
+      { timeout: 100000 }
     );
 
-    // ½áÊø¼ÆÊ±
+    // ç»“æŸè®¡æ—¶
     const endTime = performance.now();
     const executionTime = endTime - startTime;
 
-    // »ñÈ¡Êä³ö¿òÄÚÈİ
+    // è·å–è¾“å‡ºæ¡†å†…å®¹
     const outputContent = await page.evaluate(() => {
-      return document.querySelector("output").textContent;
+      return document.querySelector(".result-box").value;
     });
 
-    // ¼ÇÂ¼½á¹û
+    // è·å–ç”Ÿæˆçš„è·¯å¾„ä¿¡æ¯
+    let pathContent = [];
+    try {
+      await page.waitForSelector(".path-container", { timeout: 5000 });
+      const noPath = await page.evaluate(() => {
+        return !!document.querySelector(".path-error");
+      });
+
+      if (noPath) {
+        pathContent = "æ²¡æœ‰æ‰¾åˆ°åˆé€‚çš„è·¯å¾„";
+      } else {
+        pathContent = await page.evaluate(() => {
+          const steps = document.querySelectorAll(".step_item");
+          return Array.from(steps).map((step) => step.innerText.trim());
+        });
+      }
+    } catch (error) {
+      console.error(`è·å–è·¯å¾„å‡ºé”™ (input2=${i}):`, error);
+      pathContent = "è·¯å¾„è·å–å¤±è´¥";
+    }
+
+    // è®°å½•ç»“æœ
     results.push({
       input1: 500,
       input2: i,
       output: outputContent,
+      path: pathContent,
       executionTime: executionTime,
     });
 
     console.log(
-      `²âÊÔ #${i}: ÊäÈë (500, ${i}) => Êä³ö: ${outputContent}, Ö´ĞĞÊ±¼ä: ${executionTime.toFixed(
+      `æµ‹è¯• #${i}: è¾“å…¥ (500, ${i}) => è¾“å‡º: ${outputContent}, æ‰§è¡Œæ—¶é—´: ${executionTime.toFixed(
         2
-      )}ms`
+      )}ms, è·¯å¾„: ${
+        Array.isArray(pathContent) ? `${pathContent.length} steps` : pathContent
+      }`
     );
+
+    //await page.waitForTimeout(100); // ç¡®ä¿é¡µé¢ç¨³å®š
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  // ½«½á¹û±£´æµ½ÎÄ¼ş
+  // ä¿å­˜ç»“æœ
   fs.writeFileSync("test-results.json", JSON.stringify(results, null, 2));
 
-  // ¹Ø±Õä¯ÀÀÆ÷
+  // å…³é—­æµè§ˆå™¨
   await browser.close();
 
-  // ¼ÆËãÍ³¼ÆĞÅÏ¢
+  // è®¡ç®—ç»Ÿè®¡ä¿¡æ¯
   calculateStatistics();
 }
 
@@ -83,18 +158,23 @@ function calculateStatistics() {
   const maxTime = Math.max(...executionTimes);
   const minTime = Math.min(...executionTimes);
 
-  console.log("\n²âÊÔÍ³¼Æ:");
-  console.log(`×Ü²âÊÔÊı: ${results.length}`);
-  console.log(`Æ½¾ùÖ´ĞĞÊ±¼ä: ${avgTime.toFixed(2)}ms`);
-  console.log(`×î³¤Ö´ĞĞÊ±¼ä: ${maxTime.toFixed(2)}ms`);
-  console.log(`×î¶ÌÖ´ĞĞÊ±¼ä: ${minTime.toFixed(2)}ms`);
+  console.log("\næµ‹è¯•ç»Ÿè®¡:");
+  console.log(`æ€»æµ‹è¯•æ•°: ${results.length}`);
+  console.log(`å¹³å‡æ‰§è¡Œæ—¶é—´: ${avgTime.toFixed(2)}ms`);
+  console.log(`æœ€é•¿æ‰§è¡Œæ—¶é—´: ${maxTime.toFixed(2)}ms`);
+  console.log(`æœ€çŸ­æ‰§è¡Œæ—¶é—´: ${minTime.toFixed(2)}ms`);
 
-  // ½«Í³¼ÆĞÅÏ¢Ò²±£´æµ½ÎÄ¼ş
-  const statistics = { totalTests: results.length, avgTime, maxTime, minTime };
-  fs.writeFileSync("test-statistics.json", JSON.stringify(statistics, null, 2));
+  fs.writeFileSync(
+    "test-statistics.json",
+    JSON.stringify(
+      { totalTests: results.length, avgTime, maxTime, minTime },
+      null,
+      2
+    )
+  );
 }
 
-// ÔËĞĞ²âÊÔ
+// è¿è¡Œæµ‹è¯•
 runTest().catch((error) => {
-  console.error("²âÊÔ¹ı³ÌÖĞ³ö´í:", error);
+  console.error("æµ‹è¯•è¿‡ç¨‹ä¸­å‡ºé”™:", error);
 });

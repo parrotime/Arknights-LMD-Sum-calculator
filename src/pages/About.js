@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../src/assets/styles/About.css';
 //import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Link } from "react-router-dom";
 
   const Sidebar = () => (
     <div className="sidebar">
@@ -47,10 +47,10 @@ function AboutPage() {
           <div className="notice-list">
             {/* 注意事项 1 */}
             <div className="notice-item">
-              <div className="notice-title">关于版本v1.0.0</div>
+              <div className="notice-title">关于版本v1.0</div>
               <div className="notice-content">
                 1.
-                本网站是网站作者入门前端三件套和react的一个练习项目，仍存在不足之处，欢迎提出改进意见。
+                本网站是网站作者入门前端三件套和react框架的一个练习项目，仍存在不足之处，欢迎提出改进意见orz
                 <br />
                 2. 如果遇到问题，请通过B站私信反馈
                 <a
@@ -64,15 +64,24 @@ function AboutPage() {
                 <br />
                 3. 网站源码：
                 <a
-                  href="https://space.bilibili.com/32772539"
+                  href="https://github.com/parrotime/Arknights-LMD-Sum-calculator"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="external-link"
                 >
-                  网站作者github项目页面？？？？？？？
+                  github项目源码网站
                 </a>
                 <br />
-                4. 本网站中所有数据与图片均来自于官网，如有侵权，请联系删除。
+                4. 本网站中所有数据与图片均来自于
+                <a
+                  href="https://prts.wiki/w/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="external-link"
+                >
+                 PRTS wiki 
+                </a>
+                官网，如有侵权，请联系删除。
                 <br />
                 5. 参考文献：
                 <br />
@@ -85,7 +94,8 @@ function AboutPage() {
                 >
                   公招需要花费龙门币时代的另一位作者的凑数计算器NGA帖子
                 </a>
-                ，也就是熟知的 https://cedric341561.gitee.io/777/ （现已失效）
+                ，也就是熟知的 https://cedric341561.gitee.io/777/
+                （似乎已经失效）
                 <br />
                 （2）
                 <a
@@ -97,7 +107,17 @@ function AboutPage() {
                   ​干员升级经验及龙门币消耗成本统计(收束测试)
                 </a>
                 <br />
-                ※备注：差值限制基于当前算法复杂度设定（v1.0.0），后续版本可能优化计算效率
+                
+              </div>
+
+              <div className="notice-title">声明</div>
+              <div className="notice-content">
+                网站所涉及的游戏《明日方舟》相关的名称、数据、素材等均为其各自所有者的资产，仅供识别。
+                <br />
+                网站内使用的游戏图片素材、文本，仅用于介绍与说明，其版权均属于上海鹰角网络科技有限公司。
+                <br />
+                本项目为无偿开源项目，以便于明日方舟玩家能够凑出想要的龙门币数量，仅用于学习交流使用
+                <br />
               </div>
             </div>
           </div>

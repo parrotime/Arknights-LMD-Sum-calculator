@@ -110,6 +110,32 @@
   line-height: 1.4;
 }
 
+/* 遮罩层样式 */
+.image-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8); /* 半透明黑色背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 确保遮罩层在最上层 */
+}
+
+/* 放大图片样式 */
+.zoomed-image {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain; /* 保持图片比例 */
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+
+
+
 @media (max-width: 768px) {
 .main-note-content {
     margin-left: 0; /* 移除左侧边距，与 Sidebar 分离 */
