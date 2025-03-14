@@ -153,8 +153,17 @@ html, body, #root {
   flex-direction: column;
   min-width: 0; /* 防止内容溢出 */
   height: fit-content; /* 根据内容自适应 */
-  padding-bottom: 30px;
+  padding-bottom: 20px;
 }
+
+.left-text {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-top: 15px;
+  margin-bottom: 0.5rem; /* 小标题与内容间距较小 */
+  text-align: center;
+}
+
 
 /* 右侧占位面板 */
 .right-panel {
@@ -162,6 +171,15 @@ html, body, #root {
   flex-direction: column;
   min-width: 0; /* 防止内容溢出 */
   height: fit-content; /* 根据内容自适应 */
+  padding: 20px 20px 10px; /* 底部padding减小，避免内容过挤 */
+}
+
+.toggle-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* 行间距统一 */
+  margin-top: 13px; /* 与标题间距 */
+  margin-bottom: 15px; /* 与下方内容间距 */
 }
 
 .toggle-title{
@@ -179,27 +197,30 @@ html, body, #root {
 }
 
 .toggle-container{
-  display: grid;
-  margin-top: 12px;
-  grid-template-columns: 65% 25%; /* 创建两列，每列宽度相等 */
-  grid-gap: 40px; /* 设置网格间距 */   
+  display: flex;
+  align-items: center; /* 垂直居中 */
+  justify-content: space-between; /* 文字和开关分隔两端 */
+  height: 40px; /* 固定高度，确保一致性 */
+  width: 100%; /* 占满容器宽度 */
 }
 
-.toggle-text{
-  display: flex;
+/* 开关文字 */
+.toggle-text {
   color: black;
   font-weight: bold;
-  text-align: center; /* 文字居中 */
-  align-items: center; /* 垂直居中 */
-  
-  padding-left: 20px;
+  text-align: left; /* 左对齐 */
+  flex: 1; /* 自适应宽度，占据剩余空间 */
+  white-space: nowrap; /* 强制单行显示 */
+  overflow: hidden; /* 超出隐藏 */
+  text-overflow: ellipsis; /* 超出显示省略号 */
+  padding-right: 10px; /* 与开关间距 */
 }
 
 .toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 60px;
-    height: 28px;
+  position: relative;
+  width: 60px;
+  height: 28px;
+  flex-shrink: 0;
 }
 
 /* 隐藏默认的复选框 */
@@ -211,16 +232,16 @@ html, body, #root {
 
 /* 开关滑块样式 */
 .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-    border-radius: 34px;
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 34px;
 }
 
 /* 滑块内圆圈样式 */
@@ -277,6 +298,7 @@ input:invalid {
   padding: 1rem 2rem;
   border-radius: 2rem;
   box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.2);
+  margin-bottom: 10px;
 }
 
 .title-bar h1 {
@@ -286,11 +308,18 @@ input:invalid {
   white-space: nowrap;
 }
 
+
+.left-panel-title-container{
+  margin-top: 15px;
+}
+
 .title-text {
   color: black;
   text-align: center;
   font-weight: bold;
-  line-height: 1.5;
+  line-height: 1.2;
+  margin-top: 5px;
+  margin-bottom: 6px;
 }
 
 .main-content {
@@ -306,7 +335,7 @@ input:invalid {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 .input-wrapper {
@@ -321,16 +350,17 @@ input:invalid {
   text-align: center; /* 文字居中 */
   align-items: center; /* 垂直居中 */
   font-weight: bold; /* 字体加粗 */
- 
   width: 200px; /* 与输入框和结果框的宽度一致 */
   padding-left: 10px; /* 与输入框和结果框的左内边距一致 */
+  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 
 .input-box {
   width: 200px;
-  padding: 0.6rem;
-  border: 4px solid gray;
+  padding: 0.5rem;
+  border: 4px solid #94c9ed;
   border-radius: 0.6rem;
   font-size: 1rem;
   text-align: center;
@@ -354,7 +384,7 @@ input:invalid {
 }
 
 .calculate-button {
-  margin-top: 15px; /* 与输入框的间距 */
+  margin-top: 1.5rem; /* 与输入框的间距 */
   padding: 10px 20px;
   font-size: 16px;
   border: none;
@@ -387,7 +417,7 @@ input:invalid {
 
 .result-section{
   display: inline-block; /* 让宽度根据内容自适应 */
-  margin-top: 1rem;
+  margin-top: 0.8rem;
   margin-bottom: 1rem;
 }
 
@@ -418,27 +448,35 @@ input:invalid {
   font-weight: bold; /* 字体加粗 */
   width: 200px; /* 与输入框和结果框的宽度一致 */
   padding-left: 10px; /* 与输入框和结果框的左内边距一致 */
+  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 .result-box {
   width: 200px; /* 初始宽度 */
   padding: 10px;
-  border: 4px solid gray; /* 灰色粗边框 */
+  border: 4px solid rgb(185, 185, 185); /* 灰色粗边框 */
   border-radius: 10px; /* 圆角 */
   font-size: 16px;
   text-align: center;
   background-color: #ffffff; /* 浅灰色背景 */
   transition: width 0.3s ease; /* 宽度变化时的过渡效果 */
+  transition: border-color 0.3s ease;
 }
 
 .result-box:placeholder-shown {
   color: #aaaaaa; /* 浅灰色 */
 }
 
+.result-box:focus {
+  border-color: #606060;
+  box-shadow: 0 0 0.5rem rgba(29, 37, 43, 0.3);
+  outline: none;
+}
 
 /* 输出区域 */
 .history-box {
-  width: 100%;
+  width: 96.5%;
 
   min-height: 100px;
   background-color: #fff;
@@ -670,11 +708,31 @@ input:invalid {
     max-width: none;
   }
 
-
-
   .title-bar h1 {
     white-space: normal; /* 文字完整显示 */
     overflow: visible;
     text-overflow: clip;
   }
+
+/* 开关容器适配 */
+  .toggle-container {
+    height: auto; /* 自适应高度，支持多行 */
+    min-height: 40px; /* 最小高度保持一致 */
+    align-items: center; /* 垂直居中 */
+    padding: 5px 0; /* 增加垂直内边距，优化间距 */
+  }
+
+  .toggle-text {
+    font-size: 16px; /* 与桌面端保持一致 */
+    white-space: normal; /* 允许换行 */
+    overflow: visible; /* 显示完整文字 */
+    text-overflow: clip; /* 取消省略号 */
+    padding-right: 8px; /* 稍减小右内边距 */
+  }
+
+.toggle-switch {
+    width: 60px;
+    height: 28px;
+  }
+
 }

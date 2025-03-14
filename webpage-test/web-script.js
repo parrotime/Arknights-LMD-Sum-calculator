@@ -8,7 +8,7 @@ async function runTest() {
   // 启动浏览器
   const browser = await puppeteer.launch({
     headless: false, // 设置为 false 以便观察
-    slowMo: 50, // 放慢操作速度，便于观察
+    slowMo: 50, // 放慢操作速度
   });
 
   const page = await browser.newPage();
@@ -32,7 +32,7 @@ async function runTest() {
   // 等待第一个输入框出现
   try {
     await page.waitForSelector(".input-group:nth-child(1) .input-box", {
-      timeout: 10000,
+      timeout: 5000,
     });
     console.log("找到第一个输入框");
   } catch (error) {
@@ -55,7 +55,7 @@ async function runTest() {
   // 等待第二个输入框出现
   try {
     await page.waitForSelector(".input-group:nth-child(2) .input-box", {
-      timeout: 10000,
+      timeout: 5000,
     });
     console.log("找到第二个输入框");
   } catch (error) {
@@ -87,7 +87,7 @@ async function runTest() {
     // 等待计算完成
     await page.waitForFunction(
       'document.querySelector(".result-box").value !== "两者相差"',
-      { timeout: 100000 }
+      { timeout: 10000 }
     );
 
     // 结束计时
@@ -104,14 +104,14 @@ async function runTest() {
     try {
       await page.waitForSelector(".path-container", { timeout: 5000 });
       const noPath = await page.evaluate(() => {
-        return !!document.querySelector(".path-error");
+        return !!document.querySelector(".path-error");//转为bool
       });
 
       if (noPath) {
         pathContent = "没有找到合适的路径";
       } else {
         pathContent = await page.evaluate(() => {
-          const steps = document.querySelectorAll(".step_item");
+          const steps = document.querySelectorAll(".step_item");//获取路径所有步骤
           return Array.from(steps).map((step) => step.innerText.trim());
         });
       }
@@ -130,15 +130,13 @@ async function runTest() {
     });
 
     console.log(
-      `测试 #${i}: 输入 (500, ${i}) => 输出: ${outputContent}, 执行时间: ${executionTime.toFixed(
-        2
-      )}ms, 路径: ${
+      `测试 #${i}: 输入 (500, ${i}) => 输出: ${outputContent}, 执行时间: ${executionTime.toFixed(2)}ms, 路径: ${
         Array.isArray(pathContent) ? `${pathContent.length} steps` : pathContent
       }`
     );
 
-    //await page.waitForTimeout(100); // 确保页面稳定
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // 确保页面稳定
+    await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
   // 保存结果
@@ -153,8 +151,7 @@ async function runTest() {
 
 function calculateStatistics() {
   const executionTimes = results.map((r) => r.executionTime);
-  const avgTime =
-    executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
+  const avgTime = executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
   const maxTime = Math.max(...executionTimes);
   const minTime = Math.min(...executionTimes);
 

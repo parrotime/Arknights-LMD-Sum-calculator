@@ -163,6 +163,14 @@
   width: 100%; /* 全屏时拉长到 96% */
 }
 
+/* 修改部分：D 表格样式（拆分为两个表格） */
+.table-d {
+  width: 48%; /* 全屏时水平排列，每张表占 48% */
+  min-width: 300px; /* 最小宽度，确保内容可读 */
+}
+
+
+
 /* 移动端适配 */
 @media (max-width: 800px) {
   .main-data-content {
@@ -228,7 +236,7 @@
     padding: 12px 15px;
   }
 
-
+.table-d { width: 100%; }
 
 
 

@@ -294,18 +294,21 @@ const MainCalculator = () => {
                 <h1>龙门币凑数计算器</h1>
               </div>
 
-              <div className="title-text">
-                <p>请输入两个0到99999999之间的整数</p>
-                <p>且两数差值处于-500~500之间</p>
+              <div className="left-panel-title-container">
+                <div className="title-text">
+                  请输入两个[0,99999999]区间的整数
+                </div>
+                <div className="title-text">
+                  且两数差值处于[-1000,1000]区间
+                </div>
               </div>
+
 
               <div className="main-content">
                 <div className="input-container">
                   {/* 当前数量输入 */}
                   <div className="input-group">
-                    <div className="input-wrapper-text">
-                      <p>当前龙门币数量:</p>
-                    </div>
+                    <div className="input-wrapper-text">当前龙门币数量:</div>
                     <div className="input-wrapper">
                       <input
                         type="text"
@@ -325,9 +328,7 @@ const MainCalculator = () => {
 
                   {/* 目标数量输入 */}
                   <div className="input-group">
-                    <div className="input-wrapper-text">
-                      <p>目标龙门币数量:</p>
-                    </div>
+                    <div className="input-wrapper-text">目标龙门币数量:</div>
                     <div className="input-wrapper">
                       <input
                         type="text"
@@ -357,13 +358,12 @@ const MainCalculator = () => {
                 <div className="result-section">
                   {/* ...原有结果框代码... */}
                   <div className="output-wrapper-text">
-                    <p>计算还需要龙门币数量:</p>
+                    计算还需要龙门币数量:
                   </div>
                   <div className="result-container">
                     <input
                       type="text"
                       className="result-box"
-                      //value={state.result || "两者相差"}
                       placeholder="两者相差"
                       value={state.result}
                       readOnly
@@ -372,6 +372,26 @@ const MainCalculator = () => {
                   {state.differenceError && (
                     <div className="error-message">{state.differenceError}</div>
                   )}
+                </div>
+
+                <div className="usage-guide">
+                  <div className="notice-title">数值输入注意事项</div>
+                  <div className="notice-content">
+                    1. 输入要求：两个差值小于1000的非负整数（0 或正整数）
+                    <br />
+                    2. 输入示例：
+                    <br />
+                    &nbsp;&nbsp;&nbsp;✓ 有效输入：① 300 与 800 ② 500 与 500 ③ 0
+                    与 1000
+                    <br />
+                    &nbsp;&nbsp;&nbsp;✗ 无效输入：① -50 与 1500 ② 300 与 非整数
+                    <br />
+                    3.
+                    点击“立即计算”按钮开始计算，点击“上一路径”和“下一路径”可以切换路径方案
+                    <br />
+                    4.
+                    对于某些数字可能存在计算较慢的现象，计算时页面卡住是正常现象，请耐心等待，后续会继续优化
+                  </div>
                 </div>
               </div>
             </div>
@@ -383,76 +403,58 @@ const MainCalculator = () => {
               </div>
 
               {/* 开关容器模板 - 五个相同结构的设置项 */}
-              {[
-                // 创建设置项配置数组优化代码结构
-                { text: "不允许使用理智三星通关", key: "disable3Star" },
-                { text: "不允许使用理智二星通关", key: "disable2Star" },
-                { text: "不允许使用基建物品合成", key: "disableMaterial" },
-                {
-                  text: "不存在/不使用sidestory活动商店1代币换20龙门币",
-                  key: "disableStore20",
-                },
-                {
-                  text: "不存在/不使用故事集活动商店1代币换10龙门币",
-                  key: "disableStore10",
-                },
-                {
-                  text: "不存在/不使用危机合约1代币换70龙门币",
-                  key: "disableStore70",
-                },
-                {
-                  text: "不存在/不使用代理剿灭25理智获取250龙门币",
-                  key: "disableExt25",
-                },
-                { text: "不允许使用贸易站售卖赤金", key: "disableTrade" }, // 新增开关1
-                {
-                  text: "允许连续多次对精零1级干员进行升级",
-                  key: "enableUpgradeOnly0",
-                }, // 新增开关2
-                {
-                  text: "允许连续多次对精一1级干员进行升级",
-                  key: "enableUpgradeOnly1",
-                }, // 新增开关3
-                {
-                  text: "允许连续多次对精二1级干员进行升级",
-                  key: "enableUpgradeOnly2",
-                },
-                {
-                  text: "只允许连续多次对精零/精一/精二1级干员进行升级",
-                  key: "enableUpgradeOnlyFor1",
-                },
-              ].map(({ text, key }) => (
-                <div className="toggle-container" key={key}>
-                  <div className="toggle-text">{text}</div>
-                  <label className="toggle-switch">
-                    <input
-                      type="checkbox"
-                      checked={state.settings[key]}
-                      onChange={() => handleToggleChange(key)}
-                    />
-                    <span className="slider"></span>
-                  </label>
-                </div>
-              ))}
-
-              <div className="usage-guide">
-                <div className="notice-title">龙门币数值输入规范</div>
-                <div className="notice-content">
-                  1. 输入要求：两个差值小于500的非负整数（0 或正整数）
-                  <br />
-                  2. 输入示例：
-                  <br />
-                  &nbsp;&nbsp;&nbsp;✓ 有效输入：① 300 与 800 ② 500 与 500 ③ 0 与
-                  1000
-                  <br />
-                  &nbsp;&nbsp;&nbsp;✗ 无效输入：① -50 与 1500 ② 300 与 非整数
-                  <br />
-                  3.
-                  点击“立即计算”按钮开始计算，点击“上一路径”和“下一路径”可以切换路径方案
-                  <br />
-                  4.
-                  对于某些数字可能存在计算较慢的现象，计算时页面卡住是正常现象，请耐心等待，后续会继续优化
-                </div>
+              <div className="toggle-wrapper">
+                {[
+                  // 创建设置项配置数组优化代码结构
+                  { text: "不允许使用理智三星通关", key: "disable3Star" },
+                  { text: "不允许使用理智二星通关", key: "disable2Star" },
+                  { text: "不允许使用基建物品合成", key: "disableMaterial" },
+                  {
+                    text: "不存在/不使用sidestory活动商店1代币换20龙门币",
+                    key: "disableStore20",
+                  },
+                  {
+                    text: "不存在/不使用故事集活动商店1代币换10龙门币",
+                    key: "disableStore10",
+                  },
+                  {
+                    text: "不存在/不使用危机合约1代币换70龙门币",
+                    key: "disableStore70",
+                  },
+                  {
+                    text: "不存在/不使用代理剿灭25理智获取250龙门币",
+                    key: "disableExt25",
+                  },
+                  { text: "不允许使用贸易站售卖赤金", key: "disableTrade" }, // 新增开关1
+                  {
+                    text: "允许连续多次对精零1级干员进行升级",
+                    key: "enableUpgradeOnly0",
+                  }, // 新增开关2
+                  {
+                    text: "允许连续多次对精一1级干员进行升级",
+                    key: "enableUpgradeOnly1",
+                  }, // 新增开关3
+                  {
+                    text: "允许连续多次对精二1级干员进行升级",
+                    key: "enableUpgradeOnly2",
+                  },
+                  {
+                    text: "只允许连续多次对精零/精一/精二1级干员进行升级",
+                    key: "enableUpgradeOnlyFor1",
+                  },
+                ].map(({ text, key }) => (
+                  <div className="toggle-container" key={key}>
+                    <div className="toggle-text">{text}</div>
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={state.settings[key]}
+                        onChange={() => handleToggleChange(key)}
+                      />
+                      <span className="slider"></span>
+                    </label>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -483,11 +485,11 @@ const MainCalculator = () => {
               <div className="no-path">{""}</div>
             )}
 
-            {state.clickCount >= 5 && state.pathCache.length > 0 && (
+            {state.clickCount >= 10 && state.pathCache.length > 0 && (
               <div className="change-over-text">
                 <p>
-                  {state.clickCount < 10
-                    ? "你已经尝试了五条路径，要不要考虑更换输入值？"
+                  {state.clickCount < 15
+                    ? "你已经尝试了10条路径，要不要考虑更换输入值？"
                     : "真的不考虑更换输入值吗？"}
                 </p>
               </div>
