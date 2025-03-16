@@ -13,7 +13,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build -m \"Deploy: Update Test [$(date)]\"",
+    "deploy": "gh-pages -d build -m \"Deploy: Update V1.0 For Test\"",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

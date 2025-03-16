@@ -16,8 +16,8 @@ async function runTest() {
   // 导航到目标网页
   try {
     await page.goto(
-      //"https://parrotime.github.io/Arknights-LMD-Sum-calculator/",
-      "http://localhost:3000/Arknights-LMD-Sum-calculator",
+      "https://parrotime.github.io/Arknights-LMD-Sum-calculator/",
+      //"http://localhost:3000/Arknights-LMD-Sum-calculator",
       {
         waitUntil: "networkidle2",
       }
@@ -42,7 +42,7 @@ async function runTest() {
     return;
   }
 
-  // 清空并输入500到第一个输入框
+  // 清空并输入1000到第一个输入框
   await page.evaluate(() => {
     const input = document.querySelector(
       ".input-group:nth-child(1) .input-box"
@@ -50,7 +50,7 @@ async function runTest() {
     if (!input) throw new Error("第一个输入框不存在");
     input.value = "";
   });
-  await page.type(".input-group:nth-child(1) .input-box", "500");
+  await page.type(".input-group:nth-child(1) .input-box", "100");
 
   // 等待第二个输入框出现
   try {
@@ -65,8 +65,8 @@ async function runTest() {
     return;
   }
 
-  // 对第二个输入框依次输入0~20的整数并记录结果
-  for (let i = 0; i <= 20; i++) {
+  // 对第二个输入框依次输入0~50的整数并记录结果
+  for (let i = 100; i <= 500; i++) {
     // 清空第二个输入框
     await page.evaluate(() => {
       const input = document.querySelector(
@@ -130,13 +130,13 @@ async function runTest() {
     });
 
     console.log(
-      `测试 #${i}: 输入 (500, ${i}) => 输出: ${outputContent}, 执行时间: ${executionTime.toFixed(2)}ms, 路径: ${
+      `测试 #${i}: 输入 (100, ${i}) => 输出: ${outputContent}, 执行时间: ${executionTime.toFixed(2)}ms, 路径: ${
         Array.isArray(pathContent) ? `${pathContent.length} steps` : pathContent
       }`
     );
 
     // 确保页面稳定
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   // 保存结果

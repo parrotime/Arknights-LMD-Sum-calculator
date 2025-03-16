@@ -2,12 +2,10 @@
   width: 100%; /* 右侧区域宽度 */
   padding-left: 30px;
   background-color: #afd3f3; /* 浅灰色背景 */
-
   display: flex; /* 设置为 Flexbox 容器 */
   justify-content: center; /* 水平居中 */
-
-    min-height: 100vh; /* 初始高度为页面高度，内容超出时自动扩展 */
-
+  min-height: 100vh; /* 初始高度为页面高度，内容超出时自动扩展 */
+  box-sizing: border-box; /* 确保边距不影响宽度计算 */
 }
 
 .about-page {
@@ -19,6 +17,77 @@
   background-color: #f9f9f9; /* 浅灰色背景 */
   border-radius: 15px; /* 圆角 */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
-
   margin-left: 230px;
+}
+
+.about-page h1 {
+  font-family: "Segoe UI", system-ui;
+  font-size: 2.4rem;
+  font-weight: bold;
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #5c9edc;
+  letter-spacing: 0.05em;
+}
+
+.notice-list .notice-item {
+  padding: 18px 25px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  color: #2c3e50;
+  line-height: 1.6;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 15px;
+}
+
+.notice-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.notice-content {
+  padding-left: 10px;
+  font-size: 1rem;
+}
+
+.external-link {
+  color: #5c9edc;
+  text-decoration: none;
+  border-bottom: 2px dotted rgba(92, 158, 220, 0.3);
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.external-link:hover {
+  color: #468acb;
+  border-bottom-style: solid;
+  border-bottom-color: currentColor;
+}
+
+@media (max-width: 800px) {
+  .main-about-content {
+    margin-left: 0;
+    padding-left: 0;
+    padding-top: 20px;
+  }
+
+  .about-page {
+    margin: 0 auto;
+    width: 88%;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .about-page h1 {
+    font-size: 1.8rem;
+  }
+
+  .notice-list .notice-item {
+    padding: 15px;
+    font-size: 1rem;
+  }
 }

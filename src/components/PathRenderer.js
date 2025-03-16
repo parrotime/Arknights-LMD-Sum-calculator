@@ -13,34 +13,32 @@ const PathRenderer = ({
   onNextPath,
 }) => {
   const safePath = Array.isArray(path) ? path : [];
-  if (!Array.isArray(path)) {
-    return <div></div>;
-  }
 
   // 路径为空
   if (path.length === 0) {
-    return <div className="path-error">没有找到合适的路径</div>;
+    return <div className="path-renderer-error">没有找到合适的路径</div>;
   }
 
   // 初始龙门币数量
   let currentLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
 
   return (
-    <div className="path-container">
-      <div className="path-group">
+    <div className="path-renderer-container">
+      <div className="path-renderer-path-group">
         <h3>路径方案</h3>
         {safePath.map((step, stepIndex) => {
-          const item = getItemById(Number(step.id));
           if (!step || typeof step !== "object") {
             return (
-              <div key={`step-${stepIndex}`} className="error">
+              <div key={`step-${stepIndex}`} className="path-renderer-error">
                 无效步骤数据
               </div>
             );
           }
+
+          const item = getItemById(Number(step.id));
           if (!item) {
             return (
-              <div key={`step-${stepIndex}`} className="error">
+              <div key={`step-${stepIndex}`} className="path-renderer-error">
                 未知物品ID: {step.id}
               </div>
             );
@@ -53,7 +51,7 @@ const PathRenderer = ({
           currentLMD += stepValue;
 
           return (
-            <div key={`step-${stepIndex}`} className="step_item">
+            <div key={`step-${stepIndex}`} className="path-renderer-step-item">
               <span style={{ fontWeight: "bold" }}>步骤 {stepIndex + 1}：</span>
               通过【{step.count}】次使用【
               <span style={{ color: getRarityColor(rarity) }}>{itemName}</span>
@@ -64,19 +62,27 @@ const PathRenderer = ({
         })}
       </div>
       {totalPaths > 1 && (
-        <div className="pagination">
-          <button className="nav-button prev-button" onClick={onPrevPath}>
+        <div className="path-renderer-pagination">
+          <button
+            className="path-renderer-nav-button path-renderer-prev-button"
+            onClick={onPrevPath}
+          >
             ← 上一路径
           </button>
-          <div className="dot-container">
+          <div className="path-renderer-dot-container">
             {Array.from({ length: totalPaths }).map((_, index) => (
               <span
                 key={index}
-                className={`dot ${index === currentIndex ? "active" : ""}`}
-              ></span>
+                className={`path-renderer-dot ${
+                  index === currentIndex ? "active" : ""
+                }`}
+              />
             ))}
           </div>
-          <button className="nav-button next-button" onClick={onNextPath}>
+          <button
+            className="path-renderer-nav-button path-renderer-next-button"
+            onClick={onNextPath}
+          >
             下一路径 →
           </button>
         </div>

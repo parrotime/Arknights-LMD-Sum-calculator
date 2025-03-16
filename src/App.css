@@ -1,6 +1,3 @@
-
-
-
 /* 全局黑底红框 */
 /** {
   background-color: black !important; /* 全局背景设置为黑色 */
@@ -14,16 +11,13 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  /* font-family: '黑体', sans-serif;*/
 }
 
 .app-container {
   display: flex;
   height: auto; /* 确保容器占满整个页面高度 */
-  overflow: hidden; /* 隐藏容器内部的滚动条 */
   min-height: 100vh; /* 保证最小高度 */
 }
-
 
 /* 返回顶部按钮 */
 .back-to-top {
@@ -62,8 +56,6 @@ html, body, #root {
   transition: transform 0.2s ease; /* 平滑过渡 */
 }
 
-
-
 /* 侧边栏 */
 .sidebar {
   width: 230px;
@@ -83,7 +75,6 @@ html, body, #root {
 .sidebar-title {
   width: 65%;
   padding: 20px 40px;
-  margin-bottom: 0px;
   background-color: #216fcf; /* 蓝色背景 */
   color: white; /* 白色文字 */
   text-align: center;
@@ -118,6 +109,19 @@ html, body, #root {
   cursor: pointer; /* 鼠标悬停时改变光标 */
 }
 
+/* 输入区域 */
+.input-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  background-color: #afd3f3;
+  margin-left: 230px;
+  min-height: 100vh;
+  width: calc(100% - 230px);
+  box-sizing: border-box;
+}
 
 /* 主容器 */
 .main-container {
@@ -174,12 +178,112 @@ html, body, #root {
   padding: 20px 20px 10px; /* 底部padding减小，避免内容过挤 */
 }
 
+/* 标题 */
+.title-bar {
+  text-align: center;
+  background-color: #b9d8f3;
+  padding: 1rem 2rem;
+  border-radius: 2rem;
+  box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.2);
+  margin-bottom: 10px;
+}
+
+.title-bar h1 {
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* 输入和结果样式 */
+.input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.input-wrapper-text,
+.output-wrapper-text {
+  color: black;
+  text-align: center;
+  font-weight: bold;
+  width: 200px;
+  padding-left: 10px;
+  margin: 6px 0;
+}
+
+.input-box,
+.result-box {
+  width: 200px;
+  padding: 0.5rem;
+  border: 4px solid #94c9ed;
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+.input-box:focus,
+.result-box:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0.5rem rgba(52, 152, 219, 0.3);
+  outline: none;
+}
+
+.result-box {
+  border-color: rgb(185, 185, 185);
+  background-color: #ffffff;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+  white-space: nowrap;
+  font-weight: bold;
+  text-align: center;
+}
+
+
+
+.calculate-button {
+  margin-top: 1.5rem; /* 与输入框的间距 */
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: #007bff; /* 蓝色背景 */
+  color: white; /* 白色文字 */
+  cursor: pointer;
+  transition: all 0.2s ease; /* 所有属性的过渡效果 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+}
+
+.calculate-button:hover {
+  background-color: #0056b3; /* 鼠标悬停时变深蓝色 */
+}
+
+/* 按钮按下时的效果 */
+.calculate-button:active {
+  transform: scale(0.95); /* 缩小按钮 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 减小阴影 */
+  background-color: #0056b3; /* 背景颜色变深 */
+}
+
+/* 按钮文字动画 */
+.calculate-button:active span {
+  display: inline-block;
+  transform: scale(0.9); /* 文字缩小 */
+  transition: transform 0.2s ease; /* 平滑过渡 */
+}
+
+
 .toggle-wrapper {
   display: flex;
   flex-direction: column;
   gap: 12px; /* 行间距统一 */
-  margin-top: 13px; /* 与标题间距 */
-  margin-bottom: 15px; /* 与下方内容间距 */
+  margin: 13px 0 15px;
 }
 
 .toggle-title{
@@ -246,66 +350,31 @@ html, body, #root {
 
 /* 滑块内圆圈样式 */
 .slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
-    border-radius: 50%;
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
 }
 
 /* 选中状态下滑块的背景颜色 */
 input:checked + .slider {
-    background-color: #2196F3;
+  background-color: #2196F3;
 }
 
 /* 选中状态下圆圈的位置 */
 input:checked + .slider:before {
-    -webkit-transform: translateX(30px);
-    -ms-transform: translateX(30px);
-    transform: translateX(32px);
+  transform: translateX(32px);
 }
 
 /* 禁用非数字输入的视觉反馈 */
 input:invalid {
   border-color: #e74c3c;
-}
-
-/* 输入区域 */
-.input-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1.5rem;
-  background-color: #afd3f3;
-  margin-left: 230px;
-  min-height: 100vh;
-  width: calc(100% - 230px);
-  box-sizing: border-box;
-}
-
-
-
-/* 标题 */
-.title-bar {
-  text-align: center;
-  background-color: #b9d8f3;
-  padding: 1rem 2rem;
-  border-radius: 2rem;
-  box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.2);
-  margin-bottom: 10px;
-}
-
-.title-bar h1 {
-  font-weight: bold;
-  font-size: 1.5rem;
-  margin: 0;
-  white-space: nowrap;
 }
 
 
@@ -329,92 +398,6 @@ input:invalid {
   align-items: center;
 }
 
-
-/* 输入框 */
-.input-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.input-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-
-.input-wrapper-text{
-  color: black; 
-  text-align: center; /* 文字居中 */
-  align-items: center; /* 垂直居中 */
-  font-weight: bold; /* 字体加粗 */
-  width: 200px; /* 与输入框和结果框的宽度一致 */
-  padding-left: 10px; /* 与输入框和结果框的左内边距一致 */
-  margin-top: 6px;
-  margin-bottom: 6px;
-}
-
-
-.input-box {
-  width: 200px;
-  padding: 0.5rem;
-  border: 4px solid #94c9ed;
-  border-radius: 0.6rem;
-  font-size: 1rem;
-  text-align: center;
-  transition: border-color 0.3s ease;
-
-}
-
-.input-box:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 0.5rem rgba(52, 152, 219, 0.3);
-  outline: none;
-}
-
-.error-message {
-  color: red; /* 红色文字 */
-  font-size: 14px;
-  margin-top: 10px; /* 与输入框的间距 */
-  white-space: nowrap; /* 防止文字换行 */
-  font-weight: bold;
-  text-align: center; /* 文字居中 */
-}
-
-.calculate-button {
-  margin-top: 1.5rem; /* 与输入框的间距 */
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 10px;
-  background-color: #007bff; /* 蓝色背景 */
-  color: white; /* 白色文字 */
-  cursor: pointer;
-  transition: all 0.2s ease; /* 所有属性的过渡效果 */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 阴影效果 */
-}
-
-/* 按钮按下时的效果 */
-.calculate-button:active {
-  transform: scale(0.95); /* 缩小按钮 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 减小阴影 */
-  background-color: #0056b3; /* 背景颜色变深 */
-}
-
-/* 按钮文字动画 */
-.calculate-button:active span {
-  display: inline-block;
-  transform: scale(0.9); /* 文字缩小 */
-  transition: transform 0.2s ease; /* 平滑过渡 */
-}
-
-.calculate-button:hover {
-  background-color: #0056b3; /* 鼠标悬停时变深蓝色 */
-}
-
-
 .result-section{
   display: inline-block; /* 让宽度根据内容自适应 */
   margin-top: 0.8rem;
@@ -433,8 +416,6 @@ input:invalid {
   margin-bottom: 0.5rem; /* 小标题与内容间距较小 */
   text-align: center;
 }
-
-
 
 /* 结果框容器 */
 .result-container {
@@ -477,16 +458,13 @@ input:invalid {
 /* 输出区域 */
 .history-box {
   width: 96.5%;
-
   min-height: 100px;
   background-color: #fff;
   border: 2px solid #e0e0e0;
   border-radius: 15px;
   padding: 20px;
   box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-
   height: fit-content; /* 根据内容自适应 */
-
 }
 
 .history-header {
@@ -496,86 +474,10 @@ input:invalid {
   margin-bottom: 20px; /* 与内容的间距 */
 }
 
-.header-buttons {
-  display: flex;
-  gap: 10px; /* 按钮间距 */
-}
-
 .history-box h2 {
-  font-family: '黑体', sans-serif; /* 黑体字体 */
   font-weight: bold; /* 加粗 */
   font-size: 24px; /* 字体大小 */
   margin: 0; /* 去除默认外边距 */
-}
-
-.history-box ul {
-  list-style-type: none; /* 去除列表符号 */
-  padding: 0;
-}
-
-.history-box li {
-  font-size: 18px;
-  margin-bottom: 10px; /* 列表项之间的间距 */
-}
-
-.clear-history-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 10px;
-  background-color: #dc3545; /* 红色背景 */
-  color: white; /* 白色文字 */
-  cursor: pointer;
-  transition: all 0.2s ease; /* 背景颜色变化的过渡效果 */
-}
-
-.clear-history-button:hover {
-  background-color: #c82333; /* 鼠标悬停时变深红色 */
-}
-
-/* 按钮按下时的效果 */
-.clear-history-button:active {
-  transform: scale(0.95); /* 缩小按钮 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 减小阴影 */
-  background-color: #990000; /* 背景颜色变深 */
-}
-
-
-/* 按钮文字动画 */
-.clear-history-button:active span {
-  display: inline-block;
-  transform: scale(0.9); /* 文字缩小 */
-  transition: transform 0.2s ease; /* 平滑过渡 */
-}
-
-
-.change-path-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 10px;
-  background-color: #007bff; 
-  color: white; /* 白色文字 */
-  cursor: pointer;
-  transition: all 0.2s ease; /* 背景颜色变化的过渡效果 */
-}
-
-.change-path-button:hover {
-  background-color: #0056b3; 
-}
-
-/* 按钮按下时的效果 */
-.change-path-button:active {
-  transform: scale(0.95); /* 缩小按钮 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 减小阴影 */
-  background-color: #0056b3; /* 背景颜色变深 */
-}
-
-/* 按钮文字动画 */
-.change-path-button:active span {
-  display: inline-block;
-  transform: scale(0.9); /* 文字缩小 */
-  transition: transform 0.2s ease; /* 平滑过渡 */
 }
 
 .change-over-text{
@@ -585,9 +487,6 @@ input:invalid {
   text-align: center;
   font-weight: bold;
 }
-
-
-
 
 .modal-overlay {
   position: fixed;
@@ -616,19 +515,6 @@ input:invalid {
   color: #333;
 }
 
-.modal-content p {
-  margin: 10px 0;
-}
-
-.modal-content ul {
-  list-style: none;
-  padding: 0;
-}
-
-.modal-content li {
-  margin: 5px 0;
-}
-
 .modal-content button {
   margin-top: 15px;
   padding: 8px 16px;
@@ -644,16 +530,6 @@ input:invalid {
 }
 
 
-
-
-
-
-
-
-
-
-
-
 @media (max-width: 800px) {
   /* 调整整体容器布局 */
   .app-container {
@@ -664,7 +540,6 @@ input:invalid {
 /* 侧边栏调整：确保两行两列分布 */
   .sidebar {
     width: 100%;
-    flex:auto;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between; /* 均匀分布 */
@@ -690,9 +565,9 @@ input:invalid {
     padding: 1rem;
   }
 
-.main-container {
-    width: 100%;
-  }
+  .main-container {
+      width: 100%;
+    }
 
   /* 主内容容器调整：left-panel 和 right-panel 垂直排列 */
   .main-content-container {
@@ -701,7 +576,7 @@ input:invalid {
   }
 
   /* 左侧计算面板 */
-.left-panel,
+  .left-panel,
   .right-panel,
   .history-box {
     width: 90%;
@@ -723,16 +598,40 @@ input:invalid {
   }
 
   .toggle-text {
-    font-size: 16px; /* 与桌面端保持一致 */
     white-space: normal; /* 允许换行 */
     overflow: visible; /* 显示完整文字 */
     text-overflow: clip; /* 取消省略号 */
     padding-right: 8px; /* 稍减小右内边距 */
   }
 
-.toggle-switch {
-    width: 60px;
-    height: 28px;
+  .toggle-switch {
+      width: 60px;
+      height: 28px;
   }
+}
 
+.loading-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.progress-bar {
+  width: 80%;
+  height: 10px;
+  background-color: #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 0 auto 10px;
+}
+
+.progress-bar-fill {
+  width: 100%;
+  height: 100%;
+  background-color: #007bff;
+  animation: loading 2s infinite;
+}
+
+@keyframes loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }

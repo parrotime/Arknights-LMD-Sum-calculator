@@ -97,14 +97,12 @@
   transform: rotate(-90deg);
 }
 
-
 .explain-text{
   text-align: left; /* 改为左对齐，增强可读性 */
   color: #34495e; /* 更高对比度的文字颜色 */
   line-height: 1.6; /* 增加行距 */
   margin-bottom: 20px;
 }
-
 
 /* 数据表格 */
 .tables-container {
@@ -169,8 +167,6 @@
   min-width: 300px; /* 最小宽度，确保内容可读 */
 }
 
-
-
 /* 移动端适配 */
 @media (max-width: 800px) {
   .main-data-content {
@@ -199,8 +195,11 @@
   }
 
 /* A 表格变窄 */
-  .table-a {
-    width: 100%; /* 整体变窄 */
+  .table-a,
+  .table-b,
+  .table-c,
+  .table-d {
+    width: 100%;
     min-width: 300px;
   }
 
@@ -208,42 +207,19 @@
   .table-a td:nth-child(2),
   .table-a th:nth-child(3),
   .table-a td:nth-child(3) {
-    width: 30%; /* 第 2、3 列变窄 */
-    padding: 12px 10px; /* 调整内边距 */
-  }
-
-  /* B 表格保持现状 */
-  .table-b {
-    width: 100%;
-    min-width: 300px;
-  }
-
-  /* C 表格调整 */
-  .table-c {
-    width: 100%;
-    min-width: 300px;
+    width: 30%;
+    padding: 12px 10px;
   }
 
   .table-c th:nth-child(1),
   .table-c td:nth-child(1) {
-    width: 20%; /* 第 1 列变窄 */
+    width: 20%;
     padding: 12px 10px;
   }
 
   .table-c th:nth-child(2),
   .table-c td:nth-child(2) {
-    width: 80%; /* 第 2 列变宽 */
+    width: 80%;
     padding: 12px 15px;
   }
-
-.table-d { width: 100%; }
-
-
-
-
-
-
-
-
-
 }

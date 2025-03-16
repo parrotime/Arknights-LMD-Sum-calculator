@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from "react";
+import React, { useReducer, useState, useCallback } from "react";
 //import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { findPaths } from "./algorithms/DP";
@@ -99,25 +99,26 @@ const MainCalculator = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [showModal, setShowModal] = useState(false); // 新增：弹窗状态
   // 开关变化处理函数
-  const handleToggleChange = (key) => {
-    dispatch({ type: "TOGGLE_SETTING", key });
-    // 新增：当切换 enableUpgradeOnlyFor1 时触发弹窗
-    if (
-      key === "enableUpgradeOnlyFor1" &&
-      !state.settings.enableUpgradeOnlyFor1
-    ) {
-      setShowModal(true);
-    }
-  };
+  const handleToggleChange = useCallback(
+    (key) => {
+      dispatch({ type: "TOGGLE_SETTING", key });
+      if (
+        key === "enableUpgradeOnlyFor1" &&
+        !state.settings.enableUpgradeOnlyFor1
+      ) {
+        setShowModal(true);
+      }
+    },
+    [state.settings]
+  );
 
   // 优化后的输入验证
-  const handleInputChange = (e, field) => {
-    const value = e.target.value.replace(/[^0-9]/g, ""); // 只允许数字
+  const handleInputChange = useCallback((e, field) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
     if (value === "") {
       dispatch({ type: "SET_NUM", field, value: "" });
       return;
     }
-
     const numValue = parseInt(value, 10);
     if (numValue > 99999999) {
       dispatch({
@@ -127,13 +128,11 @@ const MainCalculator = () => {
       });
       return;
     }
-
-    // 去除前导零
     dispatch({ type: "SET_NUM", field, value: numValue.toString() });
-  };
+  }, []);
 
   // 计算逻辑 异步函数
-  const handleCalculate = async () => {
+  const handleCalculate = useCallback(async () => {
     if (!state.num1 || !state.num2) {
       dispatch({
         type: "SET_ERROR",
@@ -162,14 +161,12 @@ const MainCalculator = () => {
     dispatch({ type: "SET_CALCULATING", value: true });
 
     try {
-      // 优化：确保所有开关过滤条件同时生效
       const filteredItems = classifyData.filter((item) => {
-        const settings = state.settings;
+        const { settings } = state;
         const itemType = item.type?.toLowerCase() || "";
-
         const isUpgradeAllowed = settings.enableUpgradeOnlyFor1
-          ? itemType !== "upgrade" // 开启时排除 upgrade
-          : true; // 关闭时不过滤 upgrade
+          ? itemType !== "upgrade"
+          : true;
 
         return (
           (!settings.disable3Star || itemType !== "3_star") &&
@@ -179,20 +176,19 @@ const MainCalculator = () => {
           (!settings.disableStore10 || itemType !== "store_10") &&
           (!settings.disableStore70 || itemType !== "store_70") &&
           (!settings.disableExt25 || itemType !== "ext_25") &&
-          (!settings.disableTrade || itemType !== "trade") && // 新增开关1逻辑
-          (settings.enableUpgradeOnly0 || itemType !== "upgrade_only_0") && // 新增开关2逻辑
-          (settings.enableUpgradeOnly1 || itemType !== "upgrade_only_1") && // 新增开关3逻辑
-          (settings.enableUpgradeOnly2 || itemType !== "upgrade_only_2") && // 新增开关4逻辑
-          isUpgradeAllowed // 新增开关5逻辑
+          (!settings.disableTrade || itemType !== "trade") &&
+          (settings.enableUpgradeOnly0 || itemType !== "upgrade_only_0") &&
+          (settings.enableUpgradeOnly1 || itemType !== "upgrade_only_1") &&
+          (settings.enableUpgradeOnly2 || itemType !== "upgrade_only_2") &&
+          isUpgradeAllowed
         );
       });
 
-      const paths = await new Promise((resolve) => {
-        setTimeout(() => resolve(findPaths(difference, filteredItems)), 100);
-      });
-
+      const paths = await new Promise((resolve) =>
+        setTimeout(() => resolve(findPaths(difference, filteredItems)), 100)
+      );
       const validPaths = Array.isArray(paths)
-        ? paths.filter((p) => Array.isArray(p))
+        ? paths.filter(Array.isArray)
         : [];
       dispatch({ type: "SET_PATHS", paths: validPaths });
 
@@ -224,7 +220,7 @@ const MainCalculator = () => {
     } finally {
       dispatch({ type: "SET_CALCULATING", value: false });
     }
-  };
+  }, [state.num1, state.num2, state.history]);
 
   // 切换路径
   /*const handleChangePath = () => {
@@ -239,40 +235,59 @@ const MainCalculator = () => {
     }
   };*/
 
-  const handleChangePath = (delta) => {
-    if (state.pathCache.length > 0) {
-      dispatch({ type: "CHANGE_PATH", delta });
-    }
-  };
+  const handleChangePath = useCallback(
+    (delta) => {
+      if (state.pathCache.length > 0) {
+        dispatch({ type: "CHANGE_PATH", delta });
+      }
+    },
+    [state.pathCache.length]
+  );
   /*const handleClearHistory = () => {
     setHistory([]);
   };*/
   // 新增返回顶部函数
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   // 公共侧边栏组件
   const Sidebar = () => (
     <div className="sidebar">
       <div className="sidebar-title">凑数计算器</div>
-      <div className="sidebar-box">
-        <Link to="/">计算主页</Link>
-      </div>
-      <div className="sidebar-box">
-        <Link to="/note">注意事项</Link>
-      </div>
-      <div className="sidebar-box">
-        <Link to="/data">数据部分</Link>
-      </div>
-      <div className="sidebar-box">
-        <Link to="/about">关于</Link>
-      </div>
+      {[
+        { to: "/", text: "计算主页" },
+        { to: "/note", text: "注意事项" },
+        { to: "/data", text: "数据部分" },
+        { to: "/about", text: "关于" },
+      ].map(({ to, text }) => (
+        <div className="sidebar-box" key={to}>
+          <Link to={to}>{text}</Link>
+        </div>
+      ))}
     </div>
   );
+
+  const settingsOptions = [
+    { text: "不允许使用理智三星通关", key: "disable3Star" },
+    { text: "不允许使用理智二星通关", key: "disable2Star" },
+    { text: "不允许使用基建物品合成", key: "disableMaterial" },
+    {
+      text: "不存在/不使用sidestory活动商店1代币换20龙门币",
+      key: "disableStore20",
+    },
+    { text: "不存在/不使用故事集活动商店1代币换10龙门币", key: "disableStore10" },
+    { text: "不存在/不使用危机合约1代币换70龙门币", key: "disableStore70" },
+    { text: "不存在/不使用代理剿灭25理智获取250龙门币", key: "disableExt25" },
+    { text: "不允许使用贸易站售卖赤金", key: "disableTrade" },
+    { text: "允许连续多次对精零1级干员进行升级", key: "enableUpgradeOnly0" },
+    { text: "允许连续多次对精一1级干员进行升级", key: "enableUpgradeOnly1" },
+    { text: "允许连续多次对精二1级干员进行升级", key: "enableUpgradeOnly2" },
+    {
+      text: "只允许连续多次对精零/精一/精二1级干员进行升级",
+      key: "enableUpgradeOnlyFor1",
+    },
+  ];
 
   // 修改App.js中的MainCalculator组件return部分
   return (
@@ -298,11 +313,8 @@ const MainCalculator = () => {
                 <div className="title-text">
                   请输入两个[0,99999999]区间的整数
                 </div>
-                <div className="title-text">
-                  且两数差值处于[-1000,1000]区间
-                </div>
+                <div className="title-text">且两数差值处于[-1000,1000]区间</div>
               </div>
-
 
               <div className="main-content">
                 <div className="input-container">
@@ -381,10 +393,9 @@ const MainCalculator = () => {
                     <br />
                     2. 输入示例：
                     <br />
-                    &nbsp;&nbsp;&nbsp;✓ 有效输入：① 300 与 800 ② 500 与 500 ③ 0
-                    与 1000
+                       ✓ 有效输入：① 300 与 800 ② 500 与 500 ③ 0 与 1000
                     <br />
-                    &nbsp;&nbsp;&nbsp;✗ 无效输入：① -50 与 1500 ② 300 与 非整数
+                       ✗ 无效输入：① -50 与 1500 ② 300 与 非整数
                     <br />
                     3.
                     点击“立即计算”按钮开始计算，点击“上一路径”和“下一路径”可以切换路径方案
@@ -402,47 +413,9 @@ const MainCalculator = () => {
                 <h1>设置区域</h1>
               </div>
 
-              {/* 开关容器模板 - 五个相同结构的设置项 */}
+              {/* 开关容器模板 - 相同结构的设置项 */}
               <div className="toggle-wrapper">
-                {[
-                  // 创建设置项配置数组优化代码结构
-                  { text: "不允许使用理智三星通关", key: "disable3Star" },
-                  { text: "不允许使用理智二星通关", key: "disable2Star" },
-                  { text: "不允许使用基建物品合成", key: "disableMaterial" },
-                  {
-                    text: "不存在/不使用sidestory活动商店1代币换20龙门币",
-                    key: "disableStore20",
-                  },
-                  {
-                    text: "不存在/不使用故事集活动商店1代币换10龙门币",
-                    key: "disableStore10",
-                  },
-                  {
-                    text: "不存在/不使用危机合约1代币换70龙门币",
-                    key: "disableStore70",
-                  },
-                  {
-                    text: "不存在/不使用代理剿灭25理智获取250龙门币",
-                    key: "disableExt25",
-                  },
-                  { text: "不允许使用贸易站售卖赤金", key: "disableTrade" }, // 新增开关1
-                  {
-                    text: "允许连续多次对精零1级干员进行升级",
-                    key: "enableUpgradeOnly0",
-                  }, // 新增开关2
-                  {
-                    text: "允许连续多次对精一1级干员进行升级",
-                    key: "enableUpgradeOnly1",
-                  }, // 新增开关3
-                  {
-                    text: "允许连续多次对精二1级干员进行升级",
-                    key: "enableUpgradeOnly2",
-                  },
-                  {
-                    text: "只允许连续多次对精零/精一/精二1级干员进行升级",
-                    key: "enableUpgradeOnlyFor1",
-                  },
-                ].map(({ text, key }) => (
+                {settingsOptions.map(({ text, key }) => (
                   <div className="toggle-container" key={key}>
                     <div className="toggle-text">{text}</div>
                     <label className="toggle-switch">
@@ -451,7 +424,7 @@ const MainCalculator = () => {
                         checked={state.settings[key]}
                         onChange={() => handleToggleChange(key)}
                       />
-                      <span className="slider"></span>
+                      <span className="slider" />
                     </label>
                   </div>
                 ))}
@@ -489,7 +462,7 @@ const MainCalculator = () => {
               <div className="change-over-text">
                 <p>
                   {state.clickCount < 15
-                    ? "你已经尝试了10条路径，要不要考虑更换输入值？"
+                    ? "你已经尝试了10条路径，要不要考虑更换输入值呢？"
                     : "真的不考虑更换输入值吗？"}
                 </p>
               </div>

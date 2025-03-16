@@ -18,6 +18,15 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
   const restrictedIds = [
     1, 2, 3, 4, 5, 6, 7, 8, 21, 22, 23, 24, 25, 26, 51, 52,
   ];
+
+  // 新增：定义特定 ID 范围的次数限制
+  const getMaxCountForId = (id) => {
+    if (restrictedIds.includes(id)) return 1; // 原有限制为 1 次的 ID
+    if (id >= 150 && id <= 180) return 5; // ID 150-180 限制为 5 次
+    if (id >= 181 && id <= 209) return 3; // ID 181-209 限制为 3 次
+    return MAX_ITEM_USE_COUNT; // 默认最大次数
+  };
+
   // 初始化 DP Map 和有效物品
   const dp = new Map([[0, [[]]]]);
   const validItems = items.filter(
@@ -39,11 +48,11 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
   // 第一阶段：单步路径
   for (const item of sortedItems) {
     const itemValue = item.item_value;
-    const maxCount = restrictedIds.includes(item.id) ? 1 : MAX_ITEM_USE_COUNT; // 限制特定 ID 单次使用次数为1
+    const maxCount = getMaxCountForId(item.id); // 使用新函数动态获取最大次数
     let count = 0;
 
     while (
-      count < MAX_ITEM_USE_COUNT &&
+      count < maxCount &&
       Math.abs(itemValue * (count + 1) - target) <=
         Math.max(Math.abs(target), Math.abs(itemValue) * MAX_STEPS)
     ) {
@@ -61,13 +70,11 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
     for (const [currentSum, paths] of currentStates) {
       for (const item of sortedItems) {
         const itemValue = item.item_value;
-        const maxCount = restrictedIds.includes(item.id)
-          ? 1
-          : MAX_ITEM_USE_COUNT; // 限制特定 ID 单次使用次数为1
+        const maxCount = getMaxCountForId(item.id);
         let count = 0;
 
         while (
-          count < MAX_ITEM_USE_COUNT &&
+          count < maxCount &&
           Math.abs(currentSum + itemValue * (count + 1) - target) <=
             Math.abs(target) + Math.abs(itemValue)
         ) {
@@ -76,7 +83,9 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
 
           for (const oldPath of paths) {
             const newPath = mergeAndSortPath(oldPath, { id: item.id, count });
-            savePath(dp, newSum, newPath, MAX_PATHS_PER_SUM, target, epsilon);
+            if (isPathValid(newPath)) {
+              savePath(dp, newSum, newPath, MAX_PATHS_PER_SUM, target, epsilon);
+            }
           }
         }
       }
@@ -90,6 +99,20 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
 
   return finalizeResult(dp, target, TARGET_PATH_COUNT);
 };
+
+
+// 新增辅助函数：检查路径是否满足所有次数限制
+function isPathValid(path) {
+  const idCountMap = new Map();
+  
+  // 统计路径中每个 ID 的总使用次数
+  for (const step of path) {
+    const currentCount = idCountMap.get(step.id) || 0;
+    idCountMap.set(step.id, currentCount + step.count);
+  }
+
+  return true;
+}
 
 // 新增辅助函数：合并并排序路径，确保相同组合唯一
 function mergeAndSortPath(oldPath, newStep) {

@@ -3,34 +3,32 @@ import '../../src/assets/styles/About.css';
 //import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { HashRouter as Router, Link } from "react-router-dom";
 
-  const Sidebar = () => (
-    <div className="sidebar">
-      <div className="sidebar-title">凑数计算器</div>
-      <div className="sidebar-box">
-        <Link to="/">计算主页</Link>
-      </div>
-      <div className="sidebar-box">
-        <Link to="/note">注意事项</Link>
-      </div>
-      <div className="sidebar-box">
-        <Link to="/data">数据部分</Link>
-      </div>
-      <div className="sidebar-box">
-        <Link to="/about">关于</Link>
-      </div>
+const Sidebar = () => (
+  <div className="sidebar">
+    <div className="sidebar-title">凑数计算器</div>
+    <div className="sidebar-box">
+      <Link to="/">计算主页</Link>
     </div>
-  );
+    <div className="sidebar-box">
+      <Link to="/note">注意事项</Link>
+    </div>
+    <div className="sidebar-box">
+      <Link to="/data">数据部分</Link>
+    </div>
+    <div className="sidebar-box">
+      <Link to="/about">关于</Link>
+    </div>
+  </div>
+);
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-  };
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+};
 
-  
 function AboutPage() {
-
   return (
     <div className="app-container">
       <Sidebar />
@@ -107,7 +105,6 @@ function AboutPage() {
                   ​干员升级经验及龙门币消耗成本统计(收束测试)
                 </a>
                 <br />
-                
               </div>
 
               <div className="notice-title">声明</div>

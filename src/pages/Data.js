@@ -6,18 +6,16 @@ import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 const Sidebar = () => (
   <div className="sidebar">
     <div className="sidebar-title">凑数计算器</div>
-    <div className="sidebar-box">
-      <Link to="/">计算主页</Link>
-    </div>
-    <div className="sidebar-box">
-      <Link to="/note">注意事项</Link>
-    </div>
-    <div className="sidebar-box">
-      <Link to="/data">数据部分</Link>
-    </div>
-    <div className="sidebar-box">
-      <Link to="/about">关于</Link>
-    </div>
+    {[
+      { to: "/", text: "计算主页" },
+      { to: "/note", text: "注意事项" },
+      { to: "/data", text: "数据部分" },
+      { to: "/about", text: "关于" },
+    ].map(({ to, text }) => (
+      <div className="sidebar-box" key={to}>
+        <Link to={to}>{text}</Link>
+      </div>
+    ))}
   </div>
 );
 
@@ -83,7 +81,7 @@ function DataPage() {
     </table>
   );
 
-  // 修改 generateStaticTable3，优化换行显示
+    // 修改 generateStaticTable3，优化换行显示
   const generateStaticTable3 = (data) => (
     <table className="material-table table-c">
       <thead>
@@ -173,38 +171,38 @@ function DataPage() {
     </table>
   );
 
-const upgradeData = [
-  { value1: "-61", value2: "-81", value3: "-80" },
-  { value1: "-125", value2: "-165", value3: "-162" },
-  { value1: "-192", value2: "-251", value3: "-244" },
-  { value1: "-262", value2: "-338", value3: "-328" },
-  { value1: "-338", value2: "-427", value3: "-412" },
-  { value1: "-407", value2: "-516", value3: "-497" },
-  { value1: "-482", value2: "-607", value3: "-583" },
-  { value1: "-559", value2: "-700", value3: "-670" },
-  { value1: "-638", value2: "-793", value3: "-757" },
-  { value1: "-718", value2: "-886", value3: "-844" },
-  { value1: "-800", value2: "-982", value3: "-933" },
-  { value1: "-883", value2: "-1077", value3: "-1022" },
-  { value1: "-967", value2: "-1175", value3: "-1110" },
-  { value1: "-1053", value2: "-1273", value3: "-1199" },
-  { value1: "-1139", value2: "-1371", value3: "-1290" },
-  { value1: "-1228", value2: "-1471", value3: "-1381" },
-  { value1: "-1317", value2: "-1570", value3: "-1472" },
-  { value1: "-1407", value2: "-1671", value3: "-1563" },
-  { value1: "-1503", value2: "-1772", value3: "-1654" },
-  { value1: "-1601", value2: "-1874", value3: "-1747" },
-  { value1: "-1707", value2: "-1976", value3: "-1839" },
-  { value1: "-1812", value2: "-2081", value3: "-1932" },
-  { value1: "-1926", value2: "-2185", value3: "-2024" },
-  { value1: "-2040", value2: "-2289", value3: "-2118" },
-  { value1: "-2162", value2: "-2395", value3: "-2213" },
-  { value1: "-2284", value2: "-2502", value3: "-2307" },
-  { value1: "-2413", value2: "-2608", value3: "-2401" },
-  { value1: "-2542", value2: "-2714", value3: "-2496" },
-  { value1: "-2678", value2: "-2823", value3: "-2591" },
-  { value1: "-2815", value2: "-2931", value3: "-2687" },
-];
+  const upgradeData = [
+    { value1: "-61", value2: "-81", value3: "-80" },
+    { value1: "-125", value2: "-165", value3: "-162" },
+    { value1: "-192", value2: "-251", value3: "-244" },
+    { value1: "-262", value2: "-338", value3: "-328" },
+    { value1: "-338", value2: "-427", value3: "-412" },
+    { value1: "-407", value2: "-516", value3: "-497" },
+    { value1: "-482", value2: "-607", value3: "-583" },
+    { value1: "-559", value2: "-700", value3: "-670" },
+    { value1: "-638", value2: "-793", value3: "-757" },
+    { value1: "-718", value2: "-886", value3: "-844" },
+    { value1: "-800", value2: "-982", value3: "-933" },
+    { value1: "-883", value2: "-1077", value3: "-1022" },
+    { value1: "-967", value2: "-1175", value3: "-1110" },
+    { value1: "-1053", value2: "-1273", value3: "-1199" },
+    { value1: "-1139", value2: "-1371", value3: "-1290" },
+    { value1: "-1228", value2: "-1471", value3: "-1381" },
+    { value1: "-1317", value2: "-1570", value3: "-1472" },
+    { value1: "-1407", value2: "-1671", value3: "-1563" },
+    { value1: "-1503", value2: "-1772", value3: "-1654" },
+    { value1: "-1601", value2: "-1874", value3: "-1747" },
+    { value1: "-1707", value2: "-1976", value3: "-1839" },
+    { value1: "-1812", value2: "-2081", value3: "-1932" },
+    { value1: "-1926", value2: "-2185", value3: "-2024" },
+    { value1: "-2040", value2: "-2289", value3: "-2118" },
+    { value1: "-2162", value2: "-2395", value3: "-2213" },
+    { value1: "-2284", value2: "-2502", value3: "-2307" },
+    { value1: "-2413", value2: "-2608", value3: "-2401" },
+    { value1: "-2542", value2: "-2714", value3: "-2496" },
+    { value1: "-2678", value2: "-2823", value3: "-2591" },
+    { value1: "-2815", value2: "-2931", value3: "-2687" },
+  ];
 
   const generateStaticTable5 = (data) => (
     <table className="material-table table-c">
@@ -224,9 +222,6 @@ const upgradeData = [
       </tbody>
     </table>
   );
-
-
-
 
   return (
     <div className="app-container">
@@ -387,7 +382,7 @@ const upgradeData = [
             className={`panel-content ${clickedPanel === 1 ? "active" : ""}`}
           >
             <div className="explain-text">
-              
+              <p>理智消耗与对应关卡速查表，这里仅为推荐关卡</p>
               {generateStaticTable5([
                 {
                   consume: "6理智",
