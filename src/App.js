@@ -98,6 +98,8 @@ const reducer = (state, action) => {
 const MainCalculator = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [showModal, setShowModal] = useState(false); // 新增：弹窗状态
+  const [showBonusModal, setShowBonusModal] = useState(false); // 新增：彩蛋弹窗状态
+
   // 开关变化处理函数
   const handleToggleChange = useCallback(
     (key) => {
@@ -146,7 +148,7 @@ const MainCalculator = () => {
     const num2Val = parseInt(state.num2, 10);
     const difference = num2Val - num1Val;
 
-    if (Math.abs(difference) > 1000) {
+    if (Math.abs(difference) > 5000) {
       dispatch({
         type: "SET_ERROR",
         field: "differenceError",
@@ -238,10 +240,14 @@ const MainCalculator = () => {
   const handleChangePath = useCallback(
     (delta) => {
       if (state.pathCache.length > 0) {
+        const newClickCount = state.clickCount + 1;
         dispatch({ type: "CHANGE_PATH", delta });
+        if (newClickCount === 50) {
+          setShowBonusModal(true); // 触发彩蛋弹窗
+        }
       }
     },
-    [state.pathCache.length]
+    [state.pathCache.length, state.clickCount]
   );
   /*const handleClearHistory = () => {
     setHistory([]);
@@ -276,7 +282,10 @@ const MainCalculator = () => {
       text: "不存在/不使用sidestory活动商店1代币换20龙门币",
       key: "disableStore20",
     },
-    { text: "不存在/不使用故事集活动商店1代币换10龙门币", key: "disableStore10" },
+    {
+      text: "不存在/不使用故事集活动商店1代币换10龙门币",
+      key: "disableStore10",
+    },
     { text: "不存在/不使用危机合约1代币换70龙门币", key: "disableStore70" },
     { text: "不存在/不使用代理剿灭25理智获取250龙门币", key: "disableExt25" },
     { text: "不允许使用贸易站售卖赤金", key: "disableTrade" },
@@ -389,16 +398,14 @@ const MainCalculator = () => {
                 <div className="usage-guide">
                   <div className="notice-title">数值输入注意事项</div>
                   <div className="notice-content">
-                    1. 输入要求：两个差值小于1000的非负整数（0 或正整数）
+                    1. 输入要求：两个差值小于1000的非负整数
                     <br />
-                    2. 输入示例：
-                    <br />
-                       ✓ 有效输入：① 300 与 800 ② 500 与 500 ③ 0 与 1000
-                    <br />
-                       ✗ 无效输入：① -50 与 1500 ② 300 与 非整数
-                    <br />
-                    3.
+                    2.
                     点击“立即计算”按钮开始计算，点击“上一路径”和“下一路径”可以切换路径方案
+                    <br />
+                    3.设置面板中的开关调整之后，需要重新点击“立即计算”按钮才会生效，并且最好稍微等1~2秒左右。
+
+                    如果点击重新点击“立即计算”之后仍不起作用或者等待计算时间过长，建议刷新一下网页
                     <br />
                     4.
                     对于某些数字可能存在计算较慢的现象，计算时页面卡住是正常现象，请耐心等待，后续会继续优化
@@ -479,21 +486,38 @@ const MainCalculator = () => {
             <p>
               您已开启“只允许连续多次对精零/精一/精二1级干员进行升级”开关，请检查以下开关状态：
             </p>
-            <ul>
-              <li>
+            <p>
+              <p>
                 允许连续多次对精零1级干员进行升级：
                 {state.settings.enableUpgradeOnly0 ? "已开启" : "未开启"}
-              </li>
-              <li>
+              </p>
+              <p>
                 允许连续多次对精一1级干员进行升级：
                 {state.settings.enableUpgradeOnly1 ? "已开启" : "未开启"}
-              </li>
-              <li>
+              </p>
+              <p>
                 允许连续多次对精二1级干员进行升级：
                 {state.settings.enableUpgradeOnly2 ? "已开启" : "未开启"}
-              </li>
-            </ul>
+              </p>
+            </p>
             <button onClick={() => setShowModal(false)}>关闭</button>
+          </div>
+        </div>
+      )}
+
+      {/* 新增：彩蛋弹窗 */}
+      {showBonusModal && (
+        <div className="modal-overlay">
+          <div className="modal-content bonus-modal">
+            <img
+              src="../assets/images/bonus.webp"
+              alt="Bonus"
+              className="bonus-image"
+            />
+            <p className="bonus-text">
+              你已经摆弄这俩按钮50次了，有这个探索精神相信你做什么都能成功的！
+            </p>
+            <button onClick={() => setShowBonusModal(false)}>关闭</button>
           </div>
         </div>
       )}

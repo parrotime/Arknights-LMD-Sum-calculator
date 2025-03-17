@@ -100,11 +100,10 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
   return finalizeResult(dp, target, TARGET_PATH_COUNT);
 };
 
-
 // 新增辅助函数：检查路径是否满足所有次数限制
 function isPathValid(path) {
   const idCountMap = new Map();
-  
+
   // 统计路径中每个 ID 的总使用次数
   for (const step of path) {
     const currentCount = idCountMap.get(step.id) || 0;
@@ -117,12 +116,12 @@ function isPathValid(path) {
 // 新增辅助函数：合并并排序路径，确保相同组合唯一
 function mergeAndSortPath(oldPath, newStep) {
   const pathMap = new Map();
-  
+
   // 将旧路径中的步骤按 id 合并计数
   for (const step of oldPath) {
     pathMap.set(step.id, (pathMap.get(step.id) || 0) + step.count);
   }
-  
+
   // 添加新步骤
   pathMap.set(newStep.id, (pathMap.get(newStep.id) || 0) + newStep.count);
 
@@ -137,13 +136,15 @@ function mergeAndSortPath(oldPath, newStep) {
 // 辅助函数：保存路径并检查精确解
 function savePath(dp, sum, path, maxPaths, target, epsilon) {
   const pathKey = path.map((s) => `${s.id}x${s.count}`).join("_");
-  
+
   if (!dp.has(sum)) dp.set(sum, []);
   const existingPaths = dp.get(sum);
 
   if (
     existingPaths.length < maxPaths &&
-    !existingPaths.some((p) => p.map((s) => `${s.id}x${s.count}`).join("_") === pathKey)
+    !existingPaths.some(
+      (p) => p.map((s) => `${s.id}x${s.count}`).join("_") === pathKey
+    )
   ) {
     existingPaths.push(path);
     console.log(`保存路径: ${sum} -> ${pathKey}`);
@@ -160,7 +161,7 @@ function savePath(dp, sum, path, maxPaths, target, epsilon) {
 function finalizeResult(dp, target, maxPaths) {
   const result = dp.get(target) || [];
   const uniquePaths = new Set();
-  
+
   const finalResult = result
     .map((path) => {
       const key = path.map((s) => `${s.id}x${s.count}`).join("_");
@@ -172,7 +173,9 @@ function finalizeResult(dp, target, maxPaths) {
     .sort((a, b) => {
       const totalCountA = a.reduce((sum, step) => sum + step.count, 0);
       const totalCountB = b.reduce((sum, step) => sum + step.count, 0);
-      return totalCountA - totalCountB || a.length - b.length || a[0].id - b[0].id;
+      return (
+        totalCountA - totalCountB || a.length - b.length || a[0].id - b[0].id
+      );
     })
     .slice(0, maxPaths);
 

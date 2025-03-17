@@ -507,7 +507,10 @@ input:invalid {
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   max-width: 400px;
-  text-align: left;
+  text-align: center; /* 修改：居中对齐，适用于彩蛋弹窗 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .modal-content h3 {
@@ -528,6 +531,28 @@ input:invalid {
 .modal-content button:hover {
   background: #0056b3;
 }
+
+/* 新增：彩蛋弹窗特定样式 */
+.bonus-modal {
+  max-width: 500px; /* 稍宽以适应图片 */
+}
+
+.bonus-image {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.bonus-text {
+  font-size: 16px;
+  color: #333;
+  margin: 0 0 15px 0;
+  font-weight: bold;
+}
+
+
+
 
 
 @media (max-width: 800px) {

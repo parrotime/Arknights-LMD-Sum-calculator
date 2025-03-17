@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# 明日方舟龙门币凑数路径计算器
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+这是一个基于 React 的《明日方舟》龙门币凑数路径计算器网站，旨在帮助玩家计算从当前龙门币数量到目标龙门币数量的可能路径和步骤。项目使用动态规划算法（DP）生成路径，并提供多种设置选项以适配不同的游戏场景。
 
-## Available Scripts
+## 项目背景
 
-In the project directory, you can run:
+本项目是作者学习前端开发（HTML、CSS、JavaScript）和 React 框架的一个简单的练习项目，灵感来源于《明日方舟》中玩家需要精确凑出特定龙门币数量的需求。项目仍在开发中，欢迎提出改进建议！
 
-### `npm start`
+## 功能特点
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- 输入当前龙门币数量和目标数量，计算出可行的凑数路径
+- 支持多种获取/消耗龙门币的方式：
+  - 作战记录升级
+  - 基建加工站
+  - 关卡掉落
+  - 贸易站
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- 可自定义计算规则：
+  - 是否允许使用三星/二星消耗理智通关
+  - 是否启用贸易站售卖赤金
+  - 是否允许连续升级
 
-### `npm test`
+- 响应式设计，支持移动端访问
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 在线演示
 
-### `npm run build`
+访问 [Arknights-LMD-Sum-calculator](https://parrotime.github.io/Arknights-LMD-Sum-calculator) 体验在线版本
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 食用方法
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. 打开计算主页（默认路由 /）。
+2. 在左侧输入当前龙门币数量和目标龙门币数量（范围：0 - 99,999,999，差值限制：-1000 ~ 1000）。
+3. 在右侧设置区域调整计算规则（例如禁用某些物品或开启连续升级）。
+4. 点击“立即计算”按钮，查看生成的路径。
+5. 使用“上一路径”和“下一路径”切换不同方案。
+6. 访问“注意事项”、“数据部分”和“关于”页面了解更多信息。
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 本地部署
 
-### `npm run eject`
+### 前置要求
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Node.js (推荐 v14.0.0 或更高版本)
+- npm (Node.js 包管理器)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 安装步骤
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. 克隆仓库
+```bash
+git clone https://github.com/ParroTime/Arknights-LMD-Sum-calculator.git
+cd Arknights-LMD-Sum-calculator
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. 安装依赖
+```bash
+npm install
+```
 
-## Learn More
+3. 启动开发服务器
+```bash
+npm start
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+4. 打开浏览器访问 `http://localhost:3000`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 构建部署
 
-### Code Splitting
+如果需要构建生产版本：
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+npm run build
+```
 
-### Analyzing the Bundle Size
+构建后的文件将生成在 `build` 目录中。
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 技术栈
 
-### Making a Progressive Web App
+- React
+- React Router（使用 HashRouter）
+- CSS3
+- JavaScript
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 声明
 
-### Advanced Configuration
+本项目为无偿开源项目，仅用于学习交流使用。网站所涉及的游戏《明日方舟》相关的名称、数据、素材等均为其各自所有者的资产，仅供识别。
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 参考资料
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- [干员升级经验及龙门币消耗成本统计](https://ngabbs.com/read.php?tid=16847042)
+- [另一位作者制作的计算器](https://bbs.nga.cn/read.php?tid=21247901)
