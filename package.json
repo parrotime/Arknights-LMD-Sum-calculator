@@ -12,7 +12,7 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
-    "predeploy": "npm run build",
+    "predeploy": "rm -rf build && npm run build",
     "deploy": "gh-pages -d build -m \"Deploy: Update V1.0 For Test\"",
     "start": "react-scripts start",
     "build": "react-scripts build",

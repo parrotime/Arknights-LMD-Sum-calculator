@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useCallback } from "react";
+import React, { useReducer, useState, useCallback, useEffect } from "react";
 //import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { findPaths } from "./algorithms/DP";
@@ -10,7 +10,7 @@ import { classifyData } from "./DataService";
 import "./App.css";
 
 // 状态管理 Reducer
-const initialState = {
+const defaultState = {
   num1: "", //当前数量
   num2: "", //目标数量
   result: "", //两者相差
@@ -30,31 +30,44 @@ const initialState = {
     disableStore10: false,
     disableStore70: false,
     disableExt25: false,
-    disableTrade: false, // 新增开关1：不允许使用贸易站售卖赤金
-    enableUpgradeOnly0: false, // 新增开关2：允许精零1级连续升级
-    enableUpgradeOnly1: false, // 新增开关3：允许精一1级连续升级
-    enableUpgradeOnly2: false, // 新增开关4：允许精二1级连续升级
-    enableUpgradeOnlyFor1: false, // 新增开关5：只允许对1级干员连续升级
+    disableTrade: false, 
+    enableUpgradeOnly0: false, 
+    enableUpgradeOnly1: false, 
+    enableUpgradeOnly2: false, 
+    enableUpgradeOnlyFor1: false, 
   },
+};
+
+const getInitialState = () => {
+  const savedState = localStorage.getItem("calculatorState");
+  const initialState = savedState ? JSON.parse(savedState) : defaultState;
+  initialState.settings.disable2Star = true;
+  initialState.settings.disableStore10 = true;
+  initialState.settings.disableStore70 = true;
+  initialState.settings.disableExt25 = true;
+  initialState.settings.enableUpgradeOnly0 = true;
+  initialState.settings.enableUpgradeOnly1 = true;
+  initialState.settings.enableUpgradeOnly2 = true;
+  return initialState;
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
     case "SET_NUM":
-      return { 
+      return {
         ...state,
         [action.field]: action.value,
         [`error${action.field.slice(-1)}`]: "",
       };
     case "SET_ERROR":
-      return { 
-        ...state, 
-        [action.field]: action.value 
+      return {
+        ...state,
+        [action.field]: action.value,
       };
     case "SET_RESULT":
-      return { 
-        ...state, 
-        result: action.value 
+      return {
+        ...state,
+        result: action.value,
       };
     case "SET_PATHS":
       return {
@@ -64,14 +77,14 @@ const reducer = (state, action) => {
         clickCount: 0,
       };
     case "SET_HISTORY":
-      return { 
-        ...state, 
-        history: action.history 
+      return {
+        ...state,
+        history: action.history,
       };
     case "SET_CALCULATING":
-      return { 
-        ...state, 
-        isCalculating: action.value 
+      return {
+        ...state,
+        isCalculating: action.value,
       };
     case "TOGGLE_SETTING":
       return {
@@ -96,11 +109,16 @@ const reducer = (state, action) => {
 
 // 主计算组件
 const MainCalculator = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const [showModal, setShowModal] = useState(false); // 新增：弹窗状态
-  const [showBonusModal, setShowBonusModal] = useState(false); // 新增：彩蛋弹窗状态
+  const [state, dispatch] = useReducer(reducer, getInitialState());
+  const [showModal, setShowModal] = useState(false); // 弹窗状态
+  const [showBonusModal, setShowBonusModal] = useState(false); // 彩蛋弹窗状态
 
-  // 开关变化处理函数
+  // 状态变化时保存到本地存储
+  useEffect(() => {
+    localStorage.setItem("calculatorState", JSON.stringify(state));
+  }, [state]);
+
+  // 开关变化处理
   const handleToggleChange = useCallback(
     (key) => {
       dispatch({ type: "TOGGLE_SETTING", key });
@@ -152,7 +170,7 @@ const MainCalculator = () => {
       dispatch({
         type: "SET_ERROR",
         field: "differenceError",
-        value: "差值需在-1000~1000之间",
+        value: "差值需在-5000~5000之间",
       });
       dispatch({ type: "SET_RESULT", value: "" });
       return;
@@ -186,21 +204,39 @@ const MainCalculator = () => {
         );
       });
 
-      const paths = await new Promise((resolve) =>
-        setTimeout(() => resolve(findPaths(difference, filteredItems)), 100)
-      );
-      const validPaths = Array.isArray(paths)
-        ? paths.filter(Array.isArray)
-        : [];
-      dispatch({ type: "SET_PATHS", paths: validPaths });
+      //检查缓存
+      const cacheKey = `${difference}_${JSON.stringify(state.settings)}`;
+      const cachedResult = localStorage.getItem(`pathCache_${cacheKey}`);
+      let paths;
 
-      if (validPaths.length > 0) {
+      if (cachedResult) {
+        paths = JSON.parse(cachedResult);
+        console.log("从缓存读取路径:", paths);
+      } else {
+        paths = await new Promise((resolve) =>
+          setTimeout(() => resolve(findPaths(difference, filteredItems)), 100)
+        );
+        const validPaths = Array.isArray(paths)
+          ? paths.filter(Array.isArray)
+          : [];
+        // 存入缓存
+        localStorage.setItem(
+          `pathCache_${cacheKey}`,
+          JSON.stringify(validPaths)
+        );
+        // 维护缓存队列（最多5条）
+        managePathCache(cacheKey);
+      }
+
+      dispatch({ type: "SET_PATHS", paths});
+
+      if (paths.length > 0) {
         dispatch({
           type: "SET_HISTORY",
           history: [
             ...state.history.slice(-10),
             {
-              path: validPaths[0],
+              path: paths[0],
               timestamp: new Date().toLocaleString(),
               initialLMD: num1Val,
             },
@@ -236,6 +272,20 @@ const MainCalculator = () => {
       dispatch({ type: "CHANGE_PATH", delta: -1 });
     }
   };*/
+
+  // 新增：管理路径缓存（最多5条）
+  const managePathCache = (newKey) => {
+    const cacheQueue = JSON.parse(localStorage.getItem("pathCacheQueue") || "[]");
+    if (!cacheQueue.includes(newKey)) {
+      cacheQueue.push(newKey);
+      if (cacheQueue.length > 5) {
+        const removedKey = cacheQueue.shift();
+        localStorage.removeItem(`pathCache_${removedKey}`);
+      }
+      localStorage.setItem("pathCacheQueue", JSON.stringify(cacheQueue));
+    }
+  };
+
 
   const handleChangePath = useCallback(
     (delta) => {
@@ -322,7 +372,7 @@ const MainCalculator = () => {
                 <div className="title-text">
                   请输入两个[0,99999999]区间的整数
                 </div>
-                <div className="title-text">且两数差值处于[-1000,1000]区间</div>
+                <div className="title-text">且两数差值处于[-5000,5000]区间</div>
               </div>
 
               <div className="main-content">
@@ -398,17 +448,15 @@ const MainCalculator = () => {
                 <div className="usage-guide">
                   <div className="notice-title">数值输入注意事项</div>
                   <div className="notice-content">
-                    1. 输入要求：两个差值小于1000的非负整数
+                    1. 输入要求：两个差值处于[-5000,5000]的非负整数
                     <br />
                     2.
                     点击“立即计算”按钮开始计算，点击“上一路径”和“下一路径”可以切换路径方案
                     <br />
                     3.设置面板中的开关调整之后，需要重新点击“立即计算”按钮才会生效，并且最好稍微等1~2秒左右。
 
-                    如果点击重新点击“立即计算”之后仍不起作用或者等待计算时间过长，建议刷新一下网页
-                    <br />
-                    4.
-                    对于某些数字可能存在计算较慢的现象，计算时页面卡住是正常现象，请耐心等待，后续会继续优化
+                    如果点击重新点击“立即计算”之后仍不起作用或者等待计算时间过长，建议刷新一下网页。
+                    对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果。计算时页面卡住是正常现象，请耐心等待，后续会继续优化。
                   </div>
                 </div>
               </div>

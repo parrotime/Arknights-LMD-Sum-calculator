@@ -9,18 +9,20 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
   }
 
   // 常量定义
-  const MAX_STEPS = 5;
-  const MAX_PATHS_PER_SUM = 10;
-  const MAX_ITEM_USE_COUNT = 10;
+  const MAX_STEPS = 15; //限制最大步数
+  const MAX_PATHS_PER_SUM = 10; //单个步骤最大使用次数
+  const MAX_ITEM_USE_COUNT = 10; //单个物品最大使用次数
   const TARGET_PATH_COUNT = 10;
 
-  // 定义需要限制单次使用次数为1的物品 ID
+  // 定义限制单次使用次数为1的物品 ID
   const restrictedIds = [
     1, 2, 3, 4, 5, 6, 7, 8, 21, 22, 23, 24, 25, 26, 51, 52,
   ];
 
-  // 新增：定义特定 ID 范围的次数限制
+  // 定义特定 ID 范围的次数限制
   const getMaxCountForId = (id) => {
+    const item = items.find((i) => i.id === id);
+    if (item?.type === "upgrade") return 1; // 作战记录类物品限制为 1
     if (restrictedIds.includes(id)) return 1; // 原有限制为 1 次的 ID
     if (id >= 150 && id <= 180) return 5; // ID 150-180 限制为 5 次
     if (id >= 181 && id <= 209) return 3; // ID 181-209 限制为 3 次
