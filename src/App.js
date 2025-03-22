@@ -213,9 +213,20 @@ const MainCalculator = () => {
         paths = JSON.parse(cachedResult);
         console.log("从缓存读取路径:", paths);
       } else {
-        paths = await new Promise((resolve) =>
+        // 新增：超时机制
+        const timeoutPromise = new Promise(
+          (_, reject) => setTimeout(() => reject(new Error("计算超时")), 15000) // 15秒超时
+        );
+        const calcPromise = new Promise((resolve) =>
           setTimeout(() => resolve(findPaths(difference, filteredItems)), 100)
         );
+
+        paths = await Promise.race([calcPromise, timeoutPromise]).catch(
+          (error) => {
+            throw error; // 将错误抛出到外层 try-catch
+          }
+        );
+
         const validPaths = Array.isArray(paths)
           ? paths.filter(Array.isArray)
           : [];
@@ -456,7 +467,7 @@ const MainCalculator = () => {
                     3.设置面板中的开关调整之后，需要重新点击“立即计算”按钮才会生效，并且最好稍微等1~2秒左右。
 
                     如果点击重新点击“立即计算”之后仍不起作用或者等待计算时间过长，建议刷新一下网页。
-                    对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果。计算时页面卡住是正常现象，请耐心等待，后续会继续优化。
+                    对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果,某些情况下会需要10秒左右。计算时页面卡住是正常现象，请耐心等待，后续会继续优化。
                   </div>
                 </div>
               </div>

@@ -48,7 +48,7 @@ function AboutPage() {
               <div className="notice-title">关于版本v1.0</div>
               <div className="notice-content">
                 1.
-                本网页是作者入门前端三件套和react框架的一个练习项目，没有什么技术含量，存在不足之处，欢迎提出改进意见orz
+                本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎提出改进意见orz
                 <br />
                 2. 如果遇到问题，请通过B站私信反馈
                 <a

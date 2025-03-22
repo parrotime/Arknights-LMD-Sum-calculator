@@ -12,7 +12,7 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
-    "predeploy": "rm -rf build && npm run build",
+    "predeploy": "rd /s /q build && npm run build",
     "deploy": "gh-pages -d build -m \"Deploy: Update V1.0 For Test\"",
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -40,6 +40,7 @@
   "devDependencies": {
     "@types/prop-types": "^15.7.14",
     "@types/react": "^19.0.7",
-    "gh-pages": "^6.3.0"
+    "gh-pages": "^6.3.0",
+    "rimraf": "^6.0.1"
   }
 }
