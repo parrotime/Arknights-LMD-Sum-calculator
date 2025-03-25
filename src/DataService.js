@@ -690,7 +690,7 @@ export const classifyData = [
   {
     id: 87,
     item_id: "2-3-6",
-    item_name: "三星通关6理智关卡",
+    item_name: "三星通关6理智关卡(例如1-7)",
     item_value: 72,
     rarity: 5,
     type: "3_star",
@@ -722,7 +722,7 @@ export const classifyData = [
   {
     id: 91,
     item_id: "2-3-18",
-    item_name: "三星通关18理智关卡",
+    item_name: "三星通关18理智关卡(等效3次1-7)",
     item_value: 216,
     rarity: 5,
     type: "3_star",
@@ -866,7 +866,7 @@ export const classifyData = [
   {
     id: 109,
     item_id: "2-3-30",
-    item_name: "三星通关30理智关卡",
+    item_name: "三星通关30理智关卡(等效5次1-7)",
     item_value: 360,
     rarity: 5,
     type: "3_star",
@@ -874,7 +874,7 @@ export const classifyData = [
   {
     id: 110,
     item_id: "2-3-36",
-    item_name: "三星通关36理智关卡",
+    item_name: "三星通关36理智关卡(等效6次1-7)",
     item_value: 432,
     rarity: 5,
     type: "3_star",
@@ -1674,7 +1674,7 @@ export const classifyData = [
   {
     id: 210,
     item_id: "2-3-12",
-    item_name: "三星通关12理智关卡",
+    item_name: "三星通关12理智关卡(等效2次1-7)",
     item_value: 144,
     rarity: 5,
     type: "3_star",
@@ -1686,6 +1686,14 @@ export const classifyData = [
     item_value: 120,
     rarity: 5,
     type: "2_star",
+  },
+  {
+    id: 212,
+    item_id: "4-4",
+    item_name: "活动商店使用7代币换取5000龙门币",
+    item_value: 5000,
+    rarity: 5,
+    type: "store_5000",
   },
 ];
 

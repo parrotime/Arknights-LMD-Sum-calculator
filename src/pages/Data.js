@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../../src/assets/styles/Data.css";
 //import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+// eslint-disable-next-line no-unused-vars
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 const Sidebar = () => (
@@ -256,56 +257,55 @@ function DataPage() {
             </div>
 
             <div className="tables-container">
-              {/* 表1 */}
               {generateStaticTable([
-                { name: "精零1级", value1: "-61", value2: "-125" },
-                { name: "精零5级", value1: "-69", value2: "-141" },
-                { name: "精零10级", value1: "-79", value2: "-159" },
-                { name: "精零15级", value1: "-88", value2: "-177" },
-                { name: "精零20级", value1: "-122", value2: "-251" },
-                { name: "精零25级", value1: "-162", value2: "-324" },
-                { name: "精零30级", value1: "-202", value2: "-404" },
-                { name: "精零35级", value1: "-242", value2: "-484" },
-                { name: "精零40级", value1: "-282", value2: "-564" },
-                { name: "精零45级", value1: "-322", value2: "-644" },
-                { name: "精一1级", value1: "-81", value2: "-165" },
-                { name: "精一5级", value1: "-89", value2: "-179" },
-                { name: "精一10级", value1: "-100", value2: "-199" },
-                { name: "精一15级", value1: "-111", value2: "-222" },
-                { name: "精一20级", value1: "-122", value2: "-244" },
-                { name: "精一25级", value1: "-133", value2: "-265" },
-                { name: "精一30级", value1: "-144", value2: "-288" },
-                { name: "精一35级", value1: "-155", value2: "-310" },
-                { name: "精一40级", value1: "-166", value2: "-332" },
-                { name: "精一45级", value1: "-177", value2: "-354" },
-                { name: "精一50级", value1: "-188", value2: "-376" },
-                { name: "精一55级", value1: "-199", value2: "-398" },
+                { name: "精零1级", value1: '"-61"', value2: '"-125"' },
+                { name: "精零5级", value1: '"-69"', value2: '"-141"' },
+                { name: "精零10级", value1: '"-79"', value2: '"-159"' },
+                { name: "精零15级", value1: '"-88"', value2: '"-177"' },
+                { name: "精零20级", value1: '"-122"', value2: '"-251"' },
+                { name: "精零25级", value1: '"-162"', value2: '"-324"' },
+                { name: "精零30级", value1: '"-202"', value2: '"-404"' },
+                { name: "精零35级", value1: '"-242"', value2: '"-484"' },
+                { name: "精零40级", value1: '"-282"', value2: '"-564"' },
+                { name: "精零45级", value1: '"-322"', value2: '"-644"' },
+                { name: "精一1级", value1: '"-81"', value2: '"-165"' },
+                { name: "精一5级", value1: '"-89"', value2: '"-179"' },
+                { name: "精一10级", value1: '"-100"', value2: '"-199"' },
+                { name: "精一15级", value1: '"-111"', value2: '"-222"' },
+                { name: "精一20级", value1: '"-122"', value2: '"-244"' },
+                { name: "精一25级", value1: '"-133"', value2: '"-265"' },
+                { name: "精一30级", value1: '"-144"', value2: '"-288"' },
+                { name: "精一35级", value1: '"-155"', value2: '"-310"' },
+                { name: "精一40级", value1: '"-166"', value2: '"-332"' },
+                { name: "精一45级", value1: '"-177"', value2: '"-354"' },
+                { name: "精一50级", value1: '"-188"', value2: '"-376"' },
+                { name: "精一55级", value1: '"-199"', value2: '"-398"' },
               ])}
 
               {/* 表2 */}
               {generateStaticTable([
-                { name: "精一60级", value1: "-210", value2: "-420" },
-                { name: "精一65级", value1: "-221", value2: "-442" },
-                { name: "精一70级", value1: "-232", value2: "-464" },
-                { name: "精一75级", value1: "-243", value2: "-486" },
-                { name: "精二1级", value1: "-80", value2: "-162" },
-                { name: "精二5级", value1: "-87", value2: "-175" },
-                { name: "精二10级", value1: "-96", value2: "-192" },
-                { name: "精二15级", value1: "-105", value2: "-210" },
-                { name: "精二20级", value1: "-114", value2: "-228" },
-                { name: "精二25级", value1: "-123", value2: "-246" },
-                { name: "精二30级", value1: "-132", value2: "-264" },
-                { name: "精二35级", value1: "-141", value2: "-282" },
-                { name: "精二40级", value1: "-150", value2: "-300" },
-                { name: "精二45级", value1: "-159", value2: "-318" },
-                { name: "精二50级", value1: "-168", value2: "-336" },
-                { name: "精二55级", value1: "-177", value2: "-354" },
-                { name: "精二60级", value1: "-186", value2: "-372" },
-                { name: "精二65级", value1: "-195", value2: "-390" },
-                { name: "精二70级", value1: "-204", value2: "-408" },
-                { name: "精二75级", value1: "-213", value2: "-426" },
-                { name: "精二80级", value1: "-223", value2: "-445" },
-                { name: "精二85级", value1: "-234", value2: "-467" },
+                { name: "精一60级", value1: '"-210"', value2: '"-420"' },
+                { name: "精一65级", value1: '"-221"', value2: '"-442"' },
+                { name: "精一70级", value1: '"-232"', value2: '"-464"' },
+                { name: "精一75级", value1: '"-243"', value2: '"-486"' },
+                { name: "精二1级", value1: '"-80"', value2: '"-162"' },
+                { name: "精二5级", value1: '"-87"', value2: '"-175"' },
+                { name: "精二10级", value1: '"-96"', value2: '"-192"' },
+                { name: "精二15级", value1: '"-105"', value2: '"-210"' },
+                { name: "精二20级", value1: '"-114"', value2: '"-228"' },
+                { name: "精二25级", value1: '"-123"', value2: '"-246"' },
+                { name: "精二30级", value1: '"-132"', value2: '"-264"' },
+                { name: "精二35级", value1: '"-141"', value2: '"-282"' },
+                { name: "精二40级", value1: '"-150"', value2: '"-300"' },
+                { name: "精二45级", value1: '"-159"', value2: '"-318"' },
+                { name: "精二50级", value1: '"-168"', value2: '"-336"' },
+                { name: "精二55级", value1: '"-177"', value2: '"-354"' },
+                { name: "精二60级", value1: '"-186"', value2: '"-372"' },
+                { name: "精二65级", value1: '"-195"', value2: '"-390"' },
+                { name: "精二70级", value1: '"-204"', value2: '"-408"' },
+                { name: "精二75级", value1: '"-213"', value2: '"-426"' },
+                { name: "精二80级", value1: '"-223"', value2: '"-445"' },
+                { name: "精二85级", value1: '"-234"', value2: '"-467"' },
               ])}
             </div>
 
@@ -315,7 +315,7 @@ function DataPage() {
                 <br />
                 二星通关获得龙门币数量 = 使用理智数量 * 10
                 <br />
-                故事集活动商店是指类似于"我们明日见"的活动商店，请在使用前检查并区分当期活动是故事集类型还是sidestory类型，此外最好还要检查当期活动商店对应的兑换龙门币数量，本网页使用到的数据是活动商店最后一档的龙门币兑换
+                故事集活动商店是指类似于\"我们明日见\"的活动商店，请在使用前检查并区分当期活动是故事集类型还是sidestory类型，此外最好还要检查当期活动商店对应的兑换龙门币数量，本网页使用到的数据是活动商店最后一档的龙门币兑换
               </p>
             </div>
 

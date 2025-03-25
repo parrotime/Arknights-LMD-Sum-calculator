@@ -1,5 +1,5 @@
 //版本2，计算速度更快，但是有重复路径
-
+// eslint-disable-next-line no-unused-vars
 import { classifyData, getItemById } from "../DataService";
 
 export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {

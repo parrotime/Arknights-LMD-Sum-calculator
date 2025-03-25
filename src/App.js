@@ -29,12 +29,13 @@ const defaultState = {
     disableStore20: false,
     disableStore10: false,
     disableStore70: false,
+    disableStore5000: false,
     disableExt25: false,
-    disableTrade: false, 
-    enableUpgradeOnly0: false, 
-    enableUpgradeOnly1: false, 
-    enableUpgradeOnly2: false, 
-    enableUpgradeOnlyFor1: false, 
+    disableTrade: false,
+    enableUpgradeOnly0: false,
+    enableUpgradeOnly1: false,
+    enableUpgradeOnly2: false,
+    enableUpgradeOnlyFor1: false,
   },
 };
 
@@ -195,6 +196,7 @@ const MainCalculator = () => {
           (!settings.disableStore20 || itemType !== "store_20") &&
           (!settings.disableStore10 || itemType !== "store_10") &&
           (!settings.disableStore70 || itemType !== "store_70") &&
+          (!settings.disableStore5000 || itemType !== "store_5000") &&
           (!settings.disableExt25 || itemType !== "ext_25") &&
           (!settings.disableTrade || itemType !== "trade") &&
           (settings.enableUpgradeOnly0 || itemType !== "upgrade_only_0") &&
@@ -342,6 +344,10 @@ const MainCalculator = () => {
     {
       text: "不存在/不使用sidestory活动商店1代币换20龙门币",
       key: "disableStore20",
+    },
+    {
+      text: "不存在/不使用sidestory活动商店7代币换5000龙门币",
+      key: "disableStore5000",
     },
     {
       text: "不存在/不使用故事集活动商店1代币换10龙门币",

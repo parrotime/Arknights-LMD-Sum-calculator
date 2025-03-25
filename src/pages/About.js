@@ -1,6 +1,7 @@
 import React from 'react';
 import '../../src/assets/styles/About.css';
 //import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { HashRouter as Router, Link } from "react-router-dom";
 
 const Sidebar = () => (
@@ -102,7 +103,7 @@ function AboutPage() {
                   rel="noopener noreferrer"
                   className="external-link"
                 >
-                  ​干员升级经验及龙门币消耗成本统计(收束测试)
+                干员升级经验及龙门币消耗成本统计(收束测试)
                 </a>
                 <br />
               </div>

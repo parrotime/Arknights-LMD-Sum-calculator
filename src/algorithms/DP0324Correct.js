@@ -12,13 +12,12 @@ const getMaxCountForId = (id, items) => {
   return 10; // MAX_ITEM_USE_COUNT
 };
 
-
 const stageIds = [
-    87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 107, 108, 109, 110, 111,
-    112, 113, 114, 210, 211,
-  ]; // 理智消耗关卡
+  87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 107, 108, 109, 110, 111, 112,
+  113, 114, 210, 211,
+]; // 理智消耗关卡
 
-export const findPaths = async(target, items = classifyData, epsilon = 1e-6) => {
+export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
   console.log("计算目标差值:", target);
 
   // 输入验证
@@ -33,7 +32,6 @@ export const findPaths = async(target, items = classifyData, epsilon = 1e-6) => 
 
   const tradeGoldIds = [117, 118, 119]; // 售卖 2、3、4 个赤金 (1000, 1500, 2000)
   const materialIds = [100, 101, 102, 103]; // 基建合成 (-100, -200, -300, -400)
-  
 
   // 优化：计算“售卖赤金”最优组合（使用贪心法）
   const getOptimalTradeGoldCombo = (subTarget) => {
@@ -176,84 +174,60 @@ export const findPaths = async(target, items = classifyData, epsilon = 1e-6) => 
     }
   }
 
-    // 第二阶段：多步路径
-  const startTime = performance.now();
-  const workerCount = navigator.hardwareConcurrency || 4; // 使用 CPU 核心数
-  const workers = [];
-  const promises = [];
-
+  // 第二阶段：多步路径
   for (let step = 2; step <= MAX_STEPS; step++) {
     const currentStates = Array.from(dp.entries());
-    const chunkSize = Math.ceil(currentStates.length / workerCount);
-    const chunks = [];
 
-    // 将 currentStates 分片
-    for (let i = 0; i < currentStates.length; i += chunkSize) {
-      chunks.push(currentStates.slice(i, i + chunkSize));
-    }
+    for (const [currentSum, paths] of currentStates) {
+      if (Math.abs(currentSum - target) > 3000) continue; // 剪枝：跳过偏离目标过多的状态
 
-    console.log("当前状态数量:", currentStates.length, "分片数量:", chunks.length);
+      for (const item of sortedItems) {
+        const itemValue = item.item_value;
+        const maxCount = getMaxCountForId(item.id, items);
+        let count = 0;
 
-    // 创建 Worker 并分配任务
-    chunks.forEach((chunk) => {
-      const worker = new Worker(new URL('./worker.js', import.meta.url));
-      workers.push(worker);
+        while (
+          count < maxCount &&
+          Math.abs(currentSum + itemValue * (count + 1) - target) <=
+            Math.abs(target) + Math.abs(itemValue)
+        ) {
+          count++;
+          const newSum = currentSum + itemValue * count;
 
-      const promise = new Promise((resolve) => {
-        worker.onmessage = (e) => {
-          resolve(e.data); // 接收 worker 返回的结果
-          worker.terminate(); // 任务完成后销毁 worker
-        };
-      });
-      promises.push(promise);
+          for (const oldPath of paths) {
+            let newPath;
+            if (tradeGoldIds.includes(item.id)) {
+              const tradeSum = itemValue * count;
+              const { combo } = getOptimalTradeGoldCombo(tradeSum);
+              if (combo.length === 0) continue;
+              newPath = [...oldPath, ...combo];
+            } else if (materialIds.includes(item.id)) {
+              const materialSum = itemValue * count;
+              const { combo } = getOptimalMaterialCombo(materialSum);
+              if (combo.length === 0) continue;
+              newPath = [...oldPath, ...combo];
+            } else if (stageIds.includes(item.id)) {
+              const stageSum = itemValue * count;
+              const { combo } = getOptimalStageCombo(stageSum, items);
+              if (combo.length === 0) continue;
+              newPath = [...oldPath, ...combo];
+            } else {
+              newPath = mergeAndSortPath(oldPath, { id: item.id, count });
+            }
 
-      worker.postMessage({
-        task: chunk,
-        sortedItems,
-        target,
-        pruneThreshold: 3000,
-        tradeGoldIds,
-        materialIds,
-        stageIds,
-        items,
-      });
-    });
-
-    // 等待所有 worker 完成
-    const workerResults = await Promise.all(promises);
-
-    // 合并结果到 dp
-    workerResults.forEach((result) => {
-      result.forEach(({ sum, paths }) => {
-        if (!dp.has(sum)) dp.set(sum, []);
-        const existingPaths = dp.get(sum);
-        paths.forEach((path) => {
-          if(isPathValid(path, items)){
-            //const normalizedPath = mergeAndSortPath([], path[0]); // 假设 path 是单步数组
-            const pathKey = path.map((s) => `${s.id}x${s.count}`).join("_");
-            if (
-              existingPaths.length < MAX_PATHS_PER_SUM &&
-              !existingPaths.some(
-                (p) => p.map((s) => `${s.id}x${s.count}`).join("_") === pathKey
-              )
-            ) {
-              existingPaths.push(path);
+            if (isPathValid(newPath, items)) {
+              savePath(dp, newSum, newPath, MAX_PATHS_PER_SUM, target, epsilon);
             }
           }
-        });
-      });
-    });
+        }
+      }
+    }
 
     const targetPaths = dp.get(target) || [];
     if (targetPaths.length >= TARGET_PATH_COUNT) {
       break;
     }
   }
-
-  //const workerResults = await Promise.all(promises);
-  console.log("并行计算耗时:", performance.now() - startTime, "ms");
-  // 清理 workers
-  workers.forEach((worker) => worker.terminate());
 
   return finalizeResult(dp, target, MAX_PATHS_PER_SUM, items);
 };
@@ -273,7 +247,6 @@ function isPathValid(path, items) {
 }
 
 // 辅助函数：合并并排序路径，确保相同组合唯一
-// eslint-disable-next-line no-unused-vars
 function mergeAndSortPath(oldPath, newStep) {
   const pathMap = new Map();
 
@@ -320,12 +293,30 @@ function finalizeResult(dp, target, maxPaths, items) {
   const result = dp.get(target) || [];
   const uniquePaths = new Set();
 
-// 定义理智关卡的价值映射
+  // 定义理智关卡的价值映射
   const stageValueMap = new Map([
-    [110, 432], [114, 360], [109, 360], [113, 300], [108, 300], [112, 250],
-    [92, 252], [98, 210], [107, 240], [111, 200], [91, 216], [97, 180],
-    [90, 180], [96, 150], [210, 144], [211, 120], [89, 120], [95, 100],
-    [88, 108], [94, 90], [87, 72], [93, 60]
+    [110, 432],
+    [114, 360],
+    [109, 360],
+    [113, 300],
+    [108, 300],
+    [112, 250],
+    [92, 252],
+    [98, 210],
+    [107, 240],
+    [111, 200],
+    [91, 216],
+    [97, 180],
+    [90, 180],
+    [96, 150],
+    [210, 144],
+    [211, 120],
+    [89, 120],
+    [95, 100],
+    [88, 108],
+    [94, 90],
+    [87, 72],
+    [93, 60],
   ]);
 
   const optimizedPaths = result.map((path) => {
@@ -355,7 +346,6 @@ function finalizeResult(dp, target, maxPaths, items) {
     // 合并优化后的理智路径和非理智路径
     return [...nonStageSteps, ...combo];
   });
-
 
   const finalResult = optimizedPaths
     .map((path) => {
