@@ -147,8 +147,8 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
     let count = 0;
 
     while (
-      count < maxCount &&
-      Math.abs(itemValue * (count + 1) - target) <= Math.abs(target)
+      count < maxCount 
+      && Math.abs(itemValue * (count + 1) - target) <= Math.abs(target)
     ) {
       count++;
       const newSum = itemValue * count;

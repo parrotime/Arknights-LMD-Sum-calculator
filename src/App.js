@@ -71,6 +71,7 @@ const reducer = (state, action) => {
         result: action.value,
       };
     case "SET_PATHS":
+      console.log("Reducer SET_PATHS:", action.paths);
       return {
         ...state,
         pathCache: action.paths,
@@ -181,69 +182,47 @@ const MainCalculator = () => {
     dispatch({ type: "SET_RESULT", value: difference.toString() });
     dispatch({ type: "SET_CALCULATING", value: true });
 
-    try {
-      const filteredItems = classifyData.filter((item) => {
-        const { settings } = state;
-        const itemType = item.type?.toLowerCase() || "";
-        const isUpgradeAllowed = settings.enableUpgradeOnlyFor1
-          ? itemType !== "upgrade"
-          : true;
+    const filteredItems = classifyData.filter((item) => {
+      const { settings } = state;
+      const itemType = item.type?.toLowerCase() || "";
+      const isUpgradeAllowed = settings.enableUpgradeOnlyFor1
+        ? itemType !== "upgrade"
+        : true;
+      return (
+        (!settings.disable3Star || itemType !== "3_star") &&
+        (!settings.disable2Star || itemType !== "2_star") &&
+        (!settings.disableMaterial || itemType !== "material") &&
+        (!settings.disableStore20 || itemType !== "store_20") &&
+        (!settings.disableStore10 || itemType !== "store_10") &&
+        (!settings.disableStore70 || itemType !== "store_70") &&
+        (!settings.disableStore5000 || itemType !== "store_5000") &&
+        (!settings.disableExt25 || itemType !== "ext_25") &&
+        (!settings.disableTrade || itemType !== "trade") &&
+        (settings.enableUpgradeOnly0 || itemType !== "upgrade_only_0") &&
+        (settings.enableUpgradeOnly1 || itemType !== "upgrade_only_1") &&
+        (settings.enableUpgradeOnly2 || itemType !== "upgrade_only_2") &&
+        isUpgradeAllowed
+      );
+    });
 
-        return (
-          (!settings.disable3Star || itemType !== "3_star") &&
-          (!settings.disable2Star || itemType !== "2_star") &&
-          (!settings.disableMaterial || itemType !== "material") &&
-          (!settings.disableStore20 || itemType !== "store_20") &&
-          (!settings.disableStore10 || itemType !== "store_10") &&
-          (!settings.disableStore70 || itemType !== "store_70") &&
-          (!settings.disableStore5000 || itemType !== "store_5000") &&
-          (!settings.disableExt25 || itemType !== "ext_25") &&
-          (!settings.disableTrade || itemType !== "trade") &&
-          (settings.enableUpgradeOnly0 || itemType !== "upgrade_only_0") &&
-          (settings.enableUpgradeOnly1 || itemType !== "upgrade_only_1") &&
-          (settings.enableUpgradeOnly2 || itemType !== "upgrade_only_2") &&
-          isUpgradeAllowed
-        );
-      });
+    console.log("filteredItems:", filteredItems);
+    const cacheKey = `${difference}_${Object.entries(state.settings)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) => `${k}:${v}`)
+      .join("|")}`;
+    console.log("生成的 cacheKey:", cacheKey);
+    const cachedResult = localStorage.getItem(`pathCache_${cacheKey}`);
+    let paths;
 
-      //检查缓存
-      const cacheKey = `${difference}_${JSON.stringify(state.settings)}`;
-      const cachedResult = localStorage.getItem(`pathCache_${cacheKey}`);
-      let paths;
-
-      if (cachedResult) {
-        paths = JSON.parse(cachedResult);
-        console.log("从缓存读取路径:", paths);
+    if (cachedResult) {
+      paths = JSON.parse(cachedResult);
+      console.log("从缓存读取路径:", JSON.stringify(paths, null, 2));
+      if (!paths || paths.length === 0) {
+        console.log("缓存为空，重新计算");
+        localStorage.removeItem(`pathCache_${cacheKey}`);
       } else {
-        // 新增：超时机制
-        const timeoutPromise = new Promise(
-          (_, reject) => setTimeout(() => reject(new Error("计算超时")), 15000) // 15秒超时
-        );
-        const calcPromise = new Promise((resolve) =>
-          setTimeout(() => resolve(findPaths(difference, filteredItems)), 100)
-        );
-
-        paths = await Promise.race([calcPromise, timeoutPromise]).catch(
-          (error) => {
-            throw error; // 将错误抛出到外层 try-catch
-          }
-        );
-
-        const validPaths = Array.isArray(paths)
-          ? paths.filter(Array.isArray)
-          : [];
-        // 存入缓存
-        localStorage.setItem(
-          `pathCache_${cacheKey}`,
-          JSON.stringify(validPaths)
-        );
-        // 维护缓存队列（最多5条）
-        managePathCache(cacheKey);
-      }
-
-      dispatch({ type: "SET_PATHS", paths});
-
-      if (paths.length > 0) {
+        dispatch({ type: "SET_PATHS", paths });
+        dispatch({ type: "SET_CALCULATING", value: false });
         dispatch({
           type: "SET_HISTORY",
           history: [
@@ -255,19 +234,57 @@ const MainCalculator = () => {
             },
           ],
         });
-      } else {
-        dispatch({
-          type: "SET_HISTORY",
-          history: [...state.history.slice(-10), "无有效路径"],
-        });
+        return;
       }
+    }
+
+    console.log("缓存未命中或无效，开始调用 findPaths");
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("计算超时")), 20000)
+    ); // 缩短超时
+    const startTime = Date.now();
+    try {
+      paths = await Promise.race([
+        findPaths(difference, filteredItems),
+        timeoutPromise,
+      ]);
+      console.log("findPaths 返回的 paths:", JSON.stringify(paths, null, 2));
+      if (!paths || paths.length === 0) {
+        console.error("后端返回空路径");
+        dispatch({
+          type: "SET_ERROR",
+          field: "differenceError",
+          value: "无有效路径",
+        });
+        paths = [];
+      } else {
+        localStorage.setItem(`pathCache_${cacheKey}`, JSON.stringify(paths));
+        console.log("缓存已保存，耗时:", Date.now() - startTime, "ms");
+        managePathCache(cacheKey);
+      }
+      dispatch({ type: "SET_PATHS", paths });
+      dispatch({
+        type: "SET_HISTORY",
+        history: [
+          ...state.history.slice(-10),
+          paths.length > 0
+            ? {
+                path: paths[0],
+                timestamp: new Date().toLocaleString(),
+                initialLMD: num1Val,
+              }
+            : "无有效路径",
+        ],
+      });
     } catch (error) {
-      console.error("Calculation error:", error);
+      console.error("计算失败:", error);
       dispatch({
         type: "SET_ERROR",
         field: "differenceError",
         value: "计算出错，请重试",
       });
+      paths = [];
+      dispatch({ type: "SET_PATHS", paths });
     } finally {
       dispatch({ type: "SET_CALCULATING", value: false });
     }

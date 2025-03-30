@@ -24,3 +24,6 @@ yarn-error.log*
 
 # webpage-test
 /webpage-test/node_modules
+
+#backend
+/backend/node_modules
