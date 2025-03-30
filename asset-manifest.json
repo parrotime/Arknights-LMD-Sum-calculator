@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/Arknights-LMD-Sum-calculator/static/css/main.09447d7a.css",
-    "main.js": "/Arknights-LMD-Sum-calculator/static/js/main.e11153ba.js",
-    "static/js/488.05b91dca.chunk.js": "/Arknights-LMD-Sum-calculator/static/js/488.05b91dca.chunk.js",
+    "main.js": "/Arknights-LMD-Sum-calculator/static/js/main.9c1896ab.js",
+    "static/js/462.bbbaaeb4.chunk.js": "/Arknights-LMD-Sum-calculator/static/js/462.bbbaaeb4.chunk.js",
     "static/media/note6.webp": "/Arknights-LMD-Sum-calculator/static/media/note6.00a1ec30934c5a0b6cc5.webp",
     "static/media/note5.webp": "/Arknights-LMD-Sum-calculator/static/media/note5.2025c4da69d10702ee18.webp",
     "static/media/note2.webp": "/Arknights-LMD-Sum-calculator/static/media/note2.d952b57e4f8709465475.webp",
@@ -17,13 +17,14 @@
     "static/media/note1.webp": "/Arknights-LMD-Sum-calculator/static/media/note1.07eaed952e4034ff1f3a.webp",
     "static/media/note9.webp": "/Arknights-LMD-Sum-calculator/static/media/note9.d261dc6e58d036a7e313.webp",
     "static/media/note7.webp": "/Arknights-LMD-Sum-calculator/static/media/note7.cfa12124924261e80d66.webp",
+    "static/media/bonus.webp": "/Arknights-LMD-Sum-calculator/static/media/bonus.4ab15adbde2c1d0d6194.webp",
     "index.html": "/Arknights-LMD-Sum-calculator/index.html",
     "main.09447d7a.css.map": "/Arknights-LMD-Sum-calculator/static/css/main.09447d7a.css.map",
-    "main.e11153ba.js.map": "/Arknights-LMD-Sum-calculator/static/js/main.e11153ba.js.map",
-    "488.05b91dca.chunk.js.map": "/Arknights-LMD-Sum-calculator/static/js/488.05b91dca.chunk.js.map"
+    "main.9c1896ab.js.map": "/Arknights-LMD-Sum-calculator/static/js/main.9c1896ab.js.map",
+    "462.bbbaaeb4.chunk.js.map": "/Arknights-LMD-Sum-calculator/static/js/462.bbbaaeb4.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.09447d7a.css",
-    "static/js/main.e11153ba.js"
+    "static/js/main.9c1896ab.js"
   ]
 }
