@@ -4,7 +4,7 @@
 
 ## 项目背景
 
-本项目是作者学习前端开发（HTML、CSS、JavaScript）和 React 框架的一个简单的练习项目，灵感来源于《明日方舟》中玩家需要精确凑出特定龙门币数量的需求。项目仍在开发中，欢迎提出改进建议！
+本项目是作者学习前端开发（HTML、CSS、JavaScript + React）和 后端（Node.js）的一个简单的练习项目，灵感来源于《明日方舟》中玩家需要精确凑出特定龙门币数量的需求。项目仍在开发中，欢迎提出改进建议！
 
 ## 功能特点
 
@@ -26,7 +26,7 @@
 
 访问 [Arknights-LMD-Sum-calculator](https://parrotime.github.io/Arknights-LMD-Sum-calculator) 体验在线版本
 
-## 食用方法
+## 食用说明
 
 1. 打开计算主页（默认路由 /）。
 2. 在左侧输入当前龙门币数量和目标龙门币数量（范围：0 - 99,999,999，差值限制：-5000 ~ 5000）。
@@ -62,6 +62,26 @@ npm start
 
 4. 打开浏览器访问 `http://localhost:3000`
 
+### 后端部署
+
+1. 进入后端目录
+```bash
+cd server
+```
+
+2. 安装后端依赖
+```bash
+npm install
+```
+
+3. 启动后端服务
+```bash
+npm start
+```
+
+后端服务器将在 `http://localhost:3001` 运行
+
+
 ### 构建部署
 
 如果需要构建生产版本：
@@ -72,12 +92,6 @@ npm run build
 
 构建后的文件将生成在 `build` 目录中。
 
-## 技术栈
-
-- React
-- React Router（使用 HashRouter）
-- CSS3
-- JavaScript
 
 ## 声明
 
@@ -87,3 +101,4 @@ npm run build
 
 - [干员升级经验及龙门币消耗成本统计](https://ngabbs.com/read.php?tid=16847042)
 - [另一位作者制作的计算器](https://bbs.nga.cn/read.php?tid=21247901)
+
