@@ -16,7 +16,8 @@ async function runTest() {
   // 导航到目标网页
   try {
     await page.goto(
-      "https://parrotime.github.io/Arknights-LMD-Sum-calculator/",
+      //"https://parrotime.github.io/Arknights-LMD-Sum-calculator/",
+      "http://localhost:3000/Arknights-LMD-Sum-calculator",
       {
         waitUntil: "networkidle2",
       }

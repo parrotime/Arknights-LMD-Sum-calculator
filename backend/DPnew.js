@@ -23,6 +23,13 @@ const stageCache = new Map();
   const tradeGoldIds = [117, 118, 119]; // 售卖 2、3、4 个赤金 (1000, 1500, 2000)
   const materialIds = [100, 101, 102, 103]; // 基建合成 (-100, -200, -300, -400)
 
+  const MAX_STEPS = 6; //限制最大步数
+  const MAX_PATHS_PER_SUM = 10; //单个步骤最大使用次数
+  //const MAX_ITEM_USE_COUNT = 10; //单个物品最大使用次数
+  const TARGET_PATH_COUNT = 10;
+
+  //let enoughPaths = false; // 是否已找到足够的精确解
+
 export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
   console.log("计算目标差值:", target);
 
@@ -31,12 +38,37 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
     return [];
   }
 
+  let enoughPaths = false; // 是否已找到足够的精确解
   // 常量定义
-  const MAX_STEPS = 6; //限制最大步数
-  const MAX_PATHS_PER_SUM = 10; //单个步骤最大使用次数
-  //const MAX_ITEM_USE_COUNT = 10; //单个物品最大使用次数
-  const TARGET_PATH_COUNT = 10;
 
+  
+  function savePath(dp, sum, path, maxPaths, target, epsilon) {
+    const pathKey = path.map((s) => `${s.id}x${s.count}`).join("_");
+
+    if (!dp.has(sum)) dp.set(sum, []);
+    const existingPaths = dp.get(sum);
+
+    if (
+      existingPaths.length < maxPaths &&
+      !existingPaths.some(
+        (p) => p.map((s) => `${s.id}x${s.count}`).join("_") === pathKey
+      )
+    ) {
+      existingPaths.push(path);
+      dp.set(sum, existingPaths);
+
+      //console.log(`保存路径: ${sum} -> ${pathKey}`);
+
+      if (Math.abs(sum - target) <= epsilon) {
+        console.log(`发现精确解! sum=${sum}, 路径: ${pathKey}`);
+        if (existingPaths.length >= TARGET_PATH_COUNT) {
+          enoughPaths = true; // 设置终止标志
+        }
+      }
+      //return true;
+    }
+    //return false;
+  }
 
 
   // **新增：提取并排序“消耗理智”物品**
@@ -195,7 +227,9 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
       }
 
       savePath(dp, newSum, newPath, MAX_PATHS_PER_SUM, target, epsilon);
+      if (enoughPaths) break; // 如果已找到足够路径，跳出
     }
+    if (enoughPaths) break; // 如果已找到足够路径，跳出
   }
 
   // 第二阶段：多步路径
@@ -242,17 +276,23 @@ export const findPaths = (target, items = classifyData, epsilon = 1e-6) => {
 
             if (isPathValid(newPath, items)) {
               savePath(dp, newSum, newPath, MAX_PATHS_PER_SUM, target, epsilon);
+              if (enoughPaths) break; // 如果已找到足够路径，跳出
             }
           }
+          if (enoughPaths) break; // 如果已找到足够路径，跳出
         }
+        if (enoughPaths) break; // 如果已找到足够路径，跳出
       }
+      if (enoughPaths) break; // 如果已找到足够路径，跳出
     }
+    if (enoughPaths) break; // 如果已找到足够路径，跳出
+  }
 
-    const targetPaths = dp.get(target) || [];
+  /*const targetPaths = dp.get(target) || [];
     if (targetPaths.length >= TARGET_PATH_COUNT) {
       break;
     }
-  }
+  }*/
 
   return finalizeResult(dp, target, TARGET_PATH_COUNT);
 };
@@ -298,6 +338,7 @@ function mergeAndSortPath(oldPath, newSteps) {
   //return mergedPath;
 }
 
+/*
 // 辅助函数：保存路径并检查精确解
 function savePath(dp, sum, path, maxPaths, target, epsilon) {
   const pathKey = path.map((s) => `${s.id}x${s.count}`).join("_");
@@ -312,18 +353,25 @@ function savePath(dp, sum, path, maxPaths, target, epsilon) {
     )
   ) {
     existingPaths.push(path);
+    dp.set(sum, existingPaths);
+    
     //console.log(`保存路径: ${sum} -> ${pathKey}`);
 
     if (Math.abs(sum - target) <= epsilon) {
       console.log(`发现精确解! sum=${sum}, 路径: ${pathKey}`);
+      if (existingPaths.length >= TARGET_PATH_COUNT) {
+        enoughPaths = true; // 设置终止标志
+      }
     }
-    return true;
+    //return true;
   }
-  return false;
+  //return false;
 }
+*/
 
 // 辅助函数：整理并返回最终结果
 function finalizeResult(dp, target, maxPaths) {
+  const startTime = Date.now();
   const result = dp.get(target) || [];
   const uniquePaths = new Set();
 
@@ -349,5 +397,6 @@ function finalizeResult(dp, target, maxPaths) {
     .slice(0, maxPaths);
 
   console.log("最终返回结果:", finalResult);
+  console.log("耗时:", Date.now() - startTime);
   return finalResult;
 }

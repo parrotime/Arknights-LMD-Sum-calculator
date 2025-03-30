@@ -7,6 +7,7 @@ import DataPage from "./pages/Data";
 import AboutPage from "./pages/About";
 import PathRenderer from "./components/PathRenderer";
 import { classifyData } from "./DataService"; 
+import bonusImage from "./assets/images/bonus.webp";
 import "./App.css";
 
 // 状态管理 Reducer
@@ -322,7 +323,7 @@ const MainCalculator = () => {
       if (state.pathCache.length > 0) {
         const newClickCount = state.clickCount + 1;
         dispatch({ type: "CHANGE_PATH", delta });
-        if (newClickCount === 50) {
+        if (newClickCount === 30) {
           setShowBonusModal(true); // 触发彩蛋弹窗
         }
       }
@@ -488,7 +489,6 @@ const MainCalculator = () => {
                     点击“立即计算”按钮开始计算，点击“上一路径”和“下一路径”可以切换路径方案
                     <br />
                     3.设置面板中的开关调整之后，需要重新点击“立即计算”按钮才会生效，并且最好稍微等1~2秒左右。
-
                     如果点击重新点击“立即计算”之后仍不起作用或者等待计算时间过长，建议刷新一下网页。
                     对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果,某些情况下会需要10秒左右。计算时页面卡住是正常现象，请耐心等待，后续会继续优化。
                   </div>
@@ -591,13 +591,9 @@ const MainCalculator = () => {
       {showBonusModal && (
         <div className="modal-overlay">
           <div className="modal-content bonus-modal">
-            <img
-              src="../assets/images/bonus.webp"
-              alt="Bonus"
-              className="bonus-image"
-            />
+            <img src={bonusImage} alt="Bonus" className="bonus-image" />
             <p className="bonus-text">
-              你已经摆弄这俩按钮50次了，有这个探索精神相信你做什么都能成功的！
+              你已经摆弄这俩按钮30次了，有这个探索精神相信你做什么都能成功的！
             </p>
             <button onClick={() => setShowBonusModal(false)}>关闭</button>
           </div>
