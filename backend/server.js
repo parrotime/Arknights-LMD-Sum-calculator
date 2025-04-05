@@ -18,7 +18,8 @@ app.get("/", (req, res) => {
 // 计算路径的路由
 app.post("/find-paths", async (req, res) => {
   try {
-    const { target, items } = req.body;
+    const { target, items, userLimits } = req.body;
+
     console.log("后端接收目标差值:", target);
     console.log("后端接收物品数:", items.length);
     console.log("前5个物品样本:", JSON.stringify(items.slice(0, 5), null, 2));
@@ -29,9 +30,9 @@ app.post("/find-paths", async (req, res) => {
           "Invalid input: target must be a number and items must be an array",
       });
     }
-
+    console.log("后端接收 userLimits:", userLimits);
     const startTime = Date.now();
-    const paths = findPaths(target, items);
+    const paths = findPaths(target, items, userLimits);
     const duration = Date.now() - startTime;
     console.log("后端计算结果:", JSON.stringify(paths, null, 2));
     res.json({

@@ -2,6 +2,7 @@ import React, { useReducer, useState, useCallback, useEffect } from "react";
 //import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { findPaths } from "./algorithms/DP";
+//import { findPaths } from "../backend/DPnew.js";
 import NotePage from "./pages/Note";
 import DataPage from "./pages/Data";
 import AboutPage from "./pages/About";
@@ -38,6 +39,10 @@ const defaultState = {
     enableUpgradeOnly2: false,
     enableUpgradeOnlyFor1: false,
   },
+  upgrade0Count: "",
+  upgrade1Count: "",
+  upgrade2Count: "",
+  sanityCount: "",
 };
 
 const getInitialState = () => {
@@ -105,6 +110,11 @@ const reducer = (state, action) => {
           state.pathCache.length,
         clickCount: state.clickCount + 1,
       };
+    case "SET_UPGRADE_COUNT":
+      return {
+        ...state,
+        [action.field]: action.value,
+      };
     default:
       return state;
   }
@@ -152,6 +162,20 @@ const MainCalculator = () => {
       return;
     }
     dispatch({ type: "SET_NUM", field, value: numValue.toString() });
+  }, []);
+
+  // 新增：处理升级数量输入
+  const handleUpgradeCountChange = useCallback((e, field, min, max) => {
+    const value = e.target.value;
+    if (value === "") {
+      dispatch({ type: "SET_UPGRADE_COUNT", field, value: "" });
+      return;
+    }
+    const numValue = parseInt(value, 10);
+    if (isNaN(numValue) || numValue < min || numValue > max) {
+      return; // 不更新状态，保持现有值
+    }
+    dispatch({ type: "SET_UPGRADE_COUNT", field, value: numValue.toString() });
   }, []);
 
   // 计算逻辑 异步函数
@@ -206,11 +230,23 @@ const MainCalculator = () => {
       );
     });
 
+    // 提取四个限制值，空值时默认为无限大（不限制）
+    const upgrade0Limit =
+      state.upgrade0Count === "" ? Infinity : parseInt(state.upgrade0Count, 10);
+    const upgrade1Limit =
+      state.upgrade1Count === "" ? Infinity : parseInt(state.upgrade1Count, 10);
+    const upgrade2Limit =
+      state.upgrade2Count === "" ? Infinity : parseInt(state.upgrade2Count, 10);
+    const sanityLimit =
+      state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10);
+
     console.log("filteredItems:", filteredItems);
     const cacheKey = `${difference}_${Object.entries(state.settings)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([k, v]) => `${k}:${v}`)
-      .join("|")}`;
+      .join(
+        "|"
+      )}_${upgrade0Limit}_${upgrade1Limit}_${upgrade2Limit}_${sanityLimit}`;
     console.log("生成的 cacheKey:", cacheKey);
     const cachedResult = localStorage.getItem(`pathCache_${cacheKey}`);
     let paths;
@@ -241,12 +277,18 @@ const MainCalculator = () => {
 
     console.log("缓存未命中或无效，开始调用 findPaths");
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("计算超时")), 20000)
+      setTimeout(() => reject(new Error("计算超时")), 15000)
     ); // 缩短超时
     const startTime = Date.now();
+    console.log("limit in APPjs is:", upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit)
     try {
       paths = await Promise.race([
-        findPaths(difference, filteredItems),
+        findPaths(difference, filteredItems, {
+          upgrade0Limit,
+          upgrade1Limit,
+          upgrade2Limit,
+          sanityLimit,
+        }),
         timeoutPromise,
       ]);
       console.log("findPaths 返回的 paths:", JSON.stringify(paths, null, 2));
@@ -289,7 +331,15 @@ const MainCalculator = () => {
     } finally {
       dispatch({ type: "SET_CALCULATING", value: false });
     }
-  }, [state.num1, state.num2, state.history]);
+  }, [
+    state.num1,
+    state.num2,
+    state.history,
+    state.upgrade0Count,
+    state.upgrade1Count,
+    state.upgrade2Count,
+    state.sanityCount,
+  ]);
 
   // 切换路径
   /*const handleChangePath = () => {
@@ -306,7 +356,9 @@ const MainCalculator = () => {
 
   // 新增：管理路径缓存（最多5条）
   const managePathCache = (newKey) => {
-    const cacheQueue = JSON.parse(localStorage.getItem("pathCacheQueue") || "[]");
+    const cacheQueue = JSON.parse(
+      localStorage.getItem("pathCacheQueue") || "[]"
+    );
     if (!cacheQueue.includes(newKey)) {
       cacheQueue.push(newKey);
       if (cacheQueue.length > 5) {
@@ -317,13 +369,12 @@ const MainCalculator = () => {
     }
   };
 
-
   const handleChangePath = useCallback(
     (delta) => {
       if (state.pathCache.length > 0) {
         const newClickCount = state.clickCount + 1;
         dispatch({ type: "CHANGE_PATH", delta });
-        if (newClickCount === 30) {
+        if (newClickCount === 300) {
           setShowBonusModal(true); // 触发彩蛋弹窗
         }
       }
@@ -413,43 +464,109 @@ const MainCalculator = () => {
               <div className="main-content">
                 <div className="input-container">
                   {/* 当前数量输入 */}
-                  <div className="input-group">
-                    <div className="input-wrapper-text">当前龙门币数量:</div>
-                    <div className="input-wrapper">
-                      <input
-                        type="text"
-                        className="input-box"
-                        placeholder="请输入数字"
-                        value={state.num1}
-                        onChange={(e) => handleInputChange(e, "num1")}
-                        onKeyPress={(e) =>
-                          !/[0-9]/.test(e.key) && e.preventDefault()
-                        }
-                      />
-                      {state.error1 && (
-                        <div className="error-message">{state.error1}</div>
-                      )}
+                  <div className="input-group-horizontal">
+                    <div className="input-group">
+                      <div className="input-wrapper-text">当前龙门币数量:</div>
+                      <div className="input-wrapper">
+                        <input
+                          type="text"
+                          className="input-box"
+                          placeholder="请输入数字"
+                          value={state.num1}
+                          onChange={(e) => handleInputChange(e, "num1")}
+                          onKeyPress={(e) =>
+                            !/[0-9]/.test(e.key) && e.preventDefault()
+                          }
+                        />
+                        {state.error1 && (
+                          <div className="error-message">{state.error1}</div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 目标数量输入 */}
+                    <div className="input-group">
+                      <div className="input-wrapper-text">目标龙门币数量:</div>
+                      <div className="input-wrapper">
+                        <input
+                          type="text"
+                          className="input-box"
+                          placeholder="请输入数字"
+                          value={state.num2}
+                          onChange={(e) => handleInputChange(e, "num2")}
+                          onKeyPress={(e) =>
+                            !/[0-9]/.test(e.key) && e.preventDefault()
+                          }
+                        />
+                        {state.error2 && (
+                          <div className="error-message">{state.error2}</div>
+                        )}
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* 目标数量输入 */}
-                  <div className="input-group">
-                    <div className="input-wrapper-text">目标龙门币数量:</div>
-                    <div className="input-wrapper">
-                      <input
-                        type="text"
-                        className="input-box"
-                        placeholder="请输入数字"
-                        value={state.num2}
-                        onChange={(e) => handleInputChange(e, "num2")}
-                        onKeyPress={(e) =>
-                          !/[0-9]/.test(e.key) && e.preventDefault()
-                        }
-                      />
-                      {state.error2 && (
-                        <div className="error-message">{state.error2}</div>
-                      )}
-                    </div>
+                {/* 新增：四个垂直分布的容器 */}
+                <div className="upgrade-count-container">
+                  <div className="toggle-container">
+                    <div className="toggle-text">允许升级的精零干员数量：</div>
+                    <input
+                      type="number"
+                      className="short-input-box"
+                      min="0" // 最小值
+                      max="10" // 最大值
+                      step="1" // 步长
+                      placeholder="0-10"
+                      value={state.upgrade0Count}
+                      onChange={(e) =>
+                        handleUpgradeCountChange(e, "upgrade0Count", 0, 10)
+                      }
+                    />
+                  </div>
+                  <div className="toggle-container">
+                    <div className="toggle-text">允许升级的精一干员数量：</div>
+                    <input
+                      type="number"
+                      className="short-input-box"
+                      min="0" // 最小值
+                      max="10" // 最大值
+                      step="1" // 步长
+                      placeholder="0-10"
+                      value={state.upgrade1Count}
+                      onChange={(e) =>
+                        handleUpgradeCountChange(e, "upgrade1Count", 0, 10)
+                      }
+                    />
+                  </div>
+                  <div className="toggle-container">
+                    <div className="toggle-text">允许升级的精二干员数量：</div>
+                    <input
+                      type="number"
+                      className="short-input-box"
+                      min="0" // 最小值
+                      max="10" // 最大值
+                      step="1" // 步长
+                      placeholder="0-10"
+                      value={state.upgrade2Count}
+                      onChange={(e) =>
+                        handleUpgradeCountChange(e, "upgrade2Count", 0, 10)
+                      }
+                    />
+                  </div>
+                  <div className="toggle-container">
+                    <div className="toggle-text">允许升级的理智的数量：</div>
+                    <input
+                      type="number"
+                      className="short-input-box"
+                      min="0" // 最小值
+                      max="200" // 最大值
+                      step="1" // 步长
+                      placeholder="0-200"
+                      value={state.sanityCount}
+                      onChange={(e) =>
+                        handleUpgradeCountChange(e, "sanityCount", 0, 200)
+                      }
+                    />
                   </div>
                 </div>
 
@@ -558,6 +675,20 @@ const MainCalculator = () => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* 新增：底部备案信息区域 */}
+      <div className="footer">
+        <a
+          href="https://beian.miit.gov.cn/"
+          target="_blank"
+          rel="noreferrer noopener"
+          className="external-link"
+        >
+          浙B2-20080101
+        </a>
+        <p>网站备案号：XXXXXXXXXXXXXXXXXXXX</p>
+        <p>© 2025 你的网站名称. All rights reserved.</p>
       </div>
 
       {/* 新增：弹窗组件 */}

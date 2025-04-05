@@ -1,3 +1,14 @@
+// 定义物品的类型
+interface Item {
+  id: number;
+  item_id: string;
+  item_name: string;
+  item_value: number;
+  rarity: number;
+  type: string;
+  consume: number; // 注意：这里用 "consume" 替代了之前的 "custom"，与你的数据一致
+}
+
 export const classifyData = [
   {
     id: 1,
@@ -1911,10 +1922,10 @@ export const classifyData = [
 
 /**
  * 根据 id 获取物品信息
- * @param {number} id - 要查找的 id
- * @returns {Object|null} - 找到的物品信息，未找到则返回 null
+ * @param id - 要查找的 id
+ * @returns  - 找到的物品信息，未找到则返回 null
  */
-export const getItemById = (id) => {
+export const getItemById = (id: number): Item | null => {
   return classifyData.find((item) => item.id === id) || null;
 };
 

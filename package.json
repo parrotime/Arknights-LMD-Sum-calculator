@@ -1,6 +1,7 @@
 {
   "name": "main",
   "version": "0.1.0",
+   
   "private": true,
   "homepage": "https://parrotime.github.io/Arknights-LMD-Sum-calculator",
   "dependencies": {
