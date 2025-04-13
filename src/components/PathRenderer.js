@@ -4,22 +4,16 @@ import { getItemById } from "../DataService";
 import "./PathRenderer.css";
 
 // 路径渲染器
-const PathRenderer = ({
-  path,
-  initialLMD,
-  totalPaths,
-  currentIndex,
-  onPrevPath,
-  onNextPath,
-}) => {
+const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, onNextPath,}) => {
   console.log("PathRenderer 被调用");
   console.log("PathRenderer 接收的 path:", path);
   console.log("PathRenderer totalPaths:", totalPaths);
   console.log("PathRenderer currentIndex:", currentIndex);
+
   const safePath = Array.isArray(path) ? path : [];
- //console.log("PathRenderer 接收的 path:", path); // 添加日志
+  
   // 路径为空
-  if (path.length === 0) {
+  if (safePath.length === 0) {
     return <div className="path-renderer-error">没有找到合适的路径</div>;
   }
 
@@ -77,9 +71,7 @@ const PathRenderer = ({
             {Array.from({ length: totalPaths }).map((_, index) => (
               <span
                 key={index}
-                className={`path-renderer-dot ${
-                  index === currentIndex ? "active" : ""
-                }`}
+                className={`path-renderer-dot ${index === currentIndex ? "active" : ""}`}
               />
             ))}
           </div>

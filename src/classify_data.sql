@@ -1,3 +1,4 @@
+-- 已经弃用，可供后续作为参考 2025.3.1
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
