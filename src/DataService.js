@@ -6,6 +6,7 @@ export const classifyData = [
     item_value: -61,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 2,
@@ -14,6 +15,7 @@ export const classifyData = [
     item_value: -125,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 3,
@@ -22,6 +24,7 @@ export const classifyData = [
     item_value: -69,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 4,
@@ -30,6 +33,7 @@ export const classifyData = [
     item_value: -141,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 5,
@@ -38,6 +42,7 @@ export const classifyData = [
     item_value: -79,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 6,
@@ -46,6 +51,7 @@ export const classifyData = [
     item_value: -159,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 7,
@@ -54,6 +60,7 @@ export const classifyData = [
     item_value: -88,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 8,
@@ -62,6 +69,7 @@ export const classifyData = [
     item_value: -177,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 9,
@@ -70,6 +78,7 @@ export const classifyData = [
     item_value: -122,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 10,
@@ -78,6 +87,7 @@ export const classifyData = [
     item_value: -251,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 11,
@@ -86,6 +96,7 @@ export const classifyData = [
     item_value: -162,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 12,
@@ -94,6 +105,7 @@ export const classifyData = [
     item_value: -324,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 13,
@@ -102,6 +114,7 @@ export const classifyData = [
     item_value: -202,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 14,
@@ -110,6 +123,7 @@ export const classifyData = [
     item_value: -404,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 15,
@@ -118,6 +132,7 @@ export const classifyData = [
     item_value: -242,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 16,
@@ -126,6 +141,7 @@ export const classifyData = [
     item_value: -484,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 17,
@@ -134,6 +150,7 @@ export const classifyData = [
     item_value: -282,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 18,
@@ -142,6 +159,7 @@ export const classifyData = [
     item_value: -564,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 19,
@@ -150,6 +168,7 @@ export const classifyData = [
     item_value: -322,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 20,
@@ -158,6 +177,7 @@ export const classifyData = [
     item_value: -644,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 21,
@@ -166,6 +186,7 @@ export const classifyData = [
     item_value: -81,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 22,
@@ -174,6 +195,7 @@ export const classifyData = [
     item_value: -165,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 23,
@@ -182,6 +204,7 @@ export const classifyData = [
     item_value: -89,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 24,
@@ -190,6 +213,7 @@ export const classifyData = [
     item_value: -179,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 25,
@@ -198,6 +222,7 @@ export const classifyData = [
     item_value: -100,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 26,
@@ -206,6 +231,7 @@ export const classifyData = [
     item_value: -199,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 27,
@@ -214,6 +240,7 @@ export const classifyData = [
     item_value: -111,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 28,
@@ -222,6 +249,7 @@ export const classifyData = [
     item_value: -222,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 29,
@@ -230,6 +258,7 @@ export const classifyData = [
     item_value: -122,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 30,
@@ -238,6 +267,7 @@ export const classifyData = [
     item_value: -244,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 31,
@@ -246,6 +276,7 @@ export const classifyData = [
     item_value: -133,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 32,
@@ -254,6 +285,7 @@ export const classifyData = [
     item_value: -265,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 33,
@@ -262,6 +294,7 @@ export const classifyData = [
     item_value: -144,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 34,
@@ -270,6 +303,7 @@ export const classifyData = [
     item_value: -288,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 35,
@@ -278,6 +312,7 @@ export const classifyData = [
     item_value: -155,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 36,
@@ -286,6 +321,7 @@ export const classifyData = [
     item_value: -310,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 37,
@@ -294,6 +330,7 @@ export const classifyData = [
     item_value: -166,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 38,
@@ -302,6 +339,7 @@ export const classifyData = [
     item_value: -332,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 39,
@@ -310,6 +348,7 @@ export const classifyData = [
     item_value: -177,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 40,
@@ -318,6 +357,7 @@ export const classifyData = [
     item_value: -354,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 41,
@@ -326,6 +366,7 @@ export const classifyData = [
     item_value: -188,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 42,
@@ -334,6 +375,7 @@ export const classifyData = [
     item_value: -376,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 43,
@@ -342,6 +384,7 @@ export const classifyData = [
     item_value: -199,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 44,
@@ -350,6 +393,7 @@ export const classifyData = [
     item_value: -398,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 45,
@@ -358,6 +402,7 @@ export const classifyData = [
     item_value: -210,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 46,
@@ -366,6 +411,7 @@ export const classifyData = [
     item_value: -420,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 47,
@@ -374,6 +420,7 @@ export const classifyData = [
     item_value: -221,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 48,
@@ -382,6 +429,7 @@ export const classifyData = [
     item_value: -442,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 49,
@@ -390,6 +438,7 @@ export const classifyData = [
     item_value: -232,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 50,
@@ -398,6 +447,7 @@ export const classifyData = [
     item_value: -464,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 51,
@@ -406,6 +456,7 @@ export const classifyData = [
     item_value: -80,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 52,
@@ -414,6 +465,7 @@ export const classifyData = [
     item_value: -162,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 53,
@@ -422,6 +474,7 @@ export const classifyData = [
     item_value: -87,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 54,
@@ -430,6 +483,7 @@ export const classifyData = [
     item_value: -175,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 55,
@@ -438,6 +492,7 @@ export const classifyData = [
     item_value: -96,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 56,
@@ -446,6 +501,7 @@ export const classifyData = [
     item_value: -192,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 57,
@@ -454,6 +510,7 @@ export const classifyData = [
     item_value: -105,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 58,
@@ -462,6 +519,7 @@ export const classifyData = [
     item_value: -210,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 59,
@@ -470,6 +528,7 @@ export const classifyData = [
     item_value: -114,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 60,
@@ -478,6 +537,7 @@ export const classifyData = [
     item_value: -228,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 61,
@@ -486,6 +546,7 @@ export const classifyData = [
     item_value: -123,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 62,
@@ -494,6 +555,7 @@ export const classifyData = [
     item_value: -246,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 63,
@@ -502,6 +564,7 @@ export const classifyData = [
     item_value: -132,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 64,
@@ -510,6 +573,7 @@ export const classifyData = [
     item_value: -264,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 65,
@@ -518,6 +582,7 @@ export const classifyData = [
     item_value: -141,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 66,
@@ -526,6 +591,7 @@ export const classifyData = [
     item_value: -282,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 67,
@@ -534,6 +600,7 @@ export const classifyData = [
     item_value: -150,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 68,
@@ -542,6 +609,7 @@ export const classifyData = [
     item_value: -300,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 69,
@@ -550,6 +618,7 @@ export const classifyData = [
     item_value: -159,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 70,
@@ -558,6 +627,7 @@ export const classifyData = [
     item_value: -318,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 71,
@@ -566,6 +636,7 @@ export const classifyData = [
     item_value: -168,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 72,
@@ -574,6 +645,7 @@ export const classifyData = [
     item_value: -336,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 73,
@@ -582,6 +654,7 @@ export const classifyData = [
     item_value: -177,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 74,
@@ -590,6 +663,7 @@ export const classifyData = [
     item_value: -354,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 75,
@@ -598,6 +672,7 @@ export const classifyData = [
     item_value: -186,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 76,
@@ -606,6 +681,7 @@ export const classifyData = [
     item_value: -372,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 77,
@@ -614,6 +690,7 @@ export const classifyData = [
     item_value: -195,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 78,
@@ -622,6 +699,7 @@ export const classifyData = [
     item_value: -390,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 79,
@@ -630,6 +708,7 @@ export const classifyData = [
     item_value: -204,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 80,
@@ -638,6 +717,7 @@ export const classifyData = [
     item_value: -408,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 81,
@@ -646,6 +726,7 @@ export const classifyData = [
     item_value: -213,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 82,
@@ -654,6 +735,7 @@ export const classifyData = [
     item_value: -426,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 83,
@@ -662,6 +744,7 @@ export const classifyData = [
     item_value: -223,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 84,
@@ -670,6 +753,7 @@ export const classifyData = [
     item_value: -445,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 85,
@@ -678,6 +762,7 @@ export const classifyData = [
     item_value: -234,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 86,
@@ -686,6 +771,7 @@ export const classifyData = [
     item_value: -467,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 87,
@@ -694,6 +780,7 @@ export const classifyData = [
     item_value: 72,
     rarity: 5,
     type: "3_star",
+    consume: 6,
   },
   {
     id: 88,
@@ -702,6 +789,7 @@ export const classifyData = [
     item_value: 108,
     rarity: 5,
     type: "3_star",
+    consume: 9,
   },
   {
     id: 89,
@@ -710,6 +798,7 @@ export const classifyData = [
     item_value: 120,
     rarity: 5,
     type: "3_star",
+    consume: 10,
   },
   {
     id: 90,
@@ -718,6 +807,7 @@ export const classifyData = [
     item_value: 180,
     rarity: 5,
     type: "3_star",
+    consume: 15,
   },
   {
     id: 91,
@@ -726,6 +816,7 @@ export const classifyData = [
     item_value: 216,
     rarity: 5,
     type: "3_star",
+    consume: 18,
   },
   {
     id: 92,
@@ -734,6 +825,7 @@ export const classifyData = [
     item_value: 252,
     rarity: 5,
     type: "3_star",
+    consume: 21,
   },
   {
     id: 93,
@@ -742,6 +834,7 @@ export const classifyData = [
     item_value: 60,
     rarity: 5,
     type: "2_star",
+    consume: 6,
   },
   {
     id: 94,
@@ -750,6 +843,7 @@ export const classifyData = [
     item_value: 90,
     rarity: 5,
     type: "2_star",
+    consume: 9,
   },
   {
     id: 95,
@@ -758,6 +852,7 @@ export const classifyData = [
     item_value: 100,
     rarity: 5,
     type: "2_star",
+    consume: 10,
   },
   {
     id: 96,
@@ -766,6 +861,7 @@ export const classifyData = [
     item_value: 150,
     rarity: 5,
     type: "2_star",
+    consume: 15,
   },
   {
     id: 97,
@@ -774,6 +870,7 @@ export const classifyData = [
     item_value: 180,
     rarity: 5,
     type: "2_star",
+    consume: 18,
   },
   {
     id: 98,
@@ -782,6 +879,7 @@ export const classifyData = [
     item_value: 210,
     rarity: 5,
     type: "2_star",
+    consume: 21,
   },
   {
     id: 99,
@@ -790,6 +888,7 @@ export const classifyData = [
     item_value: 20,
     rarity: 5,
     type: "store_20",
+    consume: 0,
   },
   {
     id: 100,
@@ -798,6 +897,7 @@ export const classifyData = [
     item_value: -100,
     rarity: 1,
     type: "material",
+    consume: 0,
   },
   {
     id: 101,
@@ -806,6 +906,7 @@ export const classifyData = [
     item_value: -200,
     rarity: 2,
     type: "material",
+    consume: 0,
   },
   {
     id: 102,
@@ -814,6 +915,7 @@ export const classifyData = [
     item_value: -300,
     rarity: 3,
     type: "material",
+    consume: 0,
   },
   {
     id: 103,
@@ -822,6 +924,7 @@ export const classifyData = [
     item_value: -400,
     rarity: 5,
     type: "material",
+    consume: 0,
   },
   {
     id: 104,
@@ -830,6 +933,7 @@ export const classifyData = [
     item_value: 70,
     rarity: 5,
     type: "store_70",
+    consume: 0,
   },
   {
     id: 105,
@@ -838,6 +942,7 @@ export const classifyData = [
     item_value: 10,
     rarity: 5,
     type: "store_10",
+    consume: 0,
   },
   {
     id: 106,
@@ -846,6 +951,7 @@ export const classifyData = [
     item_value: 250,
     rarity: 5,
     type: "ext_25",
+    consume: 25,
   },
   {
     id: 107,
@@ -854,6 +960,7 @@ export const classifyData = [
     item_value: 240,
     rarity: 5,
     type: "3_star",
+    consume: 20,
   },
   {
     id: 108,
@@ -862,6 +969,7 @@ export const classifyData = [
     item_value: 300,
     rarity: 5,
     type: "3_star",
+    consume: 25,
   },
   {
     id: 109,
@@ -870,6 +978,7 @@ export const classifyData = [
     item_value: 360,
     rarity: 5,
     type: "3_star",
+    consume: 30,
   },
   {
     id: 110,
@@ -878,6 +987,7 @@ export const classifyData = [
     item_value: 432,
     rarity: 5,
     type: "3_star",
+    consume: 36,
   },
   {
     id: 111,
@@ -886,6 +996,7 @@ export const classifyData = [
     item_value: 200,
     rarity: 5,
     type: "2_star",
+    consume: 20,
   },
   {
     id: 112,
@@ -894,6 +1005,7 @@ export const classifyData = [
     item_value: 250,
     rarity: 5,
     type: "2_star",
+    consume: 25,
   },
   {
     id: 113,
@@ -902,6 +1014,7 @@ export const classifyData = [
     item_value: 300,
     rarity: 5,
     type: "2_star",
+    consume: 30,
   },
   {
     id: 114,
@@ -910,6 +1023,7 @@ export const classifyData = [
     item_value: 360,
     rarity: 5,
     type: "2_star",
+    consume: 36,
   },
   {
     id: 115,
@@ -918,6 +1032,7 @@ export const classifyData = [
     item_value: -486,
     rarity: 1,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 116,
@@ -926,6 +1041,7 @@ export const classifyData = [
     item_value: -243,
     rarity: 2,
     type: "upgrade",
+    consume: 0,
   },
   {
     id: 117,
@@ -934,6 +1050,7 @@ export const classifyData = [
     item_value: 1000,
     rarity: 5,
     type: "trade",
+    consume: 0,
   },
   {
     id: 118,
@@ -942,6 +1059,7 @@ export const classifyData = [
     item_value: 1500,
     rarity: 5,
     type: "trade",
+    consume: 0,
   },
   {
     id: 119,
@@ -950,6 +1068,7 @@ export const classifyData = [
     item_value: 2000,
     rarity: 5,
     type: "trade",
+    consume: 0,
   },
   {
     id: 120,
@@ -958,6 +1077,7 @@ export const classifyData = [
     item_value: -61,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 121,
@@ -966,6 +1086,7 @@ export const classifyData = [
     item_value: -125,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 122,
@@ -974,6 +1095,7 @@ export const classifyData = [
     item_value: -192,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 123,
@@ -982,6 +1104,7 @@ export const classifyData = [
     item_value: -262,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 124,
@@ -990,6 +1113,7 @@ export const classifyData = [
     item_value: -333,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 125,
@@ -998,6 +1122,7 @@ export const classifyData = [
     item_value: -407,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 126,
@@ -1006,6 +1131,7 @@ export const classifyData = [
     item_value: -482,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 127,
@@ -1014,6 +1140,7 @@ export const classifyData = [
     item_value: -559,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 128,
@@ -1022,6 +1149,7 @@ export const classifyData = [
     item_value: -638,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 129,
@@ -1030,6 +1158,7 @@ export const classifyData = [
     item_value: -718,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 130,
@@ -1038,6 +1167,7 @@ export const classifyData = [
     item_value: -800,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 131,
@@ -1046,6 +1176,7 @@ export const classifyData = [
     item_value: -883,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 132,
@@ -1054,6 +1185,7 @@ export const classifyData = [
     item_value: -967,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 133,
@@ -1062,6 +1194,7 @@ export const classifyData = [
     item_value: -1053,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 134,
@@ -1070,6 +1203,7 @@ export const classifyData = [
     item_value: -1139,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 135,
@@ -1078,6 +1212,7 @@ export const classifyData = [
     item_value: -1228,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 136,
@@ -1086,6 +1221,7 @@ export const classifyData = [
     item_value: -1317,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 137,
@@ -1094,6 +1230,7 @@ export const classifyData = [
     item_value: -1407,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 138,
@@ -1102,6 +1239,7 @@ export const classifyData = [
     item_value: -1503,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 139,
@@ -1110,6 +1248,7 @@ export const classifyData = [
     item_value: -1601,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 140,
@@ -1118,6 +1257,7 @@ export const classifyData = [
     item_value: -1707,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 141,
@@ -1126,6 +1266,7 @@ export const classifyData = [
     item_value: -1812,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 142,
@@ -1134,6 +1275,7 @@ export const classifyData = [
     item_value: -1926,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 143,
@@ -1142,6 +1284,7 @@ export const classifyData = [
     item_value: -2040,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 144,
@@ -1150,6 +1293,7 @@ export const classifyData = [
     item_value: -2162,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 145,
@@ -1158,6 +1302,7 @@ export const classifyData = [
     item_value: -2284,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 146,
@@ -1166,6 +1311,7 @@ export const classifyData = [
     item_value: -2413,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 147,
@@ -1174,6 +1320,7 @@ export const classifyData = [
     item_value: -2542,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 148,
@@ -1182,6 +1329,7 @@ export const classifyData = [
     item_value: -2678,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 149,
@@ -1190,6 +1338,7 @@ export const classifyData = [
     item_value: -2815,
     rarity: 1,
     type: "upgrade_only_0",
+    consume: 0,
   },
   {
     id: 150,
@@ -1198,6 +1347,7 @@ export const classifyData = [
     item_value: -81,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 151,
@@ -1206,6 +1356,7 @@ export const classifyData = [
     item_value: -165,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 152,
@@ -1214,6 +1365,7 @@ export const classifyData = [
     item_value: -251,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 153,
@@ -1222,6 +1374,7 @@ export const classifyData = [
     item_value: -338,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 154,
@@ -1230,6 +1383,7 @@ export const classifyData = [
     item_value: -427,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 155,
@@ -1238,6 +1392,7 @@ export const classifyData = [
     item_value: -516,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 156,
@@ -1246,6 +1401,7 @@ export const classifyData = [
     item_value: -607,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 157,
@@ -1254,6 +1410,7 @@ export const classifyData = [
     item_value: -700,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 158,
@@ -1262,6 +1419,7 @@ export const classifyData = [
     item_value: -793,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 159,
@@ -1270,6 +1428,7 @@ export const classifyData = [
     item_value: -886,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 160,
@@ -1278,6 +1437,7 @@ export const classifyData = [
     item_value: -982,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 161,
@@ -1286,6 +1446,7 @@ export const classifyData = [
     item_value: -1077,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 162,
@@ -1294,6 +1455,7 @@ export const classifyData = [
     item_value: -1175,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 163,
@@ -1302,6 +1464,7 @@ export const classifyData = [
     item_value: -1273,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 164,
@@ -1310,6 +1473,7 @@ export const classifyData = [
     item_value: -1371,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 165,
@@ -1318,6 +1482,7 @@ export const classifyData = [
     item_value: -1471,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 166,
@@ -1326,6 +1491,7 @@ export const classifyData = [
     item_value: -1570,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 167,
@@ -1334,6 +1500,7 @@ export const classifyData = [
     item_value: -1671,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 168,
@@ -1342,6 +1509,7 @@ export const classifyData = [
     item_value: -1772,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 169,
@@ -1350,6 +1518,7 @@ export const classifyData = [
     item_value: -1874,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 170,
@@ -1358,6 +1527,7 @@ export const classifyData = [
     item_value: -1976,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 171,
@@ -1366,6 +1536,7 @@ export const classifyData = [
     item_value: -2081,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 172,
@@ -1374,6 +1545,7 @@ export const classifyData = [
     item_value: -2185,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 173,
@@ -1382,6 +1554,7 @@ export const classifyData = [
     item_value: -2289,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 174,
@@ -1390,6 +1563,7 @@ export const classifyData = [
     item_value: -2395,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 175,
@@ -1398,6 +1572,7 @@ export const classifyData = [
     item_value: -2502,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 176,
@@ -1406,6 +1581,7 @@ export const classifyData = [
     item_value: -2608,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 177,
@@ -1414,6 +1590,7 @@ export const classifyData = [
     item_value: -2714,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 178,
@@ -1422,6 +1599,7 @@ export const classifyData = [
     item_value: -2823,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 179,
@@ -1430,6 +1608,7 @@ export const classifyData = [
     item_value: -2931,
     rarity: 1,
     type: "upgrade_only_1",
+    consume: 0,
   },
   {
     id: 180,
@@ -1438,6 +1617,7 @@ export const classifyData = [
     item_value: -80,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 181,
@@ -1446,6 +1626,7 @@ export const classifyData = [
     item_value: -162,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 182,
@@ -1454,6 +1635,7 @@ export const classifyData = [
     item_value: -244,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 183,
@@ -1462,6 +1644,7 @@ export const classifyData = [
     item_value: -328,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 184,
@@ -1470,6 +1653,7 @@ export const classifyData = [
     item_value: -412,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 185,
@@ -1478,6 +1662,7 @@ export const classifyData = [
     item_value: -497,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 186,
@@ -1486,6 +1671,7 @@ export const classifyData = [
     item_value: -583,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 187,
@@ -1494,6 +1680,7 @@ export const classifyData = [
     item_value: -670,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 188,
@@ -1502,6 +1689,7 @@ export const classifyData = [
     item_value: -757,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 189,
@@ -1510,6 +1698,7 @@ export const classifyData = [
     item_value: -844,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 190,
@@ -1518,6 +1707,7 @@ export const classifyData = [
     item_value: -933,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 191,
@@ -1526,6 +1716,7 @@ export const classifyData = [
     item_value: -1022,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 192,
@@ -1534,6 +1725,7 @@ export const classifyData = [
     item_value: -1110,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 193,
@@ -1542,6 +1734,7 @@ export const classifyData = [
     item_value: -1199,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 194,
@@ -1550,6 +1743,7 @@ export const classifyData = [
     item_value: -1290,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 195,
@@ -1558,6 +1752,7 @@ export const classifyData = [
     item_value: -1381,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 196,
@@ -1566,6 +1761,7 @@ export const classifyData = [
     item_value: -1472,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 197,
@@ -1574,6 +1770,7 @@ export const classifyData = [
     item_value: -1563,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 198,
@@ -1582,6 +1779,7 @@ export const classifyData = [
     item_value: -1654,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 199,
@@ -1590,6 +1788,7 @@ export const classifyData = [
     item_value: -1747,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 200,
@@ -1598,6 +1797,7 @@ export const classifyData = [
     item_value: -1839,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 201,
@@ -1606,6 +1806,7 @@ export const classifyData = [
     item_value: -1932,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 202,
@@ -1614,6 +1815,7 @@ export const classifyData = [
     item_value: -2024,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 203,
@@ -1622,6 +1824,7 @@ export const classifyData = [
     item_value: -2118,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 204,
@@ -1630,6 +1833,7 @@ export const classifyData = [
     item_value: -2213,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 205,
@@ -1638,6 +1842,7 @@ export const classifyData = [
     item_value: -2307,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 206,
@@ -1646,6 +1851,7 @@ export const classifyData = [
     item_value: -2401,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 207,
@@ -1654,6 +1860,7 @@ export const classifyData = [
     item_value: -2496,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 208,
@@ -1662,6 +1869,7 @@ export const classifyData = [
     item_value: -2591,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 209,
@@ -1670,6 +1878,7 @@ export const classifyData = [
     item_value: -2687,
     rarity: 1,
     type: "upgrade_only_2",
+    consume: 0,
   },
   {
     id: 210,
@@ -1678,6 +1887,7 @@ export const classifyData = [
     item_value: 144,
     rarity: 5,
     type: "3_star",
+    consume: 12,
   },
   {
     id: 211,
@@ -1686,6 +1896,7 @@ export const classifyData = [
     item_value: 120,
     rarity: 5,
     type: "2_star",
+    consume: 12,
   },
   {
     id: 212,
@@ -1694,11 +1905,12 @@ export const classifyData = [
     item_value: 5000,
     rarity: 5,
     type: "store_5000",
+    consume: 0,
   },
   {
     id: 213,
     item_id: "4-5",
-    item_name: "活动商店使用5代币换取2000龙门币",
+    item_name: "活动商店使用7代币换取2000龙门币",
     item_value: 2000,
     rarity: 5,
     type: "store_2000",

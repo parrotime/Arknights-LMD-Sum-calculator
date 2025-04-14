@@ -15,7 +15,8 @@ html, body, #root {
 
 .app-container {
   display: flex;
-  height: auto; /* 确保容器占满整个页面高度 */
+  flex-direction: column;
+  height: auto; 
   min-height: 100vh; /* 保证最小高度 */
 }
 
@@ -118,7 +119,6 @@ html, body, #root {
   padding: 1.5rem;
   background-color: #afd3f3;
   margin-left: 230px;
-  min-height: 100vh;
   width: calc(100% - 230px);
   box-sizing: border-box;
 }
@@ -200,22 +200,21 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   gap: 0.8rem;
 }
 
 .input-wrapper-text,
 .output-wrapper-text {
   color: black;
-  text-align: center;
   font-weight: bold;
-  width: 200px;
   padding-left: 10px;
   margin: 6px 0;
 }
 
 .input-box,
 .result-box {
-  width: 200px;
+  width: 280px;
   padding: 0.5rem;
   border: 4px solid #94c9ed;
   border-radius: 0.6rem;
@@ -247,7 +246,39 @@ html, body, #root {
 
 
 
+/* 新增：升级数量容器 */
+.upgrade-count-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* 新增：短输入框样式 */
+.short-input-box {
+  width: 80px; /* 较短的宽度 */
+  padding: 0.5rem;
+  border: 4px solid #94c9ed; /* 与现有输入框一致 */
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+
+
+
+
+.short-input-box:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0.5rem rgba(52, 152, 219, 0.3);
+  outline: none;
+}
+
+
+
+
 .calculate-button {
+  width: 300px;
   margin-top: 1.5rem; /* 与输入框的间距 */
   padding: 10px 20px;
   font-size: 16px;
@@ -427,14 +458,14 @@ input:invalid {
   color: black; 
   text-align: center; /* 文字居中 */
   font-weight: bold; /* 字体加粗 */
-  width: 200px; /* 与输入框和结果框的宽度一致 */
+ 
   padding-left: 10px; /* 与输入框和结果框的左内边距一致 */
   margin-top: 6px;
   margin-bottom: 6px;
 }
 
 .result-box {
-  width: 200px; /* 初始宽度 */
+
   padding: 10px;
   border: 4px solid rgb(185, 185, 185); /* 灰色粗边框 */
   border-radius: 10px; /* 圆角 */
@@ -551,8 +582,34 @@ input:invalid {
   font-weight: bold;
 }
 
+/* 新增：底部备案信息区域样式 */
+.footer {
+  
+  background-color: #afd3f3;
+  text-align: center;
+  padding: 10px;
+  border-top: 10px solid #e0e0e0;
+  margin-top: auto; /* 确保在页面底部 */
+}
 
+.footer p {
+  margin: 4px 0; /* 减小段落间距 */
+  color: #666; /* 可选：使文字颜色更柔和 */
+}
 
+.external-link {
+  color: #666;
+  text-decoration: none;
+  border-bottom: 2px dotted rgba(92, 158, 220, 0.3);
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.external-link:hover {
+  color: #19334c;
+  border-bottom-style: solid;
+  border-bottom-color: currentColor;
+}
 
 
 @media (max-width: 800px) {
@@ -606,6 +663,10 @@ input:invalid {
   .history-box {
     width: 90%;
     max-width: none;
+  }
+
+  .history-box{
+    margin-top: 0;
   }
 
   .title-bar h1 {
