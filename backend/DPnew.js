@@ -1,4 +1,4 @@
-import { classifyData } from "../src/DataService.js";
+import { classifyData } from "../ark-lmd-top/DataService.js";
 
 const tradeGoldCache = new Map();
 const materialCache = new Map();

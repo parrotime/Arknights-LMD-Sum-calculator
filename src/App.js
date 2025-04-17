@@ -7,7 +7,7 @@ import DataPage from "./pages/Data";
 import AboutPage from "./pages/About";
 import PathRenderer from "./components/PathRenderer";
 import { classifyData } from "./DataService"; 
-import bonusImage from "./assets/images/bonus.webp";
+//import bonusImage from "./assets/images/bonus.webp";
 import "./App.css";
 
 // 状态管理 Reducer
@@ -202,6 +202,7 @@ const MainCalculator = () => {
     dispatch({ type: "SET_ERROR", field: "differenceError", value: "" });
     dispatch({ type: "SET_RESULT", value: difference.toString() });
     dispatch({ type: "SET_CALCULATING", value: true });
+    dispatch({ type: "SET_PATHS", paths: [] }); // 开始计算时清空旧路径
 
     const filteredItems = classifyData.filter((item) => {
       const { settings } = state;
@@ -228,64 +229,96 @@ const MainCalculator = () => {
     });
 
     // 提取四个限制值，空值时默认为无限大（不限制）
-    const upgrade0Limit = state.upgrade0Count === "" ? Infinity : parseInt(state.upgrade0Count, 10);
-    const upgrade1Limit = state.upgrade1Count === "" ? Infinity : parseInt(state.upgrade1Count, 10);
-    const upgrade2Limit = state.upgrade2Count === "" ? Infinity : parseInt(state.upgrade2Count, 10);
-    const sanityLimit = state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10);
+    const upgrade0Limit =
+      state.upgrade0Count === "" ? Infinity : parseInt(state.upgrade0Count, 10);
+    const upgrade1Limit =
+      state.upgrade1Count === "" ? Infinity : parseInt(state.upgrade1Count, 10);
+    const upgrade2Limit =
+      state.upgrade2Count === "" ? Infinity : parseInt(state.upgrade2Count, 10);
+    const sanityLimit =
+      state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10);
 
     console.log("filteredItems:", filteredItems);
+
     const cacheKey = `${difference}_${Object.entries(state.settings)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([k, v]) => `${k}:${v}`)
-      .join("|")}_${upgrade0Limit}_${upgrade1Limit}_${upgrade2Limit}_${sanityLimit}`;
+      .join(
+        "|"
+      )}_${upgrade0Limit}_${upgrade1Limit}_${upgrade2Limit}_${sanityLimit}`;
     console.log("生成的 cacheKey:", cacheKey);
     const cachedResult = localStorage.getItem(`pathCache_${cacheKey}`);
-    let paths;
+    //let paths;
 
     if (cachedResult) {
-      paths = JSON.parse(cachedResult);
-      console.log("从缓存读取路径:", JSON.stringify(paths, null, 2));
-      if (!paths || paths.length === 0) {
-        console.log("缓存为空，重新计算");
-        localStorage.removeItem(`pathCache_${cacheKey}`);
-      } else {
-        dispatch({ type: "SET_PATHS", paths });
-        dispatch({ type: "SET_CALCULATING", value: false });
-        dispatch({
-          type: "SET_HISTORY",
-          history: [
-            ...state.history.slice(-10),
-            {
-              path: paths[0],
-              timestamp: new Date().toLocaleString(),
-              initialLMD: num1Val,
-            },
-          ],
-        });
-        return;
+      try {
+        const paths = JSON.parse(cachedResult);
+        console.log("从缓存读取路径:", JSON.stringify(paths, null, 2));
+        if (!paths || paths.length === 0) {
+          console.log("缓存为空，重新计算");
+          localStorage.removeItem(`pathCache_${cacheKey}`);
+        } else {
+          dispatch({ type: "SET_PATHS", paths });
+          dispatch({ type: "SET_CALCULATING", value: false });
+          dispatch({
+            type: "SET_HISTORY",
+            history: [
+              ...state.history.slice(-10),
+              {
+                path: paths[0],
+                timestamp: new Date().toLocaleString(),
+                initialLMD: num1Val,
+              },
+            ],
+          });
+          return;
+        }
+      } catch (e) {
+        console.error("解析缓存失败:", e);
+        localStorage.removeItem(`pathCache_${cacheKey}`); // 移除损坏的缓存
       }
     }
 
-    console.log("缓存未命中或无效，开始调用 findPaths");
+    console.log("缓存未命中或无效，开始调用 Transmission");
+    const startTime = Date.now();
+
+    //////////////////////////////////////////////
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error("计算超时")), 15000)
     ); // 缩短超时
-    const startTime = Date.now();
-    console.log("limit in APPjs is:", upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit)
+    
+    /*console.log(
+      "limit in APPjs is:",
+      upgrade0Limit,
+      upgrade1Limit,
+      upgrade2Limit,
+      sanityLimit
+    );*/
+
+
+
     try {
-      paths = await Promise.race([
-        Transmission(difference, filteredItems, {upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit,}),
+      const paths = await Promise.race([
+        Transmission(difference, filteredItems, {
+          upgrade0Limit,
+          upgrade1Limit,
+          upgrade2Limit,
+          sanityLimit,
+        }),
         timeoutPromise,
       ]);
-      console.log("findPaths 返回的 paths:", JSON.stringify(paths, null, 2));
+      console.log("Transmission 返回的 paths:", paths ? paths.length : 0, "条");
+
+
       if (!paths || paths.length === 0) {
-        console.error("后端返回空路径");
+        console.error("后端返回空路径数组");
         dispatch({
           type: "SET_ERROR",
           field: "differenceError",
-          value: "无有效路径",
+          value: "计算完成，但未找到满足条件的路径方案。",
         });
-        paths = [];
+        //paths = [];
+        dispatch({ type: "SET_PATHS", paths: [] }); // 确保路径为空
       } else {
         localStorage.setItem(`pathCache_${cacheKey}`, JSON.stringify(paths));
         console.log("缓存已保存，耗时:", Date.now() - startTime, "ms");
@@ -296,28 +329,57 @@ const MainCalculator = () => {
         type: "SET_HISTORY",
         history: [
           ...state.history.slice(-10),
-          paths.length > 0
-            ? {
-                path: paths[0],
-                timestamp: new Date().toLocaleString(),
-                initialLMD: num1Val,
-              }
-            : "无有效路径",
+          {
+            path: paths[0], // 只记录第一个路径到历史
+            timestamp: new Date().toLocaleString(),
+            initialLMD: num1Val,
+          },
         ],
       });
     } catch (error) {
-      console.error("计算失败:", error);
+      console.error("计算或API调用失败:", error);
+      let errorMessage = "发生未知错误，请稍后再试。"; // 默认错误消息
+
+      if (error.isNetworkError) {
+        errorMessage = error.message; // 使用我们设置的网络错误消息
+      } else if (error.status) {
+        // 根据状态码设置不同消息
+        switch (error.status) {
+          case 400:
+            errorMessage = `输入错误: ${error.message}`; // 显示后端验证信息
+            break;
+          case 429:
+            errorMessage = `请求过于频繁: ${error.message}`; // 显示速率限制信息
+            break;
+          case 504:
+            errorMessage = `计算超时: ${error.message}`; // 显示超时信息
+            break;
+          case 500:
+            errorMessage = `服务器内部错误: ${error.message}. 如果问题持续，请联系管理员。`; // 通用服务器错误，可以考虑不显示原始 error.message
+            break;
+          default:
+            errorMessage = `请求失败: ${error.message} (代码: ${error.status})`; // 处理其他可能的 HTTP 错误
+        }
+      } else if (error.message) {
+        // 处理其他没有 status 但有 message 的 JS 错误
+        errorMessage = `发生错误: ${error.message}`;
+      }
+
       dispatch({
         type: "SET_ERROR",
         field: "differenceError",
-        value: "计算出错，请重试",
+        value: errorMessage,
       });
-      paths = [];
-      dispatch({ type: "SET_PATHS", paths });
+      //paths = [];
+      dispatch({ type: "SET_PATHS", paths: [] });
+      dispatch({
+        type: "SET_HISTORY",
+        history: [...state.history.slice(-10), `计算失败: ${errorMessage}`],
+      }); // 记录错误到历史
     } finally {
       dispatch({ type: "SET_CALCULATING", value: false });
     }
-  }, [state.num1, state.num2, state.history, state.upgrade0Count, state.upgrade1Count, state.upgrade2Count, state.sanityCount]);
+  }, [state.num1, state.num2,  state.settings, state.history, state.upgrade0Count, state.upgrade1Count, state.upgrade2Count, state.sanityCount]);
 
   // 切换路径
   /*const handleChangePath = () => {
@@ -352,7 +414,7 @@ const MainCalculator = () => {
       if (state.pathCache.length > 0) {
         const newClickCount = state.clickCount + 1;
         dispatch({ type: "CHANGE_PATH", delta });
-        if (newClickCount === 300) {
+        if (newClickCount === 30) {
           setShowBonusModal(true); // 触发彩蛋弹窗
         }
       }
@@ -664,7 +726,7 @@ const MainCalculator = () => {
       {showBonusModal && (
         <div className="modal-overlay">
           <div className="modal-content bonus-modal">
-            <img src={bonusImage} alt="Bonus" className="bonus-image" />
+            <img src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/bonus.webp" alt="Bonus" className="bonus-image" />
             <p className="bonus-text">
               你已经摆弄这俩按钮30次了，有这个探索精神相信你做什么都能成功的
             </p>

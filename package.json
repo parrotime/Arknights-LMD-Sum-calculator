@@ -2,10 +2,12 @@
   "name": "main",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://parrotime.github.io/Arknights-LMD-Sum-calculator",
+  "homepage": "http://ark-lmd.top",
   "dependencies": {
     "cors": "^2.8.5",
     "cra-template": "1.2.0",
+    "express-rate-limit": "^7.5.0",
+    "node-cache": "^5.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.1.5",
@@ -14,7 +16,7 @@
   },
   "scripts": {
     "lint": "eslint ./src/**/*.js",
-    "predeploy": "rd /s /q build && npm run build",
+    "predeploy": "rm -rf build && npm run build",
     "deploy": "gh-pages -d build -m \"Deploy: Update V1.0 For Test\"",
     "start": "craco start",
     "build": "craco build",

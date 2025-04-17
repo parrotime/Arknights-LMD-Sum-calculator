@@ -18,8 +18,8 @@
       "sizes": "192x192"
     },
     {
-      "src": "LMD.png",
-      "type": "image/png",
+      "src": "LMD.webp",
+      "type": "image/webp",
       "sizes": "512x512"
     }
   ],

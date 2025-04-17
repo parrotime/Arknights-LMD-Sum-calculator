@@ -4,17 +4,6 @@ import "../../src/assets/styles/Note.css";
 // eslint-disable-next-line no-unused-vars
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 
-const requireImages = require.context(
-  "../assets/images/",
-  false,
-  /note\d+\.webp$/
-);
-
-const images = [];
-for (let i = 1; i <= 14; i++) {
-  images.push(requireImages(`./note${i}.webp`));
-}
-
 // Sidebar 组件保持不变
 const Sidebar = () => (
   <div className="sidebar">
@@ -114,7 +103,7 @@ function NotePage() {
                   rel="noopener noreferrer"
                   className="external-link"
                 >
-                干员升级经验及龙门币消耗成本统计(收束测试)
+                  干员升级经验及龙门币消耗成本统计(收束测试)
                 </a>
                 <br />
                 <br />
@@ -140,18 +129,26 @@ function NotePage() {
                 <div className="image-gallery">
                   <div className="image-item">
                     <img
-                      src={images[0]}
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note1.webp"
                       alt="示例图片1"
-                      onClick={() => handleImageClick(images[0])}
+                      onClick={() =>
+                        handleImageClick(
+                          "https://ark-lmd.oss-cn-beijing.aliyuncs.com/note3.webp"
+                        )
+                      }
                       style={{ cursor: "pointer" }}
                     />
                     <span className="image-caption">初始值</span>
                   </div>
                   <div className="image-item">
                     <img
-                      src={images[1]}
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note2.webp"
                       alt="示例图片2"
-                      onClick={() => handleImageClick(images[1])}
+                      onClick={() =>
+                        handleImageClick(
+                          "https://ark-lmd.oss-cn-beijing.aliyuncs.com/note3.webp"
+                        )
+                      }
                       style={{ cursor: "pointer" }}
                     />
                     <span className="image-caption">
@@ -160,9 +157,13 @@ function NotePage() {
                   </div>
                   <div className="image-item">
                     <img
-                      src={images[2]}
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note3.webp"
                       alt="示例图片3"
-                      onClick={() => handleImageClick(images[2])}
+                      onClick={() =>
+                        handleImageClick(
+                          "https://ark-lmd.oss-cn-beijing.aliyuncs.com/note3.webp"
+                        )
+                      }
                       style={{ cursor: "pointer" }}
                     />
                     <span className="image-caption">
@@ -194,18 +195,26 @@ function NotePage() {
                 <div className="image-gallery">
                   <div className="image-item">
                     <img
-                      src={images[6]}
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note7.webp"
                       alt="示例图片1"
-                      onClick={() => handleImageClick(images[6])}
+                      onClick={() =>
+                        handleImageClick(
+                          "https://ark-lmd.oss-cn-beijing.aliyuncs.com/note7.webp"
+                        )
+                      }
                       style={{ cursor: "pointer" }}
                     />
                     <span className="image-caption">初始值</span>
                   </div>
                   <div className="image-item">
                     <img
-                      src={images[10]}
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note11.webp"
                       alt="示例图片2"
-                      onClick={() => handleImageClick(images[10])}
+                      onClick={() =>
+                        handleImageClick(
+                          "https://ark-lmd.oss-cn-beijing.aliyuncs.com/note11.webp"
+                        )
+                      }
                       style={{ cursor: "pointer" }}
                     />
                     <span className="image-caption">
@@ -214,9 +223,13 @@ function NotePage() {
                   </div>
                   <div className="image-item">
                     <img
-                      src={images[9]}
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note10.webp"
                       alt="示例图片3"
-                      onClick={() => handleImageClick(images[9])}
+                      onClick={() =>
+                        handleImageClick(
+                          "https://ark-lmd.oss-cn-beijing.aliyuncs.com/note10.webp"
+                        )
+                      }
                       style={{ cursor: "pointer" }}
                     />
                     <span className="image-caption">
@@ -227,16 +240,19 @@ function NotePage() {
                 <br />
                 当使用1个作战记录时，假设会消耗A龙门币，但是
                 当连续使用N个作战记录，有时候并不是对应消耗N*A个龙门币，
-                
                 <br />
                 因此作者提前设置在同一条路径中每个关于“使用作战记录”的步骤只会使用1次，但是这个步骤会重复出现，以此提醒每次只同时使用1个作战记录，不要连续使用。不要为了图方便同时连续使用多个作战记录
                 <br />
                 <div className="image-gallery">
                   <div className="image-item">
                     <img
-                      src={images[11]}
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note12.webp"
                       alt="示例图片1"
-                      onClick={() => handleImageClick(images[11])}
+                      onClick={() =>
+                        handleImageClick(
+                          "https://ark-lmd.oss-cn-beijing.aliyuncs.com/note12.webp"
+                        )
+                      }
                       style={{ cursor: "pointer" }}
                     />
                     <span className="image-caption">
@@ -245,9 +261,13 @@ function NotePage() {
                   </div>
                   <div className="image-item">
                     <img
-                      src={images[12]}
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note13.webp"
                       alt="示例图片2"
-                      onClick={() => handleImageClick(images[12])}
+                      onClick={() =>
+                        handleImageClick(
+                          "https://ark-lmd.oss-cn-beijing.aliyuncs.com/note13.webp"
+                        )
+                      }
                       style={{ cursor: "pointer" }}
                     />
                     <span className="image-caption">
@@ -256,9 +276,13 @@ function NotePage() {
                   </div>
                   <div className="image-item">
                     <img
-                      src={images[13]}
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note14.webp"
                       alt="示例图片3"
-                      onClick={() => handleImageClick(images[13])}
+                      onClick={() =>
+                        handleImageClick(
+                          "https://ark-lmd.oss-cn-beijing.aliyuncs.com/note14.webp"
+                        )
+                      }
                       style={{ cursor: "pointer" }}
                     />
                     <span className="image-caption">
