@@ -57,7 +57,7 @@
 }
 
 .panel-header::after {
-  content: 'â–?';
+  content: 'â–¼';
   font-size: 18px;
   transition: transform 0.3s;
 }
@@ -87,7 +87,7 @@
 }
 
 .accordion-panel.collapsed .panel-header::after {
-  transform: rotate(-90deg);
+  transform: rotate(90deg);
 }
 
 .explain-text{

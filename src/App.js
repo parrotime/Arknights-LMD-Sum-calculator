@@ -48,9 +48,11 @@ const defaultState = {
 const getInitialState = () => {
   const savedState = localStorage.getItem("calculatorState");
   const initialState = savedState ? JSON.parse(savedState) : defaultState;
-  initialState.settings.disable2Star = true;
   initialState.settings.disableStore10 = true;
+  initialState.settings.disableStore20 = true;
   initialState.settings.disableStore70 = true;
+  initialState.settings.disableStore2000 = true;
+  initialState.settings.disableStore5000 = true;
   initialState.settings.disableExt25 = true;
   initialState.settings.enableUpgradeOnly0 = true;
   initialState.settings.enableUpgradeOnly1 = true;
@@ -408,12 +410,12 @@ const MainCalculator = () => {
     { text: "不允许使用理智三星通关", key: "disable3Star" },
     { text: "不允许使用理智二星通关", key: "disable2Star" },
     { text: "不允许使用基建物品合成", key: "disableMaterial" },
-    { text: "不存在/不使用sidestory活动商店1代币换20龙门币", key: "disableStore20"},
-    { text: "不存在/不使用sidestory活动商店5代币换2000龙门币", key: "disableStore2000"},
-    { text: "不存在/不使用sidestory活动商店7代币换5000龙门币", key: "disableStore5000"},
-    { text: "不存在/不使用龙门币副本(CE系列关卡)", key: "disableCE"},
-    { text: "不存在/不使用故事集活动商店1代币换10龙门币", key: "disableStore10"},
+    { text: "不存在/不使用活动商店1代币换10龙门币", key: "disableStore10"},
+    { text: "不存在/不使用活动商店1代币换20龙门币", key: "disableStore20"},
     { text: "不存在/不使用危机合约1代币换70龙门币", key: "disableStore70" },
+    { text: "不存在/不使用活动商店5代币换2000龙门币", key: "disableStore2000"},
+    { text: "不存在/不使用活动商店7代币换5000龙门币", key: "disableStore5000"},
+    { text: "不存在/不使用龙门币副本(CE系列关卡)", key: "disableCE"},
     { text: "不存在/不使用代理剿灭25理智获取250龙门币", key: "disableExt25" },
     { text: "不允许使用贸易站售卖赤金", key: "disableTrade" },
     { text: "允许连续多次对精零1级干员进行升级", key: "enableUpgradeOnly0" },

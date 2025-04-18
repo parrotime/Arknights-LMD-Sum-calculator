@@ -227,7 +227,11 @@ function DataPage() {
       </button>
 
       <div className="main-data-content">
-        <div className={`accordion-panel ${!activePanels.includes(0) ? "collapsed" : ""}`}>
+        <div
+          className={`accordion-panel ${
+            !activePanels.includes(0) ? "collapsed" : ""
+          }`}
+        >
           <div
             className={`panel-header ${clickedPanel === 0 ? "active" : ""}`}
             onClick={() => togglePanel(0)}
@@ -368,7 +372,11 @@ function DataPage() {
           </div>
         </div>
 
-        <div className={`accordion-panel ${ !activePanels.includes(1) ? "collapsed" : ""}`}>
+        <div
+          className={`accordion-panel ${
+            !activePanels.includes(1) ? "collapsed" : ""
+          }`}
+        >
           <div
             className={`panel-header ${clickedPanel === 1 ? "active" : ""}`}
             onClick={() => togglePanel(1)}
@@ -394,14 +402,21 @@ function DataPage() {
                 { consume: "20理智", level: "作战记录LS-3，技巧概要CA-3，" },
                 { consume: "21理智", level: "活动关后三分之一关" },
                 { consume: "25理智", level: "作战记录LS-4，技巧概要CA-4，" },
-                { consume: "30理智", level: "5次1-7，作战记录LS-5，技巧概要CA-5，"},
+                {
+                  consume: "30理智",
+                  level: "5次1-7，作战记录LS-5，技巧概要CA-5，",
+                },
                 { consume: "36理智", level: "6次1-7，作战记录LS-6，芯片本2，" },
               ])}
             </div>
           </div>
         </div>
 
-        <div className={`accordion-panel ${!activePanels.includes(2) ? "collapsed" : ""}`}>
+        <div
+          className={`accordion-panel ${
+            !activePanels.includes(2) ? "collapsed" : ""
+          }`}
+        >
           <div
             className={`panel-header ${clickedPanel === 2 ? "active" : ""}`}
             onClick={() => togglePanel(2)}
@@ -471,14 +486,20 @@ function DataPage() {
           </div>
         </div>
 
-        <div className={`accordion-panel ${!activePanels.includes(3) ? "collapsed" : ""}`}>
+        <div
+          className={`accordion-panel ${
+            !activePanels.includes(3) ? "collapsed" : ""
+          }`}
+        >
           <div
             className={`panel-header ${clickedPanel === 3 ? "active" : ""}`}
             onClick={() => togglePanel(3)}
           >
             <h3>推荐路径快速查找：目标龙门币 - 现有龙门币 &lt; 0 的情况</h3>
           </div>
-          <div className={`panel-content ${clickedPanel === 3 ? "active" : ""}`}>
+          <div
+            className={`panel-content ${clickedPanel === 3 ? "active" : ""}`}
+          >
             <div className="explain-text">
               <p>
                 以下路径用于快速查找，不一定是最适合的、最简单的路径方案，仅供参考。（默认初始龙门币为对应值，目标龙门币为0）

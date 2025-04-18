@@ -539,7 +539,7 @@ input:invalid {
 .footer {
   box-sizing: border-box; 
   width: calc(100% - 200px); 
-  margin-left: calc(200px); 
+  margin-left: 200px; 
   background-color: #afd3f3;
   text-align: center; 
   padding: 10px;
@@ -651,6 +651,22 @@ input:invalid {
       width: 60px;
       height: 28px;
   }
+
+  .footer {
+    box-sizing: border-box; 
+    width: 100%; 
+    margin-left: 0; 
+    background-color: #afd3f3;
+    text-align: center; 
+    padding: 10px;
+    border-top: 10px solid #e0e0e0;
+    margin-top: auto;
+  }
+
+  .footer p {
+    margin: 4px 0; 
+    color: #666; 
+  }
 }
 
 .loading-container {
@@ -672,22 +688,6 @@ input:invalid {
   height: 100%;
   background-color: #007bff;
   animation: loading 2s infinite;
-}
-
-.footer {
-  box-sizing: border-box; 
-  width: 100%; 
-  margin-left: 0; 
-  background-color: #afd3f3;
-  text-align: center; 
-  padding: 10px;
-  border-top: 10px solid #e0e0e0;
-  margin-top: auto;
-}
-
-.footer p {
-  margin: 4px 0; 
-  color: #666; 
 }
 
 @keyframes loading {
