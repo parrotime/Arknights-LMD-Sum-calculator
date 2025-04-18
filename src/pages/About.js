@@ -34,7 +34,6 @@ function AboutPage() {
     <div className="app-container">
       <Sidebar />
 
-      {/* 返回顶部按钮 */}
       <button className="back-to-top" onClick={scrollToTop}>
         ↑ 返回顶部
       </button>
@@ -44,19 +43,18 @@ function AboutPage() {
           <h1>关于（测试阶段版本）</h1>
 
           <div className="notice-list">
-            {/* 注意事项 1 */}
+
             <div className="notice-item">
               <div className="notice-title">关于版本v1.0</div>
               <div className="notice-content">
-                1.
-                本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎提出改进意见orz
+                1.本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎提出改进意见orz
                 <br />
                 2. 如果遇到问题，请通过B站私信反馈
                 <a
                   href="https://space.bilibili.com/32772539"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link"
+                  className="external-link3"
                 >
                   网页作者B站主页
                 </a>
@@ -66,7 +64,7 @@ function AboutPage() {
                   href="https://github.com/parrotime/Arknights-LMD-Sum-calculator"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link"
+                  className="external-link3"
                 >
                   github项目源码
                 </a>
@@ -76,7 +74,7 @@ function AboutPage() {
                   href="https://prts.wiki/w/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link"
+                  className="external-link3"
                 >
                  PRTS wiki 
                 </a>
@@ -89,7 +87,7 @@ function AboutPage() {
                   href="https://bbs.nga.cn/read.php?tid=21247901"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link"
+                  className="external-link3"
                 >
                   公招需要花费龙门币时代的另一位作者的凑数计算器NGA帖子
                 </a>
@@ -101,7 +99,7 @@ function AboutPage() {
                   href="https://ngabbs.com/read.php?tid=16847042"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link"
+                  className="external-link3"
                 >
                 干员升级经验及龙门币消耗成本统计(收束测试)
                 </a>

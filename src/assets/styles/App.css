@@ -17,10 +17,9 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   height: auto; 
-  min-height: 100vh; /* 保证最小高度 */
+  min-height: 100vh; 
 }
 
-/* 返回顶部按钮 */
 .back-to-top {
   position: fixed;
   bottom: 2rem;
@@ -43,21 +42,18 @@ html, body, #root {
   box-shadow: 0 6px 20px rgba(0,0,0,0.3);
 }
 
-/* 按钮按下时的效果 */
 .back-to-top:active {
-  transform: scale(0.95); /* 缩小按钮 */
+  transform: scale(0.95); 
   box-shadow: 0 0.1rem 0.25rem rgba(0, 0, 0, 0.1);
-  background-color: #0056b3; /* 背景颜色变深 */
+  background-color: #0056b3; 
 }
 
-/* 按钮文字动画 */
 .back-to-top:active span {
   display: inline-block;
-  transform: scale(0.9); /* 文字缩小 */
-  transition: transform 0.2s ease; /* 平滑过渡 */
+  transform: scale(0.9); 
+  transition: transform 0.2s ease;
 }
 
-/* 侧边栏 */
 .sidebar {
   width: 230px;
   background-color: #509beb;
@@ -76,41 +72,40 @@ html, body, #root {
 .sidebar-title {
   width: 65%;
   padding: 20px 40px;
-  background-color: #216fcf; /* 蓝色背景 */
-  color: white; /* 白色文字 */
+  background-color: #216fcf; 
+  color: white; 
   text-align: center;
-  font-size: 30px; /* 字体大小 */
-  font-weight: bold; /* 加粗 */
-  white-space: nowrap; /* 防止文字换行 */
+  font-size: 30px; 
+  font-weight: bold; 
+  white-space: nowrap; 
 }
 
 .sidebar-box {
-  width: 96%; /* 侧栏项宽度 */
+  width: 96%; 
   background-color: #498df3;
   padding: 5px;
   margin-top: 3px;
 }
 
 .sidebar-box:hover {
-  background-color: #2a61b3; /* 鼠标悬停时变深蓝色 */
+  background-color: #2a61b3;
 }
 
 .sidebar-box a {
-  color: white; /* 设置文字为白色 */
-  font-weight: bold; /* 设置文字加粗 */
-  text-decoration: none; /* 去掉链接下划线 */
-  display: block; /* 让链接占据整块区域 */
+  color: white; 
+  font-weight: bold; 
+  text-decoration: none; 
+  display: block; 
   padding: 10px;
-  text-align: center; /* 文字居中 */
+  text-align: center; 
   font-size: 20px;
 }
 
 .sidebar-box a:hover {
-  background-color: #2a61b3; /* 鼠标悬停时变深蓝色 */
-  cursor: pointer; /* 鼠标悬停时改变光标 */
+  background-color: #2a61b3; 
+  cursor: pointer; 
 }
 
-/* 输入区域 */
 .input-area {
   flex: 1;
   display: flex;
@@ -123,7 +118,6 @@ html, body, #root {
   box-sizing: border-box;
 }
 
-/* 主容器 */
 .main-container {
   width: 100%;
   max-width: 1200px;
@@ -132,7 +126,6 @@ html, body, #root {
   gap: 1.5rem;
 }
 
-/* 主内容容器 */
 .main-content-container {
   display: flex;
   gap: 1.5rem;
@@ -140,7 +133,6 @@ html, body, #root {
   
 }
 
-/* 新增：左右面板通用样式 */
 .content-panel {
   background: white;
   border-radius: 15px;
@@ -151,12 +143,11 @@ html, body, #root {
   
 }
 
-/* 左侧计算面板 */
 .left-panel {
   display: flex;
   flex-direction: column;
-  min-width: 0; /* 防止内容溢出 */
-  height: fit-content; /* 根据内容自适应 */
+  min-width: 0; 
+  height: fit-content; 
   padding-bottom: 20px;
 }
 
@@ -164,21 +155,18 @@ html, body, #root {
   font-weight: bold;
   font-size: 1.2rem;
   margin-top: 15px;
-  margin-bottom: 0.5rem; /* 小标题与内容间距较小 */
+  margin-bottom: 0.5rem; 
   text-align: center;
 }
 
-
-/* 右侧占位面板 */
 .right-panel {
   display: flex;
   flex-direction: column;
-  min-width: 0; /* 防止内容溢出 */
-  height: fit-content; /* 根据内容自适应 */
-  padding: 20px 20px 10px; /* 底部padding减小，避免内容过挤 */
+  min-width: 0; 
+  height: fit-content; 
+  padding: 20px 20px 10px; 
 }
 
-/* 标题 */
 .title-bar {
   text-align: center;
   background-color: #b9d8f3;
@@ -195,7 +183,6 @@ html, body, #root {
   white-space: nowrap;
 }
 
-/* 输入和结果样式 */
 .input-container {
   display: flex;
   flex-direction: column;
@@ -212,27 +199,32 @@ html, body, #root {
   margin: 6px 0;
 }
 
-.input-box,
-.result-box {
+.input-box {
   width: 280px;
   padding: 0.5rem;
   border: 4px solid #94c9ed;
   border-radius: 0.6rem;
   font-size: 1rem;
   text-align: center;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease; /* input-box 的 transition */
 }
 
+.result-box {
+  width: 280px; /* 假设基础宽度 */
+  padding: 10px;
+  border: 4px solid rgb(185, 185, 185);
+  border-radius: 10px;
+  font-size: 16px;
+  text-align: center;
+  background-color: #ffffff;
+  /* 合并 transition */
+  transition: border-color 0.3s ease, width 0.3s ease;
+}
 .input-box:focus,
 .result-box:focus {
   border-color: #3498db;
   box-shadow: 0 0 0.5rem rgba(52, 152, 219, 0.3);
   outline: none;
-}
-
-.result-box {
-  border-color: rgb(185, 185, 185);
-  background-color: #ffffff;
 }
 
 .error-message {
@@ -244,9 +236,6 @@ html, body, #root {
   text-align: center;
 }
 
-
-
-/* 新增：升级数量容器 */
 .upgrade-count-container {
   display: flex;
   flex-direction: column;
@@ -254,19 +243,15 @@ html, body, #root {
   margin-top: 20px;
 }
 
-/* 新增：短输入框样式 */
 .short-input-box {
-  width: 80px; /* 较短的宽度 */
+  width: 80px;
   padding: 0.5rem;
-  border: 4px solid #94c9ed; /* 与现有输入框一致 */
+  border: 4px solid #94c9ed;
   border-radius: 0.6rem;
   font-size: 1rem;
   text-align: center;
   transition: border-color 0.3s ease;
 }
-
-
-
 
 .short-input-box:focus {
   border-color: #3498db;
@@ -274,47 +259,41 @@ html, body, #root {
   outline: none;
 }
 
-
-
-
 .calculate-button {
   width: 300px;
-  margin-top: 1.5rem; /* 与输入框的间距 */
+  margin-top: 1.5rem; 
   padding: 10px 20px;
   font-size: 16px;
   border: none;
   border-radius: 10px;
-  background-color: #007bff; /* 蓝色背景 */
-  color: white; /* 白色文字 */
+  background-color: #007bff; 
+  color: white;
   cursor: pointer;
-  transition: all 0.2s ease; /* 所有属性的过渡效果 */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+  transition: all 0.2s ease; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .calculate-button:hover {
-  background-color: #0056b3; /* 鼠标悬停时变深蓝色 */
+  background-color: #0056b3; 
 }
 
-/* 按钮按下时的效果 */
 .calculate-button:active {
-  transform: scale(0.95); /* 缩小按钮 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 减小阴影 */
-  background-color: #0056b3; /* 背景颜色变深 */
+  transform: scale(0.95); 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  background-color: #0056b3; 
 }
 
-/* 按钮文字动画 */
 .calculate-button:active span {
   display: inline-block;
-  transform: scale(0.9); /* 文字缩小 */
-  transition: transform 0.2s ease; /* 平滑过渡 */
+  transform: scale(0.9);
+  transition: transform 0.2s ease; 
 }
-
 
 .toggle-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* 行间距统一 */
-  margin: 13px 0 15px;
+  gap: 12px; 
+  margin: 13px 0 7px;
 }
 
 .toggle-title{
@@ -322,9 +301,8 @@ html, body, #root {
   color: black;
   font-weight: bold;
   font-size: 30px;
-  text-align: center; /* 文字居中 */
-  align-items: center; /* 垂直居中 */
-
+  text-align: center; 
+  align-items: center; 
   margin-right: 20px;
   margin-bottom: 20px;
   padding-left: 20px;
@@ -333,22 +311,22 @@ html, body, #root {
 
 .toggle-container{
   display: flex;
-  align-items: center; /* 垂直居中 */
-  justify-content: space-between; /* 文字和开关分隔两端 */
-  height: 40px; /* 固定高度，确保一致性 */
-  width: 100%; /* 占满容器宽度 */
+  align-items: center; 
+  justify-content: space-between; 
+  height: 39.8px; 
+  width: 100%;
 }
 
-/* 开关文字 */
 .toggle-text {
   color: black;
   font-weight: bold;
-  text-align: left; /* 左对齐 */
-  flex: 1; /* 自适应宽度，占据剩余空间 */
-  white-space: nowrap; /* 强制单行显示 */
-  overflow: hidden; /* 超出隐藏 */
-  text-overflow: ellipsis; /* 超出显示省略号 */
-  padding-right: 10px; /* 与开关间距 */
+  text-align: left;
+  flex: 1; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px; 
+  font-size:16px;
 }
 
 .toggle-switch {
@@ -358,14 +336,12 @@ html, body, #root {
   flex-shrink: 0;
 }
 
-/* 隐藏默认的复选框 */
 .toggle-switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-/* 开关滑块样式 */
 .slider {
   position: absolute;
   cursor: pointer;
@@ -379,7 +355,6 @@ html, body, #root {
   border-radius: 34px;
 }
 
-/* 滑块内圆圈样式 */
 .slider:before {
   position: absolute;
   content: "";
@@ -393,21 +368,17 @@ html, body, #root {
   border-radius: 50%;
 }
 
-/* 选中状态下滑块的背景颜色 */
 input:checked + .slider {
   background-color: #2196F3;
 }
 
-/* 选中状态下圆圈的位置 */
 input:checked + .slider:before {
   transform: translateX(32px);
 }
 
-/* 禁用非数字输入的视觉反馈 */
 input:invalid {
   border-color: #e74c3c;
 }
-
 
 .left-panel-title-container{
   margin-top: 15px;
@@ -423,18 +394,17 @@ input:invalid {
 }
 
 .main-content {
-  flex: 1 1 auto; /* 允许伸缩，基础大小为自动 */
+  flex: 1 1 auto; 
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .result-section{
-  display: inline-block; /* 让宽度根据内容自适应 */
+  display: inline-block;
   margin-top: 0.8rem;
   margin-bottom: 1rem;
 }
-
 
 .notice-content {
   padding-left: 10px;
@@ -443,41 +413,27 @@ input:invalid {
 .notice-title {
   font-weight: bold;
   font-size: 1.2rem;
-  margin-top: 15px;
-  margin-bottom: 0.5rem; /* 小标题与内容间距较小 */
+  margin-top: 5px;
+  margin-bottom: 0.5rem;
   text-align: center;
 }
 
-/* 结果框容器 */
 .result-container {
-  margin-top: 0px; /* 与按钮的间距 */
-  display: inline-block; /* 让宽度根据内容自适应 */
+  margin-top: 0px; 
+  display: inline-block;
 }
 
 .output-wrapper-text{
   color: black; 
-  text-align: center; /* 文字居中 */
-  font-weight: bold; /* 字体加粗 */
- 
-  padding-left: 10px; /* 与输入框和结果框的左内边距一致 */
+  text-align: center; 
+  font-weight: bold; 
+  padding-left: 10px; 
   margin-top: 6px;
   margin-bottom: 6px;
 }
 
-.result-box {
-
-  padding: 10px;
-  border: 4px solid rgb(185, 185, 185); /* 灰色粗边框 */
-  border-radius: 10px; /* 圆角 */
-  font-size: 16px;
-  text-align: center;
-  background-color: #ffffff; /* 浅灰色背景 */
-  transition: width 0.3s ease; /* 宽度变化时的过渡效果 */
-  transition: border-color 0.3s ease;
-}
-
 .result-box:placeholder-shown {
-  color: #aaaaaa; /* 浅灰色 */
+  color: #aaaaaa;
 }
 
 .result-box:focus {
@@ -486,7 +442,6 @@ input:invalid {
   outline: none;
 }
 
-/* 输出区域 */
 .history-box {
   width: 96.5%;
   min-height: 100px;
@@ -495,20 +450,20 @@ input:invalid {
   border-radius: 15px;
   padding: 20px;
   box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-  height: fit-content; /* 根据内容自适应 */
+  height: fit-content; 
 }
 
 .history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px; /* 与内容的间距 */
+  margin-bottom: 20px; 
 }
 
 .history-box h2 {
-  font-weight: bold; /* 加粗 */
-  font-size: 24px; /* 字体大小 */
-  margin: 0; /* 去除默认外边距 */
+  font-weight: bold; 
+  font-size: 24px;
+  margin: 0; 
 }
 
 .change-over-text{
@@ -538,7 +493,7 @@ input:invalid {
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   max-width: 400px;
-  text-align: center; /* 修改：居中对齐，适用于彩蛋弹窗 */
+  text-align: center; 
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -563,9 +518,8 @@ input:invalid {
   background: #0056b3;
 }
 
-/* 新增：彩蛋弹窗特定样式 */
 .bonus-modal {
-  max-width: 500px; /* 稍宽以适应图片 */
+  max-width: 500px; 
 }
 
 .bonus-image {
@@ -582,19 +536,20 @@ input:invalid {
   font-weight: bold;
 }
 
-/* 新增：底部备案信息区域样式 */
 .footer {
-  
+  box-sizing: border-box; 
+  width: calc(100% - 200px); 
+  margin-left: calc(200px); 
   background-color: #afd3f3;
-  text-align: center;
+  text-align: center; 
   padding: 10px;
   border-top: 10px solid #e0e0e0;
-  margin-top: auto; /* 确保在页面底部 */
+  margin-top: auto;
 }
 
 .footer p {
-  margin: 4px 0; /* 减小段落间距 */
-  color: #666; /* 可选：使文字颜色更柔和 */
+  margin: 4px 0; 
+  color: #666; 
 }
 
 .external-link {
@@ -603,6 +558,14 @@ input:invalid {
   border-bottom: 2px dotted rgba(92, 158, 220, 0.3);
   transition: all 0.2s ease;
   margin-left: 8px;
+  font-size: small;
+}
+
+.external-link2 {
+  color: #666;
+  text-decoration: none;
+  margin-left: 8px;
+  font-size: small;
 }
 
 .external-link:hover {
@@ -613,22 +576,20 @@ input:invalid {
 
 
 @media (max-width: 800px) {
-  /* 调整整体容器布局 */
   .app-container {
-    flex-direction: column; /* 垂直排列 */
-    height: auto; /* 高度自适应内容 */
+    flex-direction: column; 
+    height: auto; 
   }
 
-/* 侧边栏调整：确保两行两列分布 */
   .sidebar {
     width: 100%;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between; /* 均匀分布 */
+    justify-content: space-between; 
     padding: 5px;
     height: auto;
     position: static;
-    gap: 5px; /* 添加间距，确保元素不会过于紧凑 */
+    gap: 5px;
   }
 
   .sidebar-title {
@@ -636,11 +597,10 @@ input:invalid {
   }
 
   .sidebar-box {
-    width: 49%; /* 每列占 48%，留出间距实现两列 */
-    margin: 0; /* 移除外边距，依靠 gap 控制间距 */
+    width: 49%; 
+    margin: 0; 
   }
 
-  /* 输入区域调整 */
   .input-area {
     width: 100%;
     margin-left: 0;
@@ -651,13 +611,11 @@ input:invalid {
       width: 100%;
     }
 
-  /* 主内容容器调整：left-panel 和 right-panel 垂直排列 */
   .main-content-container {
-    flex-direction: column; /* 从水平变为垂直排列 */
-    gap: 20px; /* 面板间距 */
+    flex-direction: column;
+    gap: 20px;
   }
 
-  /* 左侧计算面板 */
   .left-panel,
   .right-panel,
   .history-box {
@@ -670,24 +628,23 @@ input:invalid {
   }
 
   .title-bar h1 {
-    white-space: normal; /* 文字完整显示 */
+    white-space: normal; 
     overflow: visible;
     text-overflow: clip;
   }
 
-/* 开关容器适配 */
   .toggle-container {
-    height: auto; /* 自适应高度，支持多行 */
-    min-height: 40px; /* 最小高度保持一致 */
-    align-items: center; /* 垂直居中 */
-    padding: 5px 0; /* 增加垂直内边距，优化间距 */
+    height: auto;
+    min-height: 40px; 
+    align-items: center; 
+    padding: 7px 0; 
   }
 
   .toggle-text {
-    white-space: normal; /* 允许换行 */
-    overflow: visible; /* 显示完整文字 */
-    text-overflow: clip; /* 取消省略号 */
-    padding-right: 8px; /* 稍减小右内边距 */
+    white-space: normal; 
+    overflow: visible; 
+    text-overflow: clip; 
+    padding-right: 8px; 
   }
 
   .toggle-switch {
@@ -715,6 +672,22 @@ input:invalid {
   height: 100%;
   background-color: #007bff;
   animation: loading 2s infinite;
+}
+
+.footer {
+  box-sizing: border-box; 
+  width: 100%; 
+  margin-left: 0; 
+  background-color: #afd3f3;
+  text-align: center; 
+  padding: 10px;
+  border-top: 10px solid #e0e0e0;
+  margin-top: auto;
+}
+
+.footer p {
+  margin: 4px 0; 
+  color: #666; 
 }
 
 @keyframes loading {

@@ -29,19 +29,16 @@ const scrollToTop = () => {
 
 function DataPage() {
   const [activePanels, setActivePanels] = useState([]);
-  const [clickedPanel, setClickedPanel] = useState(null); // 新增状态跟踪点击的面板
+  const [clickedPanel, setClickedPanel] = useState(null); 
 
   const togglePanel = (index) => {
-    // 点击时设置被点击的面板
     setClickedPanel(index);
     setActivePanels((prev) =>
       prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
-    // 300ms 后移除点击状态，与动画时间一致
     setTimeout(() => setClickedPanel(null), 300);
   };
 
-  // 生成预定义数据的静态表格
   const generateStaticTable = (data) => (
     <table className="material-table table-a">
       <thead>
@@ -82,7 +79,6 @@ function DataPage() {
     </table>
   );
 
-    // 修改 generateStaticTable3，优化换行显示
   const generateStaticTable3 = (data) => (
     <table className="material-table table-c">
       <thead>
@@ -125,7 +121,6 @@ function DataPage() {
     </table>
   );
 
-  // 新增：生成 31 行 4 列的表格函数
   const generateUpgradeTable4a = (data) => (
     <table className="material-table table-d table-d1">
       <thead>
@@ -162,7 +157,7 @@ function DataPage() {
       <tbody>
         {data.slice(15, 30).map((row, i) => (
           <tr key={i}>
-            <td>{i + 16}</td> {/* 从 16 开始计数 */}
+            <td>{i + 16}</td> 
             <td>{row.value1}</td>
             <td>{row.value2}</td>
             <td>{row.value3}</td>
@@ -232,11 +227,7 @@ function DataPage() {
       </button>
 
       <div className="main-data-content">
-        <div
-          className={`accordion-panel ${
-            !activePanels.includes(0) ? "collapsed" : ""
-          }`}
-        >
+        <div className={`accordion-panel ${!activePanels.includes(0) ? "collapsed" : ""}`}>
           <div
             className={`panel-header ${clickedPanel === 0 ? "active" : ""}`}
             onClick={() => togglePanel(0)}
@@ -258,54 +249,53 @@ function DataPage() {
 
             <div className="tables-container">
               {generateStaticTable([
-                { name: "精零1级", value1: '"-61"', value2: '"-125"' },
-                { name: "精零5级", value1: '"-69"', value2: '"-141"' },
-                { name: "精零10级", value1: '"-79"', value2: '"-159"' },
-                { name: "精零15级", value1: '"-88"', value2: '"-177"' },
-                { name: "精零20级", value1: '"-122"', value2: '"-251"' },
-                { name: "精零25级", value1: '"-162"', value2: '"-324"' },
-                { name: "精零30级", value1: '"-202"', value2: '"-404"' },
-                { name: "精零35级", value1: '"-242"', value2: '"-484"' },
-                { name: "精零40级", value1: '"-282"', value2: '"-564"' },
-                { name: "精零45级", value1: '"-322"', value2: '"-644"' },
-                { name: "精一1级", value1: '"-81"', value2: '"-165"' },
-                { name: "精一5级", value1: '"-89"', value2: '"-179"' },
-                { name: "精一10级", value1: '"-100"', value2: '"-199"' },
-                { name: "精一15级", value1: '"-111"', value2: '"-222"' },
-                { name: "精一20级", value1: '"-122"', value2: '"-244"' },
-                { name: "精一25级", value1: '"-133"', value2: '"-265"' },
-                { name: "精一30级", value1: '"-144"', value2: '"-288"' },
-                { name: "精一35级", value1: '"-155"', value2: '"-310"' },
-                { name: "精一40级", value1: '"-166"', value2: '"-332"' },
-                { name: "精一45级", value1: '"-177"', value2: '"-354"' },
-                { name: "精一50级", value1: '"-188"', value2: '"-376"' },
-                { name: "精一55级", value1: '"-199"', value2: '"-398"' },
+                { name: "精零1级", value1: "-61", value2: "-125" },
+                { name: "精零5级", value1: "-69", value2: "-141" },
+                { name: "精零10级", value1: "-79", value2: "-159" },
+                { name: "精零15级", value1: "-88", value2: "-177" },
+                { name: "精零20级", value1: "-122", value2: "-251" },
+                { name: "精零25级", value1: "-162", value2: "-324" },
+                { name: "精零30级", value1: "-202", value2: "-404" },
+                { name: "精零35级", value1: "-242", value2: "-484" },
+                { name: "精零40级", value1: "-282", value2: "-564" },
+                { name: "精零45级", value1: "-322", value2: "-644" },
+                { name: "精一1级", value1: "-81", value2: "-165" },
+                { name: "精一5级", value1: "-89", value2: "-179" },
+                { name: "精一10级", value1: "-100", value2: "-199" },
+                { name: "精一15级", value1: "-111", value2: "-222" },
+                { name: "精一20级", value1: "-122", value2: "-244" },
+                { name: "精一25级", value1: "-133", value2: "-265" },
+                { name: "精一30级", value1: "-144", value2: "-288" },
+                { name: "精一35级", value1: "-155", value2: "-310" },
+                { name: "精一40级", value1: "-166", value2: "-332" },
+                { name: "精一45级", value1: "-177", value2: "-354" },
+                { name: "精一50级", value1: "-188", value2: "-376" },
+                { name: "精一55级", value1: "-199", value2: "-398" },
               ])}
 
-              {/* 表2 */}
               {generateStaticTable([
-                { name: "精一60级", value1: '"-210"', value2: '"-420"' },
-                { name: "精一65级", value1: '"-221"', value2: '"-442"' },
-                { name: "精一70级", value1: '"-232"', value2: '"-464"' },
-                { name: "精一75级", value1: '"-243"', value2: '"-486"' },
-                { name: "精二1级", value1: '"-80"', value2: '"-162"' },
-                { name: "精二5级", value1: '"-87"', value2: '"-175"' },
-                { name: "精二10级", value1: '"-96"', value2: '"-192"' },
-                { name: "精二15级", value1: '"-105"', value2: '"-210"' },
-                { name: "精二20级", value1: '"-114"', value2: '"-228"' },
-                { name: "精二25级", value1: '"-123"', value2: '"-246"' },
-                { name: "精二30级", value1: '"-132"', value2: '"-264"' },
-                { name: "精二35级", value1: '"-141"', value2: '"-282"' },
-                { name: "精二40级", value1: '"-150"', value2: '"-300"' },
-                { name: "精二45级", value1: '"-159"', value2: '"-318"' },
-                { name: "精二50级", value1: '"-168"', value2: '"-336"' },
-                { name: "精二55级", value1: '"-177"', value2: '"-354"' },
-                { name: "精二60级", value1: '"-186"', value2: '"-372"' },
-                { name: "精二65级", value1: '"-195"', value2: '"-390"' },
-                { name: "精二70级", value1: '"-204"', value2: '"-408"' },
-                { name: "精二75级", value1: '"-213"', value2: '"-426"' },
-                { name: "精二80级", value1: '"-223"', value2: '"-445"' },
-                { name: "精二85级", value1: '"-234"', value2: '"-467"' },
+                { name: "精一60级", value1: "-210", value2: "-420" },
+                { name: "精一65级", value1: "-221", value2: "-442" },
+                { name: "精一70级", value1: "-232", value2: "-464" },
+                { name: "精一75级", value1: "-243", value2: "-486" },
+                { name: "精二1级", value1: "-80", value2: "-162" },
+                { name: "精二5级", value1: "-87", value2: "-175" },
+                { name: "精二10级", value1: "-96", value2: "-192" },
+                { name: "精二15级", value1: "-105", value2: "-210" },
+                { name: "精二20级", value1: "-114", value2: "-228" },
+                { name: "精二25级", value1: "-123", value2: "-246" },
+                { name: "精二30级", value1: "-132", value2: "-264" },
+                { name: "精二35级", value1: "-141", value2: "-282" },
+                { name: "精二40级", value1: "-150", value2: "-300" },
+                { name: "精二45级", value1: "-159", value2: "-318" },
+                { name: "精二50级", value1: "-168", value2: "-336" },
+                { name: "精二55级", value1: "-177", value2: "-354" },
+                { name: "精二60级", value1: "-186", value2: "-372" },
+                { name: "精二65级", value1: "-195", value2: "-390" },
+                { name: "精二70级", value1: "-204", value2: "-408" },
+                { name: "精二75级", value1: "-213", value2: "-426" },
+                { name: "精二80级", value1: "-223", value2: "-445" },
+                { name: "精二85级", value1: "-234", value2: "-467" },
               ])}
             </div>
 
@@ -315,11 +305,13 @@ function DataPage() {
                 <br />
                 二星通关获得龙门币数量 = 使用理智数量 * 10
                 <br />
-                故事集活动商店是指类似于\"我们明日见\"的活动商店，请在使用前检查并区分当期活动是故事集类型还是sidestory类型，此外最好还要检查当期活动商店对应的兑换龙门币数量，本网页使用到的数据是活动商店最后一档的龙门币兑换
+                故事集活动商店是指类似于"我们明日见"的活动商店，请在使用前检查并区分当期活动是故事集类型还是sidestory类型，
+                此外最好还要检查当期活动商店对应的兑换龙门币数量，本网页使用到的数据是活动商店最后一档的龙门币兑换
+                <br />
+                由于每日信用商店刷新龙门币数量具有随机性，所以在计算中不考虑这个部分
               </p>
             </div>
 
-            {/* 新增的两个水平排列表格 */}
             <div className="tables-container">
               {generateStaticTable2([
                 { name: "三星通关6理智关卡", value: "+72" },
@@ -337,14 +329,14 @@ function DataPage() {
                 { name: "二星通关6理智关卡", value: "+60" },
                 { name: "二星通关9理智关卡", value: "+90" },
                 { name: "二星通关10理智关卡", value: "+100" },
-              ])}
-
-              {generateStaticTable2([
                 { name: "二星通关12理智关卡", value: "+120" },
                 { name: "二星通关15理智关卡", value: "+150" },
                 { name: "二星通关18理智关卡", value: "+180" },
                 { name: "二星通关20理智关卡", value: "+200" },
                 { name: "二星通关21理智关卡", value: "+210" },
+              ])}
+
+              {generateStaticTable2([
                 { name: "二星通关25理智关卡", value: "+250" },
                 { name: "二星通关30理智关卡", value: "+300" },
                 { name: "二星通关36理智关卡(等效刷5次1-7)", value: "+360" },
@@ -353,12 +345,22 @@ function DataPage() {
                 { name: "基建合成紫色材料", value: "-300" },
                 { name: "基建合成橙色材料", value: "-400" },
                 { name: "故事集活动商店使用1代币", value: "+10" },
-                { name: "sidestory活动商店使用1代币", value: "+20" },
                 { name: "危机合约活动商店使用1代币", value: "+70" },
+                { name: "sidestory活动商店使用1代币", value: "+20" },
+                { name: "sidestory活动商店使用5代币", value: "+2000" },
+                { name: "sidestory活动商店使用7代币", value: "+5000" },
+                { name: "贸易站售卖2条赤金", value: "+1000" },
+                { name: "贸易站售卖3条赤金", value: "+1500" },
+                { name: "贸易站售卖4条赤金", value: "+2000" },
+                { name: "通关龙门币副本CE-1", value: "+1700" },
+                { name: "通关龙门币副本CE-2", value: "+2800" },
+                { name: "通关龙门币副本CE-3", value: "+4100" },
+                { name: "通关龙门币副本CE-4", value: "+5700" },
+                { name: "通关龙门币副本CE-5", value: "+7500" },
+                { name: "通关龙门币副本CE-6", value: "+10000" },
               ])}
             </div>
 
-            {/* 新增：31行4列表格 */}
             <div className="tables-container">
               {generateUpgradeTable4a(upgradeData)}
               {generateUpgradeTable4b(upgradeData)}
@@ -366,12 +368,7 @@ function DataPage() {
           </div>
         </div>
 
-        {/* 新增：第二个面板（待填入内容） */}
-        <div
-          className={`accordion-panel ${
-            !activePanels.includes(1) ? "collapsed" : ""
-          }`}
-        >
+        <div className={`accordion-panel ${ !activePanels.includes(1) ? "collapsed" : ""}`}>
           <div
             className={`panel-header ${clickedPanel === 1 ? "active" : ""}`}
             onClick={() => togglePanel(1)}
@@ -382,16 +379,14 @@ function DataPage() {
             className={`panel-content ${clickedPanel === 1 ? "active" : ""}`}
           >
             <div className="explain-text">
-              <p>理智消耗与对应关卡速查表，这里仅为推荐关卡</p>
+              <p>
+                理智消耗与对应关卡速查表，这里仅为推荐关卡
+                <br />
+                这里不包含龙门币副本CE系列相关数据，因为CE系列关卡掉落数量是特定的
+              </p>
               {generateStaticTable5([
-                {
-                  consume: "6理智",
-                  level: "1-7",
-                },
-                {
-                  consume: "9理智",
-                  level: "活动关前三分之一关",
-                },
+                { consume: "6理智", level: "1-7" },
+                { consume: "9理智", level: "活动关前三分之一关" },
                 { consume: "10理智", level: "作战记录LS-1，技巧概要CA-1，" },
                 { consume: "12理智", level: "活动关中间三分之一关" },
                 { consume: "15理智", level: "作战记录LS-2，技巧概要CA-2，" },
@@ -399,21 +394,14 @@ function DataPage() {
                 { consume: "20理智", level: "作战记录LS-3，技巧概要CA-3，" },
                 { consume: "21理智", level: "活动关后三分之一关" },
                 { consume: "25理智", level: "作战记录LS-4，技巧概要CA-4，" },
-                {
-                  consume: "30理智",
-                  level: "5次1-7，作战记录LS-5，技巧概要CA-5，",
-                },
+                { consume: "30理智", level: "5次1-7，作战记录LS-5，技巧概要CA-5，"},
                 { consume: "36理智", level: "6次1-7，作战记录LS-6，芯片本2，" },
               ])}
             </div>
           </div>
         </div>
 
-        <div
-          className={`accordion-panel ${
-            !activePanels.includes(2) ? "collapsed" : ""
-          }`}
-        >
+        <div className={`accordion-panel ${!activePanels.includes(2) ? "collapsed" : ""}`}>
           <div
             className={`panel-header ${clickedPanel === 2 ? "active" : ""}`}
             onClick={() => togglePanel(2)}
@@ -432,11 +420,11 @@ function DataPage() {
               {generateStaticTable3([
                 {
                   num: "+1",
-                  way: "步骤 1：通过【2】次使用【基建加工站合成橙色材料】，【花费】 【800】个龙门币， 当前龙门币数量为【-800】。步骤 2：通过【1】次使用【贸易站售卖4条赤金】，【获得】 【2000】个龙门币， 当前龙门币数量为【1200】。步骤 3：通过【1】次使用【对1名精二1级干员使用14次基础作战记录】，【花费】 【1199】个龙门币， 当前龙门币数量为【1】",
+                  way: "步骤 1：通过【1】次使用【贸易站售卖2条赤金】，【获得】 【1000】个龙门币， 当前龙门币数量为【1000】。步骤 2：通过【3】次使用【对1名精零1级干员使用5次基础作战记录】，【花费】 【999】个龙门币， 当前龙门币数量为【1】",
                 },
                 {
                   num: "",
-                  way: "步骤 1：通过【4】次使用【基建加工站合成蓝色材料】，【花费】 【800】个龙门币， 当前龙门币数量为【-800】。步骤 2：通过【1】次使用【贸易站售卖4条赤金】，【获得】 【2000】个龙门币， 当前龙门币数量为【1200】。步骤 3：通过【1】次使用【对1名精二1级干员使用14次基础作战记录】，【花费】 【1199】个龙门币， 当前龙门币数量为【1】",
+                  way: "步骤 1：通过【1】次使用【三星通关21理智关卡】，【获得】 【252】个龙门币， 当前龙门币数量为【252】。步骤 2：通过【1】次使用【对1名精一1级干员使用3次基础作战记录】，【花费】 【251】个龙门币， 当前龙门币数量为【1】。",
                 },
                 {
                   num: "+2",
@@ -444,7 +432,7 @@ function DataPage() {
                 },
                 {
                   num: "",
-                  way: "步骤 1：通过【2】次使用【贸易站售卖4条赤金】，【获得】 【4000】个龙门币， 当前龙门币数量为【4000】。步骤 2：通过【1】次使用【对1名精一1级干员使用13次基础作战记录】，【花费】 【1175】个龙门币， 当前龙门币数量为【2825】。步骤 3：通过【1】次使用【对1名精一1级干员使用29次基础作战记录】，【花费】 【2823】个龙门币， 当前龙门币数量为【2】",
+                  way: "步骤 1：通过【1】次使用【三星通关21理智关卡】，【获得】 【252】个龙门币， 当前龙门币数量为【252】。步骤 2：通过【2】次使用【对1名精零1级干员使用2次基础作战记录】，【花费】 【250】个龙门币， 当前龙门币数量为【2】",
                 },
                 {
                   num: "+5",
@@ -452,7 +440,7 @@ function DataPage() {
                 },
                 {
                   num: "",
-                  way: "步骤 1：通过【2】次使用【贸易站售卖4条赤金】，【获得】 【4000】个龙门币， 当前龙门币数量为【4000】。步骤 2：通过【1】次使用【对1名精零1级干员使用17次基础作战记录】，【花费】 【1317】个龙门币， 当前龙门币数量为【2683】。步骤 3：通过【1】次使用【对1名精零1级干员使用29次基础作战记录】，【花费】 【2678】个龙门币， 当前龙门币数量为【5】",
+                  way: "步骤 1：通过【1】次使用【贸易站售卖2条赤金】，【获得】 【1000】个龙门币， 当前龙门币数量为【1000】。步骤 2：通过【1】次使用【对1名精零1级干员使用15次基础作战记录】，【花费】 【1139】个龙门币， 当前龙门币数量为【-139】。步骤 3：通过【1】次使用【三星通关12理智关卡(等效2次1-7)】，【获得】 【144】个龙门币， 当前龙门币数量为【5】",
                 },
                 {
                   num: "+10",
@@ -460,11 +448,11 @@ function DataPage() {
                 },
                 {
                   num: "",
-                  way: "步骤 1：通过【2】次使用【贸易站售卖4条赤金】，【获得】 【4000】个龙门币， 当前龙门币数量为【4000】。步骤 2：通过【1】次使用【对1名精零1级干员使用30次基础作战记录】，【花费】 【2815】个龙门币， 当前龙门币数量为【1185】。步骤 3：通过【1】次使用【对1名精一1级干员使用13次基础作战记录】，【花费】 【1175】个龙门币， 当前龙门币数量为【10】",
+                  way: "步骤 1：通过【1】次使用【二星通关21理智关卡】，【获得】 【210】个龙门币， 当前龙门币数量为【210】。步骤 2：通过【1】次使用【基建加工站合成蓝色材料】，【花费】 【200】个龙门币， 当前龙门币数量为【10】",
                 },
                 {
                   num: "+50",
-                  way: "步骤 1：通过【2】次使用【三星通关30理智关卡】，【获得】 【720】个龙门币， 当前龙门币数量为【720】。步骤 2：通过【1】次使用【对1名精二1级干员使用8次基础作战记录】，【花费】 【670】个龙门币， 当前龙门币数量为【50】",
+                  way: "步骤 1：通过【1】次使用【二星通关15理智关卡】，【获得】 【150】个龙门币， 当前龙门币数量为【150】。步骤 2：通过【1】次使用【基建加工站合成绿色材料】，【花费】 【100】个龙门币， 当前龙门币数量为【50】",
                 },
                 {
                   num: "",
@@ -472,7 +460,7 @@ function DataPage() {
                 },
                 {
                   num: "+100",
-                  way: "步骤 1：通过【1】次使用【贸易站售卖3条赤金】，【获得】 【1500】个龙门币， 当前龙门币数量为【1500】。步骤 2：通过【2】次使用【对1名精一1级干员使用8次基础作战记录】，【花费】 【1400】个龙门币， 当前龙门币数量为【100】",
+                  way: "步骤 1：通过【1】次使用【二星通关10理智关卡】，【获得】 【100】个龙门币， 当前龙门币数量为【100】",
                 },
                 {
                   num: "",
@@ -483,20 +471,14 @@ function DataPage() {
           </div>
         </div>
 
-        <div
-          className={`accordion-panel ${
-            !activePanels.includes(3) ? "collapsed" : ""
-          }`}
-        >
+        <div className={`accordion-panel ${!activePanels.includes(3) ? "collapsed" : ""}`}>
           <div
             className={`panel-header ${clickedPanel === 3 ? "active" : ""}`}
             onClick={() => togglePanel(3)}
           >
             <h3>推荐路径快速查找：目标龙门币 - 现有龙门币 &lt; 0 的情况</h3>
           </div>
-          <div
-            className={`panel-content ${clickedPanel === 3 ? "active" : ""}`}
-          >
+          <div className={`panel-content ${clickedPanel === 3 ? "active" : ""}`}>
             <div className="explain-text">
               <p>
                 以下路径用于快速查找，不一定是最适合的、最简单的路径方案，仅供参考。（默认初始龙门币为对应值，目标龙门币为0）
@@ -506,7 +488,7 @@ function DataPage() {
               {generateStaticTable3([
                 {
                   num: "-1",
-                  way: "步骤 1：通过【1】次使用【精零1级基础作战记录】，【花费】 【61】个龙门币， 当前龙门币数量为【-60】。步骤 2：通过【3】次使用【活动商店使用1代币换取20龙门币】，【获得】 【60】个龙门币， 当前龙门币数量为【0】",
+                  way: "步骤 1：通过【1】次使用【精零1级基础作战记录】，【花费】 【61】个龙门币， 当前龙门币数量为【-60】。步骤 2：通过【1】次使用【二星通关6理智关卡】，【获得】 【60】个龙门币， 当前龙门币数量为【0】",
                 },
                 {
                   num: "",
@@ -518,7 +500,7 @@ function DataPage() {
                 },
                 {
                   num: "",
-                  way: "步骤 1：通过【6】次使用【活动商店使用1代币换取20龙门币】，【获得】 【120】个龙门币， 当前龙门币数量为【122】。步骤 2：通过【2】次使用【对1名精零1级干员使用1次基础作战记录】，【花费】 【122】个龙门币， 当前龙门币数量为【0】",
+                  way: "步骤 1：通过【2】次使用【对1名精零1级干员使用1次基础作战记录】，【花费】 【122】个龙门币， 当前龙门币数量为【-120】。步骤 2：通过【1】次使用【二星通关12理智关卡】，【获得】 【120】个龙门币， 当前龙门币数量为【0】",
                 },
                 {
                   num: "-5",
@@ -526,7 +508,7 @@ function DataPage() {
                 },
                 {
                   num: "",
-                  way: "步骤 1：通过【6】次使用【活动商店使用1代币换取20龙门币】，【获得】 【120】个龙门币， 当前龙门币数量为【125】。步骤 2：通过【1】次使用【对1名精零1级干员使用2次基础作战记录】，【花费】 【125】个龙门币， 当前龙门币数量为【0】",
+                  way: "步骤 1：通过【1】次使用【对1名精零1级干员使用2次基础作战记录】，【花费】 【125】个龙门币， 当前龙门币数量为【-120】。步骤 2：通过【1】次使用【二星通关12理智关卡】，【获得】 【120】个龙门币， 当前龙门币数量为【0】",
                 },
                 {
                   num: "-10",
@@ -534,7 +516,7 @@ function DataPage() {
                 },
                 {
                   num: "",
-                  way: "步骤 1：通过【1】次使用【三星通关21理智关卡】，【获得】 【252】个龙门币， 当前龙门币数量为【262】。步骤 2：通过【2】次使用【三星通关30理智关卡】，【获得】 【720】个龙门币， 当前龙门币数量为【982】。步骤 3：通过【1】次使用【对1名精一1级干员使用11次基础作战记录】，【花费】 【982】个龙门币， 当前龙门币数量为【0】",
+                  way: "步骤 1：通过【1】次使用【二星通关9理智关卡】，【获得】 【90】个龙门币， 当前龙门币数量为【100】。步骤 2：通过【1】次使用【基建加工站合成绿色材料】，【花费】 【100】个龙门币， 当前龙门币数量为【0】",
                 },
                 {
                   num: "-50",
@@ -542,7 +524,7 @@ function DataPage() {
                 },
                 {
                   num: "",
-                  way: "步骤 1：通过【2】次使用【基建加工站合成橙色材料】，【花费】 【800】个龙门币， 当前龙门币数量为【-750】。步骤 2：通过【1】次使用【贸易站售卖2条赤金】，【获得】 【1000】个龙门币， 当前龙门币数量为【250】。步骤 3：通过【2】次使用【对1名精零1级干员使用2次基础作战记录】，【花费】 【250】个龙门币， 当前龙门币数量为【0】",
+                  way: "步骤 1：通过【1】次使用【二星通关15理智关卡】，【获得】 【150】个龙门币， 当前龙门币数量为【200】。步骤 2：通过【1】次使用【基建加工站合成蓝色材料】，【花费】 【200】个龙门币， 当前龙门币数量为【0】",
                 },
                 {
                   num: "-100",
@@ -550,7 +532,7 @@ function DataPage() {
                 },
                 {
                   num: "",
-                  way: "步骤 1：通过【4】次使用【基建加工站合成橙色材料】，【花费】 【1600】个龙门币， 当前龙门币数量为【-1500】。步骤 2：通过【1】次使用【贸易站售卖3条赤金】，【获得】 【1500】个龙门币， 当前龙门币数量为【0】",
+                  way: "步骤 1：通过【1】次使用【二星通关10理智关卡】，【获得】 【100】个龙门币， 当前龙门币数量为【200】。步骤 2：通过【1】次使用【基建加工站合成蓝色材料】，【花费】 【200】个龙门币， 当前龙门币数量为【0】",
                 },
               ])}
             </div>

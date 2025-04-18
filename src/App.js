@@ -1,16 +1,14 @@
 import React, { useReducer, useState, useCallback, useEffect } from "react";
 //import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { Transmission } from "./algorithms/DP";
+import { Transmission } from "./components/Transmission";
 import NotePage from "./pages/Note";
 import DataPage from "./pages/Data";
 import AboutPage from "./pages/About";
 import PathRenderer from "./components/PathRenderer";
 import { classifyData } from "./DataService"; 
-//import bonusImage from "./assets/images/bonus.webp";
-import "./App.css";
+import "./assets/styles/App.css";
 
-// 状态管理 Reducer
 const defaultState = {
   num1: "", //当前数量
   num2: "", //目标数量
@@ -32,6 +30,7 @@ const defaultState = {
     disableStore70: false,
     disableStore2000: false,
     disableStore5000: false,
+    disableCE: false,
     disableExt25: false,
     disableTrade: false,
     enableUpgradeOnly0: false,
@@ -136,7 +135,7 @@ const MainCalculator = () => {
     if (key === "enableUpgradeOnlyFor1" && !state.settings.enableUpgradeOnlyFor1) {
       setShowModal(true);
     }
-},[state.settings]);
+  },[state.settings]);
 
   // 优化后的输入验证
   const handleInputChange = useCallback((e, field) => {
@@ -172,7 +171,6 @@ const MainCalculator = () => {
     }
     dispatch({ type: "SET_UPGRADE_COUNT", field, value: numValue.toString() });
   }, []);
-
 
   // 主体计算逻辑 异步函数
   const handleCalculate = useCallback(async () => {
@@ -219,6 +217,7 @@ const MainCalculator = () => {
         (!settings.disableStore70 || itemType !== "store_70") &&
         (!settings.disableStore2000 || itemType !== "store_2000") &&
         (!settings.disableStore5000 || itemType !== "store_5000") &&
+        (!settings.disableCE || itemType !== "ce") &&
         (!settings.disableExt25 || itemType !== "ext_25") &&
         (!settings.disableTrade || itemType !== "trade") &&
         (settings.enableUpgradeOnly0 || itemType !== "upgrade_only_0") &&
@@ -229,14 +228,10 @@ const MainCalculator = () => {
     });
 
     // 提取四个限制值，空值时默认为无限大（不限制）
-    const upgrade0Limit =
-      state.upgrade0Count === "" ? Infinity : parseInt(state.upgrade0Count, 10);
-    const upgrade1Limit =
-      state.upgrade1Count === "" ? Infinity : parseInt(state.upgrade1Count, 10);
-    const upgrade2Limit =
-      state.upgrade2Count === "" ? Infinity : parseInt(state.upgrade2Count, 10);
-    const sanityLimit =
-      state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10);
+    const upgrade0Limit = state.upgrade0Count === "" ? Infinity : parseInt(state.upgrade0Count, 10);
+    const upgrade1Limit = state.upgrade1Count === "" ? Infinity : parseInt(state.upgrade1Count, 10);
+    const upgrade2Limit = state.upgrade2Count === "" ? Infinity : parseInt(state.upgrade2Count, 10);
+    const sanityLimit = state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10);
 
     console.log("filteredItems:", filteredItems);
 
@@ -248,7 +243,6 @@ const MainCalculator = () => {
       )}_${upgrade0Limit}_${upgrade1Limit}_${upgrade2Limit}_${sanityLimit}`;
     console.log("生成的 cacheKey:", cacheKey);
     const cachedResult = localStorage.getItem(`pathCache_${cacheKey}`);
-    //let paths;
 
     if (cachedResult) {
       try {
@@ -282,33 +276,16 @@ const MainCalculator = () => {
     console.log("缓存未命中或无效，开始调用 Transmission");
     const startTime = Date.now();
 
-    //////////////////////////////////////////////
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("计算超时")), 15000)
-    ); // 缩短超时
+      setTimeout(() => reject(new Error("计算超时,请重试")), 15000)
+    ); 
     
-    /*console.log(
-      "limit in APPjs is:",
-      upgrade0Limit,
-      upgrade1Limit,
-      upgrade2Limit,
-      sanityLimit
-    );*/
-
-
-
     try {
       const paths = await Promise.race([
-        Transmission(difference, filteredItems, {
-          upgrade0Limit,
-          upgrade1Limit,
-          upgrade2Limit,
-          sanityLimit,
-        }),
+        Transmission(difference, filteredItems, { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit,}),
         timeoutPromise,
       ]);
       console.log("Transmission 返回的 paths:", paths ? paths.length : 0, "条");
-
 
       if (!paths || paths.length === 0) {
         console.error("后端返回空路径数组");
@@ -338,30 +315,28 @@ const MainCalculator = () => {
       });
     } catch (error) {
       console.error("计算或API调用失败:", error);
-      let errorMessage = "发生未知错误，请稍后再试。"; // 默认错误消息
+      let errorMessage = "发生未知错误，请稍后再试。"; 
 
       if (error.isNetworkError) {
-        errorMessage = error.message; // 使用我们设置的网络错误消息
+        errorMessage = error.message; 
       } else if (error.status) {
-        // 根据状态码设置不同消息
         switch (error.status) {
           case 400:
-            errorMessage = `输入错误: ${error.message}`; // 显示后端验证信息
+            errorMessage = `输入错误: ${error.message}`; 
             break;
           case 429:
-            errorMessage = `请求过于频繁: ${error.message}`; // 显示速率限制信息
+            errorMessage = `请求过于频繁: ${error.message}`; 
             break;
           case 504:
-            errorMessage = `计算超时: ${error.message}`; // 显示超时信息
+            errorMessage = `计算超时: ${error.message}`; 
             break;
           case 500:
-            errorMessage = `服务器内部错误: ${error.message}. 如果问题持续，请联系管理员。`; // 通用服务器错误，可以考虑不显示原始 error.message
+            errorMessage = `服务器内部错误: ${error.message}. 如果问题持续，请联系管理员。`; 
             break;
           default:
-            errorMessage = `请求失败: ${error.message} (代码: ${error.status})`; // 处理其他可能的 HTTP 错误
+            errorMessage = `请求失败: ${error.message} (代码: ${error.status})`;
         }
       } else if (error.message) {
-        // 处理其他没有 status 但有 message 的 JS 错误
         errorMessage = `发生错误: ${error.message}`;
       }
 
@@ -375,26 +350,13 @@ const MainCalculator = () => {
       dispatch({
         type: "SET_HISTORY",
         history: [...state.history.slice(-10), `计算失败: ${errorMessage}`],
-      }); // 记录错误到历史
+      }); 
     } finally {
       dispatch({ type: "SET_CALCULATING", value: false });
     }
   }, [state.num1, state.num2,  state.settings, state.history, state.upgrade0Count, state.upgrade1Count, state.upgrade2Count, state.sanityCount]);
 
-  // 切换路径
-  /*const handleChangePath = () => {
-    if (state.pathCache.length > 0) {
-      dispatch({ type: "CHANGE_PATH", delta: 1 });
-    }
-  };
-
-  const handlePrevPath = () => {
-    if (state.pathCache.length > 0) {
-      dispatch({ type: "CHANGE_PATH", delta: -1 });
-    }
-  };*/
-
-  // 新增：管理路径缓存（最多5条）
+  // 管理路径缓存（最多5条）
   const managePathCache = (newKey) => {
     const cacheQueue = JSON.parse(
       localStorage.getItem("pathCacheQueue") || "[]"
@@ -419,9 +381,7 @@ const MainCalculator = () => {
         }
       }
     },[state.pathCache.length, state.clickCount]);
-  /*const handleClearHistory = () => {
-    setHistory([]);
-  };*/
+
   // 新增返回顶部函数
   const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -451,6 +411,7 @@ const MainCalculator = () => {
     { text: "不存在/不使用sidestory活动商店1代币换20龙门币", key: "disableStore20"},
     { text: "不存在/不使用sidestory活动商店5代币换2000龙门币", key: "disableStore2000"},
     { text: "不存在/不使用sidestory活动商店7代币换5000龙门币", key: "disableStore5000"},
+    { text: "不存在/不使用龙门币副本(CE系列关卡)", key: "disableCE"},
     { text: "不存在/不使用故事集活动商店1代币换10龙门币", key: "disableStore10"},
     { text: "不存在/不使用危机合约1代币换70龙门币", key: "disableStore70" },
     { text: "不存在/不使用代理剿灭25理智获取250龙门币", key: "disableExt25" },
@@ -461,21 +422,19 @@ const MainCalculator = () => {
     { text: "只允许连续多次对精零/精一/精二1级干员进行升级", key: "enableUpgradeOnlyFor1"},
   ];
 
-  // 修改App.js中的MainCalculator组件return部分
   return (
     <div className="app-container">
       <Sidebar />
 
-      {/* 返回顶部按钮 */}
       <button className="back-to-top" onClick={scrollToTop}>
         ↑ 返回顶部
       </button>
 
       <div className="input-area">
         <div className="main-container">
-          {/* 主内容容器 */}
+
           <div className="main-content-container">
-            {/* 左侧计算面板 */}
+
             <div className="content-panel left-panel">
               <div className="title-bar">
                 <h1>龙门币凑数计算器</h1>
@@ -490,7 +449,7 @@ const MainCalculator = () => {
 
               <div className="main-content">
                 <div className="input-container">
-                  {/* 当前数量输入 */}
+                  
                   <div className="input-group-horizontal">
                     <div className="input-group">
                       <div className="input-wrapper-text">当前龙门币数量:</div>
@@ -502,11 +461,12 @@ const MainCalculator = () => {
                           value={state.num1}
                           onChange={(e) => handleInputChange(e, "num1")}
                         />
-                        {state.error1 && (<div className="error-message">{state.error1}</div>)}
+                        {state.error1 && (
+                          <div className="error-message">{state.error1}</div>
+                        )}
                       </div>
                     </div>
 
-                    {/* 目标数量输入 */}
                     <div className="input-group">
                       <div className="input-wrapper-text">目标龙门币数量:</div>
                       <div className="input-wrapper">
@@ -517,25 +477,28 @@ const MainCalculator = () => {
                           value={state.num2}
                           onChange={(e) => handleInputChange(e, "num2")}
                         />
-                        {state.error2 && (<div className="error-message">{state.error2}</div>)}
+                        {state.error2 && (
+                          <div className="error-message">{state.error2}</div>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* 新增：四个垂直分布的容器 */}
                 <div className="upgrade-count-container">
                   <div className="toggle-container">
                     <div className="toggle-text">允许升级的精零干员数量：</div>
                     <input
                       type="number"
                       className="short-input-box"
-                      min="0" 
-                      max="10" 
-                      step="1" 
+                      min="0"
+                      max="10"
+                      step="1"
                       placeholder="0-10"
                       value={state.upgrade0Count}
-                      onChange={(e) => handleUpgradeCountChange(e, "upgrade0Count", 0, 10)}
+                      onChange={(e) =>
+                        handleUpgradeCountChange(e, "upgrade0Count", 0, 10)
+                      }
                     />
                   </div>
                   <div className="toggle-container">
@@ -543,12 +506,14 @@ const MainCalculator = () => {
                     <input
                       type="number"
                       className="short-input-box"
-                      min="0" 
-                      max="10" 
-                      step="1" 
+                      min="0"
+                      max="10"
+                      step="1"
                       placeholder="0-10"
                       value={state.upgrade1Count}
-                      onChange={(e) => handleUpgradeCountChange(e, "upgrade1Count", 0, 10)}
+                      onChange={(e) =>
+                        handleUpgradeCountChange(e, "upgrade1Count", 0, 10)
+                      }
                     />
                   </div>
                   <div className="toggle-container">
@@ -556,12 +521,14 @@ const MainCalculator = () => {
                     <input
                       type="number"
                       className="short-input-box"
-                      min="0" 
-                      max="10" 
+                      min="0"
+                      max="10"
                       step="1"
                       placeholder="0-10"
                       value={state.upgrade2Count}
-                      onChange={(e) => handleUpgradeCountChange(e, "upgrade2Count", 0, 10)}
+                      onChange={(e) =>
+                        handleUpgradeCountChange(e, "upgrade2Count", 0, 10)
+                      }
                     />
                   </div>
                   <div className="toggle-container">
@@ -570,11 +537,13 @@ const MainCalculator = () => {
                       type="number"
                       className="short-input-box"
                       min="0"
-                      max="200" 
-                      step="1" 
+                      max="200"
+                      step="1"
                       placeholder="0-200"
                       value={state.sanityCount}
-                      onChange={(e) => handleUpgradeCountChange(e, "sanityCount", 0, 200)}
+                      onChange={(e) =>
+                        handleUpgradeCountChange(e, "sanityCount", 0, 200)
+                      }
                     />
                   </div>
                 </div>
@@ -588,7 +557,6 @@ const MainCalculator = () => {
                 </button>
 
                 <div className="result-section">
-                  {/* ...原有结果框代码... */}
                   <div className="output-wrapper-text">
                     计算还需要龙门币数量:
                   </div>
@@ -601,18 +569,17 @@ const MainCalculator = () => {
                       readOnly
                     />
                   </div>
-                  {state.differenceError && (<div className="error-message">{state.differenceError}</div>)}
+                  {state.differenceError && (
+                    <div className="error-message">{state.differenceError}</div>
+                  )}
                 </div>
 
                 <div className="usage-guide">
-                  <div className="notice-title">数值输入注意事项</div>
+                  <div className="notice-title">注意事项</div>
                   <div className="notice-content">
-                    1. 输入要求：两个差值处于[-5000,5000]的非负整数
+                    1.点击“立即计算”按钮开始计算，点击“计算路径历史”中的“上一路径”和“下一路径”按钮可以切换路径方案。
                     <br />
-                    2.
-                    点击“立即计算”按钮开始计算，点击“上一路径”和“下一路径”可以切换路径方案
-                    <br />
-                    3.设置面板中的开关调整之后，需要重新点击“立即计算”按钮才会生效。
+                    2.设置面板中的开关调整之后，需要重新点击“立即计算”按钮才会生效。
                     如果点击“立即计算”之后不起作用，建议重新点击或者刷新一下网页。
                     对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果。后续会继续优化。
                   </div>
@@ -620,13 +587,11 @@ const MainCalculator = () => {
               </div>
             </div>
 
-            {/* 右侧说明面板 */}
             <div className="content-panel right-panel">
               <div className="title-bar">
                 <h1>设置区域</h1>
               </div>
 
-              {/* 开关容器模板 - 相同结构的设置项 */}
               <div className="toggle-wrapper">
                 {settingsOptions.map(({ text, key }) => (
                   <div className="toggle-container" key={key}>
@@ -645,7 +610,6 @@ const MainCalculator = () => {
             </div>
           </div>
 
-          {/* 历史记录框 */}
           <div className="history-box">
             <div className="history-header">
               <h2>计算路径历史</h2>
@@ -667,7 +631,9 @@ const MainCalculator = () => {
                 onPrevPath={() => handleChangePath(-1)}
                 onNextPath={() => handleChangePath(1)}
               />
-            ) : (<div className="no-path">{""}</div>)}
+            ) : (
+              <div className="no-path">{""}</div>
+            )}
 
             {state.clickCount >= 10 && state.pathCache.length > 0 && (
               <div className="change-over-text">
@@ -682,7 +648,6 @@ const MainCalculator = () => {
         </div>
       </div>
 
-      {/* 新增：底部备案信息区域 */}
       <div className="footer">
         <a
           href="https://beian.miit.gov.cn/"
@@ -692,10 +657,9 @@ const MainCalculator = () => {
         >
           鄂ICP备2025105560号-1
         </a>
-        <p>© 2025 龙门币凑数计算器</p>
+        <a className="external-link2">© 2025 龙门币凑数计算器</a>
       </div>
 
-      {/* 新增：弹窗组件 */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -722,11 +686,14 @@ const MainCalculator = () => {
         </div>
       )}
 
-      {/* 新增：彩蛋弹窗 */}
       {showBonusModal && (
         <div className="modal-overlay">
           <div className="modal-content bonus-modal">
-            <img src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/bonus.webp" alt="Bonus" className="bonus-image" />
+            <img
+              src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/bonus.webp"
+              alt="Bonus"
+              className="bonus-image"
+            />
             <p className="bonus-text">
               你已经摆弄这俩按钮30次了，有这个探索精神相信你做什么都能成功的
             </p>
@@ -738,7 +705,6 @@ const MainCalculator = () => {
   );
 };
 
-// 主应用组件
 const App = () => (
   <Router>
     <Routes>

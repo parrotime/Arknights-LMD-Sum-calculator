@@ -1,13 +1,10 @@
-import { classifyData } from "../ark-lmd-top/DataService.js";
+import { classifyData } from "./DataService.js";
 
 const tradeGoldCache = new Map();
 const materialCache = new Map();
 const stageCache = new Map();
 
-const stageIds = [
-  87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 107, 108, 109, 110, 111, 112,
-  113, 114, 210, 211,
-];
+const stageIds = [87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 107, 108, 109, 110, 111, 112, 113, 114, 210, 211,];
 const tradeGoldIds = [117, 118, 119];
 const materialIds = [100, 101, 102, 103];
 
@@ -25,7 +22,6 @@ const getMaxCountForId = (id, items) => {
   if (id >= 181 && id <= 209) return 3;
   return 10;
 };
-
 
 //计算“售卖赤金”最优组合
 const getOptimalTradeGoldCombo = (subTarget) => {
@@ -57,7 +53,6 @@ const getOptimalTradeGoldCombo = (subTarget) => {
   tradeGoldCache.set(subTarget, result);
   return result;
 };
-
 
 //计算“基建合成”最优组合
 const getOptimalMaterialCombo = (subTarget) => {
@@ -96,8 +91,7 @@ const getOptimalMaterialCombo = (subTarget) => {
   return result;
 };
 
-
-//优化：计算“消耗理智”最优组合 (Unchanged)
+//计算“消耗理智”最优组合
 const getOptimalStageCombo = (subTarget, stageItems, items, epsilon) => {
   if (subTarget <= 0) return { steps: 0, combo: [] };
   if (stageCache.has(subTarget)) return stageCache.get(subTarget);
@@ -122,8 +116,7 @@ const getOptimalStageCombo = (subTarget, stageItems, items, epsilon) => {
   return result;
 };
 
-
-// 路径规范化 - 只选择最优的步骤组合
+// 路径规范 - 只选择最优的步骤组合
 function normalizePath(path, items) {
   let totalTradeValue = 0;
   let totalMaterialValue = 0;
@@ -170,22 +163,6 @@ function normalizePath(path, items) {
     .sort((a, b) => a.id - b.id);
 }
 
-/**
- * 保存路径并检查限制, 优化列表满时的替换逻辑)
- * @param {Map} dp
- * @param {number} sum
- * @param {Array} path  原始路径
- * @param {number} maxPaths  
- * @param {number} target
- * @param {number} epsilon
- * @param {Array} items 
- * @param {number} upgrade0Limit
- * @param {number} upgrade1Limit
- * @param {number} upgrade2Limit
- * @param {number} sanityLimit
- * @param {number} targetPathCount 
- * @returns {boolean} 
- */
 function savePath(dp, sum, path, maxPaths, target, epsilon, items, 
   upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, targetPathCount) {
   
@@ -206,17 +183,10 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
       );
     }
   }
-
-  // 比较原始计算的 sum 和规范化路径的实际 sum
   if (Math.abs(actualNormalizedSum - sum) > epsilon * 100) {
-    return false; // 如果确定是错误，阻止存储
+    return false; 
   }
 
-  //console.log('Saving attempt: sum=',sum);
-  //console.log('pathkey=',{normalizedPathKey});
-  //console.log('length=',normalizedPath.length);
-
-  // 计算原始路径的消耗
   let upgrade0Count = 0,
     upgrade1Count = 0,
     upgrade2Count = 0,
@@ -231,7 +201,7 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
     if (item.consume > 0) totalSanity += step.count * item.consume;
   }
 
-  // 检查用户限制 
+  // 检查用户限制
   if (
     upgrade0Count > upgrade0Limit ||
     upgrade1Count > upgrade1Limit ||
@@ -250,7 +220,7 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
   const existingPaths = state.paths;
   const existingKeys = state.keys;
 
-  // 检查是否重复
+  // 检查是否重合
   if (existingKeys.has(normalizedPathKey)) {
     return false;
   }
@@ -267,11 +237,11 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
     pathWasAddedOrReplaced = true;
   } else {
     // 列表已满
-    const longestExistingPath = existingPaths[existingPaths.length - 1]; // 获取最长路径对象
+    const longestExistingPath = existingPaths[existingPaths.length - 1]; 
     const longestExistingPathLength = longestExistingPath.length;
 
     if (currentNormalizedPathLength < longestExistingPathLength) {
-      // 新路径种类更少: 直接替换 
+      // 新路径种类: 直接替换 
       const removedPathKey = longestExistingPath
         .map((s) => `${s.id}x${s.count}`)
         .join("_");
@@ -282,7 +252,7 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
       existingPaths.sort((a, b) => a.length - b.length); // 保持种类数排序
       pathWasAddedOrReplaced = true;
     } else if (currentNormalizedPathLength === longestExistingPathLength) {
-      // 新路径种类数 与 最长路径 相同: 比较总物品数 
+      // 新路径种类 最长路径相同: 比较总物品数 
       const newTotalCount = normalizedPath.reduce(
         (sum, step) => sum + step.count, 0
       );
@@ -311,22 +281,16 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
     const targetState = dp.get(target);
     const targetPaths = targetState?.paths;
     if (targetPaths && targetPaths.length >= targetPathCount) {
-      console.log(
-        `发现精确解! sum=${sum}, 规范化路径: ${normalizedPathKey}. 目标 ${target} 的路径数已达 ${targetPaths.length} (>=${targetPathCount})`
-      );
+      console.log(`发现精确解! sum=${sum}, 规范化路径: ${normalizedPathKey}. 目标 ${target} 的路径数已达 ${targetPaths.length} (>=${targetPathCount})`);
       return true;
     } else {
-      console.log(
-        `发现精确解! sum=${sum}, 规范化路径: ${normalizedPathKey}. (目标 ${target} 的路径数: ${targetPaths?.length ?? 0}/${targetPathCount})`
-      );
+      console.log(`发现精确解! sum=${sum}, 规范化路径: ${normalizedPathKey}. (目标 ${target} 的路径数: ${targetPaths?.length ?? 0}/${targetPathCount})`);
     }
   }
-
   return false;
 }
 
-
-//检查路径是否满足物品使用次数限制 
+//检查路径是否满足物品使用次数限制
 function isPathValid(path, items) {
   const idCountMap = new Map();
   for (const step of path) {
@@ -338,8 +302,7 @@ function isPathValid(path, items) {
   return true;
 }
 
-
-//合并并排序路径
+//合并并排序路序
 function mergeAndSortPath(oldPath, newSteps) {
   const pathMap = new Map();
   for (const step of oldPath) {
@@ -356,13 +319,7 @@ function mergeAndSortPath(oldPath, newSteps) {
     .sort((a, b) => a.id - b.id);
 }
 
-/**
- * 整理并返回最终结果
- * @param {Map} dp
- * @param {number} target
- * @param {number} maxPaths 
- * @param {Array} stageIds 
- */
+
 function finalizeResult(dp, target, maxPaths, stageIds) {
   const startTime = Date.now();
   const targetState = dp.get(target);
@@ -382,13 +339,13 @@ function finalizeResult(dp, target, maxPaths, stageIds) {
     })
     .filter(Boolean)
     .sort((a, b) => {
-      // 优先级 1: 比较路径中步骤的种类数量，种类少的排前面
+      // 优先 1: 比较路径中步骤的种类数量，种类少的排前面
       const lengthDiff = a.length - b.length;
       if (lengthDiff !== 0) {
         return lengthDiff; 
       }
 
-      // 优先级 2: 种类数相同比较总物品数，总数少的排前面
+      // 优先 2: 种类数相同比较总物品数，总数少的排前面
       const totalCountA = a.reduce((sum, step) => sum + step.count, 0);
       const totalCountB = b.reduce((sum, step) => sum + step.count, 0);
       const countDiff = totalCountA - totalCountB;
@@ -396,7 +353,7 @@ function finalizeResult(dp, target, maxPaths, stageIds) {
         return countDiff; 
       }
 
-      // 优先级 3: 都相同，按 ID 排序 
+      // 优先 3: 都相同，按 ID 排序 
       return a.length > 0 && b.length > 0 ? a[0].id - b[0].id : 0;
     })
     .slice(0, maxPaths);
@@ -405,7 +362,6 @@ function finalizeResult(dp, target, maxPaths, stageIds) {
   console.log("耗时:", Date.now() - startTime);
   return finalResult;
 }
-
 
 //主函数：寻找满足目标值的路径 
 export const findPaths = (target, items = classifyData, userLimits = {}, epsilon = 1e-6) => {
@@ -422,7 +378,11 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
   const upgrade2Limit = userLimits.upgrade2Limit ?? 10;
   const sanityLimit = userLimits.sanityLimit ?? Infinity;
   const stageItems = items
-    .filter((item) => stageIds.includes(item.id) && item.type === "3_star")
+    .filter(
+      (item) =>
+        (stageIds.includes(item.id) && item.type === "3_star") ||
+        item.type === "2_star"
+    )
     .sort((a, b) => b.item_value - a.item_value);
   const dp = new Map([[0, { paths: [[]], keys: new Set([""]) }]]);
   const validItems = items.filter(
@@ -438,7 +398,7 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
     (a, b) => Math.abs(b.item_value) - Math.abs(a.item_value)
   );
 
-  // 第一阶段：单步路径 
+  // 第一阶段：单步路径
   for (const item of sortedItems) {
     const itemValue = item.item_value;
     const maxCount = getMaxCountForId(item.id, items);
@@ -446,7 +406,7 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
     while (
       count < maxCount &&
       //Math.abs(itemValue * (count + 1) - target) <= Math.abs(target)
-      Math.abs(itemValue * (count + 1) - target) <= Math.abs(target) + Math.abs(itemValue) ) {
+      Math.abs(itemValue * (count + 1) - target) <= Math.abs(target) + Math.abs(itemValue)*0.5 ) {
       count++;
       const newSum = itemValue * count;
       let newPath = [{ id: item.id, count }];
@@ -530,4 +490,3 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
 
   return finalizeResult(dp, target, TARGET_PATH_COUNT, stageIds);
 };
-

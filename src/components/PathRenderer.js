@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getItemById } from "../DataService";
-import "./PathRenderer.css";
+import "../assets/styles/PathRenderer.css";
 
 // 路径渲染器
 const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, onNextPath,}) => {

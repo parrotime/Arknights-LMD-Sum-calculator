@@ -11,7 +11,7 @@
   box-sizing: border-box;
 }
 
-/* 折叠面板通用样式 */
+
 .accordion-panel {
   width: 96%;
   background: #ffffff;
@@ -20,7 +20,7 @@
   margin: 0 auto;
   overflow: hidden;
   will-change: transform;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 更自然的动画曲线 */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .accordion-panel:hover {
@@ -28,20 +28,17 @@
   box-shadow: 0 6px 18px rgba(0,0,0,0.12);
 }
 
-
-/* 展开时顶部圆角 */
 .accordion-panel:not(.collapsed) .panel-header {
   border-radius: 16px 16px 0 0;
 }
 
 .accordion-panel:first-child {
-  margin-top: 25px; /* 首项顶部留白 */
+  margin-top: 25px; 
 }
 
-/* 面板标题样式 */
 .panel-header {
   padding: 15px 25px;
-  background: linear-gradient(135deg, #5da8f0 0%, #8dc1f5 100%); /* 更现代的渐变 */
+  background: linear-gradient(135deg, #5da8f0 0%, #8dc1f5 100%);
   border-radius: 16px;
   color: white;
   cursor: pointer;
@@ -59,14 +56,12 @@
   transform: scale(0.98);
 }
 
-/* 折叠指示箭头 */
 .panel-header::after {
-  content: '▼';
+  content: '�?';
   font-size: 18px;
   transition: transform 0.3s;
 }
 
-/* 面板内容区域 */
 .panel-content {
   padding: 25px;
   opacity: 1;
@@ -76,11 +71,10 @@
 }
 
 .panel-content.active {
-  transform: scale(0.98); /* 点击时缩小至 98% */
-  transition: transform 0.3s ease; /* 与 header 保持一致 */
+  transform: scale(0.98); 
+  transition: transform 0.3s ease; 
 }
 
-/* 折叠状态样式 */
 .accordion-panel.collapsed .panel-content {
   padding: 0 25px;
   opacity: 0;
@@ -97,20 +91,19 @@
 }
 
 .explain-text{
-  text-align: left; /* 改为左对齐，增强可读性 */
-  color: #34495e; /* 更高对比度的文字颜色 */
-  line-height: 1.6; /* 增加行距 */
+  text-align: left;
+  color: #34495e; 
+  line-height: 1.6; 
   margin-bottom: 20px;
 }
 
-/* 数据表格 */
 .tables-container {
   display: flex;
-  flex-wrap: wrap; /* 允许换行 */
+  flex-wrap: wrap; 
   gap: 30px;
   width: 100%;
   margin-top: 20px;
-  justify-content: center; /* 居中对齐 */
+  justify-content: center; 
 }
 
 .material-table {
@@ -119,7 +112,7 @@
   background: #ffffff;
   border-radius: 8px;
   overflow: hidden;
-  flex: 0 1 auto; /* 防止拉伸 */
+  flex: 0 1 auto;
 }
 
 .material-table th,
@@ -131,8 +124,8 @@
 }
 
 .material-table th {
-  background: #f1f5f9; /* 更浅的表头背景 */
-  color: #1a3c64; /* 更高对比度 */
+  background: #f1f5f9; 
+  color: #1a3c64;
   font-weight: 700;
 }
 
@@ -145,28 +138,24 @@
   transition: background-color 0.2s ease;
 }
 
-/* A 表格（generateStaticTable）样式 */
 .table-a {
   width: 48%;
 }
 
-/* B 表格（generateStaticTable2）样式 */
 .table-b {
   width: 48%;
 }
 
-/* C 表格（generateStaticTable3）样式 */
 .table-c {
-  width: 100%; /* 全屏时拉长到 96% */
+  width: 100%; 
 }
 
-/* 修改部分：D 表格样式（拆分为两个表格） */
 .table-d {
-  width: 48%; /* 全屏时水平排列，每张表占 48% */
-  min-width: 300px; /* 最小宽度，确保内容可读 */
+  width: 48%;
+  min-width: 300px;
 }
 
-/* 移动端适配 */
+
 @media (max-width: 800px) {
   .main-data-content {
     margin-left: 0;
@@ -187,13 +176,11 @@
     overflow-x: auto;
   }
 
-/* 表格改为纵向排列 */
   .tables-container {
     flex-direction: column;
     align-items: center;
   }
 
-/* A 表格变窄 */
   .table-a,
   .table-b,
   .table-c,

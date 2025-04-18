@@ -5,7 +5,7 @@
   display: flex;
   justify-content: center;
   min-height: 100vh;
-  box-sizing: border-box; /* 确保边距不影响宽度计算 */
+  box-sizing: border-box; 
 }
 
 .note-page {
@@ -46,12 +46,12 @@
 .notice-title {
   font-weight: bold;
   font-size: 1.2rem;
-  margin-bottom: 0.5rem; /* 小标题与内容间距较小 */
+  margin-bottom: 0.5rem; 
 }
 
 .notice-content {
   padding-left: 10px;
-  font-size: 1rem; /* 统一字体大小 */
+  font-size: 1rem; 
 }
 
 .formula {
@@ -60,10 +60,10 @@
   color: #2c3e50;
   padding: 15px;
   display: block;
-  text-align: center; /* 公式居中显示 */
+  text-align: center; 
 }
 
-.external-link {
+.external-link3 {
   color: #5c9edc;
   text-decoration: none;
   border-bottom: 2px dotted rgba(92, 158, 220, 0.3);
@@ -71,7 +71,7 @@
   margin-left: 8px;
 }
 
-.external-link:hover {
+.external-link3:hover {
   color: #468acb;
   border-bottom-style: solid;
   border-bottom-color: currentColor;
@@ -111,39 +111,37 @@
   line-height: 1.4;
 }
 
-/* 遮罩层样式 */
 .image-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.8); /* 半透明黑色背景 */
+  background: rgba(0, 0, 0, 0.8); 
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* 确保遮罩层在最上层 */
+  z-index: 1000; 
 }
 
-/* 放大图片样式 */
 .zoomed-image {
   max-width: 90%;
   max-height: 90%;
-  object-fit: contain; /* 保持图片比例 */
+  object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 800px) {
 .main-note-content {
-    margin-left: 0; /* 移除左侧边距，与 Sidebar 分离 */
-    padding-left: 0; /* 移除内边距 */
-    padding-top: 20px; /* 与上方 Sidebar 保持间距 */
+    margin-left: 0; 
+    padding-left: 0;
+    padding-top: 20px; 
   }
 
   .note-page {
-    margin: 0 auto; /* 水平居中 */
-    width: 88%; /* 限制宽度，适配小屏幕 */
+    margin: 0 auto; 
+    width: 88%; 
     padding: 15px;
     margin-bottom: 20px;
   }
@@ -158,10 +156,10 @@
   }
 
   .image-gallery {
-    grid-template-columns: 1fr; /* 单列布局 */
+    grid-template-columns: 1fr;
   }
 
   .image-gallery img {
-    height: 150px; /* 适配小屏幕 */
+    height: 150px; 
   }
 }

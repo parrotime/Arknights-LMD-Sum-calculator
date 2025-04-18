@@ -1916,6 +1916,60 @@ export const classifyData = [
     type: "store_2000",
     consume: 0,
   },
+  {
+    id: 214,
+    item_id: "2-4-6",
+    item_name: "通关CE-6获取10000龙门币",
+    item_value: 10000,
+    rarity: 5,
+    type: "ce",
+    consume: 36,
+  },
+  {
+    id: 215,
+    item_id: "2-4-5",
+    item_name: "通关CE-5获取7500龙门币",
+    item_value: 7500,
+    rarity: 5,
+    type: "ce",
+    consume: 30,
+  },
+  {
+    id: 216,
+    item_id: "2-4-4",
+    item_name: "通关CE-4获取5700龙门币",
+    item_value: 5700,
+    rarity: 5,
+    type: "ce",
+    consume: 25,
+  },
+  {
+    id: 217,
+    item_id: "2-4-3",
+    item_name: "通关CE-3获取4100龙门币",
+    item_value: 4100,
+    rarity: 5,
+    type: "ce",
+    consume: 20,
+  },
+  {
+    id: 218,
+    item_id: "2-4-2",
+    item_name: "通关CE-2获取2800龙门币",
+    item_value: 2800,
+    rarity: 5,
+    type: "ce",
+    consume: 15,
+  },
+  {
+    id: 219,
+    item_id: "2-4-1",
+    item_name: "通关CE-1获取1700龙门币",
+    item_value: 1700,
+    rarity: 5,
+    type: "ce",
+    consume: 10,
+  },
 ];
 
 /**
@@ -1927,10 +1981,3 @@ export const getItemById = (id) => {
   return classifyData.find((item) => item.id === id) || null;
 };
 
-// 在控制台执行（需在React组件中导入classifyData后）
-console.log(
-  "所有物品ID:",
-  classifyData.map((item) => item.id)
-);
-// 查找是否存在'25'这个ID
-// 明确默认导出（根据实际使用情况）

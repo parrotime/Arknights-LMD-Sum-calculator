@@ -1,4 +1,4 @@
-/* 路径容器样式 */
+
 .path-renderer-container {
   font-family: Arial, sans-serif;
   padding: 20px;
@@ -9,7 +9,6 @@
   max-width: 98%;
 }
 
-/* 标题样式 */
 .path-renderer-container h3 {
   font-size: 20px;
   font-weight: bold;
@@ -18,7 +17,6 @@
   text-align: center;
 }
 
-/* 步骤项样式 */
 .path-renderer-step-item {
   margin: 12px 0;
   padding: 12px;
@@ -33,7 +31,6 @@
   background-color: #f0f0f0;
 }
 
-/* 错误提示样式 */
 .path-renderer-error {
   color: #dc3545;
   border: 2px solid #dc3545;
@@ -50,7 +47,6 @@
   margin-bottom: 20px;
 }
 
-/* 分页样式 */
 .path-renderer-pagination {
   display: flex;
   justify-content: center;
@@ -107,7 +103,6 @@
   border-radius: 5px;
 }
 
-/* 移动端适配 */
 @media (max-width: 800px) {
  .app-container {
     flex-direction: column;
@@ -115,7 +110,6 @@
     overflow: visible;
   }
 
-  /* 侧边栏调整（保持两行两列，无需修改） */
   .sidebar {
     width: 100%;
     flex-direction: row;
@@ -144,7 +138,6 @@
     box-sizing: border-box;
   }
 
-  /* 输入区域调整 */
   .input-area {
     width: 100%;
     padding: 20px;
@@ -152,7 +145,6 @@
     height: auto;
   }
 
-  /* 主内容容器调整 */
   .main-content-container {
     flex-direction: column;
     width: 100%;
@@ -208,7 +200,7 @@
 
   .path-renderer-nav-button:hover {
     background-color: #007bff;
-    color: #fff; /* 修复按钮 hover 时颜色，确保始终为白色 */
+    color: #fff; 
   }
 
   .path-renderer-dot-container {
@@ -225,5 +217,3 @@
     height: 8px;
   }
 }
-
-/* 省略部分：loading-container 和 progress-bar 样式未修改 */

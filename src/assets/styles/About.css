@@ -1,11 +1,11 @@
 .main-about-content{
-  width: 100%; /* 右侧区域宽度 */
+  width: 100%; 
   padding-left: 30px;
-  background-color: #afd3f3; /* 浅灰色背景 */
-  display: flex; /* 设置为 Flexbox 容器 */
-  justify-content: center; /* 水平居中 */
-  min-height: 100vh; /* 初始高度为页面高度，内容超出时自动扩展 */
-  box-sizing: border-box; /* 确保边距不影响宽度计算 */
+  background-color: #afd3f3; 
+  display: flex; 
+  justify-content: center; 
+  min-height: 100vh; 
+  box-sizing: border-box; 
 }
 
 .about-page {
@@ -14,9 +14,9 @@
   width: 100%;
   height: 100%;
   padding: 12px 20px;
-  background-color: #f9f9f9; /* 浅灰色背景 */
-  border-radius: 15px; /* 圆角 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+  background-color: #f9f9f9; 
+  border-radius: 15px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   margin-left: 230px;
 }
 
@@ -54,7 +54,7 @@
   font-size: 1rem;
 }
 
-.external-link {
+.external-link3 {
   color: #5c9edc;
   text-decoration: none;
   border-bottom: 2px dotted rgba(92, 158, 220, 0.3);
@@ -62,7 +62,7 @@
   margin-left: 8px;
 }
 
-.external-link:hover {
+.external-link3:hover {
   color: #468acb;
   border-bottom-style: solid;
   border-bottom-color: currentColor;
