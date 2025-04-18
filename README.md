@@ -17,54 +17,35 @@
 
 ## 本地部署
 
-### 前置要求
+### 注意事项
 
+安装版本参考
 - Node.js (v22.13.0)
-- npm ()
+- npm (v10.9.2)
+
+并且需要修改./backend/server.js和./src/components/Transmission.js中的部分内容（看注释）
 
 ### 安装步骤
 
-1. 克隆仓库
 ```bash
 git clone https://github.com/parrotime/Arknights-LMD-Sum-calculator.git
-cd Arknights-LMD-Sum-calculator
-```
-
-2. 安装依赖
-```bash
 npm install
-```
-
-3. 启动开发服务器
-```bash
 npm start
 ```
+打开浏览器访问 `http://localhost:3000`
 
-4. 打开浏览器访问 `http://localhost:3000`
 
-### 后端部署
-
-1. 进入后端目录
 ```bash
 cd backend
-```
-
-2. 安装后端依赖
-```bash
 npm install
+node server.js
 ```
-
-3. 启动后端服务
-```bash
-npm start
-```
-
 后端在 `http://localhost:3002` 运行
 
 
 ## 声明
 
-本项目为无偿开源项目，仅用于学习交流使用。网页所涉及的游戏《明日方舟》相关的名称、数据、素材等均为其各自所有者的资产，仅供识别。
+本项目仅用于学习交流使用。网页所涉及的游戏《明日方舟》相关的名称、数据、素材等均为其各自所有者的资产，仅供识别。
 
 ## 参考资料
 

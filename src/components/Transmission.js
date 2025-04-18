@@ -9,14 +9,16 @@ export const Transmission = async (target, items = classifyData,
   try {
    //添加反向代理
    //const response = await fetch("/api/find-paths", {
+   //上线版本
    const response = await fetch("/find-paths", {
+   //本地调试
+   //const response = await fetch("http://localhost:3002/find-paths", {
      method: "POST",
      headers: { "Content-Type": "application/json" },
      body: JSON.stringify({
        target,
        items,
-       userLimits: {upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit,
-       },
+       userLimits: { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit },
      }),
    });
 

@@ -2,7 +2,7 @@
   "name": "main",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://ark-lmd.top",
+  "homepage": "https://ark-lmd.top",
   "dependencies": {
     "cors": "^2.8.5",
     "cra-template": "1.2.0",
