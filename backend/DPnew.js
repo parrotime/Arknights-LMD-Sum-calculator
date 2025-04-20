@@ -281,10 +281,10 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
     const targetState = dp.get(target);
     const targetPaths = targetState?.paths;
     if (targetPaths && targetPaths.length >= targetPathCount) {
-      console.log(`发现精确解! sum=${sum}, 规范化路径: ${normalizedPathKey}. 目标 ${target} 的路径数已达 ${targetPaths.length} (>=${targetPathCount})`);
+      //console.log(`发现精确解! sum=${sum}, 规范化路径: ${normalizedPathKey}. 目标 ${target} 的路径数已达 ${targetPaths.length} (>=${targetPathCount})`);
       return true;
     } else {
-      console.log(`发现精确解! sum=${sum}, 规范化路径: ${normalizedPathKey}. (目标 ${target} 的路径数: ${targetPaths?.length ?? 0}/${targetPathCount})`);
+      //console.log(`发现精确解! sum=${sum}, 规范化路径: ${normalizedPathKey}. (目标 ${target} 的路径数: ${targetPaths?.length ?? 0}/${targetPathCount})`);
     }
   }
   return false;
@@ -320,7 +320,7 @@ function mergeAndSortPath(oldPath, newSteps) {
 }
 
 
-function finalizeResult(dp, target, maxPaths, stageIds) {
+function finalizeResult(dp, target, maxPaths, stageIds, items) {
   const startTime = Date.now();
   const targetState = dp.get(target);
   const result = targetState ? targetState.paths : [];
@@ -329,6 +329,7 @@ function finalizeResult(dp, target, maxPaths, stageIds) {
   //路径去重
   const finalResult = result
     .map((path) => {
+      if (!Array.isArray(path)) return null;
       const nonStageKey = path
         .filter((step) => !stageIds.includes(step.id))
         .map((s) => `${s.id}x${s.count}`)
@@ -342,7 +343,7 @@ function finalizeResult(dp, target, maxPaths, stageIds) {
       // 优先 1: 比较路径中步骤的种类数量，种类少的排前面
       const lengthDiff = a.length - b.length;
       if (lengthDiff !== 0) {
-        return lengthDiff; 
+        return lengthDiff;
       }
 
       // 优先 2: 种类数相同比较总物品数，总数少的排前面
@@ -350,23 +351,44 @@ function finalizeResult(dp, target, maxPaths, stageIds) {
       const totalCountB = b.reduce((sum, step) => sum + step.count, 0);
       const countDiff = totalCountA - totalCountB;
       if (countDiff !== 0) {
-        return countDiff; 
+        return countDiff;
       }
 
-      // 优先 3: 都相同，按 ID 排序 
+      // 优先 3: 都相同，按 ID 排序
       return a.length > 0 && b.length > 0 ? a[0].id - b[0].id : 0;
     })
     .slice(0, maxPaths);
 
-  console.log("最终返回结果:", finalResult);
-  console.log("耗时:", Date.now() - startTime);
-  return finalResult;
+  // 对 finalResult 中的每个路径进行内部步骤重排 
+  const reorderedFinalResult = finalResult.map((path) => {
+    if (!Array.isArray(path)) return path;
+
+    const positiveSteps = [];
+    const negativeSteps = [];
+
+    for (const step of path) {
+      const item = items.find((i) => i.id === step.id);
+      if (item && item.item_value > 0) {
+        positiveSteps.push(step);
+      } else {
+        negativeSteps.push(step);
+      }
+    }
+    // 合并数组，正值在前，负值在后
+    return [...positiveSteps, ...negativeSteps];
+  });
+
+  //console.log("最终返回结果:", finalResult);
+  //console.log("最终返回(重排后)结果:", reorderedFinalResult); 
+  //console.log("耗时:", Date.now() - startTime);
+  //return finalResult;
+  return reorderedFinalResult;
 }
 
 //主函数：寻找满足目标值的路径 
 export const findPaths = (target, items = classifyData, userLimits = {}, epsilon = 1e-6) => {
   console.log("计算目标差值:", target);
-  console.log("AAAAA 输入参数:", target, items, userLimits, epsilon);
+  //console.log("AAAAA 输入参数:", target, items, userLimits, epsilon);
   // 输入验证 
   if (typeof target !== "number" || !Array.isArray(items)) {
     return [];
@@ -390,10 +412,10 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
       typeof item?.item_value === "number" &&
       Math.abs(item.item_value) > epsilon
   );
-  console.log(
+  /*console.log(
     "有效物品:",
     validItems.map((i) => `${i.item_name}(${i.item_value})`)
-  );
+  );*/
   const sortedItems = [...validItems].sort(
     (a, b) => Math.abs(b.item_value) - Math.abs(a.item_value)
   );
@@ -488,5 +510,5 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
     }
   }
 
-  return finalizeResult(dp, target, TARGET_PATH_COUNT, stageIds);
+  return finalizeResult(dp, target, TARGET_PATH_COUNT, stageIds, items);
 };

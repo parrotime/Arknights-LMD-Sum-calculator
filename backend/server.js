@@ -40,10 +40,10 @@ const cache = new NodeCache({
 app.use(
   cors({
     //上线版本
-    origin: "https://ark-lmd.top", 
+    //origin: "https://ark-lmd.top", 
 
     //本地调试
-    //origin: ["https://ark-lmd.top", 'http://localhost:3000'],
+    origin: ["https://ark-lmd.top", 'http://localhost:3000'],
     methods: ["GET", "POST", "PUT", "DELETE"], 
     allowedHeaders: ["Content-Type", "Authorization"], 
   })
@@ -64,7 +64,7 @@ app.post("/find-paths", async (req, res) => {
 
     // --- 1. 输入验证 ---
     if (typeof target !== "number" || target < -5000 || target > 5000) {
-      console.warn("Invalid target value:", target);
+      //console.warn("Invalid target value:", target);
       return res.status(400).json({
         error: "Invalid input: target must be a number between -5000 and 5000",
       });
@@ -108,7 +108,7 @@ app.post("/find-paths", async (req, res) => {
       !checkLimit(limits.upgrade2Limit, "upgrade2Limit") ||
       !checkLimit(limits.sanityLimit, "sanityLimit")
     ) {
-      console.warn("Invalid userLimits:", userLimits);
+      //console.warn("Invalid userLimits:", userLimits);
       const safeLimits = {};
       for (const key in limits) {
         safeLimits[key] = limits[key] === Infinity ? null : limits[key];
@@ -129,7 +129,7 @@ app.post("/find-paths", async (req, res) => {
     for (const key in limits) {
       finalLimits[key] = limits[key] === null ? Infinity : limits[key];
     }
-    console.log("后端将用于计算的 limits (null 已转 Infinity):", finalLimits); 
+    //console.log("后端将用于计算的 limits (null 已转 Infinity):", finalLimits); 
 
     // --- 2. 服务器端缓存 ---
     let cacheKey;
@@ -147,7 +147,7 @@ app.post("/find-paths", async (req, res) => {
         cacheKey.substring(0, 50) + "..."
       );
     } catch (e) {
-      console.error("Error generating cache key:", e);
+      //console.error("Error generating cache key:", e);
       return res
         .status(500)
         .json({ error: "Internal server error: Could not generate cache key" });
@@ -155,7 +155,7 @@ app.post("/find-paths", async (req, res) => {
 
     const cachedPaths = cache.get(cacheKey);
     if (cachedPaths !== undefined) {
-      console.log("Cache hit for key:", cacheKey.substring(0, 30) + "..."); 
+      //console.log("Cache hit for key:", cacheKey.substring(0, 30) + "..."); 
       const duration = 0; // 从缓存获取，耗时认为是0
       return res.json({
         success: true,
@@ -165,7 +165,7 @@ app.post("/find-paths", async (req, res) => {
       });
     }
 
-    console.log("Cache miss for key:", cacheKey.substring(0, 30) + "...");
+    //console.log("Cache miss for key:", cacheKey.substring(0, 30) + "...");
 
     const calculationPromise = findPaths(target, items, finalLimits); 
     const timeoutPromise = new Promise(
@@ -182,7 +182,7 @@ app.post("/find-paths", async (req, res) => {
       paths = await Promise.race([calculationPromise, timeoutPromise]);
     } catch (error) {
       if (error.message.includes("timed out")) {
-        console.error("Calculation timed out for target:", target);
+        //console.error("Calculation timed out for target:", target);
         return res.status(504).json({
           error:
             "Calculation timed out. Please try simplifying the request or contact support.",
@@ -191,7 +191,7 @@ app.post("/find-paths", async (req, res) => {
       throw error;
     }
     const duration = Date.now() - startTime;
-    console.log("后端计算完成, 耗时:", duration, "ms");
+    //console.log("后端计算完成, 耗时:", duration, "ms");
 
     if (paths && paths.length > 0) {
       cache.set(cacheKey, paths); // 使用默认 TTL (1小时)
@@ -211,7 +211,7 @@ app.post("/find-paths", async (req, res) => {
       cache: "miss", 
     });
   } catch (error) {
-    console.error("Error in /find-paths:", error);
+    //console.error("Error in /find-paths:", error);
     res
       .status(500)
       .json({ error: "Internal server error occurred during path finding." });

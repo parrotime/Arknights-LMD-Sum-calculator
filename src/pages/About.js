@@ -40,12 +40,11 @@ function AboutPage() {
 
       <div className="main-note-content">
         <div className="note-page">
-          <h1>关于（测试阶段版本）</h1>
+          <h1>关于</h1>
 
           <div className="notice-list">
-
             <div className="notice-item">
-              <div className="notice-title">关于版本v1.0</div>
+              <div className="notice-title">当前版本v1.0</div>
               <div className="notice-content">
                 1.本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎提出改进意见orz
                 <br />
@@ -76,7 +75,7 @@ function AboutPage() {
                   rel="noopener noreferrer"
                   className="external-link3"
                 >
-                 PRTS wiki 
+                  PRTS wiki
                 </a>
                 官网，如有侵权，请联系删除。
                 <br />
@@ -101,7 +100,7 @@ function AboutPage() {
                   rel="noopener noreferrer"
                   className="external-link3"
                 >
-                干员升级经验及龙门币消耗成本统计(收束测试)
+                  干员升级经验及龙门币消耗成本统计(收束测试)
                 </a>
                 <br />
               </div>
@@ -113,6 +112,17 @@ function AboutPage() {
                 网页内使用的游戏图片素材、文本，仅用于介绍与说明，其版权均属于上海鹰角网络科技有限公司。
                 <br />
                 本项目为无偿开源项目，以便于明日方舟玩家能够凑出想要的龙门币数量，仅用于学习交流使用
+                <br />
+                <br />
+              </div>
+
+              <div className="notice-title">时间轴</div>
+              <div className="notice-content">
+                2025年4月19日 --- v1.0版本上线
+                <br />
+                2025年4月20日 ---
+                处理了“当前和目标输入同一个值会显示无合适路径”的问题；处理了“路径中'当前龙门币'数量为负数”情况的问题。
+                感谢B站评论区捉虫
                 <br />
               </div>
             </div>

@@ -180,8 +180,19 @@ const MainCalculator = () => {
       dispatch({
         type: "SET_ERROR",
         field: "differenceError",
-        value: "请检查当前/目标龙门币数量是否填写完整",
+        value: "请检查当前/目标龙门币数量是否填写完整~",
       });
+      return;
+    }
+
+    // 检查两个数字是否相同 
+    if (state.num1 === state.num2) {
+      dispatch({
+        type: "SET_ERROR",
+        field: "differenceError", 
+        value: "好像输入了两个相同的数字，要不检查一下?",
+      });
+      dispatch({ type: "SET_RESULT", value: "" });
       return;
     }
 
@@ -230,12 +241,16 @@ const MainCalculator = () => {
     });
 
     // 提取四个限制值，空值时默认为无限大（不限制）
-    const upgrade0Limit = state.upgrade0Count === "" ? Infinity : parseInt(state.upgrade0Count, 10);
-    const upgrade1Limit = state.upgrade1Count === "" ? Infinity : parseInt(state.upgrade1Count, 10);
-    const upgrade2Limit = state.upgrade2Count === "" ? Infinity : parseInt(state.upgrade2Count, 10);
-    const sanityLimit = state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10);
+    const upgrade0Limit =
+      state.upgrade0Count === "" ? Infinity : parseInt(state.upgrade0Count, 10);
+    const upgrade1Limit =
+      state.upgrade1Count === "" ? Infinity : parseInt(state.upgrade1Count, 10);
+    const upgrade2Limit =
+      state.upgrade2Count === "" ? Infinity : parseInt(state.upgrade2Count, 10);
+    const sanityLimit =
+      state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10);
 
-    console.log("filteredItems:", filteredItems);
+    //console.log("filteredItems:", filteredItems);
 
     const cacheKey = `${difference}_${Object.entries(state.settings)
       .sort(([a], [b]) => a.localeCompare(b))
@@ -243,15 +258,15 @@ const MainCalculator = () => {
       .join(
         "|"
       )}_${upgrade0Limit}_${upgrade1Limit}_${upgrade2Limit}_${sanityLimit}`;
-    console.log("生成的 cacheKey:", cacheKey);
+    //console.log("生成的 cacheKey:", cacheKey);
     const cachedResult = localStorage.getItem(`pathCache_${cacheKey}`);
 
     if (cachedResult) {
       try {
         const paths = JSON.parse(cachedResult);
-        console.log("从缓存读取路径:", JSON.stringify(paths, null, 2));
+        //console.log("从缓存读取路径:", JSON.stringify(paths, null, 2));
         if (!paths || paths.length === 0) {
-          console.log("缓存为空，重新计算");
+          //console.log("缓存为空，重新计算");
           localStorage.removeItem(`pathCache_${cacheKey}`);
         } else {
           dispatch({ type: "SET_PATHS", paths });
@@ -270,27 +285,32 @@ const MainCalculator = () => {
           return;
         }
       } catch (e) {
-        console.error("解析缓存失败:", e);
+        //console.error("解析缓存失败:", e);
         localStorage.removeItem(`pathCache_${cacheKey}`); // 移除损坏的缓存
       }
     }
 
-    console.log("缓存未命中或无效，开始调用 Transmission");
+    //console.log("缓存未命中或无效，开始调用 Transmission");
     const startTime = Date.now();
 
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error("计算超时,请重试")), 15000)
-    ); 
-    
+    );
+
     try {
       const paths = await Promise.race([
-        Transmission(difference, filteredItems, { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit,}),
+        Transmission(difference, filteredItems, {
+          upgrade0Limit,
+          upgrade1Limit,
+          upgrade2Limit,
+          sanityLimit,
+        }),
         timeoutPromise,
       ]);
-      console.log("Transmission 返回的 paths:", paths ? paths.length : 0, "条");
+      //console.log("Transmission 返回的 paths:", paths ? paths.length : 0, "条");
 
       if (!paths || paths.length === 0) {
-        console.error("后端返回空路径数组");
+        //console.error("后端返回空路径数组");
         dispatch({
           type: "SET_ERROR",
           field: "differenceError",
@@ -316,24 +336,24 @@ const MainCalculator = () => {
         ],
       });
     } catch (error) {
-      console.error("计算或API调用失败:", error);
-      let errorMessage = "发生未知错误，请稍后再试。"; 
+      //console.error("计算或API调用失败:", error);
+      let errorMessage = "发生未知错误，请稍后再试。";
 
       if (error.isNetworkError) {
-        errorMessage = error.message; 
+        errorMessage = error.message;
       } else if (error.status) {
         switch (error.status) {
           case 400:
-            errorMessage = `输入错误: ${error.message}`; 
+            errorMessage = `输入错误: ${error.message}`;
             break;
           case 429:
-            errorMessage = `请求过于频繁: ${error.message}`; 
+            errorMessage = `请求过于频繁: ${error.message}`;
             break;
           case 504:
-            errorMessage = `计算超时: ${error.message}`; 
+            errorMessage = `计算超时: ${error.message}`;
             break;
           case 500:
-            errorMessage = `服务器内部错误: ${error.message}. 如果问题持续，请联系管理员。`; 
+            errorMessage = `服务器内部错误: ${error.message}. 如果问题持续，请联系管理员。`;
             break;
           default:
             errorMessage = `请求失败: ${error.message} (代码: ${error.status})`;
@@ -352,7 +372,7 @@ const MainCalculator = () => {
       dispatch({
         type: "SET_HISTORY",
         history: [...state.history.slice(-10), `计算失败: ${errorMessage}`],
-      }); 
+      });
     } finally {
       dispatch({ type: "SET_CALCULATING", value: false });
     }
