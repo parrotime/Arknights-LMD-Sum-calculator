@@ -164,7 +164,7 @@ html, body, #root {
   flex-direction: column;
   min-width: 0; 
   height: fit-content; 
-  padding: 20px 20px 10px; 
+  padding: 20px 20px 28px; 
 }
 
 .title-bar {
@@ -288,6 +288,36 @@ html, body, #root {
   transform: scale(0.9);
   transition: transform 0.2s ease; 
 }
+
+
+/* [新增] 爱心彩蛋的样式和动画 */
+.love-heart {
+  position: fixed; /* 使用 fixed 定位，相对于视口 */
+  font-size: 24px; /* 爱心的大小 */
+  color: #ff7999; /* 爱心的颜色 */
+  pointer-events: none; /* 让爱心不可点击，不会干扰用户其他操作 */
+  user-select: none; /* 禁止选中文本 */
+  z-index: 9999; /* 确保在最顶层 */
+  
+  /* 将元素的变换原点设置在中心 */
+  transform: translate(-50%, -50%);
+
+  /* 应用动画 */
+  animation: heart-float 1s ease-out forwards;
+}
+
+@keyframes heart-float {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    /* 向上移动 100px，同时变得更大一点，更有飘散感 */
+    transform: translate(-50%, -150px) scale(1.5);
+  }
+}
+
 
 .toggle-wrapper {
   display: flex;
@@ -485,6 +515,17 @@ input:invalid {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  /* [新增] 为动画效果做准备 */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+
+/* [新增] 当弹窗需要显示时，应用此样式 */
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease, visibility 0s linear 0s;
 }
 
 .modal-content {
@@ -497,6 +538,14 @@ input:invalid {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* [新增] 配合弹窗动画，给内容本身也增加一个效果 */
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
+
+/* [新增] 当弹窗显示时，内容恢复正常大小 */
+.modal-overlay.show .modal-content {
+  transform: scale(1);
 }
 
 .modal-content h3 {
@@ -523,7 +572,7 @@ input:invalid {
 }
 
 .bonus-image {
-  max-width: 100%;
+  max-width: 50%;
   height: auto;
   margin-bottom: 15px;
   border-radius: 8px;

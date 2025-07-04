@@ -378,7 +378,7 @@ function finalizeResult(dp, target, maxPaths, stageIds, items) {
     return [...positiveSteps, ...negativeSteps];
   });
 
-  //console.log("最终返回结果:", finalResult);
+  //.log("最终返回结果:", finalResult);
   //console.log("最终返回(重排后)结果:", reorderedFinalResult); 
   //console.log("耗时:", Date.now() - startTime);
   //return finalResult;

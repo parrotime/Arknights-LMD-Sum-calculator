@@ -4,7 +4,7 @@ import { getItemById } from "../DataService";
 import "../assets/styles/PathRenderer.css";
 
 // 路径渲染器
-const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, onNextPath,}) => {
+const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, onNextPath, isBonusReady, activeImageUrl,}) => {
   //console.log("PathRenderer 被调用");
   //console.log("PathRenderer 接收的 path:", path);
   //console.log("PathRenderer totalPaths:", totalPaths);
@@ -24,6 +24,34 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
     <div className="path-renderer-container">
       <div className="path-renderer-path-group">
         <h3>路径方案</h3>
+        {totalPaths > 1 && (
+          <div className="path-renderer-pagination">
+            <button
+              className="path-renderer-nav-button path-renderer-prev-button"
+              onClick={onPrevPath}
+            >
+              {/* [修改] 根据 isBonusReady 状态显示不同文本 */}
+              {isBonusReady ? "🎁点击一下" : "← 上一路径"}
+            </button>
+            <div className="path-renderer-dot-container">
+              {Array.from({ length: totalPaths }).map((_, index) => (
+                <span
+                  key={index}
+                  className={`path-renderer-dot ${
+                    index === currentIndex ? "active" : ""
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              className="path-renderer-nav-button path-renderer-next-button"
+              onClick={onNextPath}
+            >
+              {isBonusReady ? "🎁点击一下" : "下一路径 →"}
+            </button>
+          </div>
+        )}
+
         {safePath.map((step, stepIndex) => {
           if (!step || typeof step !== "object") {
             return (
@@ -59,30 +87,19 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
           );
         })}
       </div>
-      {totalPaths > 1 && (
-        <div className="path-renderer-pagination">
-          <button
-            className="path-renderer-nav-button path-renderer-prev-button"
-            onClick={onPrevPath}
-          >
-            ← 上一路径
-          </button>
-          <div className="path-renderer-dot-container">
-            {Array.from({ length: totalPaths }).map((_, index) => (
-              <span
-                key={index}
-                className={`path-renderer-dot ${index === currentIndex ? "active" : ""}`}
-              />
-            ))}
+
+      
+      {/* [修改] 条件渲染彩蛋图片，现在它能显示任何激活的图片 */}
+      {activeImageUrl && (
+          <div className="romantic-image-container">
+            <img
+              src={activeImageUrl}
+              alt="Surprise"
+              className="romantic-image"
+            />
           </div>
-          <button
-            className="path-renderer-nav-button path-renderer-next-button"
-            onClick={onNextPath}
-          >
-            下一路径 →
-          </button>
-        </div>
-      )}
+        )
+      }
     </div>
   );
 };
@@ -106,6 +123,8 @@ PathRenderer.propTypes = {
   currentIndex: PropTypes.number,
   onPrevPath: PropTypes.func,
   onNextPath: PropTypes.func,
+  isBonusReady: PropTypes.bool, // 新增
+  activeImageUrl: PropTypes.string, // 新增
 };
 
 export default PathRenderer;

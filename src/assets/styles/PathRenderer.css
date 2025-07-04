@@ -72,7 +72,6 @@
   background-color: #007bff;
   color: #fff;
   box-shadow: 0 2px 6px rgba(0, 123, 255, 0.3);
-  padding: 10px 10px;
   border-radius: 25px;
 }
 
@@ -102,6 +101,24 @@
   background-color: #333;
   border-radius: 5px;
 }
+
+/* [新增] 彩蛋图片的样式 */
+.romantic-image-container {
+  margin-top: 20px; /* 与上方内容保持间距 */
+  padding-top: 20px; /* 在图片上方创建一个分割线 */
+  border-top: 1px dashed #ddd; /* 虚线分割，更柔和 */
+  text-align: center; /* 图片居中 */
+}
+
+.romantic-image {
+  max-width: 10%; /* 图片最大宽度不超过容器 */
+  height: auto; /* 高度自适应 */
+  border-radius: 8px; /* 轻微的圆角 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 添加阴影，使其突出 */
+}
+
+
+
 
 @media (max-width: 800px) {
  .app-container {
@@ -216,4 +233,12 @@
     width: 16px;
     height: 8px;
   }
+
+  .romantic-image {
+    max-width: 20%; /* 图片最大宽度不超过容器 */
+    height: auto; /* 高度自适应 */
+    border-radius: 8px; /* 轻微的圆角 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 添加阴影，使其突出 */
+  }
+
 }

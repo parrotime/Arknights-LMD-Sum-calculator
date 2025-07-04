@@ -8,7 +8,7 @@ const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 分钟窗口
   max: 15, 
   message: {
-    error: "Too many requests from this IP, please try again after a minute",
+    error: "您所在的IP地址在短时间内发出过多计算请求，请休息一下再试~",
   },
   standardHeaders: true, 
   legacyHeaders: false, 

@@ -46,7 +46,8 @@ function AboutPage() {
             <div className="notice-item">
               <div className="notice-title">当前版本v1.0</div>
               <div className="notice-content">
-                1.本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎提出改进意见orz
+                1.
+                本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎提出改进意见orz
                 <br />
                 2. 如果遇到问题，请通过B站私信反馈
                 <a
@@ -77,7 +78,17 @@ function AboutPage() {
                 >
                   PRTS wiki
                 </a>
-                官网，如有侵权，请联系删除。
+                官网，所有迷迭香表情包均出自NGA
+                <a
+                  href="https://ngabbs.com/read.php?tid=26714373"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="external-link3"
+                >
+                  [嵌字烤肉][授权]好猫咪！！！(By
+                  coconattsu_corn)(大量迷迭香/博士表情包)(更新了十多张)
+                </a>
+                。如有侵权，请联系删除。
                 <br />
                 5. 参考文献：
                 <br />
@@ -107,22 +118,25 @@ function AboutPage() {
 
               <div className="notice-title">声明</div>
               <div className="notice-content">
-                网页所涉及的游戏《明日方舟》相关的名称、数据、素材等均为其各自所有者的资产，仅供识别。
+                网页所涉及的游戏《明日方舟》相关的名称、数据、素材、表情包等均为其各自所有者的资产，仅供识别。
                 <br />
                 网页内使用的游戏图片素材、文本，仅用于介绍与说明，其版权均属于上海鹰角网络科技有限公司。
                 <br />
-                本项目为无偿开源项目，以便于明日方舟玩家能够凑出想要的龙门币数量，仅用于学习交流使用
+                本项目为无偿开源项目，以便于明日方舟玩家能够凑出想要的龙门币数量，仅用于学习交流使用。
                 <br />
                 <br />
               </div>
 
               <div className="notice-title">时间轴</div>
               <div className="notice-content">
-                2025年4月19日 --- v1.0版本上线
+                2025年4月19日 --- v1.0版本上线。
                 <br />
                 2025年4月20日 ---
                 处理了“当前和目标输入同一个值会显示无合适路径”的问题；处理了“路径中'当前龙门币'数量为负数”情况的问题。
-                感谢B站评论区捉虫
+                感谢B站评论区捉虫。
+                <br />
+                2025年7月5日 ----
+                把“路径切换按钮”改到路径的上方，这样它就不会乱跑了；优化了彩蛋和其他内容，感谢B站评论区反馈。
                 <br />
               </div>
             </div>
