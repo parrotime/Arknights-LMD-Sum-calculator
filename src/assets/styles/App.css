@@ -148,7 +148,7 @@ html, body, #root {
   flex-direction: column;
   min-width: 0; 
   height: fit-content; 
-  padding-bottom: 20px;
+  padding-bottom: 33px;
 }
 
 .left-text {
@@ -164,7 +164,7 @@ html, body, #root {
   flex-direction: column;
   min-width: 0; 
   height: fit-content; 
-  padding: 20px 20px 28px; 
+  padding: 20px 20px 10px; 
 }
 
 .title-bar {
@@ -196,7 +196,9 @@ html, body, #root {
   color: black;
   font-weight: bold;
   padding-left: 10px;
-  margin: 6px 0;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 18px;
 }
 
 .input-box {
@@ -217,7 +219,6 @@ html, body, #root {
   font-size: 16px;
   text-align: center;
   background-color: #ffffff;
-  /* 合并 transition */
   transition: border-color 0.3s ease, width 0.3s ease;
 }
 .input-box:focus,
@@ -261,9 +262,11 @@ html, body, #root {
 
 .calculate-button {
   width: 300px;
-  margin-top: 1.5rem; 
+  margin-top: 30px; 
+  margin-bottom: 10px;
   padding: 10px 20px;
   font-size: 16px;
+  font-weight: bold;
   border: none;
   border-radius: 10px;
   background-color: #007bff; 
@@ -322,8 +325,8 @@ html, body, #root {
 .toggle-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px; 
-  margin: 13px 0 7px;
+  gap: 2px; 
+  margin: 10px 10px 7px;
 }
 
 .toggle-title{
@@ -336,7 +339,6 @@ html, body, #root {
   margin-right: 20px;
   margin-bottom: 20px;
   padding-left: 20px;
-
 }
 
 .toggle-container{
@@ -411,13 +413,14 @@ input:invalid {
 }
 
 .left-panel-title-container{
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .title-text {
   color: black;
   text-align: center;
-  font-weight: bold;
+  font-size: 15px;
+  font-weight: 600;
   line-height: 1.2;
   margin-top: 5px;
   margin-bottom: 6px;
@@ -438,14 +441,17 @@ input:invalid {
 
 .notice-content {
   padding-left: 10px;
+  color: #666; 
+  font-size: 15px;
 }
 
 .notice-title {
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1rem;
   margin-top: 5px;
   margin-bottom: 0.5rem;
   text-align: center;
+  color: #666; 
 }
 
 .result-container {
@@ -538,12 +544,10 @@ input:invalid {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* [新增] 配合弹窗动画，给内容本身也增加一个效果 */
   transform: scale(0.95);
   transition: transform 0.3s ease;
 }
 
-/* [新增] 当弹窗显示时，内容恢复正常大小 */
 .modal-overlay.show .modal-content {
   transform: scale(1);
 }
@@ -621,6 +625,27 @@ input:invalid {
   color: #19334c;
   border-bottom-style: solid;
   border-bottom-color: currentColor;
+}
+
+
+/* --- 设置区域的分组标题样式 --- */
+.settings-group-title {
+  margin-top: 0px; 
+  margin-bottom: 2px; 
+  color: #0056b3; 
+  border-bottom: 2px dotted #cce0f5; 
+  padding-bottom: 2px; 
+}
+
+.settings-group-title:first-child {
+  margin-top: 0;
+}
+
+.settings-footer-note {
+  margin-top: 0px;
+  color: #666; 
+  font-size: 14px; 
+  font-style: italic; 
 }
 
 

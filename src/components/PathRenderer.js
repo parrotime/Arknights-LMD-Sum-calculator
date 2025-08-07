@@ -23,7 +23,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
   return (
     <div className="path-renderer-container">
       <div className="path-renderer-path-group">
-        <h3>路径方案</h3>
+        <div className="title">路径方案</div>
         {totalPaths > 1 && (
           <div className="path-renderer-pagination">
             <button

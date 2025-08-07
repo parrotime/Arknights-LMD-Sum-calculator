@@ -53,6 +53,7 @@ const romanticImageUrls = [
 ];
 
 const funnyImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/114514.webp"; 
+
 // 默认设置按钮的初始状态
 const getInitialState = () => {
   const savedState = localStorage.getItem("calculatorState");
@@ -66,6 +67,7 @@ const getInitialState = () => {
   initialState.settings.enableUpgradeOnly0 = true;
   initialState.settings.enableUpgradeOnly1 = true;
   initialState.settings.enableUpgradeOnly2 = true;
+  initialState.settings.enableUpgradeOnlyFor1 = true;
   return initialState;
 };
 
@@ -147,20 +149,19 @@ const isRomanticNumber = (numStr) => {
     return false;
   }
 
-  // --- 第一步：检查纯粹组合 ---
+  // 检查纯粹组合
   const pureComboRegex = /^(520|1314)+$/;
   if (pureComboRegex.test(numStr)) {
     return true;
   }
 
-  // --- 第二步：检查是否为10的幂的倍数 ---
+  // 检查是否为幂倍数
   const num = parseInt(numStr, 10);
   // 如果转换失败或数字为0，则不是
   if (isNaN(num) || num === 0) {
     return false;
   }
 
-  // 检查是否是 520 的 10的幂 倍数
   if (num >= 520 && num % 520 === 0) {
     const quotient = num / 520;
     if (isPowerOfTen(quotient)) {
@@ -168,31 +169,26 @@ const isRomanticNumber = (numStr) => {
     }
   }
 
-  // 检查是否是 1314 的 10的幂 倍数
   if (num >= 1314 && num % 1314 === 0) {
     const quotient = num / 1314;
     if (isPowerOfTen(quotient)) {
       return true;
     }
   }
-  // 如果以上所有条件都不满足
   return false;
 };
 
-
-// [新增] 新的判定函数，用于检测趣味数字
 const isFunnyNumber = (numStr) => {
   if (!numStr || typeof numStr !== 'string') return false;
   
   const num = parseInt(numStr, 10);
   if (isNaN(num) || num === 0) return false;
 
-  // 检查是否是 114514 的 10的幂 倍数
+  // 检查是否幂倍数
   if (num >= 114514 && num % 114514 === 0) {
     if (isPowerOfTen(num / 114514)) return true;
   }
   
-  // 检查是否是 1919810 的 10的幂 倍数
   if (num >= 1919810 && num % 1919810 === 0) {
     if (isPowerOfTen(num / 1919810)) return true;
   }
@@ -205,15 +201,32 @@ const MainCalculator = () => {
   const [showModal, setShowModal] = useState(false); // 弹窗状态
   const [showBonusModal, setShowBonusModal] = useState(false); // 彩蛋弹窗状态
   const [isBonusReady, setIsBonusReady] = useState(false); //彩蛋是否就绪
-  // [新增] 新的 state 用于存储随机图片的 URL
-  const [activeImageUrl, setActiveImageUrl] = useState("");
+  const [activeImageUrl, setActiveImageUrl] = useState(""); //存储随机图片的 URL
 
-  // 状态变化时保存到本地存储
   useEffect(() => {
     localStorage.setItem("calculatorState", JSON.stringify(state));
   }, [state]);
 
+  //处理弹窗逻辑
+  useEffect(() => {
+    // 当 "只允许升级" 这个开关被开启时，检查其他相关开关的状态并弹出提示
+    if (state.settings.enableUpgradeOnlyFor1) {
+      const { enableUpgradeOnly0, enableUpgradeOnly1, enableUpgradeOnly2 } =
+        state.settings;
+      if (!enableUpgradeOnly0 && !enableUpgradeOnly1 && !enableUpgradeOnly2) {
+        // 只有当三个子开关都关闭时才提醒
+        setShowModal(true);
+      }
+    }
+  }, [
+    state.settings.enableUpgradeOnlyFor1,
+    state.settings.enableUpgradeOnly0,
+    state.settings.enableUpgradeOnly1,
+    state.settings.enableUpgradeOnly2,
+  ]); // 依赖项数组
+
   // 开关变化处理
+  /*
   const handleToggleChange = useCallback(
     (key) => {
       dispatch({ type: "TOGGLE_SETTING", key });
@@ -225,6 +238,14 @@ const MainCalculator = () => {
       }
     },
     [state.settings]
+  );*/
+
+  const handleToggleChange = useCallback(
+    (key) => {
+      // 就让它只负责“按下开关”，别的啥也不干
+      dispatch({ type: "TOGGLE_SETTING", key });
+    },
+    [] // 这里的依赖项可以清空
   );
 
   // 优化后的输入验证
@@ -545,11 +566,8 @@ const MainCalculator = () => {
     // 创建爱心元素
     const heart = document.createElement("div");
     heart.className = "love-heart";
-    // 你可以直接在这里用 innerHTML 放入 SVG 图标或文字
-    heart.innerHTML = "❤️"; // 或者 '💖', '💕' 等 emoji
+    heart.innerHTML = "❤️";
 
-    // 设置初始位置
-    // 我们减去爱心自身宽高的一半，使其中心在点击处
     heart.style.left = `${x}px`;
     heart.style.top = `${y}px`;
 
@@ -587,15 +605,15 @@ const MainCalculator = () => {
   const settingsOptions = [
     { text: "不允许使用理智三星通关", key: "disable3Star" },
     { text: "不允许使用理智二星通关", key: "disable2Star" },
+    { text: "不存在/不使用代理剿灭25理智获取250龙门币", key: "disableExt25" },
+    { text: "不存在/不使用龙门币副本(CE系列关卡)", key: "disableCE" },
     { text: "不允许使用基建物品合成", key: "disableMaterial" },
+    { text: "不允许使用贸易站售卖赤金", key: "disableTrade" },
     { text: "不存在/不使用活动商店1代币换10龙门币", key: "disableStore10" },
     { text: "不存在/不使用活动商店1代币换20龙门币", key: "disableStore20" },
     { text: "不存在/不使用危机合约1代币换70龙门币", key: "disableStore70" },
     { text: "不存在/不使用活动商店5代币换2000龙门币", key: "disableStore2000" },
     { text: "不存在/不使用活动商店7代币换5000龙门币", key: "disableStore5000" },
-    { text: "不存在/不使用龙门币副本(CE系列关卡)", key: "disableCE" },
-    { text: "不存在/不使用代理剿灭25理智获取250龙门币", key: "disableExt25" },
-    { text: "不允许使用贸易站售卖赤金", key: "disableTrade" },
     { text: "允许连续多次对精零1级干员进行升级", key: "enableUpgradeOnly0" },
     { text: "允许连续多次对精一1级干员进行升级", key: "enableUpgradeOnly1" },
     { text: "允许连续多次对精二1级干员进行升级", key: "enableUpgradeOnly2" },
@@ -674,7 +692,7 @@ const MainCalculator = () => {
                       min="0"
                       max="10"
                       step="1"
-                      placeholder="0-10"
+                      placeholder="0~10"
                       value={state.upgrade0Count}
                       onChange={(e) =>
                         handleUpgradeCountChange(e, "upgrade0Count", 0, 10)
@@ -689,7 +707,7 @@ const MainCalculator = () => {
                       min="0"
                       max="10"
                       step="1"
-                      placeholder="0-10"
+                      placeholder="0~10"
                       value={state.upgrade1Count}
                       onChange={(e) =>
                         handleUpgradeCountChange(e, "upgrade1Count", 0, 10)
@@ -704,7 +722,7 @@ const MainCalculator = () => {
                       min="0"
                       max="10"
                       step="1"
-                      placeholder="0-10"
+                      placeholder="0~10"
                       value={state.upgrade2Count}
                       onChange={(e) =>
                         handleUpgradeCountChange(e, "upgrade2Count", 0, 10)
@@ -719,7 +737,7 @@ const MainCalculator = () => {
                       min="0"
                       max="200"
                       step="1"
-                      placeholder="0-200"
+                      placeholder="0~200"
                       value={state.sanityCount}
                       onChange={(e) =>
                         handleUpgradeCountChange(e, "sanityCount", 0, 200)
@@ -738,7 +756,7 @@ const MainCalculator = () => {
 
                 <div className="result-section">
                   <div className="output-wrapper-text">
-                    计算还需要龙门币数量:
+                    计算得到还需要龙门币数量:
                   </div>
                   <div className="result-container">
                     <input
@@ -773,7 +791,9 @@ const MainCalculator = () => {
               </div>
 
               <div className="toggle-wrapper">
-                {settingsOptions.map(({ text, key }) => (
+                {/* --- 第一组：使用理智 --- */}
+                <h4 className="settings-group-title">使用理智</h4>
+                {settingsOptions.slice(0, 4).map(({ text, key }) => (
                   <div className="toggle-container" key={key}>
                     <div className="toggle-text">{text}</div>
                     <label className="toggle-switch">
@@ -786,6 +806,59 @@ const MainCalculator = () => {
                     </label>
                   </div>
                 ))}
+
+                {/* --- 第二组：基建 --- */}
+                <h4 className="settings-group-title">基建</h4>
+                {settingsOptions.slice(4, 6).map(({ text, key }) => (
+                  <div className="toggle-container" key={key}>
+                    <div className="toggle-text">{text}</div>
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={state.settings[key]}
+                        onChange={() => handleToggleChange(key)}
+                      />
+                      <span className="slider" />
+                    </label>
+                  </div>
+                ))}
+
+                {/* --- 第三组：使用代币 --- */}
+                <h4 className="settings-group-title">使用代币</h4>
+                {settingsOptions.slice(6, 11).map(({ text, key }) => (
+                  <div className="toggle-container" key={key}>
+                    <div className="toggle-text">{text}</div>
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={state.settings[key]}
+                        onChange={() => handleToggleChange(key)}
+                      />
+                      <span className="slider" />
+                    </label>
+                  </div>
+                ))}
+
+                {/* --- 第四组：干员升级 --- */}
+                <h4 className="settings-group-title">干员升级</h4>
+                {settingsOptions.slice(11).map(({ text, key }) => (
+                  <div className="toggle-container" key={key}>
+                    <div className="toggle-text">{text}</div>
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={state.settings[key]}
+                        onChange={() => handleToggleChange(key)}
+                      />
+                      <span className="slider" />
+                    </label>
+                  </div>
+                ))}
+
+                {/* --- 在最后一组下方，新增提示文字 --- */}
+                <p className="settings-footer-note">
+                  请注意当“只允许...”按钮开启时，请确保其他三个升级开关中至少有一个为开启状态。
+                </p>
               </div>
             </div>
           </div>
@@ -834,12 +907,7 @@ const MainCalculator = () => {
       </div>
 
       <div className="footer">
-        <a
-          href="https://beian.miit.gov.cn/"
-          target="_blank"
-          rel="noreferrer noopener"
-          className="external-link"
-        >
+        <a target="_blank" rel="noreferrer noopener" className="external-link">
           鄂ICP备2025105560号-1
         </a>
         <a className="external-link2">© 2025 龙门币凑数计算器</a>

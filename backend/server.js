@@ -39,11 +39,14 @@ const cache = new NodeCache({
 
 app.use(
   cors({
+    /**
+     * 请在此处调试1
+     */
     //上线版本
-    //origin: "https://ark-lmd.top", 
+    origin: "https://ark-lmd.top", 
 
     //本地调试
-    origin: ["https://ark-lmd.top", 'http://localhost:3000'],
+    //origin: ["https://ark-lmd.top", 'http://localhost:3000'],
     methods: ["GET", "POST", "PUT", "DELETE"], 
     allowedHeaders: ["Content-Type", "Authorization"], 
   })

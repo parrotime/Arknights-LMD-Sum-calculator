@@ -7,6 +7,9 @@ export const Transmission = async (target, items = classifyData,
   //console.log("发送 userLimits:", {upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit});
   
   try {
+    /**
+     * 请在此处调试2
+     */
    //添加反向代理
    //const response = await fetch("/api/find-paths", {
    //上线版本

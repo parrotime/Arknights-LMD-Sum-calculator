@@ -51,7 +51,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 5px;
   gap: 15px;
 }
 
@@ -102,22 +102,25 @@
   border-radius: 5px;
 }
 
-/* [新增] 彩蛋图片的样式 */
 .romantic-image-container {
-  margin-top: 20px; /* 与上方内容保持间距 */
-  padding-top: 20px; /* 在图片上方创建一个分割线 */
-  border-top: 1px dashed #ddd; /* 虚线分割，更柔和 */
-  text-align: center; /* 图片居中 */
+  margin-top: 20px; 
+  padding-top: 20px; 
+  border-top: 1px dashed #ddd; 
+  text-align: center; 
 }
 
 .romantic-image {
-  max-width: 10%; /* 图片最大宽度不超过容器 */
-  height: auto; /* 高度自适应 */
-  border-radius: 8px; /* 轻微的圆角 */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 添加阴影，使其突出 */
+  max-width: 10%; 
+  height: auto; 
+  border-radius: 8px; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
 }
 
-
+.title{
+  font-size: 25px;
+  text-align: center;
+  font-weight: bold; 
+}
 
 
 @media (max-width: 800px) {
