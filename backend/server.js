@@ -63,7 +63,7 @@ app.get("/", (req, res) => {
 // 计算路径的路由
 app.post("/find-paths", async (req, res) => {
   try {
-    const { target, items, userLimits } = req.body;
+    const { target, items, userLimits, rawGoal } = req.body;
 
     // --- 1. 输入验证 ---
     if (typeof target !== "number" || target < -5000 || target > 5000) {
@@ -123,7 +123,9 @@ app.post("/find-paths", async (req, res) => {
     }
 
     console.log(
-      "后端接收请求 (Validated): target =", target,
+      `[${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}]`,
+      "Goal(用户想凑) =", rawGoal, 
+      "Diff(差值): target =", target,
       "items length =", items.length,
       "limits =", limits
     );

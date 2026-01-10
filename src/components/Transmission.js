@@ -1,7 +1,7 @@
 import { classifyData } from "../DataService";
 
 export const Transmission = async (target, items = classifyData,
-  { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit }
+  { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit }, rawGoal
 ) => {
   //console.log("计算目标差值:", target);
   //console.log("发送 userLimits:", {upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit});
@@ -22,6 +22,7 @@ export const Transmission = async (target, items = classifyData,
        target,
        items,
        userLimits: { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit },
+       rawGoal: rawGoal
      }),
    });
 

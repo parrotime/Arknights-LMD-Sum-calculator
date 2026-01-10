@@ -436,7 +436,9 @@ const MainCalculator = () => {
             upgrade1Limit,
             upgrade2Limit,
             sanityLimit,
-          }),
+          },
+          num2Val
+        ),
           timeoutPromise,
         ]);
         //console.log("Transmission 返回的 paths:", paths ? paths.length : 0, "条");
@@ -775,11 +777,11 @@ const MainCalculator = () => {
                 <div className="usage-guide">
                   <div className="notice-title">注意事项</div>
                   <div className="notice-content">
-                    1.点击“立即计算”按钮开始计算，点击“计算路径历史”中的“上一路径”和“下一路径”按钮可以切换路径方案。
+                    1.点击“立即计算”按钮开始计算，点击页面底部参考路径方案中的“上一路径”和“下一路径”按钮可以切换路径方案。
                     <br />
                     2.设置面板中的开关调整之后，需要重新点击“立即计算”按钮才会生效。
                     如果点击“立即计算”之后不起作用，建议重新点击或者刷新一下网页。
-                    对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果。后续会继续优化。
+                    对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果。后续会继续优化计算速度。
                   </div>
                 </div>
               </div>
@@ -864,10 +866,7 @@ const MainCalculator = () => {
           </div>
 
           <div className="history-box">
-            <div className="history-header">
-              <h2>计算路径历史</h2>
-            </div>
-
+            
             {state.isCalculating ? (
               <div className="loading-container">
                 <div className="progress-bar">
@@ -897,7 +896,7 @@ const MainCalculator = () => {
                 <div className="change-over-text">
                   <p>
                     {state.clickCount < 20
-                      ? "你已经尝试了10条路径"
+                      ? "已经尝试过所有路径"
                       : "再按几次，好像有什么东西要出来了？"}
                   </p>
                 </div>
@@ -907,10 +906,10 @@ const MainCalculator = () => {
       </div>
 
       <div className="footer">
-        <a target="_blank" rel="noreferrer noopener" className="external-link">
+        <a target="_blank" rel="noreferrer noopener" className="external-link2">
           鄂ICP备2025105560号-1
         </a>
-        <a className="external-link2">© 2025 龙门币凑数计算器</a>
+        <a className="external-link2">© 2025 龙门币凑数计算器（https://ark-lmd.top）</a>
       </div>
 
       {showModal && (
@@ -950,7 +949,7 @@ const MainCalculator = () => {
               className="bonus-image"
             />
             <p className="bonus-text">
-              迷迭香发现到刀客塔点了好多次按钮，记得休息一下下哦~
+              迷迭香发现你点了好多次按钮，她提醒你记得休息一下
             </p>
             {/* [修改] 关闭弹窗时，同时重置彩蛋准备状态，以便下次还能触发 */}
             <button

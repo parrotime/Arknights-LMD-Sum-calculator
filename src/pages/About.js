@@ -44,7 +44,7 @@ function AboutPage() {
 
           <div className="notice-list">
             <div className="notice-item">
-              <div className="notice-title">当前版本v1.0</div>
+              <div className="notice-title">当前版本v1.1.3</div>
               <div className="notice-content">
                 1.
                 本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎提出改进意见orz
@@ -129,17 +129,20 @@ function AboutPage() {
 
               <div className="notice-title">时间轴</div>
               <div className="notice-content">
-                2025年4月19日 --- v1.0版本上线。
+                2025年4月19日 --- 【v1.0.0】 版本上线。
                 <br />
-                2025年4月20日 ---
+                2025年4月20日 ---【v1.1.0】
                 处理了“当前和目标输入同一个值会显示无合适路径”的问题；处理了“路径中'当前龙门币'数量为负数”情况的问题。
                 感谢B站评论区捉虫。
                 <br />
-                2025年7月5日 ----
+                2025年7月5日 ----【v1.1.1】
                 把“路径切换按钮”改到路径的上方，这样它就不会乱跑了；优化了彩蛋和其他内容，感谢B站评论区反馈。
                 <br />
-                2025年8月7日 ----
+                2025年8月7日 ----【v1.1.2】
                 优化了设置区域的排版；对路径中“使用作战记录”有关步骤的文本内容进行了修改以避免歧义，感谢B站评论区反馈。
+                <br />
+                2025年10月9日 ---- 【v1.1.3】
+                修改了主页下方排版和一些文本内容。
                 <br />
               </div>
             </div>

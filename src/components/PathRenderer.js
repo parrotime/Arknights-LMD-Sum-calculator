@@ -23,7 +23,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
   return (
     <div className="path-renderer-container">
       <div className="path-renderer-path-group">
-        <div className="title">路径方案</div>
+        <div className="title">参考路径方案</div>
         {totalPaths > 1 && (
           <div className="path-renderer-pagination">
             <button
@@ -79,10 +79,10 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
           return (
             <div key={`step-${stepIndex}`} className="path-renderer-step-item">
               <span style={{ fontWeight: "bold" }}>步骤 {stepIndex + 1}：</span>
-              通过【{step.count}】次使用【
+              通过【{step.count}】次【
               <span style={{ color: getRarityColor(rarity) }}>{itemName}</span>
-              】，【{itemValue > 0 ? "获得" : "花费"}】 【{Math.abs(stepValue)}
-              】个龙门币， 当前龙门币数量为【{currentLMD}】
+              】， 【{itemValue > 0 ? "获得" : "花费"}】 【{Math.abs(stepValue)}
+              】个龙门币， 当前龙门币数量为【{currentLMD}】个。
             </div>
           );
         })}
