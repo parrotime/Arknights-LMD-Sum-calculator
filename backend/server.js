@@ -16,22 +16,22 @@ import rateLimit from "express-rate-limit";
 const filterItems = (settings) => {
   return classifyData.filter((item) => {
     const t = item.type?.toLowerCase() || "";
-    const isUpgradeAllowed = settings.enableUpgradeOnlyFor1 ? t !== "upgrade" : true;
+    const isUpgradeAllowed = settings.allowUpgradeOnlyFor1 ? t !== "upgrade" : true;
     return (
-      (!settings.disable3Star || t !== "3_star") &&
-      (!settings.disable2Star || t !== "2_star") &&
-      (!settings.disableMaterial || t !== "material") &&
-      (!settings.disableStore20 || t !== "store_20") &&
-      (!settings.disableStore10 || t !== "store_10") &&
-      (!settings.disableStore70 || t !== "store_70") &&
-      (!settings.disableStore2000 || t !== "store_2000") &&
-      (!settings.disableStore5000 || t !== "store_5000") &&
-      (!settings.disableCE || t !== "ce") &&
-      (!settings.disableExt25 || t !== "ext_25") &&
-      (!settings.disableTrade || t !== "trade") &&
-      (settings.enableUpgradeOnly0 || t !== "upgrade_only_0") &&
-      (settings.enableUpgradeOnly1 || t !== "upgrade_only_1") &&
-      (settings.enableUpgradeOnly2 || t !== "upgrade_only_2") &&
+      (settings.allow3Star || t !== "3_star") &&
+      (settings.allow2Star || t !== "2_star") &&
+      (settings.allowMaterial || t !== "material") &&
+      (settings.allowStore20 || t !== "store_20") &&
+      (settings.allowStore10 || t !== "store_10") &&
+      (settings.allowStore70 || t !== "store_70") &&
+      (settings.allowStore2000 || t !== "store_2000") &&
+      (settings.allowStore5000 || t !== "store_5000") &&
+      (settings.allowCE || t !== "ce") &&
+      (settings.allowExt25 || t !== "ext_25") &&
+      (settings.allowTrade || t !== "trade") &&
+      (settings.allowUpgradeOnly0 || t !== "upgrade_only_0") &&
+      (settings.allowUpgradeOnly1 || t !== "upgrade_only_1") &&
+      (settings.allowUpgradeOnly2 || t !== "upgrade_only_2") &&
       isUpgradeAllowed
     );
   });

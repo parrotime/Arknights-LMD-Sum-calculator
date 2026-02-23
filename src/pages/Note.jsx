@@ -1,32 +1,5 @@
 import React, { useState } from "react";
 import styles from "../assets/styles/Note.module.css";
-// eslint-disable-next-line no-unused-vars
-import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
-
-const Sidebar = () => (
-  <div className="sidebar">
-    <div className="sidebar-title">凑数计算器</div>
-    <div className="sidebar-box">
-      <Link to="/">计算主页</Link>
-    </div>
-    <div className="sidebar-box">
-      <Link to="/note">注意事项</Link>
-    </div>
-    <div className="sidebar-box">
-      <Link to="/data">数据部分</Link>
-    </div>
-    <div className="sidebar-box">
-      <Link to="/about">关于</Link>
-    </div>
-  </div>
-);
-
-const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-};
 
 function NotePage() {
   const [zoomedImage, setZoomedImage] = useState(null); 
@@ -40,13 +13,7 @@ function NotePage() {
   };
 
   return (
-    <div className="app-container">
-      <Sidebar />
-
-      <button className="back-to-top" onClick={scrollToTop}>
-        ↑ 返回顶部
-      </button>
-
+    <>
       <div className={styles['main-note-content']}>
         <div className={styles['note-page']}>
           <h1>注意事项</h1>
@@ -296,7 +263,7 @@ function NotePage() {
           <img src={zoomedImage} alt="放大图片" className={styles['zoomed-image']} />
         </div>
       )}
-    </div>
+    </>
   );
 }
 

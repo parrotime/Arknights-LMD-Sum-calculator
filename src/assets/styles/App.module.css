@@ -451,43 +451,6 @@ input:invalid {
   font-weight: bold;
 }
 
-.footer {
-  box-sizing: border-box; 
-  width: calc(100% - 230px);
-  margin-left: 230px;
-  background-color: #afd3f3;
-  text-align: center; 
-  padding: 10px;
-  border-top: 10px solid #e0e0e0;
-  margin-top: auto;
-}
-
-.footer p {
-  margin: 4px 0; 
-  color: #666; 
-}
-
-.external-link {
-  color: #666;
-  text-decoration: none;
-  border-bottom: 2px dotted rgba(92, 158, 220, 0.3);
-  transition: all 0.2s ease;
-  margin-left: 8px;
-  font-size: small;
-}
-
-.external-link2 {
-  color: #666;
-  text-decoration: none;
-  margin-left: 8px;
-  font-size: small;
-}
-
-.external-link:hover {
-  color: #19334c;
-  border-bottom-style: solid;
-  border-bottom-color: currentColor;
-}
 
 
 /* --- 设置区域的分组标题样式 --- */
@@ -561,22 +524,6 @@ input:invalid {
   .toggle-switch {
       width: 60px;
       height: 28px;
-  }
-
-  .footer {
-    box-sizing: border-box; 
-    width: 100%; 
-    margin-left: 0; 
-    background-color: #afd3f3;
-    text-align: center; 
-    padding: 10px;
-    border-top: 10px solid #e0e0e0;
-    margin-top: auto;
-  }
-
-  .footer p {
-    margin: 4px 0; 
-    color: #666; 
   }
 }
 

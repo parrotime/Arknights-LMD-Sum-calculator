@@ -1,10 +1,18 @@
 import React, { useReducer, useState, useCallback, useEffect } from "react";
-import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
 import { Transmission } from "./components/Transmission";
 import NotePage from "./pages/Note";
 import DataPage from "./pages/Data";
 import AboutPage from "./pages/About";
-import PathRenderer from "./components/PathRenderer";
+import InputPanel from "./components/InputPanel";
+import SettingsPanel from "./components/SettingsPanel";
+import ResultArea from "./components/ResultArea";
+import {
+  romanticImageUrls, funnyImageUrl,
+  isRomanticNumber, isFunnyNumber, useHeartEffect,
+  SettingsWarningModal, BonusModal,
+} from "./components/EasterEggs";
 import styles from "./assets/styles/App.module.css";
 
 const defaultState = {
@@ -20,21 +28,21 @@ const defaultState = {
   clickCount: 0, // 路径切换次数
   isCalculating: false,
   settings: {
-    disable3Star: false,
-    disable2Star: false,
-    disableMaterial: false,
-    disableStore20: false,
-    disableStore10: false,
-    disableStore70: false,
-    disableStore2000: false,
-    disableStore5000: false,
-    disableCE: false,
-    disableExt25: false,
-    disableTrade: false,
-    enableUpgradeOnly0: false,
-    enableUpgradeOnly1: false,
-    enableUpgradeOnly2: false,
-    enableUpgradeOnlyFor1: false,
+    allow3Star: true,
+    allow2Star: true,
+    allowMaterial: true,
+    allowStore20: true,
+    allowStore10: true,
+    allowStore70: true,
+    allowStore2000: true,
+    allowStore5000: true,
+    allowCE: true,
+    allowExt25: true,
+    allowTrade: true,
+    allowUpgradeOnly0: false,
+    allowUpgradeOnly1: false,
+    allowUpgradeOnly2: false,
+    allowUpgradeOnlyFor1: false,
   },
   upgrade0Count: "",
   upgrade1Count: "",
@@ -42,34 +50,54 @@ const defaultState = {
   sanityCount: "",
 };
 
-// [新增] 在组件外部定义好你的图片 URL 数组
-const romanticImageUrls = [
-  "https://ark-lmd.oss-cn-beijing.aliyuncs.com/rosmontis1.webp",
-  "https://ark-lmd.oss-cn-beijing.aliyuncs.com/rosmontis2.webp",
-  "https://ark-lmd.oss-cn-beijing.aliyuncs.com/rosmontis3.webp",
-  "https://ark-lmd.oss-cn-beijing.aliyuncs.com/rosmontis4.webp",
-];
-
-const funnyImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/114514.webp"; 
-
 // 默认设置按钮的初始状态
 const freshDefaults = {
-  disableStore10: true,
-  disableStore20: true,
-  disableStore70: true,
-  disableStore2000: true,
-  disableStore5000: true,
-  disableExt25: true,
-  enableUpgradeOnly0: true,
-  enableUpgradeOnly1: true,
-  enableUpgradeOnly2: true,
-  enableUpgradeOnlyFor1: true,
+  allowStore10: false,
+  allowStore20: false,
+  allowStore70: false,
+  allowStore2000: false,
+  allowStore5000: false,
+  allowExt25: false,
+  allowUpgradeOnly0: true,
+  allowUpgradeOnly1: true,
+  allowUpgradeOnly2: true,
+  allowUpgradeOnlyFor1: true,
 };
 
+// 迁移旧版 disable/enable 键名到 allow 键名
+const migrateSettings = (settings) => {
+  if (!settings || !("disable3Star" in settings)) return settings;
+  return {
+    allow3Star: !settings.disable3Star,
+    allow2Star: !settings.disable2Star,
+    allowMaterial: !settings.disableMaterial,
+    allowStore20: !settings.disableStore20,
+    allowStore10: !settings.disableStore10,
+    allowStore70: !settings.disableStore70,
+    allowStore2000: !settings.disableStore2000,
+    allowStore5000: !settings.disableStore5000,
+    allowCE: !settings.disableCE,
+    allowExt25: !settings.disableExt25,
+    allowTrade: !settings.disableTrade,
+    allowUpgradeOnly0: !!settings.enableUpgradeOnly0,
+    allowUpgradeOnly1: !!settings.enableUpgradeOnly1,
+    allowUpgradeOnly2: !!settings.enableUpgradeOnly2,
+    allowUpgradeOnlyFor1: !!settings.enableUpgradeOnlyFor1,
+  };
+};
+
+const PERSISTED_KEYS = ["settings", "num1", "num2", "upgrade0Count", "upgrade1Count", "upgrade2Count", "sanityCount"];
+
 const getInitialState = () => {
-  const savedState = localStorage.getItem("calculatorState");
-  if (savedState) {
-    return JSON.parse(savedState);
+  const saved = localStorage.getItem("calculatorState");
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    const restored = { ...defaultState };
+    for (const key of PERSISTED_KEYS) {
+      if (key in parsed) restored[key] = parsed[key];
+    }
+    restored.settings = migrateSettings(restored.settings);
+    return restored;
   }
   return {
     ...defaultState,
@@ -102,10 +130,10 @@ const reducer = (state, action) => {
         currentPathIndex: 0,
         clickCount: 0,
       };
-    case "SET_HISTORY":
+    case "APPEND_HISTORY":
       return {
         ...state,
-        history: action.history,
+        history: [...state.history.slice(-10), action.entry],
       };
     case "SET_CALCULATING":
       return {
@@ -138,97 +166,118 @@ const reducer = (state, action) => {
   }
 };
 
-// [新增] 在文件顶部或 MainCalculator 组件外部添加一个辅助函数
-// 辅助函数：检查一个数是否是10的整数次幂 (1, 10, 100, ...)
-const isPowerOfTen = (n) => {
-  if (n <= 0) return false; // 10的幂不可能是0或负数
-  // 通过计算以10为底的对数，如果结果是整数，则是10的幂
-  // 使用一个小的误差容忍(epsilon)来处理浮点数精度问题
-  const log = Math.log10(n);
-  return Math.abs(log - Math.round(log)) < 1e-10;
+// 输入验证：返回 { error, difference, num1Val, num2Val } 或 { error }
+const validateInput = (num1, num2) => {
+  if (!num1 || !num2) {
+    return { error: "请检查当前/目标龙门币数量是否填写完整~" };
+  }
+  if (num1 === num2) {
+    return { error: "好像输入了两个相同的数字，要不检查一下?" };
+  }
+  const num1Val = parseInt(num1, 10);
+  const num2Val = parseInt(num2, 10);
+  const difference = num2Val - num1Val;
+  if (Math.abs(difference) > 5000) {
+    return { error: "差值需在-5000~5000之间" };
+  }
+  return { error: null, difference, num1Val, num2Val };
 };
 
-const isRomanticNumber = (numStr) => {
-  // 基础验证
-  if (!numStr || typeof numStr !== 'string') {
-    return false;
-  }
+// 构建升级限制参数
+const buildLimits = (state) => ({
+  upgrade0Limit: state.upgrade0Count === "" ? Infinity : parseInt(state.upgrade0Count, 10),
+  upgrade1Limit: state.upgrade1Count === "" ? Infinity : parseInt(state.upgrade1Count, 10),
+  upgrade2Limit: state.upgrade2Count === "" ? Infinity : parseInt(state.upgrade2Count, 10),
+  sanityLimit: state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10),
+});
 
-  // 检查纯粹组合
-  const pureComboRegex = /^(520|1314)+$/;
-  if (pureComboRegex.test(numStr)) {
-    return true;
-  }
+// 构建缓存键
+const buildCacheKey = (difference, settings, limits) =>
+  `${difference}_${Object.entries(settings)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => `${k}:${v}`)
+    .join("|")}_${limits.upgrade0Limit}_${limits.upgrade1Limit}_${limits.upgrade2Limit}_${limits.sanityLimit}`;
 
-  // 检查是否为幂倍数
-  const num = parseInt(numStr, 10);
-  // 如果转换失败或数字为0，则不是
-  if (isNaN(num) || num === 0) {
-    return false;
+// 检查本地缓存
+const checkCache = (cacheKey) => {
+  const cached = localStorage.getItem(`pathCache_${cacheKey}`);
+  if (!cached) return null;
+  try {
+    const paths = JSON.parse(cached);
+    if (paths && paths.length > 0) return paths;
+    localStorage.removeItem(`pathCache_${cacheKey}`);
+  } catch {
+    localStorage.removeItem(`pathCache_${cacheKey}`);
   }
-
-  if (num >= 520 && num % 520 === 0) {
-    const quotient = num / 520;
-    if (isPowerOfTen(quotient)) {
-      return true;
-    }
-  }
-
-  if (num >= 1314 && num % 1314 === 0) {
-    const quotient = num / 1314;
-    if (isPowerOfTen(quotient)) {
-      return true;
-    }
-  }
-  return false;
+  return null;
 };
 
-const isFunnyNumber = (numStr) => {
-  if (!numStr || typeof numStr !== 'string') return false;
-  
-  const num = parseInt(numStr, 10);
-  if (isNaN(num) || num === 0) return false;
+// 调用计算 API（带超时）
+const callAPI = (difference, settings, limits, num2Val) =>
+  Promise.race([
+    Transmission(difference, settings, limits, num2Val),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("计算超时,请重试")), 15000)
+    ),
+  ]);
 
-  // 检查是否幂倍数
-  if (num >= 114514 && num % 114514 === 0) {
-    if (isPowerOfTen(num / 114514)) return true;
+// 格式化错误信息
+const formatError = (error) => {
+  if (error.isNetworkError) return error.message;
+  if (error.status) {
+    const map = {
+      400: `输入错误: ${error.message}`,
+      429: `请求过于频繁: ${error.message}`,
+      504: `计算超时: ${error.message}`,
+      500: `服务器内部错误: ${error.message}. 如果问题持续，请联系管理员。`,
+    };
+    return map[error.status] || `请求失败: ${error.message} (代码: ${error.status})`;
   }
-  
-  if (num >= 1919810 && num % 1919810 === 0) {
-    if (isPowerOfTen(num / 1919810)) return true;
+  return error.message ? `发生错误: ${error.message}` : "发生未知错误，请稍后再试。";
+};
+
+// 管理路径缓存（最多5条）
+const managePathCache = (newKey) => {
+  const cacheQueue = JSON.parse(localStorage.getItem("pathCacheQueue") || "[]");
+  if (!cacheQueue.includes(newKey)) {
+    cacheQueue.push(newKey);
+    if (cacheQueue.length > 5) {
+      localStorage.removeItem(`pathCache_${cacheQueue.shift()}`);
+    }
+    localStorage.setItem("pathCacheQueue", JSON.stringify(cacheQueue));
   }
-  return false;
 };
 
 // 主计算组件
 const MainCalculator = () => {
   const [state, dispatch] = useReducer(reducer, getInitialState());
-  const [showModal, setShowModal] = useState(false); // 弹窗状态
-  const [showBonusModal, setShowBonusModal] = useState(false); // 彩蛋弹窗状态
-  const [isBonusReady, setIsBonusReady] = useState(false); //彩蛋是否就绪
-  const [activeImageUrl, setActiveImageUrl] = useState(""); //存储随机图片的 URL
+  const [showModal, setShowModal] = useState(false);
+  const [showBonusModal, setShowBonusModal] = useState(false);
+  const [isBonusReady, setIsBonusReady] = useState(false);
+  const [activeImageUrl, setActiveImageUrl] = useState("");
+  const [heartsElement, triggerHeart] = useHeartEffect();
 
   useEffect(() => {
-    localStorage.setItem("calculatorState", JSON.stringify(state));
-  }, [state]);
+    const toSave = {};
+    for (const key of PERSISTED_KEYS) toSave[key] = state[key];
+    localStorage.setItem("calculatorState", JSON.stringify(toSave));
+  }, [state.settings, state.num1, state.num2, state.upgrade0Count, state.upgrade1Count, state.upgrade2Count, state.sanityCount]);
 
   //处理弹窗逻辑
   useEffect(() => {
-    // 当 "只允许升级" 这个开关被开启时，检查其他相关开关的状态并弹出提示
-    if (state.settings.enableUpgradeOnlyFor1) {
-      const { enableUpgradeOnly0, enableUpgradeOnly1, enableUpgradeOnly2 } =
+    if (state.settings.allowUpgradeOnlyFor1) {
+      const { allowUpgradeOnly0, allowUpgradeOnly1, allowUpgradeOnly2 } =
         state.settings;
-      if (!enableUpgradeOnly0 && !enableUpgradeOnly1 && !enableUpgradeOnly2) {
-        // 只有当三个子开关都关闭时才提醒
+      if (!allowUpgradeOnly0 && !allowUpgradeOnly1 && !allowUpgradeOnly2) {
         setShowModal(true);
       }
     }
   }, [
-    state.settings.enableUpgradeOnlyFor1,
-    state.settings.enableUpgradeOnly0,
-    state.settings.enableUpgradeOnly1,
-    state.settings.enableUpgradeOnly2,
-  ]); // 依赖项数组
+    state.settings.allowUpgradeOnlyFor1,
+    state.settings.allowUpgradeOnly0,
+    state.settings.allowUpgradeOnly1,
+    state.settings.allowUpgradeOnly2,
+  ]);
 
   const handleToggleChange = useCallback(
     (key) => {
@@ -273,222 +322,67 @@ const MainCalculator = () => {
     dispatch({ type: "SET_UPGRADE_COUNT", field, value: numValue.toString() });
   }, []);
 
-  // 主体计算逻辑 异步函数
+  // 主体计算逻辑
   const handleCalculate = useCallback(
     async (event) => {
-      // [新增] 特殊数字彩蛋逻辑
+      // 彩蛋检测
       if (isRomanticNumber(state.num2)) {
-        createHeartEffect(event);
-        const randomIndex = Math.floor(
-          Math.random() * romanticImageUrls.length
-        );
-        setActiveImageUrl(romanticImageUrls[randomIndex]);
+        triggerHeart(event);
+        setActiveImageUrl(romanticImageUrls[Math.floor(Math.random() * romanticImageUrls.length)]);
       } else if (isFunnyNumber(state.num2)) {
-        // 如果是趣味数字，显示图片5
         setActiveImageUrl(funnyImageUrl);
-        // 可选：在这里也可以添加一个不同的点击特效
       } else {
-        // 如果都不是，清空图片
         setActiveImageUrl("");
       }
 
-      if (!state.num1 || !state.num2) {
-        dispatch({
-          type: "SET_ERROR",
-          field: "differenceError",
-          value: "请检查当前/目标龙门币数量是否填写完整~",
-        });
+      // 输入验证
+      const validation = validateInput(state.num1, state.num2);
+      if (validation.error) {
+        dispatch({ type: "SET_ERROR", field: "differenceError", value: validation.error });
+        if (state.num1 && state.num2) dispatch({ type: "SET_RESULT", value: "" });
         return;
       }
 
-      // 检查两个数字是否相同
-      if (state.num1 === state.num2) {
-        dispatch({
-          type: "SET_ERROR",
-          field: "differenceError",
-          value: "好像输入了两个相同的数字，要不检查一下?",
-        });
-        dispatch({ type: "SET_RESULT", value: "" });
-        return;
-      }
-
-      const num1Val = parseInt(state.num1, 10);
-      const num2Val = parseInt(state.num2, 10);
-      const difference = num2Val - num1Val;
-
-      if (Math.abs(difference) > 5000) {
-        dispatch({
-          type: "SET_ERROR",
-          field: "differenceError",
-          value: "差值需在-5000~5000之间",
-        });
-        dispatch({ type: "SET_RESULT", value: "" });
-        return;
-      }
-
+      const { difference, num1Val, num2Val } = validation;
       dispatch({ type: "SET_ERROR", field: "differenceError", value: "" });
       dispatch({ type: "SET_RESULT", value: difference.toString() });
       dispatch({ type: "SET_CALCULATING", value: true });
-      dispatch({ type: "SET_PATHS", paths: [] }); // 开始计算时清空旧路径
+      dispatch({ type: "SET_PATHS", paths: [] });
 
+      const limits = buildLimits(state);
+      const cacheKey = buildCacheKey(difference, state.settings, limits);
 
-      // 提取四个限制值，空值时默认为无限大（不限制）
-      const upgrade0Limit =
-        state.upgrade0Count === ""
-          ? Infinity
-          : parseInt(state.upgrade0Count, 10);
-      const upgrade1Limit =
-        state.upgrade1Count === ""
-          ? Infinity
-          : parseInt(state.upgrade1Count, 10);
-      const upgrade2Limit =
-        state.upgrade2Count === ""
-          ? Infinity
-          : parseInt(state.upgrade2Count, 10);
-      const sanityLimit =
-        state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10);
-
-      const cacheKey = `${difference}_${Object.entries(state.settings)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([k, v]) => `${k}:${v}`)
-        .join(
-          "|"
-        )}_${upgrade0Limit}_${upgrade1Limit}_${upgrade2Limit}_${sanityLimit}`;
-      const cachedResult = localStorage.getItem(`pathCache_${cacheKey}`);
-
-      if (cachedResult) {
-        try {
-          const paths = JSON.parse(cachedResult);
-          if (!paths || paths.length === 0) {
-            localStorage.removeItem(`pathCache_${cacheKey}`);
-          } else {
-            dispatch({ type: "SET_PATHS", paths });
-            dispatch({ type: "SET_CALCULATING", value: false });
-            dispatch({
-              type: "SET_HISTORY",
-              history: [
-                ...state.history.slice(-10),
-                {
-                  path: paths[0],
-                  timestamp: new Date().toLocaleString(),
-                  initialLMD: num1Val,
-                },
-              ],
-            });
-            return;
-          }
-        } catch (e) {
-          localStorage.removeItem(`pathCache_${cacheKey}`);
-
-        }
+      // 检查缓存
+      const cachedPaths = checkCache(cacheKey);
+      if (cachedPaths) {
+        dispatch({ type: "SET_PATHS", paths: cachedPaths });
+        dispatch({ type: "SET_CALCULATING", value: false });
+        dispatch({ type: "APPEND_HISTORY", entry: { path: cachedPaths[0], timestamp: new Date().toLocaleString(), initialLMD: num1Val } });
+        return;
       }
 
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("计算超时,请重试")), 15000)
-      );
-
+      // 调用 API
       try {
-        const paths = await Promise.race([
-          Transmission(difference, state.settings, {
-            upgrade0Limit,
-            upgrade1Limit,
-            upgrade2Limit,
-            sanityLimit,
-          },
-          num2Val
-        ),
-          timeoutPromise,
-        ]);
-
+        const paths = await callAPI(difference, state.settings, limits, num2Val);
         if (!paths || paths.length === 0) {
-          dispatch({
-            type: "SET_ERROR",
-            field: "differenceError",
-            value: "计算完成，但未找到满足条件的路径方案。",
-          });
+          dispatch({ type: "SET_ERROR", field: "differenceError", value: "计算完成，但未找到满足条件的路径方案。" });
           dispatch({ type: "SET_PATHS", paths: [] });
         } else {
           localStorage.setItem(`pathCache_${cacheKey}`, JSON.stringify(paths));
           managePathCache(cacheKey);
         }
         dispatch({ type: "SET_PATHS", paths });
-        dispatch({
-          type: "SET_HISTORY",
-          history: [
-            ...state.history.slice(-10),
-            {
-              path: paths[0], // 只记录第一个路径到历史
-              timestamp: new Date().toLocaleString(),
-              initialLMD: num1Val,
-            },
-          ],
-        });
+        dispatch({ type: "APPEND_HISTORY", entry: { path: paths[0], timestamp: new Date().toLocaleString(), initialLMD: num1Val } });
       } catch (error) {
-        let errorMessage = "发生未知错误，请稍后再试。";
-
-        if (error.isNetworkError) {
-          errorMessage = error.message;
-        } else if (error.status) {
-          switch (error.status) {
-            case 400:
-              errorMessage = `输入错误: ${error.message}`;
-              break;
-            case 429:
-              errorMessage = `请求过于频繁: ${error.message}`;
-              break;
-            case 504:
-              errorMessage = `计算超时: ${error.message}`;
-              break;
-            case 500:
-              errorMessage = `服务器内部错误: ${error.message}. 如果问题持续，请联系管理员。`;
-              break;
-            default:
-              errorMessage = `请求失败: ${error.message} (代码: ${error.status})`;
-          }
-        } else if (error.message) {
-          errorMessage = `发生错误: ${error.message}`;
-        }
-
-        dispatch({
-          type: "SET_ERROR",
-          field: "differenceError",
-          value: errorMessage,
-        });
+        dispatch({ type: "SET_ERROR", field: "differenceError", value: formatError(error) });
         dispatch({ type: "SET_PATHS", paths: [] });
-        dispatch({
-          type: "SET_HISTORY",
-          history: [...state.history.slice(-10), `计算失败: ${errorMessage}`],
-        });
+        dispatch({ type: "APPEND_HISTORY", entry: `计算失败: ${formatError(error)}` });
       } finally {
         dispatch({ type: "SET_CALCULATING", value: false });
       }
     },
-    [
-      state.num1,
-      state.num2,
-      state.settings,
-      state.history,
-      state.upgrade0Count,
-      state.upgrade1Count,
-      state.upgrade2Count,
-      state.sanityCount,
-    ]
+    [state.num1, state.num2, state.settings, state.upgrade0Count, state.upgrade1Count, state.upgrade2Count, state.sanityCount]
   );
-
-  // 管理路径缓存（最多5条）
-  const managePathCache = (newKey) => {
-    const cacheQueue = JSON.parse(
-      localStorage.getItem("pathCacheQueue") || "[]"
-    );
-    if (!cacheQueue.includes(newKey)) {
-      cacheQueue.push(newKey);
-      if (cacheQueue.length > 5) {
-        const removedKey = cacheQueue.shift();
-        localStorage.removeItem(`pathCache_${removedKey}`);
-      }
-      localStorage.setItem("pathCacheQueue", JSON.stringify(cacheQueue));
-    }
-  };
 
   const handleChangePath = useCallback(
     (delta) => {
@@ -511,422 +405,64 @@ const MainCalculator = () => {
     [state.pathCache.length, state.clickCount, isBonusReady]
   );
 
-  // [新增] 创建爱心特效的函数
-  const createHeartEffect = (event) => {
-    // 获取点击位置
-    const x = event.clientX;
-    const y = event.clientY;
-
-    // 创建爱心元素
-    const heart = document.createElement("div");
-    heart.className = "love-heart";
-    heart.innerHTML = "❤️";
-
-    heart.style.left = `${x}px`;
-    heart.style.top = `${y}px`;
-
-    // 添加到 body
-    document.body.appendChild(heart);
-
-    // [关键] 动画结束后自动移除元素
-    heart.addEventListener("animationend", () => {
-      heart.remove();
-    });
-  };
-
-  // 新增返回顶部函数
-  const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  // 公共侧边栏组件
-  const Sidebar = () => (
-    <div className="sidebar">
-      <div className="sidebar-title">凑数计算器</div>
-      {[
-        { to: "/", text: "计算主页" },
-        { to: "/note", text: "注意事项" },
-        { to: "/data", text: "数据部分" },
-        { to: "/about", text: "关于" },
-      ].map(({ to, text }) => (
-        <div className="sidebar-box" key={to}>
-          <Link to={to}>{text}</Link>
-        </div>
-      ))}
-    </div>
-  );
-
-  const settingsOptions = [
-    { text: "不允许使用理智三星通关", key: "disable3Star" },
-    { text: "不允许使用理智二星通关", key: "disable2Star" },
-    { text: "不存在/不使用代理剿灭25理智获取250龙门币", key: "disableExt25" },
-    { text: "不存在/不使用龙门币副本(CE系列关卡)", key: "disableCE" },
-    { text: "不允许使用基建物品合成", key: "disableMaterial" },
-    { text: "不允许使用贸易站售卖赤金", key: "disableTrade" },
-    { text: "不存在/不使用活动商店1代币换10龙门币", key: "disableStore10" },
-    { text: "不存在/不使用活动商店1代币换20龙门币", key: "disableStore20" },
-    { text: "不存在/不使用危机合约1代币换70龙门币", key: "disableStore70" },
-    { text: "不存在/不使用活动商店5代币换2000龙门币", key: "disableStore2000" },
-    { text: "不存在/不使用活动商店7代币换5000龙门币", key: "disableStore5000" },
-    { text: "允许连续多次对精零1级干员进行升级", key: "enableUpgradeOnly0" },
-    { text: "允许连续多次对精一1级干员进行升级", key: "enableUpgradeOnly1" },
-    { text: "允许连续多次对精二1级干员进行升级", key: "enableUpgradeOnly2" },
-    {
-      text: "只允许连续多次对精零/精一/精二1级干员进行升级",
-      key: "enableUpgradeOnlyFor1",
-    },
-  ];
-
   return (
-    <div className="app-container">
-      <Sidebar />
-
-      <button className="back-to-top" onClick={scrollToTop}>
-        ↑ 返回顶部
-      </button>
-
+    <>
       <div className={styles['input-area']}>
         <div className={styles['main-container']}>
           <div className={styles['main-content-container']}>
-            <div className={`${styles['content-panel']} ${styles['left-panel']}`}>
-              <div className={styles['title-bar']}>
-                <h1>龙门币凑数计算器</h1>
-              </div>
-
-              <div className={styles['left-panel-title-container']}>
-                <div className={styles['title-text']}>
-                  请输入两个[0,99999999]区间的整数
-                </div>
-                <div className={styles['title-text']}>且两数差值处于[-5000,5000]区间</div>
-              </div>
-
-              <div className={styles['main-content']}>
-                <div className={styles['input-container']}>
-                  <div className={styles['input-group-horizontal']}>
-                    <div className={styles['input-group']}>
-                      <div className={styles['input-wrapper-text']}>当前龙门币数量:</div>
-                      <div className={styles['input-wrapper']}>
-                        <input
-                          type="text"
-                          className={styles['input-box']}
-                          placeholder="请输入数字"
-                          value={state.num1}
-                          onChange={(e) => handleInputChange(e, "num1")}
-                        />
-                        {state.error1 && (
-                          <div className={styles['error-message']}>{state.error1}</div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className={styles['input-group']}>
-                      <div className={styles['input-wrapper-text']}>目标龙门币数量:</div>
-                      <div className={styles['input-wrapper']}>
-                        <input
-                          type="text"
-                          className={styles['input-box']}
-                          placeholder="请输入数字"
-                          value={state.num2}
-                          onChange={(e) => handleInputChange(e, "num2")}
-                        />
-                        {state.error2 && (
-                          <div className={styles['error-message']}>{state.error2}</div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className={styles['upgrade-count-container']}>
-                  <div className={styles['toggle-container']}>
-                    <div className={styles['toggle-text']}>允许升级的精零干员数量：</div>
-                    <input
-                      type="number"
-                      className={styles['short-input-box']}
-                      min="0"
-                      max="10"
-                      step="1"
-                      placeholder="0~10"
-                      value={state.upgrade0Count}
-                      onChange={(e) =>
-                        handleUpgradeCountChange(e, "upgrade0Count", 0, 10)
-                      }
-                    />
-                  </div>
-                  <div className={styles['toggle-container']}>
-                    <div className={styles['toggle-text']}>允许升级的精一干员数量：</div>
-                    <input
-                      type="number"
-                      className={styles['short-input-box']}
-                      min="0"
-                      max="10"
-                      step="1"
-                      placeholder="0~10"
-                      value={state.upgrade1Count}
-                      onChange={(e) =>
-                        handleUpgradeCountChange(e, "upgrade1Count", 0, 10)
-                      }
-                    />
-                  </div>
-                  <div className={styles['toggle-container']}>
-                    <div className={styles['toggle-text']}>允许升级的精二干员数量：</div>
-                    <input
-                      type="number"
-                      className={styles['short-input-box']}
-                      min="0"
-                      max="10"
-                      step="1"
-                      placeholder="0~10"
-                      value={state.upgrade2Count}
-                      onChange={(e) =>
-                        handleUpgradeCountChange(e, "upgrade2Count", 0, 10)
-                      }
-                    />
-                  </div>
-                  <div className={styles['toggle-container']}>
-                    <div className={styles['toggle-text']}>允许升级的理智的数量：</div>
-                    <input
-                      type="number"
-                      className={styles['short-input-box']}
-                      min="0"
-                      max="200"
-                      step="1"
-                      placeholder="0~200"
-                      value={state.sanityCount}
-                      onChange={(e) =>
-                        handleUpgradeCountChange(e, "sanityCount", 0, 200)
-                      }
-                    />
-                  </div>
-                </div>
-
-                <button
-                  className={styles['calculate-button']}
-                  onClick={handleCalculate}
-                  disabled={state.isCalculating}
-                >
-                  {state.isCalculating ? "计算中..." : "立即计算"}
-                </button>
-
-                <div className={styles['result-section']}>
-                  <div className={styles['output-wrapper-text']}>
-                    计算得到还需要龙门币数量:
-                  </div>
-                  <div className={styles['result-container']}>
-                    <input
-                      type="text"
-                      className={styles['result-box']}
-                      placeholder="两者相差"
-                      value={state.result}
-                      readOnly
-                    />
-                  </div>
-                  {state.differenceError && (
-                    <div className={styles['error-message']}>{state.differenceError}</div>
-                  )}
-                </div>
-
-                <div className={styles['usage-guide']}>
-                  <div className={styles['notice-title']}>注意事项</div>
-                  <div className={styles['notice-content']}>
-                    1.点击“立即计算”按钮开始计算，点击页面底部参考路径方案中的“上一路径”和“下一路径”按钮可以切换路径方案。
-                    <br />
-                    2.设置面板中的开关调整之后，需要重新点击“立即计算”按钮才会生效。
-                    如果点击“立即计算”之后不起作用，建议重新点击或者刷新一下网页。
-                    对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果。后续会继续优化计算速度。
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className={`${styles['content-panel']} ${styles['right-panel']}`}>
-              <div className={styles['title-bar']}>
-                <h1>设置区域</h1>
-              </div>
-
-              <div className={styles['toggle-wrapper']}>
-                {/* --- 第一组：使用理智 --- */}
-                <h4 className={styles['settings-group-title']}>使用理智</h4>
-                {settingsOptions.slice(0, 4).map(({ text, key }) => (
-                  <div className={styles['toggle-container']} key={key}>
-                    <div className={styles['toggle-text']}>{text}</div>
-                    <label className={styles['toggle-switch']}>
-                      <input
-                        type="checkbox"
-                        checked={state.settings[key]}
-                        onChange={() => handleToggleChange(key)}
-                      />
-                      <span className={styles.slider} />
-                    </label>
-                  </div>
-                ))}
-
-                {/* --- 第二组：基建 --- */}
-                <h4 className={styles['settings-group-title']}>基建</h4>
-                {settingsOptions.slice(4, 6).map(({ text, key }) => (
-                  <div className={styles['toggle-container']} key={key}>
-                    <div className={styles['toggle-text']}>{text}</div>
-                    <label className={styles['toggle-switch']}>
-                      <input
-                        type="checkbox"
-                        checked={state.settings[key]}
-                        onChange={() => handleToggleChange(key)}
-                      />
-                      <span className={styles.slider} />
-                    </label>
-                  </div>
-                ))}
-
-                {/* --- 第三组：使用代币 --- */}
-                <h4 className={styles['settings-group-title']}>使用代币</h4>
-                {settingsOptions.slice(6, 11).map(({ text, key }) => (
-                  <div className={styles['toggle-container']} key={key}>
-                    <div className={styles['toggle-text']}>{text}</div>
-                    <label className={styles['toggle-switch']}>
-                      <input
-                        type="checkbox"
-                        checked={state.settings[key]}
-                        onChange={() => handleToggleChange(key)}
-                      />
-                      <span className={styles.slider} />
-                    </label>
-                  </div>
-                ))}
-
-                {/* --- 第四组：干员升级 --- */}
-                <h4 className={styles['settings-group-title']}>干员升级</h4>
-                {settingsOptions.slice(11).map(({ text, key }) => (
-                  <div className={styles['toggle-container']} key={key}>
-                    <div className={styles['toggle-text']}>{text}</div>
-                    <label className={styles['toggle-switch']}>
-                      <input
-                        type="checkbox"
-                        checked={state.settings[key]}
-                        onChange={() => handleToggleChange(key)}
-                      />
-                      <span className={styles.slider} />
-                    </label>
-                  </div>
-                ))}
-
-                {/* --- 在最后一组下方，新增提示文字 --- */}
-                <p className={styles['settings-footer-note']}>
-                  请注意当“只允许...”按钮开启时，请确保其他三个升级开关中至少有一个为开启状态。
-                </p>
-              </div>
-            </div>
+            <InputPanel
+              state={state}
+              styles={styles}
+              handleInputChange={handleInputChange}
+              handleUpgradeCountChange={handleUpgradeCountChange}
+              handleCalculate={handleCalculate}
+            />
+            <SettingsPanel
+              settings={state.settings}
+              onToggle={handleToggleChange}
+              styles={styles}
+            />
           </div>
-
-          <div className={styles['history-box']}>
-            
-            {state.isCalculating ? (
-              <div className={styles['loading-container']}>
-                <div className={styles['progress-bar']}>
-                  <div className={styles['progress-bar-fill']}></div>
-                </div>
-                <p>正在计算路径，请稍候...</p>
-              </div>
-            ) : state.pathCache.length > 0 ? (
-              <PathRenderer
-                path={state.pathCache[state.currentPathIndex] || []}
-                initialLMD={parseInt(state.num1) || 0}
-                totalPaths={state.pathCache.length}
-                currentIndex={state.currentPathIndex}
-                onPrevPath={() => handleChangePath(-1)}
-                onNextPath={() => handleChangePath(1)}
-                // [新增] 将彩蛋准备状态传递给 PathRenderer 组件
-                isBonusReady={isBonusReady}
-                activeImageUrl={activeImageUrl}
-              />
-            ) : (
-              <div className={styles['no-path']}>{""}</div>
-            )}
-
-            {state.pathCache.length > 0 &&
-              state.clickCount >= 10 &&
-              state.clickCount < 30 && (
-                <div className={styles['change-over-text']}>
-                  <p>
-                    {state.clickCount < 20
-                      ? "已经尝试过所有路径"
-                      : "再按几次，好像有什么东西要出来了？"}
-                  </p>
-                </div>
-              )}
-          </div>
+          <ResultArea
+            state={state}
+            styles={styles}
+            handleChangePath={handleChangePath}
+            isBonusReady={isBonusReady}
+            activeImageUrl={activeImageUrl}
+          />
         </div>
-      </div>
-
-      <div className={styles.footer}>
-        <a target="_blank" rel="noreferrer noopener" className={styles['external-link2']}>
-          鄂ICP备2025105560号-1
-        </a>
-        <a className={styles['external-link2']}>© 2025 龙门币凑数计算器（https://ark-lmd.top）</a>
       </div>
 
       {showModal && (
-        <div className={styles['modal-overlay']}>
-          <div className={styles['modal-content']}>
-            <h3>提醒</h3>
-            <p>
-              您已开启“只允许连续多次对精零/精一/精二1级干员进行升级”开关，请检查以下开关至少有一个是打开的，否则无法计算出结果。当前开关状态：
-            </p>
-            <div>
-              <p>
-                允许连续多次对精零1级干员进行升级：
-                {state.settings.enableUpgradeOnly0 ? "已开启" : "未开启"}
-              </p>
-              <p>
-                允许连续多次对精一1级干员进行升级：
-                {state.settings.enableUpgradeOnly1 ? "已开启" : "未开启"}
-              </p>
-              <p>
-                允许连续多次对精二1级干员进行升级：
-                {state.settings.enableUpgradeOnly2 ? "已开启" : "未开启"}
-              </p>
-            </div>
-            <button onClick={() => setShowModal(false)}>关闭</button>
-          </div>
-        </div>
+        <SettingsWarningModal
+          settings={state.settings}
+          onClose={() => setShowModal(false)}
+          styles={styles}
+        />
       )}
-
-      {/* [修改] 为彩蛋弹窗的根元素动态添加 'show' 类，用于控制CSS动画 */}
-      <div className={`${styles['modal-overlay']} ${showBonusModal ? styles.show : ""}`}>
-        {/* Bonus Modal 内容不变，但现在它的显示/隐藏会受CSS控制 */}
-        {showBonusModal && (
-          <div className={`${styles['modal-content']} ${styles['bonus-modal']}`}>
-            <img
-              src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/rosmontis5.webp"
-              alt="Bonus"
-              className={styles['bonus-image']}
-            />
-            <p className={styles['bonus-text']}>
-              迷迭香发现你点了好多次按钮，她提醒你记得休息一下
-            </p>
-            {/* [修改] 关闭弹窗时，同时重置彩蛋准备状态，以便下次还能触发 */}
-            <button
-              onClick={() => {
-                setShowBonusModal(false);
-                setIsBonusReady(false); // 重置状态
-              }}
-            >
-              关闭
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+      <BonusModal
+        show={showBonusModal}
+        onClose={() => {
+          setShowBonusModal(false);
+          setIsBonusReady(false);
+        }}
+        styles={styles}
+      />
+      {heartsElement}
+    </>
   );
 };
 
 const App = () => (
   <Router>
-    <Routes>
-      <Route path="/" element={<MainCalculator />} />
-      <Route path="/note" element={<NotePage />} />
-      <Route path="/data" element={<DataPage />} />
-      <Route path="/about" element={<AboutPage />} />
-    </Routes>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<MainCalculator />} />
+        <Route path="/note" element={<NotePage />} />
+        <Route path="/data" element={<DataPage />} />
+        <Route path="/about" element={<AboutPage />} />
+      </Routes>
+    </Layout>
   </Router>
 );
 

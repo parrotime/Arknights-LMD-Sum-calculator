@@ -116,7 +116,7 @@
     □ handleCalculate 拆分为多个小函数
       → validateInput() / filterItems() / checkCache() / callAPI()
     □ createHeartEffect 改为 React 方式实现（不直接操作 DOM）
-    □ 统一设置项命名方向（disable/enable 混用 → 全部 allow 正向语义）
+    □ 统一设置项命名方向（disable/e1nable 混用 → 全部 allow 正向语义）
     【依赖：1.5 CSS Modules 就绪后拆分更顺畅】
     【联动：阶段三 UX 改造中的设置面板、输入区域改进】
     【来源：角度一-3, 角度一-7, 角度二-1.1, 角度二-1.2】

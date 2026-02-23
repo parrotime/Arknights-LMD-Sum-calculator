@@ -1,31 +1,6 @@
 import React, { useState } from "react";
 import styles from "../assets/styles/Data.module.css";
-// eslint-disable-next-line no-unused-vars
-import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { classifyData } from "../DataService";
-
-const Sidebar = () => (
-  <div className="sidebar">
-    <div className="sidebar-title">凑数计算器</div>
-    {[
-      { to: "/", text: "计算主页" },
-      { to: "/note", text: "注意事项" },
-      { to: "/data", text: "数据部分" },
-      { to: "/about", text: "关于" },
-    ].map(({ to, text }) => (
-      <div className="sidebar-box" key={to}>
-        <Link to={to}>{text}</Link>
-      </div>
-    ))}
-  </div>
-);
-
-const scrollToTop = () => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-};
 
 function DataPage() {
   const [activePanels, setActivePanels] = useState([]);
@@ -223,13 +198,7 @@ function DataPage() {
   );
 
   return (
-    <div className="app-container">
-      <Sidebar />
-      <button className="back-to-top" onClick={scrollToTop}>
-        ↑ 返回顶部
-      </button>
-
-      <div className={styles['main-data-content']}>
+    <div className={styles['main-data-content']}>
         <div
           className={`${styles['accordion-panel']} ${
             !activePanels.includes(0) ? styles.collapsed : ""
@@ -473,7 +442,6 @@ function DataPage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

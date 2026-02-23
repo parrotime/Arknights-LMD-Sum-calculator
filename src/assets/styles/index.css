@@ -135,6 +135,35 @@ html, body, #root {
   }
 }
 
+/* NavLink 当前页面高亮 */
+.sidebar-box a.active {
+  background-color: #1a4f8b;
+}
+
+/* 页脚（多页面共享） */
+.footer {
+  box-sizing: border-box;
+  width: calc(100% - 230px);
+  margin-left: 230px;
+  background-color: #afd3f3;
+  text-align: center;
+  padding: 10px;
+  border-top: 10px solid #e0e0e0;
+  margin-top: auto;
+}
+
+.footer p {
+  margin: 4px 0;
+  color: #666;
+}
+
+.footer-link {
+  color: #666;
+  text-decoration: none;
+  margin-left: 8px;
+  font-size: small;
+}
+
 @media (max-width: 800px) {
   .app-container {
     flex-direction: column;
@@ -159,5 +188,10 @@ html, body, #root {
   .sidebar-box {
     width: 49%;
     margin: 0;
+  }
+
+  .footer {
+    width: 100%;
+    margin-left: 0;
   }
 }
