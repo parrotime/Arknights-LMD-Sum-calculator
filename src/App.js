@@ -54,20 +54,28 @@ const romanticImageUrls = [
 const funnyImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/114514.webp"; 
 
 // 默认设置按钮的初始状态
+const freshDefaults = {
+  disableStore10: true,
+  disableStore20: true,
+  disableStore70: true,
+  disableStore2000: true,
+  disableStore5000: true,
+  disableExt25: true,
+  enableUpgradeOnly0: true,
+  enableUpgradeOnly1: true,
+  enableUpgradeOnly2: true,
+  enableUpgradeOnlyFor1: true,
+};
+
 const getInitialState = () => {
   const savedState = localStorage.getItem("calculatorState");
-  const initialState = savedState ? JSON.parse(savedState) : defaultState;
-  initialState.settings.disableStore10 = true;
-  initialState.settings.disableStore20 = true;
-  initialState.settings.disableStore70 = true;
-  initialState.settings.disableStore2000 = true;
-  initialState.settings.disableStore5000 = true;
-  initialState.settings.disableExt25 = true;
-  initialState.settings.enableUpgradeOnly0 = true;
-  initialState.settings.enableUpgradeOnly1 = true;
-  initialState.settings.enableUpgradeOnly2 = true;
-  initialState.settings.enableUpgradeOnlyFor1 = true;
-  return initialState;
+  if (savedState) {
+    return JSON.parse(savedState);
+  }
+  return {
+    ...defaultState,
+    settings: { ...defaultState.settings, ...freshDefaults },
+  };
 };
 
 const reducer = (state, action) => {
@@ -888,7 +896,7 @@ const MainCalculator = () => {
             <p>
               您已开启“只允许连续多次对精零/精一/精二1级干员进行升级”开关，请检查以下开关至少有一个是打开的，否则无法计算出结果。当前开关状态：
             </p>
-            <p>
+            <div>
               <p>
                 允许连续多次对精零1级干员进行升级：
                 {state.settings.enableUpgradeOnly0 ? "已开启" : "未开启"}
@@ -901,7 +909,7 @@ const MainCalculator = () => {
                 允许连续多次对精二1级干员进行升级：
                 {state.settings.enableUpgradeOnly2 ? "已开启" : "未开启"}
               </p>
-            </p>
+            </div>
             <button onClick={() => setShowModal(false)}>关闭</button>
           </div>
         </div>

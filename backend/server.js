@@ -1,6 +1,12 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), ".env") });
+
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import NodeCache from "node-cache";
 import { findPaths } from "./DPnew.js";
 import rateLimit from "express-rate-limit"; 
@@ -23,6 +29,7 @@ const apiLimiter = rateLimit({
 });
 
 const app = express();
+app.use(helmet());
 app.set("trust proxy", "loopback");
 
 const port = process.env.PORT || 3002;
@@ -39,13 +46,11 @@ const cache = new NodeCache({
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "https://ark-lmd.top",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.use(express.json({ limit: "1mb" })); // 稍微增加请求体大小限制
-
-app.use("/find-paths", apiLimiter); 
+app.use(express.json({ limit: "100kb" }));
 
 // 测试路由
 app.get("/", (req, res) => {

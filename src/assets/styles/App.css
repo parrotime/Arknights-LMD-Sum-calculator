@@ -591,8 +591,8 @@ input:invalid {
 
 .footer {
   box-sizing: border-box; 
-  width: calc(100% - 200px); 
-  margin-left: 200px; 
+  width: calc(100% - 230px);
+  margin-left: 230px;
   background-color: #afd3f3;
   text-align: center; 
   padding: 10px;

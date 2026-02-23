@@ -12,8 +12,14 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
     return <div className="path-renderer-error">没有找到合适的路径</div>;
   }
 
-  // 初始龙门币数量
-  let currentLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
+  // 预计算每步累计龙门币
+  const startLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
+  const runningTotals = safePath.reduce((acc, step) => {
+    const item = getItemById(Number(step.id));
+    const prev = acc.length > 0 ? acc[acc.length - 1] : startLMD;
+    acc.push(prev + (item ? item.item_value * step.count : 0));
+    return acc;
+  }, []);
 
   return (
     <div className="path-renderer-container">
@@ -69,7 +75,6 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
           const itemName = item.item_name;
           const rarity = item.rarity;
           const stepValue = itemValue * step.count;
-          currentLMD += stepValue;
 
           return (
             <div key={`step-${stepIndex}`} className="path-renderer-step-item">
@@ -77,7 +82,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
               通过【{step.count}】次【
               <span style={{ color: getRarityColor(rarity) }}>{itemName}</span>
               】， 【{itemValue > 0 ? "获得" : "花费"}】 【{Math.abs(stepValue)}
-              】个龙门币， 当前龙门币数量为【{currentLMD}】个。
+              】个龙门币， 当前龙门币数量为【{runningTotals[stepIndex]}】个。
             </div>
           );
         })}
