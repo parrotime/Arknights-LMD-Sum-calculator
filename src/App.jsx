@@ -5,7 +5,6 @@ import NotePage from "./pages/Note";
 import DataPage from "./pages/Data";
 import AboutPage from "./pages/About";
 import PathRenderer from "./components/PathRenderer";
-import { classifyData } from "./DataService"; 
 import "./assets/styles/App.css";
 
 const defaultState = {
@@ -332,30 +331,6 @@ const MainCalculator = () => {
       dispatch({ type: "SET_CALCULATING", value: true });
       dispatch({ type: "SET_PATHS", paths: [] }); // 开始计算时清空旧路径
 
-      const filteredItems = classifyData.filter((item) => {
-        const { settings } = state;
-        const itemType = item.type?.toLowerCase() || "";
-        const isUpgradeAllowed = settings.enableUpgradeOnlyFor1
-          ? itemType !== "upgrade"
-          : true;
-        return (
-          (!settings.disable3Star || itemType !== "3_star") &&
-          (!settings.disable2Star || itemType !== "2_star") &&
-          (!settings.disableMaterial || itemType !== "material") &&
-          (!settings.disableStore20 || itemType !== "store_20") &&
-          (!settings.disableStore10 || itemType !== "store_10") &&
-          (!settings.disableStore70 || itemType !== "store_70") &&
-          (!settings.disableStore2000 || itemType !== "store_2000") &&
-          (!settings.disableStore5000 || itemType !== "store_5000") &&
-          (!settings.disableCE || itemType !== "ce") &&
-          (!settings.disableExt25 || itemType !== "ext_25") &&
-          (!settings.disableTrade || itemType !== "trade") &&
-          (settings.enableUpgradeOnly0 || itemType !== "upgrade_only_0") &&
-          (settings.enableUpgradeOnly1 || itemType !== "upgrade_only_1") &&
-          (settings.enableUpgradeOnly2 || itemType !== "upgrade_only_2") &&
-          isUpgradeAllowed
-        );
-      });
 
       // 提取四个限制值，空值时默认为无限大（不限制）
       const upgrade0Limit =
@@ -414,7 +389,7 @@ const MainCalculator = () => {
 
       try {
         const paths = await Promise.race([
-          Transmission(difference, filteredItems, {
+          Transmission(difference, state.settings, {
             upgrade0Limit,
             upgrade1Limit,
             upgrade2Limit,

@@ -9,7 +9,33 @@ import cors from "cors";
 import helmet from "helmet";
 import NodeCache from "node-cache";
 import { findPaths } from "./DPnew.js";
-import rateLimit from "express-rate-limit"; 
+import { classifyData } from "./DataService.js";
+import rateLimit from "express-rate-limit";
+
+// 根据前端 settings 过滤物品列表
+const filterItems = (settings) => {
+  return classifyData.filter((item) => {
+    const t = item.type?.toLowerCase() || "";
+    const isUpgradeAllowed = settings.enableUpgradeOnlyFor1 ? t !== "upgrade" : true;
+    return (
+      (!settings.disable3Star || t !== "3_star") &&
+      (!settings.disable2Star || t !== "2_star") &&
+      (!settings.disableMaterial || t !== "material") &&
+      (!settings.disableStore20 || t !== "store_20") &&
+      (!settings.disableStore10 || t !== "store_10") &&
+      (!settings.disableStore70 || t !== "store_70") &&
+      (!settings.disableStore2000 || t !== "store_2000") &&
+      (!settings.disableStore5000 || t !== "store_5000") &&
+      (!settings.disableCE || t !== "ce") &&
+      (!settings.disableExt25 || t !== "ext_25") &&
+      (!settings.disableTrade || t !== "trade") &&
+      (settings.enableUpgradeOnly0 || t !== "upgrade_only_0") &&
+      (settings.enableUpgradeOnly1 || t !== "upgrade_only_1") &&
+      (settings.enableUpgradeOnly2 || t !== "upgrade_only_2") &&
+      isUpgradeAllowed
+    );
+  });
+};
 
 const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 分钟窗口
@@ -60,7 +86,7 @@ app.get("/", (req, res) => {
 // 计算路径的路由
 app.post("/find-paths", async (req, res) => {
   try {
-    const { target, items, userLimits, rawGoal } = req.body;
+    const { target, settings, userLimits, rawGoal } = req.body;
 
     // --- 1. 输入验证 ---
     if (typeof target !== "number" || target < -5000 || target > 5000) {
@@ -69,17 +95,15 @@ app.post("/find-paths", async (req, res) => {
       });
     }
 
-    // 检查 items
-    if (!Array.isArray(items) || items.length === 0 || items.length > 300) {
-      console.warn(
-        "Invalid items array:",
-        items ? `Length: ${items.length}` : "Not an array"
-      );
+    // 检查 settings
+    if (!settings || typeof settings !== "object") {
       return res.status(400).json({
-        error:
-          "Invalid input: items must be a non-empty array with a reasonable size (<= 300)",
+        error: "Invalid input: settings must be an object",
       });
     }
+
+    // 后端根据 settings 自行过滤物品
+    const items = filterItems(settings);
 
     // 检查 userLimits
     const defaultLimits = { upgrade0Limit: Infinity, upgrade1Limit: Infinity, upgrade2Limit: Infinity, sanityLimit: Infinity,
@@ -119,9 +143,9 @@ app.post("/find-paths", async (req, res) => {
 
     console.log(
       `[${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}]`,
-      "Goal(用户想凑) =", rawGoal, 
+      "Goal(用户想凑) =", rawGoal,
       "Diff(差值): target =", target,
-      "items length =", items.length,
+      "items count =", items.length,
       "limits =", limits
     );
 
@@ -129,26 +153,13 @@ app.post("/find-paths", async (req, res) => {
     for (const key in limits) {
       finalLimits[key] = limits[key] === null ? Infinity : limits[key];
     }
-    // --- 2. 服务器端缓存 ---
-    let cacheKey;
-    try {
-      const serializableFinalLimits = {};
-      for (const key in finalLimits) {
-        serializableFinalLimits[key] =
-          finalLimits[key] === Infinity ? "__INFINITY__" : finalLimits[key]; 
-      }
-      cacheKey = `paths:${target}:${JSON.stringify(items)}:${JSON.stringify(
-        serializableFinalLimits
-      )}`;
-      console.log(
-        "Generated Cache Key (using finalLimits):",
-        cacheKey.substring(0, 50) + "..."
-      );
-    } catch (e) {
-      return res
-        .status(500)
-        .json({ error: "Internal server error: Could not generate cache key" });
+    // --- 2. 服务器端缓存（简化 key：target + settings + limits）---
+    const serializableFinalLimits = {};
+    for (const key in finalLimits) {
+      serializableFinalLimits[key] =
+        finalLimits[key] === Infinity ? "__INFINITY__" : finalLimits[key];
     }
+    const cacheKey = `paths:${target}:${JSON.stringify(settings)}:${JSON.stringify(serializableFinalLimits)}`;
 
     const cachedPaths = cache.get(cacheKey);
     if (cachedPaths !== undefined) {

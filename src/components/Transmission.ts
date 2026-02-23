@@ -1,7 +1,24 @@
-import { classifyData } from "../DataService";
+interface Settings {
+  [key: string]: boolean;
+}
 
-export const Transmission = async (target, items = classifyData,
-  { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit }, rawGoal
+interface UserLimits {
+  upgrade0Limit: number | string;
+  upgrade1Limit: number | string;
+  upgrade2Limit: number | string;
+  sanityLimit: number | string;
+}
+
+interface ApiError extends Error {
+  status?: number;
+  isNetworkError?: boolean;
+}
+
+export const Transmission = async (
+  target: number,
+  settings: Settings,
+  { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit }: UserLimits,
+  rawGoal: number,
 ) => {
   try {
    const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/find-paths`, {
@@ -9,9 +26,9 @@ export const Transmission = async (target, items = classifyData,
      headers: { "Content-Type": "application/json" },
      body: JSON.stringify({
        target,
-       items,
+       settings,
        userLimits: { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit },
-       rawGoal: rawGoal
+       rawGoal,
      }),
    });
 
@@ -27,7 +44,7 @@ export const Transmission = async (target, items = classifyData,
       } catch (jsonError) {
         // 解析错误响应失败，使用默认错误信息
       }
-      const error = new Error(errorData.message);
+      const error: ApiError = new Error(errorData.message);
       error.status = response.status;
       throw error;
     }
@@ -35,24 +52,23 @@ export const Transmission = async (target, items = classifyData,
     const data = await response.json();
 
     if (!data.success) {
-      const error = new Error(
+      const error: ApiError = new Error(
         data.error || "后端标记计算失败，但未提供错误信息"
       );
-      error.status = 500; 
+      error.status = 500;
       throw error;
     }
 
     return data.paths;
   } catch (error) {
-    if (error.status) {
+    if ((error as ApiError).status) {
       throw error;
     } else {
-      const networkError = new Error(
+      const networkError: ApiError = new Error(
         "无法连接到计算服务器，请检查网络连接或稍后再试。"
       );
-      networkError.isNetworkError = true; 
+      networkError.isNetworkError = true;
       throw networkError;
     }
   }
 };
-

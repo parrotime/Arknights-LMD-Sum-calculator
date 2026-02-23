@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "../../src/assets/styles/Data.css";
-//import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 // eslint-disable-next-line no-unused-vars
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { classifyData } from "../DataService";
 
 const Sidebar = () => (
   <div className="sidebar">
@@ -38,6 +38,42 @@ function DataPage() {
     );
     setTimeout(() => setClickedPanel(null), 300);
   };
+
+  // 从 classifyData 动态生成升级表格数据（Table A）
+  const eliteNames = { "0": "精零", "1": "精一", "2": "精二" };
+  const upgradeRows = classifyData
+    .filter(item => item.type === "upgrade" && item.item_id.endsWith("-1"))
+    .map(item => {
+      const [, elite, level] = item.item_id.split("-");
+      const pair = classifyData.find(i => i.item_id === `1-${elite}-${level}-2`);
+      return {
+        name: `${eliteNames[elite]}${level}级`,
+        value1: String(item.item_value),
+        value2: pair ? String(pair.item_value) : "",
+      };
+    });
+  const upgradeTable1 = upgradeRows.slice(0, 22);
+  const upgradeTable2 = upgradeRows.slice(22);
+
+  // 从 classifyData 动态生成物品价值表格数据（Table B）
+  const fmt = (id) => {
+    const item = classifyData.find(i => i.id === id);
+    if (!item) return { name: "", value: "" };
+    const v = item.item_value;
+    return { name: item.item_name, value: v > 0 ? `+${v}` : String(v) };
+  };
+  const itemTable1 = [87,88,89,210,90,91,107,92,108,106,109,110,93,94,95,211,96,97,111,98].map(fmt);
+  const itemTable2 = [112,113,114,100,101,102,103,105,104,99,213,212,117,118,119,219,218,217,216,215,214].map(fmt);
+
+  // 从 classifyData 动态生成累计升级表格数据（Table D）
+  const upgradeData = Array.from({ length: 30 }, (_, i) => {
+    const n = i + 1;
+    const v = (type, prefix) => {
+      const item = classifyData.find(it => it.type === type && it.item_id === `${prefix}-${n}`);
+      return item ? String(item.item_value) : "";
+    };
+    return { value1: v("upgrade_only_0","1-0"), value2: v("upgrade_only_1","1-1"), value3: v("upgrade_only_2","1-2") };
+  });
 
   const generateStaticTable = (data) => (
     <table className="material-table table-a">
@@ -167,39 +203,6 @@ function DataPage() {
     </table>
   );
 
-  const upgradeData = [
-    { value1: "-61", value2: "-81", value3: "-80" },
-    { value1: "-125", value2: "-165", value3: "-162" },
-    { value1: "-192", value2: "-251", value3: "-244" },
-    { value1: "-262", value2: "-338", value3: "-328" },
-    { value1: "-338", value2: "-427", value3: "-412" },
-    { value1: "-407", value2: "-516", value3: "-497" },
-    { value1: "-482", value2: "-607", value3: "-583" },
-    { value1: "-559", value2: "-700", value3: "-670" },
-    { value1: "-638", value2: "-793", value3: "-757" },
-    { value1: "-718", value2: "-886", value3: "-844" },
-    { value1: "-800", value2: "-982", value3: "-933" },
-    { value1: "-883", value2: "-1077", value3: "-1022" },
-    { value1: "-967", value2: "-1175", value3: "-1110" },
-    { value1: "-1053", value2: "-1273", value3: "-1199" },
-    { value1: "-1139", value2: "-1371", value3: "-1290" },
-    { value1: "-1228", value2: "-1471", value3: "-1381" },
-    { value1: "-1317", value2: "-1570", value3: "-1472" },
-    { value1: "-1407", value2: "-1671", value3: "-1563" },
-    { value1: "-1503", value2: "-1772", value3: "-1654" },
-    { value1: "-1601", value2: "-1874", value3: "-1747" },
-    { value1: "-1707", value2: "-1976", value3: "-1839" },
-    { value1: "-1812", value2: "-2081", value3: "-1932" },
-    { value1: "-1926", value2: "-2185", value3: "-2024" },
-    { value1: "-2040", value2: "-2289", value3: "-2118" },
-    { value1: "-2162", value2: "-2395", value3: "-2213" },
-    { value1: "-2284", value2: "-2502", value3: "-2307" },
-    { value1: "-2413", value2: "-2608", value3: "-2401" },
-    { value1: "-2542", value2: "-2714", value3: "-2496" },
-    { value1: "-2678", value2: "-2823", value3: "-2591" },
-    { value1: "-2815", value2: "-2931", value3: "-2687" },
-  ];
-
   const generateStaticTable5 = (data) => (
     <table className="material-table table-c">
       <thead>
@@ -252,55 +255,9 @@ function DataPage() {
             </div>
 
             <div className="tables-container">
-              {generateStaticTable([
-                { name: "精零1级", value1: "-61", value2: "-125" },
-                { name: "精零5级", value1: "-69", value2: "-141" },
-                { name: "精零10级", value1: "-79", value2: "-159" },
-                { name: "精零15级", value1: "-88", value2: "-177" },
-                { name: "精零20级", value1: "-122", value2: "-251" },
-                { name: "精零25级", value1: "-162", value2: "-324" },
-                { name: "精零30级", value1: "-202", value2: "-404" },
-                { name: "精零35级", value1: "-242", value2: "-484" },
-                { name: "精零40级", value1: "-282", value2: "-564" },
-                { name: "精零45级", value1: "-322", value2: "-644" },
-                { name: "精一1级", value1: "-81", value2: "-165" },
-                { name: "精一5级", value1: "-89", value2: "-179" },
-                { name: "精一10级", value1: "-100", value2: "-199" },
-                { name: "精一15级", value1: "-111", value2: "-222" },
-                { name: "精一20级", value1: "-122", value2: "-244" },
-                { name: "精一25级", value1: "-133", value2: "-265" },
-                { name: "精一30级", value1: "-144", value2: "-288" },
-                { name: "精一35级", value1: "-155", value2: "-310" },
-                { name: "精一40级", value1: "-166", value2: "-332" },
-                { name: "精一45级", value1: "-177", value2: "-354" },
-                { name: "精一50级", value1: "-188", value2: "-376" },
-                { name: "精一55级", value1: "-199", value2: "-398" },
-              ])}
+              {generateStaticTable(upgradeTable1)}
 
-              {generateStaticTable([
-                { name: "精一60级", value1: "-210", value2: "-420" },
-                { name: "精一65级", value1: "-221", value2: "-442" },
-                { name: "精一70级", value1: "-232", value2: "-464" },
-                { name: "精一75级", value1: "-243", value2: "-486" },
-                { name: "精二1级", value1: "-80", value2: "-162" },
-                { name: "精二5级", value1: "-87", value2: "-175" },
-                { name: "精二10级", value1: "-96", value2: "-192" },
-                { name: "精二15级", value1: "-105", value2: "-210" },
-                { name: "精二20级", value1: "-114", value2: "-228" },
-                { name: "精二25级", value1: "-123", value2: "-246" },
-                { name: "精二30级", value1: "-132", value2: "-264" },
-                { name: "精二35级", value1: "-141", value2: "-282" },
-                { name: "精二40级", value1: "-150", value2: "-300" },
-                { name: "精二45级", value1: "-159", value2: "-318" },
-                { name: "精二50级", value1: "-168", value2: "-336" },
-                { name: "精二55级", value1: "-177", value2: "-354" },
-                { name: "精二60级", value1: "-186", value2: "-372" },
-                { name: "精二65级", value1: "-195", value2: "-390" },
-                { name: "精二70级", value1: "-204", value2: "-408" },
-                { name: "精二75级", value1: "-213", value2: "-426" },
-                { name: "精二80级", value1: "-223", value2: "-445" },
-                { name: "精二85级", value1: "-234", value2: "-467" },
-              ])}
+              {generateStaticTable(upgradeTable2)}
             </div>
 
             <div className="explain-text">
@@ -317,52 +274,9 @@ function DataPage() {
             </div>
 
             <div className="tables-container">
-              {generateStaticTable2([
-                { name: "三星通关6理智关卡", value: "+72" },
-                { name: "三星通关9理智关卡", value: "+108" },
-                { name: "三星通关10理智关卡", value: "+120" },
-                { name: "三星通关12理智关卡", value: "+144" },
-                { name: "三星通关15理智关卡", value: "+180" },
-                { name: "三星通关18理智关卡(等效刷3次1-7)", value: "+216" },
-                { name: "三星通关20理智关卡", value: "+240" },
-                { name: "三星通关21理智关卡", value: "+252" },
-                { name: "三星通关25理智关卡", value: "+300" },
-                { name: "三星通关25理智常驻剿灭关卡", value: "+250" },
-                { name: "三星通关30理智关卡(等效刷5次1-7)", value: "+360" },
-                { name: "三星通关36理智关卡(等效刷6次1-7)", value: "+432" },
-                { name: "二星通关6理智关卡", value: "+60" },
-                { name: "二星通关9理智关卡", value: "+90" },
-                { name: "二星通关10理智关卡", value: "+100" },
-                { name: "二星通关12理智关卡", value: "+120" },
-                { name: "二星通关15理智关卡", value: "+150" },
-                { name: "二星通关18理智关卡", value: "+180" },
-                { name: "二星通关20理智关卡", value: "+200" },
-                { name: "二星通关21理智关卡", value: "+210" },
-              ])}
+              {generateStaticTable2(itemTable1)}
 
-              {generateStaticTable2([
-                { name: "二星通关25理智关卡", value: "+250" },
-                { name: "二星通关30理智关卡", value: "+300" },
-                { name: "二星通关36理智关卡(等效刷5次1-7)", value: "+360" },
-                { name: "基建合成绿色材料", value: "-100" },
-                { name: "基建合成蓝色材料", value: "-200" },
-                { name: "基建合成紫色材料", value: "-300" },
-                { name: "基建合成橙色材料", value: "-400" },
-                { name: "故事集活动商店使用1代币", value: "+10" },
-                { name: "危机合约活动商店使用1代币", value: "+70" },
-                { name: "sidestory活动商店使用1代币", value: "+20" },
-                { name: "sidestory活动商店使用5代币", value: "+2000" },
-                { name: "sidestory活动商店使用7代币", value: "+5000" },
-                { name: "贸易站售卖2条赤金", value: "+1000" },
-                { name: "贸易站售卖3条赤金", value: "+1500" },
-                { name: "贸易站售卖4条赤金", value: "+2000" },
-                { name: "通关龙门币副本CE-1", value: "+1700" },
-                { name: "通关龙门币副本CE-2", value: "+2800" },
-                { name: "通关龙门币副本CE-3", value: "+4100" },
-                { name: "通关龙门币副本CE-4", value: "+5700" },
-                { name: "通关龙门币副本CE-5", value: "+7500" },
-                { name: "通关龙门币副本CE-6", value: "+10000" },
-              ])}
+              {generateStaticTable2(itemTable2)}
             </div>
 
             <div className="tables-container">
