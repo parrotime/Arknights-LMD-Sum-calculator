@@ -4,7 +4,7 @@ export const Transmission = async (target, items = classifyData,
   { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit }, rawGoal
 ) => {
   try {
-   const response = await fetch(`${process.env.REACT_APP_API_URL || ""}/find-paths`, {
+   const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/find-paths`, {
      method: "POST",
      headers: { "Content-Type": "application/json" },
      body: JSON.stringify({
