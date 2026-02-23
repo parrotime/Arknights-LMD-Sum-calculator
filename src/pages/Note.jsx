@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import "../../src/assets/styles/Note.css";
-//import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import styles from "../assets/styles/Note.module.css";
 // eslint-disable-next-line no-unused-vars
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 
@@ -48,23 +47,23 @@ function NotePage() {
         ↑ 返回顶部
       </button>
 
-      <div className="main-note-content">
-        <div className="note-page">
+      <div className={styles['main-note-content']}>
+        <div className={styles['note-page']}>
           <h1>注意事项</h1>
 
-          <div className="notice-list">
-            <div className="notice-item">
-              <div className="notice-title">龙门币数值输入规范</div>
-              <div className="notice-content">
+          <div className={styles['notice-list']}>
+            <div className={styles['notice-item']}>
+              <div className={styles['notice-title']}>龙门币数值输入规范</div>
+              <div className={styles['notice-content']}>
                 1. 输入要求：两个[0,99999999]之间的整数
                 <br />
                 2. 差值限制：|数值1 - 数值2| ≤ 5000（当前版本限制）
               </div>
             </div>
 
-            <div className="notice-item">
-              <div className="notice-title">使用作战记录的注意事项</div>
-              <div className="notice-content">
+            <div className={styles['notice-item']}>
+              <div className={styles['notice-title']}>使用作战记录的注意事项</div>
+              <div className={styles['notice-content']}>
                 <h3>1.一般情况下不要让干员升级</h3>
                 可以给干员使用多个作战记录，但是请注意不要让干员得到升级
                 <br />
@@ -80,7 +79,7 @@ function NotePage() {
                 <br />
                 <br />
                 <h3>3. 龙门币消耗与经验计算公式</h3>
-                <div className="formula">
+                <div className={styles.formula}>
                   龙门币消耗 = Σ<sub>i</sub>(Δ经验<sub>i</sub> × X<sub>i</sub>)
                 </div>
                 解释：某级别升下一级所需的全部经验乘以 X ,
@@ -94,7 +93,7 @@ function NotePage() {
                   href="https://ngabbs.com/read.php?tid=16847042"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link3"
+                  className={styles['external-link3']}
                 >
                   干员升级经验及龙门币消耗成本统计(收束测试)
                 </a>
@@ -116,8 +115,8 @@ function NotePage() {
                 例子解释2：假设本次计算路径中某个步骤是“通过【1】次使用【精零1级初级作战记录】，【花费】【125】个龙门币”
                 虽然使用后会升级到4级，但是这里的数据是提前设置好的，因此可以按照计算所得步骤，直接对干员使用1个绿色作战记录。
                 <br />
-                <div className="image-gallery">
-                  <div className="image-item">
+                <div className={styles['image-gallery']}>
+                  <div className={styles['image-item']}>
                     <img
                       src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note1.webp"
                       alt="示例图片1"
@@ -128,9 +127,9 @@ function NotePage() {
                       }
                       style={{ cursor: "pointer" }}
                     />
-                    <span className="image-caption">初始值</span>
+                    <span className={styles['image-caption']}>初始值</span>
                   </div>
-                  <div className="image-item">
+                  <div className={styles['image-item']}>
                     <img
                       src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note2.webp"
                       alt="示例图片2"
@@ -141,11 +140,11 @@ function NotePage() {
                       }
                       style={{ cursor: "pointer" }}
                     />
-                    <span className="image-caption">
+                    <span className={styles['image-caption']}>
                       只使用一个基础作战记录，发生正常的跨级现象
                     </span>
                   </div>
-                  <div className="image-item">
+                  <div className={styles['image-item']}>
                     <img
                       src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note3.webp"
                       alt="示例图片3"
@@ -156,7 +155,7 @@ function NotePage() {
                       }
                       style={{ cursor: "pointer" }}
                     />
-                    <span className="image-caption">
+                    <span className={styles['image-caption']}>
                       只使用一个初级作战记录，发生正常的跨级现象
                     </span>
                   </div>
@@ -182,8 +181,8 @@ function NotePage() {
                 这个时候就不要图方便，逮着同一个干员连续使用2个初级作战记录，因为这样会导致干员从15级升到16级，花费的龙门币从预期的222*2=444变为445，产生了误差。
                 所以这时候最好是找2个精一15级的干员各使用1个初级作战记录，这样能保证最终消耗的龙门币数量是222*2=444。
                 <br />
-                <div className="image-gallery">
-                  <div className="image-item">
+                <div className={styles['image-gallery']}>
+                  <div className={styles['image-item']}>
                     <img
                       src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note7.webp"
                       alt="示例图片1"
@@ -194,9 +193,9 @@ function NotePage() {
                       }
                       style={{ cursor: "pointer" }}
                     />
-                    <span className="image-caption">初始值</span>
+                    <span className={styles['image-caption']}>初始值</span>
                   </div>
-                  <div className="image-item">
+                  <div className={styles['image-item']}>
                     <img
                       src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note11.webp"
                       alt="示例图片2"
@@ -207,11 +206,11 @@ function NotePage() {
                       }
                       style={{ cursor: "pointer" }}
                     />
-                    <span className="image-caption">
+                    <span className={styles['image-caption']}>
                       只使用一个初级作战记录，没有发生跨级现象
                     </span>
                   </div>
-                  <div className="image-item">
+                  <div className={styles['image-item']}>
                     <img
                       src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note10.webp"
                       alt="示例图片3"
@@ -222,7 +221,7 @@ function NotePage() {
                       }
                       style={{ cursor: "pointer" }}
                     />
-                    <span className="image-caption">
+                    <span className={styles['image-caption']}>
                       这里连续对同一干员使用多个初级作战记录，发生跨级现象，导致误差（从15级跳到了16级）
                     </span>
                   </div>
@@ -234,8 +233,8 @@ function NotePage() {
                 因此作者提前设置在同一条路径中每个关于“使用作战记录”的步骤只会使用1次，但是这个步骤会重复出现，以此提醒每次只同时使用1个作战记录，不要连续使用。
                 不要为了图方便对同一干员同时连续使用多个作战记录
                 <br />
-                <div className="image-gallery">
-                  <div className="image-item">
+                <div className={styles['image-gallery']}>
+                  <div className={styles['image-item']}>
                     <img
                       src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note12.webp"
                       alt="示例图片1"
@@ -246,11 +245,11 @@ function NotePage() {
                       }
                       style={{ cursor: "pointer" }}
                     />
-                    <span className="image-caption">
+                    <span className={styles['image-caption']}>
                       只使用1个基础作战记录，消耗188数量的龙门币
                     </span>
                   </div>
-                  <div className="image-item">
+                  <div className={styles['image-item']}>
                     <img
                       src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note13.webp"
                       alt="示例图片2"
@@ -261,11 +260,11 @@ function NotePage() {
                       }
                       style={{ cursor: "pointer" }}
                     />
-                    <span className="image-caption">
+                    <span className={styles['image-caption']}>
                       连续使用2个基础作战记录，消耗376数量的龙门币
                     </span>
                   </div>
-                  <div className="image-item">
+                  <div className={styles['image-item']}>
                     <img
                       src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/note14.webp"
                       alt="示例图片3"
@@ -276,7 +275,7 @@ function NotePage() {
                       }
                       style={{ cursor: "pointer" }}
                     />
-                    <span className="image-caption">
+                    <span className={styles['image-caption']}>
                       连续使用3个基础作战记录，消耗563数量的龙门币，并不是预期的188*3=562个龙门币
                     </span>
                   </div>
@@ -284,17 +283,17 @@ function NotePage() {
               </div>
             </div>
 
-            <div className="notice-item">
-              <div className="notice-title">orz</div>
-              <div className="notice-content"></div>
+            <div className={styles['notice-item']}>
+              <div className={styles['notice-title']}>orz</div>
+              <div className={styles['notice-content']}></div>
             </div>
           </div>
         </div>
       </div>
 
       {zoomedImage && (
-        <div className="image-overlay" onClick={handleOverlayClick}>
-          <img src={zoomedImage} alt="放大图片" className="zoomed-image" />
+        <div className={styles['image-overlay']} onClick={handleOverlayClick}>
+          <img src={zoomedImage} alt="放大图片" className={styles['zoomed-image']} />
         </div>
       )}
     </div>

@@ -124,76 +124,6 @@
 
 
 @media (max-width: 800px) {
- .app-container {
-    flex-direction: column;
-    height: auto;
-    overflow: visible;
-  }
-
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    padding: 10px;
-    height: auto;
-    position: static;
-    top: unset;
-    left: unset;
-    gap: 5px;
-  }
-
-  .sidebar-title {
-    display: none;
-  }
-
-  .sidebar-box {
-    width: 48%;
-    margin: 0;
-    padding: 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 16px;
-    box-sizing: border-box;
-  }
-
-  .input-area {
-    width: 100%;
-    padding: 20px;
-    margin-left: 0;
-    height: auto;
-  }
-
-  .main-content-container {
-    flex-direction: column;
-    width: 100%;
-    min-height: unset;
-    gap: 20px;
-  }
-
-  .left-panel {
-    width: 100%;
-    height: auto;
-  }
-
-  .right-panel {
-    width: 100%;
-    height: auto;
-  }
-
-  .history-box {
-    width: 94%;
-    height: auto;
-    margin: 20px auto;
-    padding: 12px 20px;
-    background-color: #f9f9f9;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow-y: visible;
-  }
-
-
   .path-renderer-pagination {
     flex-direction: column;
     gap: 10px;
@@ -238,10 +168,10 @@
   }
 
   .romantic-image {
-    max-width: 20%; /* 图片最大宽度不超过容器 */
-    height: auto; /* 高度自适应 */
-    border-radius: 8px; /* 轻微的圆角 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 添加阴影，使其突出 */
+    max-width: 20%; 
+    height: auto;
+    border-radius: 8px; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
   }
 
 }

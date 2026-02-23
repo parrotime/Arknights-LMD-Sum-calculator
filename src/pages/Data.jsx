@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../../src/assets/styles/Data.css";
+import styles from "../assets/styles/Data.module.css";
 // eslint-disable-next-line no-unused-vars
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { classifyData } from "../DataService";
@@ -76,7 +76,7 @@ function DataPage() {
   });
 
   const generateStaticTable = (data) => (
-    <table className="material-table table-a">
+    <table className={`${styles['material-table']} ${styles['table-a']}`}>
       <thead>
         <tr>
           <th>等级</th>
@@ -97,7 +97,7 @@ function DataPage() {
   );
 
   const generateStaticTable2 = (data) => (
-    <table className="material-table table-b">
+    <table className={`${styles['material-table']} ${styles['table-b']}`}>
       <thead>
         <tr>
           <th>使用方式</th>
@@ -116,7 +116,7 @@ function DataPage() {
   );
 
   const generateStaticTable3 = (data) => (
-    <table className="material-table table-c">
+    <table className={`${styles['material-table']} ${styles['table-c']}`}>
       <thead>
         <tr>
           <th>两数之差范围</th>
@@ -158,7 +158,7 @@ function DataPage() {
   );
 
   const generateUpgradeTable4a = (data) => (
-    <table className="material-table table-d table-d1">
+    <table className={`${styles['material-table']} ${styles['table-d']} ${styles['table-d1']}`}>
       <thead>
         <tr>
           <th>使用基础作战记录数量</th>
@@ -181,7 +181,7 @@ function DataPage() {
   );
 
   const generateUpgradeTable4b = (data) => (
-    <table className="material-table table-d table-d2">
+    <table className={`${styles['material-table']} ${styles['table-d']} ${styles['table-d2']}`}>
       <thead>
         <tr>
           <th>使用基础作战记录数量</th>
@@ -204,7 +204,7 @@ function DataPage() {
   );
 
   const generateStaticTable5 = (data) => (
-    <table className="material-table table-c">
+    <table className={`${styles['material-table']} ${styles['table-c']}`}>
       <thead>
         <tr>
           <th>消耗理智数量</th>
@@ -229,22 +229,22 @@ function DataPage() {
         ↑ 返回顶部
       </button>
 
-      <div className="main-data-content">
+      <div className={styles['main-data-content']}>
         <div
-          className={`accordion-panel ${
-            !activePanels.includes(0) ? "collapsed" : ""
+          className={`${styles['accordion-panel']} ${
+            !activePanels.includes(0) ? styles.collapsed : ""
           }`}
         >
           <div
-            className={`panel-header ${clickedPanel === 0 ? "active" : ""}`}
+            className={`${styles['panel-header']} ${clickedPanel === 0 ? styles.active : ""}`}
             onClick={() => togglePanel(0)}
           >
             <h3>参考数据</h3>
           </div>
           <div
-            className={`panel-content ${clickedPanel === 0 ? "active" : ""}`}
+            className={`${styles['panel-content']} ${clickedPanel === 0 ? styles.active : ""}`}
           >
-            <div className="explain-text">
+            <div className={styles['explain-text']}>
               <p>
                 下面是计算过程中使用到的数据，负数表示使用龙门币，正数表示获得龙门币，数据仅供参考
                 <br />
@@ -254,13 +254,13 @@ function DataPage() {
               </p>
             </div>
 
-            <div className="tables-container">
+            <div className={styles['tables-container']}>
               {generateStaticTable(upgradeTable1)}
 
               {generateStaticTable(upgradeTable2)}
             </div>
 
-            <div className="explain-text">
+            <div className={styles['explain-text']}>
               <p>
                 三星通关获得龙门币数量 = 使用理智数量 * 12
                 <br />
@@ -273,13 +273,13 @@ function DataPage() {
               </p>
             </div>
 
-            <div className="tables-container">
+            <div className={styles['tables-container']}>
               {generateStaticTable2(itemTable1)}
 
               {generateStaticTable2(itemTable2)}
             </div>
 
-            <div className="tables-container">
+            <div className={styles['tables-container']}>
               {generateUpgradeTable4a(upgradeData)}
               {generateUpgradeTable4b(upgradeData)}
             </div>
@@ -287,20 +287,20 @@ function DataPage() {
         </div>
 
         <div
-          className={`accordion-panel ${
-            !activePanels.includes(1) ? "collapsed" : ""
+          className={`${styles['accordion-panel']} ${
+            !activePanels.includes(1) ? styles.collapsed : ""
           }`}
         >
           <div
-            className={`panel-header ${clickedPanel === 1 ? "active" : ""}`}
+            className={`${styles['panel-header']} ${clickedPanel === 1 ? styles.active : ""}`}
             onClick={() => togglePanel(1)}
           >
             <h3>理智消耗与对应关卡速查表</h3>
           </div>
           <div
-            className={`panel-content ${clickedPanel === 1 ? "active" : ""}`}
+            className={`${styles['panel-content']} ${clickedPanel === 1 ? styles.active : ""}`}
           >
-            <div className="explain-text">
+            <div className={styles['explain-text']}>
               <p>
                 理智消耗与对应关卡速查表，这里仅为推荐关卡
                 <br />
@@ -327,25 +327,25 @@ function DataPage() {
         </div>
 
         <div
-          className={`accordion-panel ${
-            !activePanels.includes(2) ? "collapsed" : ""
+          className={`${styles['accordion-panel']} ${
+            !activePanels.includes(2) ? styles.collapsed : ""
           }`}
         >
           <div
-            className={`panel-header ${clickedPanel === 2 ? "active" : ""}`}
+            className={`${styles['panel-header']} ${clickedPanel === 2 ? styles.active : ""}`}
             onClick={() => togglePanel(2)}
           >
             <h3>推荐路径快速查找：目标龙门币 - 现有龙门币 &gt; 0 的情况</h3>
           </div>
           <div
-            className={`panel-content ${clickedPanel === 2 ? "active" : ""}`}
+            className={`${styles['panel-content']} ${clickedPanel === 2 ? styles.active : ""}`}
           >
-            <div className="explain-text">
+            <div className={styles['explain-text']}>
               <p>
                 以下路径用于快速查找，不一定是最适合、最简单的路径方案，仅供参考。（默认初始龙门币为0，目标龙门币为对应值）
               </p>
             </div>
-            <div className="tables-container">
+            <div className={styles['tables-container']}>
               {generateStaticTable3([
                 {
                   num: "+1",
@@ -401,25 +401,25 @@ function DataPage() {
         </div>
 
         <div
-          className={`accordion-panel ${
-            !activePanels.includes(3) ? "collapsed" : ""
+          className={`${styles['accordion-panel']} ${
+            !activePanels.includes(3) ? styles.collapsed : ""
           }`}
         >
           <div
-            className={`panel-header ${clickedPanel === 3 ? "active" : ""}`}
+            className={`${styles['panel-header']} ${clickedPanel === 3 ? styles.active : ""}`}
             onClick={() => togglePanel(3)}
           >
             <h3>推荐路径快速查找：目标龙门币 - 现有龙门币 &lt; 0 的情况</h3>
           </div>
           <div
-            className={`panel-content ${clickedPanel === 3 ? "active" : ""}`}
+            className={`${styles['panel-content']} ${clickedPanel === 3 ? styles.active : ""}`}
           >
-            <div className="explain-text">
+            <div className={styles['explain-text']}>
               <p>
                 以下路径用于快速查找，不一定是最适合的、最简单的路径方案，仅供参考。（默认初始龙门币为对应值，目标龙门币为0）
               </p>
             </div>
-            <div className="tables-container">
+            <div className={styles['tables-container']}>
               {generateStaticTable3([
                 {
                   num: "-1",

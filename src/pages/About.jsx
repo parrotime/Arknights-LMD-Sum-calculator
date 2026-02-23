@@ -1,6 +1,5 @@
 import React from 'react';
-import '../../src/assets/styles/About.css';
-//import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import styles from '../assets/styles/About.module.css';
 // eslint-disable-next-line no-unused-vars
 import { HashRouter as Router, Link } from "react-router-dom";
 
@@ -38,14 +37,14 @@ function AboutPage() {
         ↑ 返回顶部
       </button>
 
-      <div className="main-note-content">
-        <div className="note-page">
+      <div className={styles['main-about-content']}>
+        <div className={styles['about-page']}>
           <h1>关于</h1>
 
-          <div className="notice-list">
-            <div className="notice-item">
-              <div className="notice-title">当前版本v1.1.3</div>
-              <div className="notice-content">
+          <div className={styles['notice-list']}>
+            <div className={styles['notice-item']}>
+              <div className={styles['notice-title']}>当前版本v1.1.3</div>
+              <div className={styles['notice-content']}>
                 1.
                 本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎提出改进意见orz
                 <br />
@@ -54,7 +53,7 @@ function AboutPage() {
                   href="https://space.bilibili.com/32772539"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link3"
+                  className={styles['external-link3']}
                 >
                   网页作者B站主页
                 </a>
@@ -64,7 +63,7 @@ function AboutPage() {
                   href="https://github.com/parrotime/Arknights-LMD-Sum-calculator"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link3"
+                  className={styles['external-link3']}
                 >
                   github项目源码
                 </a>
@@ -74,7 +73,7 @@ function AboutPage() {
                   href="https://prts.wiki/w/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link3"
+                  className={styles['external-link3']}
                 >
                   PRTS wiki
                 </a>
@@ -83,7 +82,7 @@ function AboutPage() {
                   href="https://ngabbs.com/read.php?tid=26714373"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link3"
+                  className={styles['external-link3']}
                 >
                   [嵌字烤肉][授权]好猫咪！！！(By
                   coconattsu_corn)(大量迷迭香/博士表情包)(更新了十多张)
@@ -97,7 +96,7 @@ function AboutPage() {
                   href="https://bbs.nga.cn/read.php?tid=21247901"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link3"
+                  className={styles['external-link3']}
                 >
                   公招需要花费龙门币时代的另一位作者的凑数计算器NGA帖子
                 </a>
@@ -109,15 +108,15 @@ function AboutPage() {
                   href="https://ngabbs.com/read.php?tid=16847042"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="external-link3"
+                  className={styles['external-link3']}
                 >
                   干员升级经验及龙门币消耗成本统计(收束测试)
                 </a>
                 <br />
               </div>
 
-              <div className="notice-title">声明</div>
-              <div className="notice-content">
+              <div className={styles['notice-title']}>声明</div>
+              <div className={styles['notice-content']}>
                 网页所涉及的游戏《明日方舟》相关的名称、数据、素材、表情包等均为其各自所有者的资产，仅供识别。
                 <br />
                 网页内使用的游戏图片素材、文本，仅用于介绍与说明，其版权均属于上海鹰角网络科技有限公司。
@@ -127,8 +126,8 @@ function AboutPage() {
                 <br />
               </div>
 
-              <div className="notice-title">时间轴</div>
-              <div className="notice-content">
+              <div className={styles['notice-title']}>时间轴</div>
+              <div className={styles['notice-content']}>
                 2025年4月19日 --- 【v1.0.0】 版本上线。
                 <br />
                 2025年4月20日 ---【v1.1.0】

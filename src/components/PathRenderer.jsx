@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { getItemById } from "../DataService";
-import "../assets/styles/PathRenderer.css";
+import styles from "../assets/styles/PathRenderer.module.css";
 
 // 路径渲染器
 const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, onNextPath, isBonusReady, activeImageUrl,}) => {
@@ -9,7 +9,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
   
   // 路径为空
   if (safePath.length === 0) {
-    return <div className="path-renderer-error">没有找到合适的路径</div>;
+    return <div className={styles['path-renderer-error']}>没有找到合适的路径</div>;
   }
 
   // 预计算每步累计龙门币
@@ -22,30 +22,30 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
   }, []);
 
   return (
-    <div className="path-renderer-container">
-      <div className="path-renderer-path-group">
-        <div className="title">参考路径方案</div>
+    <div className={styles['path-renderer-container']}>
+      <div className={styles['path-renderer-path-group']}>
+        <div className={styles.title}>参考路径方案</div>
         {totalPaths > 1 && (
-          <div className="path-renderer-pagination">
+          <div className={styles['path-renderer-pagination']}>
             <button
-              className="path-renderer-nav-button path-renderer-prev-button"
+              className={`${styles['path-renderer-nav-button']} ${styles['path-renderer-prev-button']}`}
               onClick={onPrevPath}
             >
               {/* [修改] 根据 isBonusReady 状态显示不同文本 */}
               {isBonusReady ? "🎁点击一下" : "← 上一路径"}
             </button>
-            <div className="path-renderer-dot-container">
+            <div className={styles['path-renderer-dot-container']}>
               {Array.from({ length: totalPaths }).map((_, index) => (
                 <span
                   key={index}
-                  className={`path-renderer-dot ${
-                    index === currentIndex ? "active" : ""
+                  className={`${styles['path-renderer-dot']} ${
+                    index === currentIndex ? styles.active : ""
                   }`}
                 />
               ))}
             </div>
             <button
-              className="path-renderer-nav-button path-renderer-next-button"
+              className={`${styles['path-renderer-nav-button']} ${styles['path-renderer-next-button']}`}
               onClick={onNextPath}
             >
               {isBonusReady ? "🎁点击一下" : "下一路径 →"}
@@ -56,7 +56,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
         {safePath.map((step, stepIndex) => {
           if (!step || typeof step !== "object") {
             return (
-              <div key={`step-${stepIndex}`} className="path-renderer-error">
+              <div key={`step-${stepIndex}`} className={styles['path-renderer-error']}>
                 无效步骤数据
               </div>
             );
@@ -65,7 +65,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
           const item = getItemById(Number(step.id));
           if (!item) {
             return (
-              <div key={`step-${stepIndex}`} className="path-renderer-error">
+              <div key={`step-${stepIndex}`} className={styles['path-renderer-error']}>
                 未知物品ID: {step.id}
               </div>
             );
@@ -77,7 +77,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
           const stepValue = itemValue * step.count;
 
           return (
-            <div key={`step-${stepIndex}`} className="path-renderer-step-item">
+            <div key={`step-${stepIndex}`} className={styles['path-renderer-step-item']}>
               <span style={{ fontWeight: "bold" }}>步骤 {stepIndex + 1}：</span>
               通过【{step.count}】次【
               <span style={{ color: getRarityColor(rarity) }}>{itemName}</span>
@@ -91,11 +91,11 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
       
       {/* [修改] 条件渲染彩蛋图片，现在它能显示任何激活的图片 */}
       {activeImageUrl && (
-          <div className="romantic-image-container">
+          <div className={styles['romantic-image-container']}>
             <img
               src={activeImageUrl}
               alt="Surprise"
-              className="romantic-image"
+              className={styles['romantic-image']}
             />
           </div>
         )

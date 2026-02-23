@@ -5,7 +5,7 @@ import NotePage from "./pages/Note";
 import DataPage from "./pages/Data";
 import AboutPage from "./pages/About";
 import PathRenderer from "./components/PathRenderer";
-import "./assets/styles/App.css";
+import styles from "./assets/styles/App.module.css";
 
 const defaultState = {
   num1: "", //当前数量
@@ -585,64 +585,64 @@ const MainCalculator = () => {
         ↑ 返回顶部
       </button>
 
-      <div className="input-area">
-        <div className="main-container">
-          <div className="main-content-container">
-            <div className="content-panel left-panel">
-              <div className="title-bar">
+      <div className={styles['input-area']}>
+        <div className={styles['main-container']}>
+          <div className={styles['main-content-container']}>
+            <div className={`${styles['content-panel']} ${styles['left-panel']}`}>
+              <div className={styles['title-bar']}>
                 <h1>龙门币凑数计算器</h1>
               </div>
 
-              <div className="left-panel-title-container">
-                <div className="title-text">
+              <div className={styles['left-panel-title-container']}>
+                <div className={styles['title-text']}>
                   请输入两个[0,99999999]区间的整数
                 </div>
-                <div className="title-text">且两数差值处于[-5000,5000]区间</div>
+                <div className={styles['title-text']}>且两数差值处于[-5000,5000]区间</div>
               </div>
 
-              <div className="main-content">
-                <div className="input-container">
-                  <div className="input-group-horizontal">
-                    <div className="input-group">
-                      <div className="input-wrapper-text">当前龙门币数量:</div>
-                      <div className="input-wrapper">
+              <div className={styles['main-content']}>
+                <div className={styles['input-container']}>
+                  <div className={styles['input-group-horizontal']}>
+                    <div className={styles['input-group']}>
+                      <div className={styles['input-wrapper-text']}>当前龙门币数量:</div>
+                      <div className={styles['input-wrapper']}>
                         <input
                           type="text"
-                          className="input-box"
+                          className={styles['input-box']}
                           placeholder="请输入数字"
                           value={state.num1}
                           onChange={(e) => handleInputChange(e, "num1")}
                         />
                         {state.error1 && (
-                          <div className="error-message">{state.error1}</div>
+                          <div className={styles['error-message']}>{state.error1}</div>
                         )}
                       </div>
                     </div>
 
-                    <div className="input-group">
-                      <div className="input-wrapper-text">目标龙门币数量:</div>
-                      <div className="input-wrapper">
+                    <div className={styles['input-group']}>
+                      <div className={styles['input-wrapper-text']}>目标龙门币数量:</div>
+                      <div className={styles['input-wrapper']}>
                         <input
                           type="text"
-                          className="input-box"
+                          className={styles['input-box']}
                           placeholder="请输入数字"
                           value={state.num2}
                           onChange={(e) => handleInputChange(e, "num2")}
                         />
                         {state.error2 && (
-                          <div className="error-message">{state.error2}</div>
+                          <div className={styles['error-message']}>{state.error2}</div>
                         )}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="upgrade-count-container">
-                  <div className="toggle-container">
-                    <div className="toggle-text">允许升级的精零干员数量：</div>
+                <div className={styles['upgrade-count-container']}>
+                  <div className={styles['toggle-container']}>
+                    <div className={styles['toggle-text']}>允许升级的精零干员数量：</div>
                     <input
                       type="number"
-                      className="short-input-box"
+                      className={styles['short-input-box']}
                       min="0"
                       max="10"
                       step="1"
@@ -653,11 +653,11 @@ const MainCalculator = () => {
                       }
                     />
                   </div>
-                  <div className="toggle-container">
-                    <div className="toggle-text">允许升级的精一干员数量：</div>
+                  <div className={styles['toggle-container']}>
+                    <div className={styles['toggle-text']}>允许升级的精一干员数量：</div>
                     <input
                       type="number"
-                      className="short-input-box"
+                      className={styles['short-input-box']}
                       min="0"
                       max="10"
                       step="1"
@@ -668,11 +668,11 @@ const MainCalculator = () => {
                       }
                     />
                   </div>
-                  <div className="toggle-container">
-                    <div className="toggle-text">允许升级的精二干员数量：</div>
+                  <div className={styles['toggle-container']}>
+                    <div className={styles['toggle-text']}>允许升级的精二干员数量：</div>
                     <input
                       type="number"
-                      className="short-input-box"
+                      className={styles['short-input-box']}
                       min="0"
                       max="10"
                       step="1"
@@ -683,11 +683,11 @@ const MainCalculator = () => {
                       }
                     />
                   </div>
-                  <div className="toggle-container">
-                    <div className="toggle-text">允许升级的理智的数量：</div>
+                  <div className={styles['toggle-container']}>
+                    <div className={styles['toggle-text']}>允许升级的理智的数量：</div>
                     <input
                       type="number"
-                      className="short-input-box"
+                      className={styles['short-input-box']}
                       min="0"
                       max="200"
                       step="1"
@@ -701,34 +701,34 @@ const MainCalculator = () => {
                 </div>
 
                 <button
-                  className="calculate-button"
+                  className={styles['calculate-button']}
                   onClick={handleCalculate}
                   disabled={state.isCalculating}
                 >
                   {state.isCalculating ? "计算中..." : "立即计算"}
                 </button>
 
-                <div className="result-section">
-                  <div className="output-wrapper-text">
+                <div className={styles['result-section']}>
+                  <div className={styles['output-wrapper-text']}>
                     计算得到还需要龙门币数量:
                   </div>
-                  <div className="result-container">
+                  <div className={styles['result-container']}>
                     <input
                       type="text"
-                      className="result-box"
+                      className={styles['result-box']}
                       placeholder="两者相差"
                       value={state.result}
                       readOnly
                     />
                   </div>
                   {state.differenceError && (
-                    <div className="error-message">{state.differenceError}</div>
+                    <div className={styles['error-message']}>{state.differenceError}</div>
                   )}
                 </div>
 
-                <div className="usage-guide">
-                  <div className="notice-title">注意事项</div>
-                  <div className="notice-content">
+                <div className={styles['usage-guide']}>
+                  <div className={styles['notice-title']}>注意事项</div>
+                  <div className={styles['notice-content']}>
                     1.点击“立即计算”按钮开始计算，点击页面底部参考路径方案中的“上一路径”和“下一路径”按钮可以切换路径方案。
                     <br />
                     2.设置面板中的开关调整之后，需要重新点击“立即计算”按钮才会生效。
@@ -739,90 +739,90 @@ const MainCalculator = () => {
               </div>
             </div>
 
-            <div className="content-panel right-panel">
-              <div className="title-bar">
+            <div className={`${styles['content-panel']} ${styles['right-panel']}`}>
+              <div className={styles['title-bar']}>
                 <h1>设置区域</h1>
               </div>
 
-              <div className="toggle-wrapper">
+              <div className={styles['toggle-wrapper']}>
                 {/* --- 第一组：使用理智 --- */}
-                <h4 className="settings-group-title">使用理智</h4>
+                <h4 className={styles['settings-group-title']}>使用理智</h4>
                 {settingsOptions.slice(0, 4).map(({ text, key }) => (
-                  <div className="toggle-container" key={key}>
-                    <div className="toggle-text">{text}</div>
-                    <label className="toggle-switch">
+                  <div className={styles['toggle-container']} key={key}>
+                    <div className={styles['toggle-text']}>{text}</div>
+                    <label className={styles['toggle-switch']}>
                       <input
                         type="checkbox"
                         checked={state.settings[key]}
                         onChange={() => handleToggleChange(key)}
                       />
-                      <span className="slider" />
+                      <span className={styles.slider} />
                     </label>
                   </div>
                 ))}
 
                 {/* --- 第二组：基建 --- */}
-                <h4 className="settings-group-title">基建</h4>
+                <h4 className={styles['settings-group-title']}>基建</h4>
                 {settingsOptions.slice(4, 6).map(({ text, key }) => (
-                  <div className="toggle-container" key={key}>
-                    <div className="toggle-text">{text}</div>
-                    <label className="toggle-switch">
+                  <div className={styles['toggle-container']} key={key}>
+                    <div className={styles['toggle-text']}>{text}</div>
+                    <label className={styles['toggle-switch']}>
                       <input
                         type="checkbox"
                         checked={state.settings[key]}
                         onChange={() => handleToggleChange(key)}
                       />
-                      <span className="slider" />
+                      <span className={styles.slider} />
                     </label>
                   </div>
                 ))}
 
                 {/* --- 第三组：使用代币 --- */}
-                <h4 className="settings-group-title">使用代币</h4>
+                <h4 className={styles['settings-group-title']}>使用代币</h4>
                 {settingsOptions.slice(6, 11).map(({ text, key }) => (
-                  <div className="toggle-container" key={key}>
-                    <div className="toggle-text">{text}</div>
-                    <label className="toggle-switch">
+                  <div className={styles['toggle-container']} key={key}>
+                    <div className={styles['toggle-text']}>{text}</div>
+                    <label className={styles['toggle-switch']}>
                       <input
                         type="checkbox"
                         checked={state.settings[key]}
                         onChange={() => handleToggleChange(key)}
                       />
-                      <span className="slider" />
+                      <span className={styles.slider} />
                     </label>
                   </div>
                 ))}
 
                 {/* --- 第四组：干员升级 --- */}
-                <h4 className="settings-group-title">干员升级</h4>
+                <h4 className={styles['settings-group-title']}>干员升级</h4>
                 {settingsOptions.slice(11).map(({ text, key }) => (
-                  <div className="toggle-container" key={key}>
-                    <div className="toggle-text">{text}</div>
-                    <label className="toggle-switch">
+                  <div className={styles['toggle-container']} key={key}>
+                    <div className={styles['toggle-text']}>{text}</div>
+                    <label className={styles['toggle-switch']}>
                       <input
                         type="checkbox"
                         checked={state.settings[key]}
                         onChange={() => handleToggleChange(key)}
                       />
-                      <span className="slider" />
+                      <span className={styles.slider} />
                     </label>
                   </div>
                 ))}
 
                 {/* --- 在最后一组下方，新增提示文字 --- */}
-                <p className="settings-footer-note">
+                <p className={styles['settings-footer-note']}>
                   请注意当“只允许...”按钮开启时，请确保其他三个升级开关中至少有一个为开启状态。
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="history-box">
+          <div className={styles['history-box']}>
             
             {state.isCalculating ? (
-              <div className="loading-container">
-                <div className="progress-bar">
-                  <div className="progress-bar-fill"></div>
+              <div className={styles['loading-container']}>
+                <div className={styles['progress-bar']}>
+                  <div className={styles['progress-bar-fill']}></div>
                 </div>
                 <p>正在计算路径，请稍候...</p>
               </div>
@@ -839,13 +839,13 @@ const MainCalculator = () => {
                 activeImageUrl={activeImageUrl}
               />
             ) : (
-              <div className="no-path">{""}</div>
+              <div className={styles['no-path']}>{""}</div>
             )}
 
             {state.pathCache.length > 0 &&
               state.clickCount >= 10 &&
               state.clickCount < 30 && (
-                <div className="change-over-text">
+                <div className={styles['change-over-text']}>
                   <p>
                     {state.clickCount < 20
                       ? "已经尝试过所有路径"
@@ -857,16 +857,16 @@ const MainCalculator = () => {
         </div>
       </div>
 
-      <div className="footer">
-        <a target="_blank" rel="noreferrer noopener" className="external-link2">
+      <div className={styles.footer}>
+        <a target="_blank" rel="noreferrer noopener" className={styles['external-link2']}>
           鄂ICP备2025105560号-1
         </a>
-        <a className="external-link2">© 2025 龙门币凑数计算器（https://ark-lmd.top）</a>
+        <a className={styles['external-link2']}>© 2025 龙门币凑数计算器（https://ark-lmd.top）</a>
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className={styles['modal-overlay']}>
+          <div className={styles['modal-content']}>
             <h3>提醒</h3>
             <p>
               您已开启“只允许连续多次对精零/精一/精二1级干员进行升级”开关，请检查以下开关至少有一个是打开的，否则无法计算出结果。当前开关状态：
@@ -891,16 +891,16 @@ const MainCalculator = () => {
       )}
 
       {/* [修改] 为彩蛋弹窗的根元素动态添加 'show' 类，用于控制CSS动画 */}
-      <div className={`modal-overlay ${showBonusModal ? "show" : ""}`}>
+      <div className={`${styles['modal-overlay']} ${showBonusModal ? styles.show : ""}`}>
         {/* Bonus Modal 内容不变，但现在它的显示/隐藏会受CSS控制 */}
         {showBonusModal && (
-          <div className="modal-content bonus-modal">
+          <div className={`${styles['modal-content']} ${styles['bonus-modal']}`}>
             <img
               src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/rosmontis5.webp"
               alt="Bonus"
-              className="bonus-image"
+              className={styles['bonus-image']}
             />
-            <p className="bonus-text">
+            <p className={styles['bonus-text']}>
               迷迭香发现你点了好多次按钮，她提醒你记得休息一下
             </p>
             {/* [修改] 关闭弹窗时，同时重置彩蛋准备状态，以便下次还能触发 */}
