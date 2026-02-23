@@ -1,145 +1,122 @@
 import { classifyData } from "./DataService.js";
 
-const tradeGoldCache = new Map();
-const materialCache = new Map();
-const stageCache = new Map();
-
-const stageIds = [87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 107, 108, 109, 110, 111, 112, 113, 114, 210, 211,];
-const tradeGoldIds = [117, 118, 119];
-const materialIds = [100, 101, 102, 103];
-
 const MAX_STEPS = 6;
 const MAX_PATHS_PER_SUM = 10;
 const TARGET_PATH_COUNT = 10;
 
-// 获取物品最大使用次数 
-const getMaxCountForId = (id, items) => {
-  const item = items.find((i) => i.id === id);
-  if (item?.type === "upgrade") return 1;
-  if ([1, 2, 3, 4, 5, 6, 7, 8, 21, 22, 23, 24, 25, 26, 51, 52].includes(id))
-    return 1;
-  if (id >= 150 && id <= 180) return 5;
-  if (id >= 181 && id <= 209) return 3;
+// 获取物品最大使用次数
+const getMaxCountForId = (id, itemMap) => {
+  const item = itemMap.get(id);
+  if (!item) return 10;
+  const t = item.type;
+  if (t === "upgrade") return 1;
+  if (t === "upgrade_only_1") return 5;
+  if (t === "upgrade_only_2") return 3;
   return 10;
 };
 
-//计算“售卖赤金”最优组合
-const getOptimalTradeGoldCombo = (subTarget) => {
-  if (subTarget < 0) return { steps: Infinity, combo: [] };
-  if (tradeGoldCache.has(subTarget)) return tradeGoldCache.get(subTarget);
-  let remaining = subTarget;
-  let steps = 0;
-  let combo = [];
-  const count2000 = Math.floor(remaining / 2000);
-  if (count2000 > 0) {
-    combo.push({ id: 119, count: count2000 });
-    remaining -= count2000 * 2000;
-    steps += count2000;
-  }
-  const count1500 = Math.floor(remaining / 1500);
-  if (count1500 > 0) {
-    combo.push({ id: 118, count: count1500 });
-    remaining -= count1500 * 1500;
-    steps += count1500;
-  }
-  const count1000 = Math.floor(remaining / 1000);
-  if (count1000 > 0) {
-    combo.push({ id: 117, count: count1000 });
-    remaining -= count1000 * 1000;
-    steps += count1000;
-  }
-  const result =
-    remaining === 0 ? { steps, combo } : { steps: Infinity, combo: [] };
-  tradeGoldCache.set(subTarget, result);
-  return result;
-};
+//通用贪心面额组合（售卖赤金 / 基建合成共用）
+const tradeDenoms = [{ id: 119, value: 2000 }, { id: 118, value: 1500 }, { id: 117, value: 1000 }];
+const materialDenoms = [{ id: 103, value: 400 }, { id: 102, value: 300 }, { id: 101, value: 200 }, { id: 100, value: 100 }];
 
-//计算“基建合成”最优组合
-const getOptimalMaterialCombo = (subTarget) => {
-  if (subTarget > 0) return { steps: Infinity, combo: [] };
-  if (materialCache.has(subTarget)) return materialCache.get(subTarget);
-  let remaining = Math.abs(subTarget);
+const getOptimalGreedyCombo = (absTarget, denoms, cache) => {
+  if (absTarget === 0) return { steps: 0, combo: [] };
+  if (absTarget < 0) return { steps: Infinity, combo: [] };
+  if (cache.has(absTarget)) return cache.get(absTarget);
+  let remaining = absTarget;
   let steps = 0;
-  let combo = [];
-  const count400 = Math.floor(remaining / 400);
-  if (count400 > 0) {
-    combo.push({ id: 103, count: count400 });
-    remaining -= count400 * 400;
-    steps += count400;
-  }
-  const count300 = Math.floor(remaining / 300);
-  if (count300 > 0) {
-    combo.push({ id: 102, count: count300 });
-    remaining -= count300 * 300;
-    steps += count300;
-  }
-  const count200 = Math.floor(remaining / 200);
-  if (count200 > 0) {
-    combo.push({ id: 101, count: count200 });
-    remaining -= count200 * 200;
-    steps += count200;
-  }
-  const count100 = Math.floor(remaining / 100);
-  if (count100 > 0) {
-    combo.push({ id: 100, count: count100 });
-    remaining -= count100 * 100;
-    steps += count100;
-  }
-  const result =
-    remaining === 0 ? { steps, combo } : { steps: Infinity, combo: [] };
-  materialCache.set(subTarget, result);
-  return result;
-};
-
-//计算“消耗理智”最优组合
-const getOptimalStageCombo = (subTarget, stageItems, items, epsilon) => {
-  if (subTarget <= 0) return { steps: 0, combo: [] };
-  if (stageCache.has(subTarget)) return stageCache.get(subTarget);
-  let remaining = subTarget;
-  let steps = 0;
-  let combo = [];
-  for (const item of stageItems) {
-    const maxCount = Math.min(
-      getMaxCountForId(item.id, items),
-      Math.floor(remaining / item.item_value)
-    );
-    if (maxCount > 0) {
-      combo.push({ id: item.id, count: maxCount });
-      remaining -= maxCount * item.item_value;
-      steps += maxCount;
-      if (remaining <= epsilon) break;
+  const combo = [];
+  for (const { id, value } of denoms) {
+    const cnt = Math.floor(remaining / value);
+    if (cnt > 0) {
+      combo.push({ id, count: cnt });
+      remaining -= cnt * value;
+      steps += cnt;
     }
   }
-  const result =
-    remaining <= epsilon ? { steps, combo } : { steps: Infinity, combo: [] };
-  stageCache.set(subTarget, result);
+  const result = remaining === 0 ? { steps, combo } : { steps: Infinity, combo: [] };
+  cache.set(absTarget, result);
   return result;
+};
+
+//计算”消耗理智”最优组合（精确有界背包 DP）
+const getOptimalStageCombo = (subTarget, stageItems, itemMap, cache) => {
+  if (subTarget <= 0) return { steps: 0, combo: [] };
+  if (cache.has(subTarget)) return cache.get(subTarget);
+
+  const T = Math.round(subTarget);
+  const dp = new Array(T + 1).fill(Infinity);
+  dp[0] = 0;
+  const from = new Array(T + 1).fill(null);
+
+  for (const item of stageItems) {
+    const val = item.item_value;
+    const maxCnt = getMaxCountForId(item.id, itemMap);
+    for (let v = T; v >= val; v--) {
+      for (let k = 1; k <= maxCnt && k * val <= v; k++) {
+        if (dp[v - k * val] + k < dp[v]) {
+          dp[v] = dp[v - k * val] + k;
+          from[v] = { id: item.id, count: k, prev: v - k * val };
+        }
+      }
+    }
+  }
+
+  if (dp[T] === Infinity) {
+    const result = { steps: Infinity, combo: [] };
+    cache.set(subTarget, result);
+    return result;
+  }
+
+  const combo = [];
+  let v = T;
+  while (v > 0 && from[v]) {
+    combo.push({ id: from[v].id, count: from[v].count });
+    v = from[v].prev;
+  }
+
+  const result = { steps: dp[T], combo };
+  cache.set(subTarget, result);
+  return result;
+};
+
+//根据物品类型获取最优组合片段（两阶段共用）
+const getOptimalFragment = (item, count, stageItems, itemMap, caches) => {
+  const val = item.item_value * count;
+  if (item.type === "trade") {
+    const { combo } = getOptimalGreedyCombo(val, tradeDenoms, caches.trade);
+    return combo.length > 0 ? combo : null;
+  }
+  if (item.type === "material") {
+    const { combo } = getOptimalGreedyCombo(Math.abs(val), materialDenoms, caches.material);
+    return combo.length > 0 ? combo : null;
+  }
+  if (item.type === "3_star" || item.type === "2_star") {
+    const { combo } = getOptimalStageCombo(val, stageItems, itemMap, caches.stage);
+    return combo.length > 0 ? combo : null;
+  }
+  return [{ id: item.id, count }];
 };
 
 // 路径规范 - 只选择最优的步骤组合
-function normalizePath(path, items) {
+function normalizePath(path, itemMap, caches) {
   let totalTradeValue = 0;
   let totalMaterialValue = 0;
   const otherSteps = []; //非售卖赤金、基建合成的步骤
 
   for (const step of path) {
-    if (tradeGoldIds.includes(step.id)) {
-      const item = items.find((i) => i.id === step.id);
-      if (item?.item_value) {
-        totalTradeValue += item.item_value * step.count;
-      }
-    } else if (materialIds.includes(step.id)) {
-      const item = items.find((i) => i.id === step.id);
-      if (item?.item_value) {
-        totalMaterialValue += item.item_value * step.count;
-      }
+    const item = itemMap.get(step.id);
+    if (item?.type === "trade") {
+      totalTradeValue += item.item_value * step.count;
+    } else if (item?.type === "material") {
+      totalMaterialValue += item.item_value * step.count;
     } else {
       otherSteps.push(step);
     }
   }
 
-  const { combo: optimalTradeCombo } = getOptimalTradeGoldCombo(totalTradeValue);
-  const { combo: optimalMaterialCombo } = getOptimalMaterialCombo(totalMaterialValue);
+  const { combo: optimalTradeCombo } = getOptimalGreedyCombo(totalTradeValue, tradeDenoms, caches.trade);
+  const { combo: optimalMaterialCombo } = getOptimalGreedyCombo(Math.abs(totalMaterialValue), materialDenoms, caches.material);
 
   const pathMap = new Map();
 
@@ -163,10 +140,10 @@ function normalizePath(path, items) {
     .sort((a, b) => a.id - b.id);
 }
 
-function savePath(dp, sum, path, maxPaths, target, epsilon, items, 
-  upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, targetPathCount) {
-  
-  const normalizedPath = normalizePath(path, items);
+function savePath(ctx, sum, path) {
+  const { dp, maxPaths, target, itemMap, upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, targetPathCount, caches } = ctx;
+
+  const normalizedPath = normalizePath(path, itemMap, caches);
   const normalizedPathKey = normalizedPath
     .map((s) => `${s.id}x${s.count}`)
     .join("_");
@@ -174,7 +151,7 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
   let actualNormalizedSum = 0; //用于计算LMD总和
 
   for (const step of normalizedPath) {
-    const item = items.find((i) => i.id === step.id);
+    const item = itemMap.get(step.id);
     if (item?.item_value) {
       actualNormalizedSum += item.item_value * step.count;
     } else {
@@ -183,8 +160,8 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
       );
     }
   }
-  if (Math.abs(actualNormalizedSum - sum) > epsilon * 100) {
-    return false; 
+  if (actualNormalizedSum !== sum) {
+    return false;
   }
 
   let upgrade0Count = 0,
@@ -193,7 +170,7 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
     totalSanity = 0;
 
   for (const step of path) {
-    const item = items.find((i) => i.id === step.id);
+    const item = itemMap.get(step.id);
     if (!item) continue;
     if (item.type === "upgrade_only_0") upgrade0Count += step.count;
     if (item.type === "upgrade_only_1") upgrade1Count += step.count;
@@ -277,7 +254,7 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
   }
 
   // 检查是否找到精确解
-  if (pathWasAddedOrReplaced && Math.abs(sum - target) <= epsilon) {
+  if (pathWasAddedOrReplaced && sum === target) {
     const targetState = dp.get(target);
     const targetPaths = targetState?.paths;
     if (targetPaths && targetPaths.length >= targetPathCount) {
@@ -288,12 +265,12 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
 }
 
 //检查路径是否满足物品使用次数限制
-function isPathValid(path, items) {
+function isPathValid(path, itemMap) {
   const idCountMap = new Map();
   for (const step of path) {
     const currentCount = idCountMap.get(step.id) || 0;
     idCountMap.set(step.id, currentCount + step.count);
-    const maxCount = getMaxCountForId(step.id, items);
+    const maxCount = getMaxCountForId(step.id, itemMap);
     if (idCountMap.get(step.id) > maxCount) return false;
   }
   return true;
@@ -317,7 +294,7 @@ function mergeAndSortPath(oldPath, newSteps) {
 }
 
 
-function finalizeResult(dp, target, maxPaths, stageIds, items) {
+function finalizeResult(dp, target, maxPaths, itemMap) {
   const targetState = dp.get(target);
   const result = targetState ? targetState.paths : [];
   const uniquePaths = new Set();
@@ -327,7 +304,10 @@ function finalizeResult(dp, target, maxPaths, stageIds, items) {
     .map((path) => {
       if (!Array.isArray(path)) return null;
       const nonStageKey = path
-        .filter((step) => !stageIds.includes(step.id))
+        .filter((step) => {
+          const t = itemMap.get(step.id)?.type;
+          return t !== "3_star" && t !== "2_star";
+        })
         .map((s) => `${s.id}x${s.count}`)
         .join("_");
       if (uniquePaths.has(nonStageKey)) return null;
@@ -353,17 +333,45 @@ function finalizeResult(dp, target, maxPaths, stageIds, items) {
       // 优先 3: 都相同，按 ID 排序
       return a.length > 0 && b.length > 0 ? a[0].id - b[0].id : 0;
     })
-    .slice(0, maxPaths);
+    .slice(0, maxPaths * 3);
 
-  // 对 finalResult 中的每个路径进行内部步骤重排 
-  const reorderedFinalResult = finalResult.map((path) => {
+  // 轻量多样性选择：按策略类型签名限制同类路径数量
+  const MAX_PER_SIG = 4;
+  const sigCounts = new Map();
+  const diverse = [];
+  const overflow = [];
+  for (const path of finalResult) {
+    let sig = 0;
+    for (const step of path) {
+      const item = itemMap.get(step.id);
+      if (!item) continue;
+      if (item.consume > 0) sig |= 1;
+      else if (item.type === "trade") sig |= 2;
+      else if (item.type === "material") sig |= 4;
+      else if (item.type?.startsWith("upgrade")) sig |= 8;
+    }
+    const cnt = sigCounts.get(sig) || 0;
+    if (cnt < MAX_PER_SIG) {
+      sigCounts.set(sig, cnt + 1);
+      diverse.push(path);
+    } else {
+      overflow.push(path);
+    }
+    if (diverse.length >= maxPaths) break;
+  }
+  if (diverse.length < maxPaths) {
+    diverse.push(...overflow.slice(0, maxPaths - diverse.length));
+  }
+
+  // 对每个路径进行内部步骤重排
+  const reorderedFinalResult = diverse.map((path) => {
     if (!Array.isArray(path)) return path;
 
     const positiveSteps = [];
     const negativeSteps = [];
 
     for (const step of path) {
-      const item = items.find((i) => i.id === step.id);
+      const item = itemMap.get(step.id);
       if (item && item.item_value > 0) {
         positiveSteps.push(step);
       } else {
@@ -378,11 +386,14 @@ function finalizeResult(dp, target, maxPaths, stageIds, items) {
 }
 
 //主函数：寻找满足目标值的路径 
-export const findPaths = (target, items = classifyData, userLimits = {}, epsilon = 1e-6) => {
+export const findPaths = (target, items = classifyData, userLimits = {}) => {
   if (typeof target !== "number" || !Array.isArray(items)) {
     return [];
   }
 
+  const caches = { trade: new Map(), material: new Map(), stage: new Map() };
+  const itemMap = new Map(items.map(i => [i.id, i]));
+  const pruneThreshold = Math.min(Math.max(Math.abs(target), 1000), 3000);
   let enoughPaths = false;
   const upgrade0Limit = userLimits.upgrade0Limit ?? 10;
   const upgrade1Limit = userLimits.upgrade1Limit ?? 10;
@@ -390,47 +401,36 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
   const sanityLimit = userLimits.sanityLimit ?? Infinity;
   const stageItems = items
     .filter(
-      (item) =>
-        (stageIds.includes(item.id) && item.type === "3_star") ||
-        item.type === "2_star"
+      (item) => item.type === "3_star" || item.type === "2_star"
     )
     .sort((a, b) => b.item_value - a.item_value);
   const dp = new Map([[0, { paths: [[]], keys: new Set([""]) }]]);
   const validItems = items.filter(
     (item) =>
       typeof item?.item_value === "number" &&
-      Math.abs(item.item_value) > epsilon
+      item.item_value !== 0
   );
   const sortedItems = [...validItems].sort(
     (a, b) => Math.abs(b.item_value) - Math.abs(a.item_value)
   );
 
+  const ctx = { dp, maxPaths: MAX_PATHS_PER_SUM, target, itemMap,
+    upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit,
+    targetPathCount: TARGET_PATH_COUNT, caches };
+
   // 第一阶段：单步路径
   for (const item of sortedItems) {
     const itemValue = item.item_value;
-    const maxCount = getMaxCountForId(item.id, items);
+    const maxCount = getMaxCountForId(item.id, itemMap);
     let count = 0;
     while (
       count < maxCount &&
       Math.abs(itemValue * (count + 1) - target) <= Math.abs(target) + Math.abs(itemValue)*0.5 ) {
       count++;
       const newSum = itemValue * count;
-      let newPath = [{ id: item.id, count }];
-      if (tradeGoldIds.includes(item.id)) {
-        const { combo } = getOptimalTradeGoldCombo(newSum);
-        if (combo.length > 0) newPath = combo;
-        else continue;
-      } else if (materialIds.includes(item.id)) {
-        const { combo } = getOptimalMaterialCombo(newSum);
-        if (combo.length > 0) newPath = combo;
-        else continue;
-      } else if (stageIds.includes(item.id)) {
-        const { combo } = getOptimalStageCombo(newSum, stageItems, items, epsilon);
-        if (combo.length > 0) newPath = combo;
-        else continue;
-      }
-      if (savePath(dp, newSum, newPath, MAX_PATHS_PER_SUM, target, epsilon, items,
-          upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, TARGET_PATH_COUNT)){
+      const newPath = getOptimalFragment(item, count, stageItems, itemMap, caches);
+      if (!newPath) continue;
+      if (savePath(ctx, newSum, newPath)){
         enoughPaths = true;
       }
       if (enoughPaths) break;
@@ -443,10 +443,10 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
     const currentStatesEntries = Array.from(dp.entries());
     for (const [currentSum, state] of currentStatesEntries) {
       const paths = state.paths;
-      if (Math.abs(currentSum - target) > 3000) continue;
+      if (Math.abs(currentSum - target) > pruneThreshold) continue;
       for (const item of sortedItems) {
         const itemValue = item.item_value;
-        const maxCount = getMaxCountForId(item.id, items);
+        const maxCount = getMaxCountForId(item.id, itemMap);
         let count = 0;
         while (
           count < maxCount &&
@@ -454,42 +454,23 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
           count++;
           const newSum = currentSum + itemValue * count;
           for (const oldPath of paths) {
-            let newPathFragment;
-            let useOptimalCombo = false;
-            if (tradeGoldIds.includes(item.id)) {
-              const tradeSum = itemValue * count;
-              const { combo } = getOptimalTradeGoldCombo(tradeSum);
-              if (combo.length === 0) continue;
-              newPathFragment = combo;
-              useOptimalCombo = true;
-            } else if (materialIds.includes(item.id)) {
-              const materialSum = itemValue * count;
-              const { combo } = getOptimalMaterialCombo(materialSum);
-              if (combo.length === 0) continue;
-              newPathFragment = combo;
-              useOptimalCombo = true;
-            } else if (stageIds.includes(item.id)) {
-              const stageSum = itemValue * count;
-              const { combo } = getOptimalStageCombo(stageSum, stageItems, items, epsilon);
-              if (combo.length === 0) continue;
-              newPathFragment = combo;
-              useOptimalCombo = true;
-            } else {
-              newPathFragment = [{ id: item.id, count }];
-            }
+            const newPathFragment = getOptimalFragment(item, count, stageItems, itemMap, caches);
+            if (!newPathFragment) continue;
             const potentialNewPath = mergeAndSortPath(oldPath, newPathFragment);
-            if (isPathValid(potentialNewPath, items)) {
-              if (savePath(dp, newSum, potentialNewPath, MAX_PATHS_PER_SUM, target, epsilon, items,
-                  upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, TARGET_PATH_COUNT)){
+            if (isPathValid(potentialNewPath, itemMap)) {
+              if (savePath(ctx, newSum, potentialNewPath)){
                 enoughPaths = true;
               }
               if (enoughPaths) break;
             }
           }
+          if (enoughPaths) break;
         }
+        if (enoughPaths) break;
       }
+      if (enoughPaths) break;
     }
   }
 
-  return finalizeResult(dp, target, TARGET_PATH_COUNT, stageIds, items);
+  return finalizeResult(dp, target, TARGET_PATH_COUNT, itemMap);
 };
