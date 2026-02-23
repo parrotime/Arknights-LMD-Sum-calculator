@@ -5,11 +5,6 @@ import "../assets/styles/PathRenderer.css";
 
 // 路径渲染器
 const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, onNextPath, isBonusReady, activeImageUrl,}) => {
-  //console.log("PathRenderer 被调用");
-  //console.log("PathRenderer 接收的 path:", path);
-  //console.log("PathRenderer totalPaths:", totalPaths);
-  //console.log("PathRenderer currentIndex:", currentIndex);
-
   const safePath = Array.isArray(path) ? path : [];
   
   // 路径为空

@@ -1,5 +1,4 @@
 import React, { useReducer, useState, useCallback, useEffect } from "react";
-//import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Transmission } from "./components/Transmission";
 import NotePage from "./pages/Note";
@@ -90,7 +89,6 @@ const reducer = (state, action) => {
         result: action.value,
       };
     case "SET_PATHS":
-      console.log("Reducer SET_PATHS:", action.paths);
       return {
         ...state,
         pathCache: action.paths,
@@ -224,21 +222,6 @@ const MainCalculator = () => {
     state.settings.enableUpgradeOnly1,
     state.settings.enableUpgradeOnly2,
   ]); // 依赖项数组
-
-  // 开关变化处理
-  /*
-  const handleToggleChange = useCallback(
-    (key) => {
-      dispatch({ type: "TOGGLE_SETTING", key });
-      if (
-        key === "enableUpgradeOnlyFor1" &&
-        !state.settings.enableUpgradeOnlyFor1
-      ) {
-        setShowModal(true);
-      }
-    },
-    [state.settings]
-  );*/
 
   const handleToggleChange = useCallback(
     (key) => {
@@ -382,23 +365,18 @@ const MainCalculator = () => {
       const sanityLimit =
         state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10);
 
-      //console.log("filteredItems:", filteredItems);
-
       const cacheKey = `${difference}_${Object.entries(state.settings)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([k, v]) => `${k}:${v}`)
         .join(
           "|"
         )}_${upgrade0Limit}_${upgrade1Limit}_${upgrade2Limit}_${sanityLimit}`;
-      //console.log("生成的 cacheKey:", cacheKey);
       const cachedResult = localStorage.getItem(`pathCache_${cacheKey}`);
 
       if (cachedResult) {
         try {
           const paths = JSON.parse(cachedResult);
-          //console.log("从缓存读取路径:", JSON.stringify(paths, null, 2));
           if (!paths || paths.length === 0) {
-            //console.log("缓存为空，重新计算");
             localStorage.removeItem(`pathCache_${cacheKey}`);
           } else {
             dispatch({ type: "SET_PATHS", paths });
@@ -417,13 +395,10 @@ const MainCalculator = () => {
             return;
           }
         } catch (e) {
-          //console.error("解析缓存失败:", e);
-          localStorage.removeItem(`pathCache_${cacheKey}`); // 移除损坏的缓存
+          localStorage.removeItem(`pathCache_${cacheKey}`);
+
         }
       }
-
-      //console.log("缓存未命中或无效，开始调用 Transmission");
-      const startTime = Date.now();
 
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("计算超时,请重试")), 15000)
@@ -441,20 +416,16 @@ const MainCalculator = () => {
         ),
           timeoutPromise,
         ]);
-        //console.log("Transmission 返回的 paths:", paths ? paths.length : 0, "条");
 
         if (!paths || paths.length === 0) {
-          //console.error("后端返回空路径数组");
           dispatch({
             type: "SET_ERROR",
             field: "differenceError",
             value: "计算完成，但未找到满足条件的路径方案。",
           });
-          //paths = [];
-          dispatch({ type: "SET_PATHS", paths: [] }); // 确保路径为空
+          dispatch({ type: "SET_PATHS", paths: [] });
         } else {
           localStorage.setItem(`pathCache_${cacheKey}`, JSON.stringify(paths));
-          console.log("缓存已保存，耗时:", Date.now() - startTime, "ms");
           managePathCache(cacheKey);
         }
         dispatch({ type: "SET_PATHS", paths });
@@ -470,7 +441,6 @@ const MainCalculator = () => {
           ],
         });
       } catch (error) {
-        //console.error("计算或API调用失败:", error);
         let errorMessage = "发生未知错误，请稍后再试。";
 
         if (error.isNetworkError) {
@@ -501,7 +471,6 @@ const MainCalculator = () => {
           field: "differenceError",
           value: errorMessage,
         });
-        //paths = [];
         dispatch({ type: "SET_PATHS", paths: [] });
         dispatch({
           type: "SET_HISTORY",

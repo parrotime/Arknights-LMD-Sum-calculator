@@ -281,10 +281,7 @@ function savePath(dp, sum, path, maxPaths, target, epsilon, items,
     const targetState = dp.get(target);
     const targetPaths = targetState?.paths;
     if (targetPaths && targetPaths.length >= targetPathCount) {
-      //console.log(`发现精确解! sum=${sum}, 规范化路径: ${normalizedPathKey}. 目标 ${target} 的路径数已达 ${targetPaths.length} (>=${targetPathCount})`);
       return true;
-    } else {
-      //console.log(`发现精确解! sum=${sum}, 规范化路径: ${normalizedPathKey}. (目标 ${target} 的路径数: ${targetPaths?.length ?? 0}/${targetPathCount})`);
     }
   }
   return false;
@@ -321,7 +318,6 @@ function mergeAndSortPath(oldPath, newSteps) {
 
 
 function finalizeResult(dp, target, maxPaths, stageIds, items) {
-  const startTime = Date.now();
   const targetState = dp.get(target);
   const result = targetState ? targetState.paths : [];
   const uniquePaths = new Set();
@@ -378,18 +374,11 @@ function finalizeResult(dp, target, maxPaths, stageIds, items) {
     return [...positiveSteps, ...negativeSteps];
   });
 
-  //.log("最终返回结果:", finalResult);
-  //console.log("最终返回(重排后)结果:", reorderedFinalResult); 
-  //console.log("耗时:", Date.now() - startTime);
-  //return finalResult;
   return reorderedFinalResult;
 }
 
 //主函数：寻找满足目标值的路径 
 export const findPaths = (target, items = classifyData, userLimits = {}, epsilon = 1e-6) => {
-  console.log("计算目标差值:", target);
-  //console.log("AAAAA 输入参数:", target, items, userLimits, epsilon);
-  // 输入验证 
   if (typeof target !== "number" || !Array.isArray(items)) {
     return [];
   }
@@ -412,10 +401,6 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
       typeof item?.item_value === "number" &&
       Math.abs(item.item_value) > epsilon
   );
-  /*console.log(
-    "有效物品:",
-    validItems.map((i) => `${i.item_name}(${i.item_value})`)
-  );*/
   const sortedItems = [...validItems].sort(
     (a, b) => Math.abs(b.item_value) - Math.abs(a.item_value)
   );
@@ -427,7 +412,6 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
     let count = 0;
     while (
       count < maxCount &&
-      //Math.abs(itemValue * (count + 1) - target) <= Math.abs(target)
       Math.abs(itemValue * (count + 1) - target) <= Math.abs(target) + Math.abs(itemValue)*0.5 ) {
       count++;
       const newSum = itemValue * count;
@@ -502,11 +486,8 @@ export const findPaths = (target, items = classifyData, userLimits = {}, epsilon
               if (enoughPaths) break;
             }
           }
-          //if (enoughPaths) break;
         }
-        //if (enoughPaths) break;
       }
-      //if (enoughPaths) break;
     }
   }
 
