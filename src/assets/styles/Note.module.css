@@ -35,6 +35,12 @@
   letter-spacing: 0.05em;
 }
 
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .notice-list .notice-item {
   padding: 18px 25px;
   background: rgba(255, 255, 255, 0.95);
@@ -43,7 +49,6 @@
   line-height: 1.6;
   font-size: 1.1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 15px;
 }
 
 .notice-title {
@@ -54,7 +59,15 @@
 
 .notice-content {
   padding-left: 10px;
-  font-size: 1rem; 
+  font-size: 1rem;
+}
+
+.notice-content p {
+  margin: 0 0 0.8rem 0;
+}
+
+.notice-content p:last-child {
+  margin-bottom: 0;
 }
 
 .formula {
@@ -63,7 +76,10 @@
   color: #2c3e50;
   padding: 15px;
   display: block;
-  text-align: center; 
+  text-align: center;
+  background: #f5f7fa;
+  border-radius: 8px;
+  margin: 0.8rem 0;
 }
 
 .external-link3 {

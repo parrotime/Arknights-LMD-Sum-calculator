@@ -276,7 +276,7 @@
     □ About 页面：版本历史改为可视化时间线组件
     【来源：角度二-7.1, 角度二-7.3, 角度二-7.4, 角度二-7.5】
 
-4.5 无障碍访问（Accessibility）
+4.5 无障碍访问（Accessibility）【跳过】
     □ 14 个 toggle switch 添加 aria-label 或关联 <label>
     □ 弹窗焦点管理：打开时 trap focus，关闭时恢复，支持 Escape 关闭
     □ "返回顶部"按钮改为滚动超过一定距离后才显示

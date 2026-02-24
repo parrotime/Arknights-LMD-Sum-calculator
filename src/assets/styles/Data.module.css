@@ -99,12 +99,11 @@
 }
 
 .tables-container {
-  display: flex;
-  flex-wrap: wrap; 
-  gap: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   width: 100%;
   margin-top: 20px;
-  justify-content: center; 
 }
 
 .material-table {
@@ -140,11 +139,11 @@
 }
 
 .table-a {
-  width: 48%;
+  width: 100%;
 }
 
 .table-b {
-  width: 48%;
+  width: 100%;
 }
 
 .table-c {
@@ -152,8 +151,60 @@
 }
 
 .table-d {
-  width: 48%;
+  width: 100%;
   min-width: 300px;
+}
+
+.path-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.path-card {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  border: 1px solid #e8edf2;
+}
+
+.path-card-header {
+  display: inline-block;
+  background: linear-gradient(135deg, #5da8f0 0%, #8dc1f5 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 6px 18px;
+  border-radius: 0 0 10px 0;
+}
+
+.path-card-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.path-label {
+  font-weight: 600;
+  color: #34495e;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.path-steps {
+  margin: 0;
+  padding-left: 1.4em;
+  color: #2c3e50;
+  line-height: 1.7;
+  font-size: 0.92rem;
+}
+
+.path-steps li {
+  margin-bottom: 4px;
 }
 
 
@@ -178,8 +229,7 @@
   }
 
   .tables-container {
-    flex-direction: column;
-    align-items: center;
+    grid-template-columns: 1fr;
   }
 
   .table-a,
@@ -208,5 +258,13 @@
   .table-c td:nth-child(2) {
     width: 80%;
     padding: 12px 15px;
+  }
+
+  .path-card-body {
+    padding: 12px 14px;
+  }
+
+  .path-steps {
+    font-size: 0.85rem;
   }
 }

@@ -3,7 +3,7 @@ import styles from "../assets/styles/Data.module.css";
 import { classifyData } from "../DataService";
 
 function DataPage() {
-  const [activePanels, setActivePanels] = useState([]);
+  const [activePanels, setActivePanels] = useState([0]);
   const [clickedPanel, setClickedPanel] = useState(null); 
 
   const togglePanel = (index) => {
@@ -90,46 +90,43 @@ function DataPage() {
     </table>
   );
 
-  const generateStaticTable3 = (data) => (
-    <table className={`${styles['material-table']} ${styles['table-c']}`}>
-      <thead>
-        <tr>
-          <th>两数之差范围</th>
-          <th>推荐路径</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.reduce((acc, row, index, array) => {
-          if (index % 2 === 0) {
-            const nextRow = array[index + 1];
-            const formatWay = (way) =>
-              way.includes("。")
-                ? way.split("。").map((part, i) => (
-                    <React.Fragment key={i}>
-                      {part}
-                      {i < way.split("。").length - 1 && <br />}
-                    </React.Fragment>
-                  ))
-                : way;
+  const parseSteps = (way) =>
+    way.split("。").map(s => s.trim()).filter(Boolean);
 
-            acc.push(
-              <tr key={index}>
-                <td rowSpan="2">{`${row.num} ${
-                  nextRow ? nextRow.num : row.num
-                }`}</td>
-                <td>{formatWay(row.way)}</td>
-              </tr>,
-              nextRow && (
-                <tr key={index + 1}>
-                  <td>{formatWay(nextRow.way)}</td>
-                </tr>
-              )
-            );
-          }
-          return acc;
-        }, [])}
-      </tbody>
-    </table>
+  const generatePathCards = (data) => (
+    <div className={styles['path-cards']}>
+      {data.reduce((acc, row, index, array) => {
+        if (index % 2 === 0) {
+          const nextRow = array[index + 1];
+          acc.push(
+            <div className={styles['path-card']} key={index}>
+              <div className={styles['path-card-header']}>{row.num}</div>
+              <div className={styles['path-card-body']}>
+                <div>
+                  <div className={styles['path-label']}>路径 A</div>
+                  <ol className={styles['path-steps']}>
+                    {parseSteps(row.way).map((step, i) => (
+                      <li key={i}>{step}</li>
+                    ))}
+                  </ol>
+                </div>
+                {nextRow && (
+                  <div>
+                    <div className={styles['path-label']}>路径 B</div>
+                    <ol className={styles['path-steps']}>
+                      {parseSteps(nextRow.way).map((step, i) => (
+                        <li key={i}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        }
+        return acc;
+      }, [])}
+    </div>
   );
 
   const generateUpgradeTable4a = (data) => (
@@ -314,8 +311,8 @@ function DataPage() {
                 以下路径用于快速查找，不一定是最适合、最简单的路径方案，仅供参考。（默认初始龙门币为0，目标龙门币为对应值）
               </p>
             </div>
-            <div className={styles['tables-container']}>
-              {generateStaticTable3([
+            <div>
+              {generatePathCards([
                 {
                   num: "+1",
                   way: "步骤 1：通过【1】次使用【贸易站售卖2条赤金】，【获得】 【1000】个龙门币， 当前龙门币数量为【1000】。步骤 2：通过【3】次使用【对1名精零1级干员使用5次基础作战记录】，【花费】 【999】个龙门币， 当前龙门币数量为【1】",
@@ -388,8 +385,8 @@ function DataPage() {
                 以下路径用于快速查找，不一定是最适合的、最简单的路径方案，仅供参考。（默认初始龙门币为对应值，目标龙门币为0）
               </p>
             </div>
-            <div className={styles['tables-container']}>
-              {generateStaticTable3([
+            <div>
+              {generatePathCards([
                 {
                   num: "-1",
                   way: "步骤 1：通过【1】次使用【精零1级基础作战记录】，【花费】 【61】个龙门币， 当前龙门币数量为【-60】。步骤 2：通过【1】次使用【二星通关6理智关卡】，【获得】 【60】个龙门币， 当前龙门币数量为【0】",

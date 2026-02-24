@@ -72,6 +72,51 @@
   border-bottom-color: currentColor;
 }
 
+.timeline {
+  position: relative;
+  padding-left: 28px;
+  margin-top: 8px;
+  border-left: 2px solid #d0dce8;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -35px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #5da8f0;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #d0dce8;
+}
+
+.timeline-version {
+  font-weight: 700;
+  color: #5da8f0;
+  margin-right: 8px;
+}
+
+.timeline-date {
+  font-size: 0.85rem;
+  color: #8899a6;
+}
+
+.timeline-desc {
+  margin-top: 4px;
+  line-height: 1.6;
+  color: #2c3e50;
+}
+
 @media (max-width: 800px) {
   .main-about-content {
     margin-left: 0;

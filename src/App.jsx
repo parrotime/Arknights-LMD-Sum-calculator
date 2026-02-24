@@ -1,10 +1,11 @@
-import React, { useReducer, useState, useCallback, useEffect } from "react";
+import React, { useReducer, useState, useCallback, useEffect, Suspense, lazy } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import { Transmission } from "./components/Transmission";
-import NotePage from "./pages/Note";
-import DataPage from "./pages/Data";
-import AboutPage from "./pages/About";
+
+const NotePage = lazy(() => import("./pages/Note"));
+const DataPage = lazy(() => import("./pages/Data"));
+const AboutPage = lazy(() => import("./pages/About"));
 import InputPanel from "./components/InputPanel";
 import SettingsPanel from "./components/SettingsPanel";
 import ResultArea from "./components/ResultArea";
@@ -511,12 +512,14 @@ const MainCalculator = () => {
 const App = () => (
   <Router>
     <Layout>
-      <Routes>
-        <Route path="/" element={<MainCalculator />} />
-        <Route path="/note" element={<NotePage />} />
-        <Route path="/data" element={<DataPage />} />
-        <Route path="/about" element={<AboutPage />} />
-      </Routes>
+      <Suspense fallback={<div style={{ textAlign: "center", padding: "2rem" }}>加载中…</div>}>
+        <Routes>
+          <Route path="/" element={<MainCalculator />} />
+          <Route path="/note" element={<NotePage />} />
+          <Route path="/data" element={<DataPage />} />
+          <Route path="/about" element={<AboutPage />} />
+        </Routes>
+      </Suspense>
     </Layout>
   </Router>
 );

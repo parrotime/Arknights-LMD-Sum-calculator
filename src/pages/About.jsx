@@ -94,21 +94,24 @@ function AboutPage() {
 
               <div className={styles['notice-title']}>时间轴</div>
               <div className={styles['notice-content']}>
-                2025年4月19日 --- 【v1.0.0】 版本上线。
-                <br />
-                2025年4月20日 ---【v1.1.0】
-                处理了“当前和目标输入同一个值会显示无合适路径”的问题；处理了“路径中'当前龙门币'数量为负数”情况的问题。
-                感谢B站评论区捉虫。
-                <br />
-                2025年7月5日 ----【v1.1.1】
-                把“路径切换按钮”改到路径的上方，这样它就不会乱跑了；优化了彩蛋和其他内容，感谢B站评论区反馈。
-                <br />
-                2025年8月7日 ----【v1.1.2】
-                优化了设置区域的排版；对路径中“使用作战记录”有关步骤的文本内容进行了修改以避免歧义，感谢B站评论区反馈。
-                <br />
-                2025年10月9日 ---- 【v1.1.3】
-                修改了主页下方排版和一些文本内容。
-                <br />
+                <div className={styles.timeline}>
+                  {[
+                    { version: "v1.1.3", date: "2025年10月9日", desc: "修改了主页下方排版和一些文本内容。" },
+                    { version: "v1.1.2", date: "2025年8月7日", desc: `优化了设置区域的排版；对路径中\u201c使用作战记录\u201d有关步骤的文本内容进行了修改以避免歧义，感谢B站评论区反馈。` },
+                    { version: "v1.1.1", date: "2025年7月5日", desc: `把\u201c路径切换按钮\u201d改到路径的上方，这样它就不会乱跑了；优化了彩蛋和其他内容，感谢B站评论区反馈。` },
+                    { version: "v1.1.0", date: "2025年4月20日", desc: `处理了\u201c当前和目标输入同一个值会显示无合适路径\u201d的问题；处理了\u201c路径中\u2018当前龙门币\u2019数量为负数\u201d情况的问题。感谢B站评论区捉虫。` },
+                    { version: "v1.0.0", date: "2025年4月19日", desc: "版本上线。" },
+                  ].map((item, i) => (
+                    <div className={styles['timeline-item']} key={i}>
+                      <div className={styles['timeline-dot']} />
+                      <div>
+                        <span className={styles['timeline-version']}>{item.version}</span>
+                        <span className={styles['timeline-date']}>{item.date}</span>
+                      </div>
+                      <div className={styles['timeline-desc']}>{item.desc}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
