@@ -470,3 +470,21 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
 
   return finalizeResult(dp, target, TARGET_PATH_COUNT, itemMap);
 };
+
+// 导出内部函数供单元测试使用
+export const _test = {
+  getOptimalGreedyCombo,
+  getOptimalStageCombo,
+  getOptimalFragment,
+  normalizePath,
+  savePath,
+  isPathValid,
+  mergeAndSortPath,
+  finalizeResult,
+  getMaxCountForId,
+  tradeDenoms,
+  materialDenoms,
+  MAX_STEPS,
+  MAX_PATHS_PER_SUM,
+  TARGET_PATH_COUNT,
+};

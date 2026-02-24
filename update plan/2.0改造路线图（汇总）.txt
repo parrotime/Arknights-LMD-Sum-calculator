@@ -143,7 +143,7 @@
       改为每次 findPaths 调用时创建的局部变量，防止内存泄漏
     【来源：角度三-3.2, 角度三-2.2, 角度一-6.3】
 
-2.2 核心性能优化
+2.2 核心性能优化【跳过】
     □ 构建 Map<id, item> 索引表，替代所有 items.find() 的 O(n) 查找
     □ 恢复或改进 enoughPaths 的 break 逻辑（第505~509行被注释的break）
       → 至少恢复 items 循环层的 break，或引入"宽限计数器"
@@ -152,7 +152,7 @@
     □ 优化物品扩展范围的启发式条件（第431行和第469行）
     【来源：角度三-2.1, 角度三-3.3, 角度三-4.1, 角度三-4.2】
 
-2.3 结果质量提升
+2.3 结果质量提升【跳过】
     □ stageCombo（消耗理智组合）从贪心改为精确 DP
       → 物品种类不多（十几种），精确求解完全可行
     □ 引入路径多样性策略：按类型分组（升级型/刷图型/合成型/混合型）
@@ -259,7 +259,7 @@
 4.2 SEO 优化
     □ 添加 Open Graph 标签（og:title, og:description, og:image）
     □ 生成 sitemap.xml（/, /note, /data, /about）
-    □ 考虑 HashRouter → BrowserRouter 迁移（改善搜索引擎索引）
+    □ 考虑 HashRouter → BrowserRouter 迁移（改善搜索引擎索引）【跳过】
       → 需要服务端配置 fallback 到 index.html
     【来源：角度四-4.2, 角度四-4.5, 角度四-4.6】
 

@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { getItemById } from "../DataService";
+import { getRarityColor, computeStepData, computeRunningTotals } from "../utils/calcLogic";
 import styles from "../assets/styles/PathRenderer.module.css";
 
 const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, onNextPath, isBonusReady, activeImageUrl,}) => {
@@ -11,20 +12,8 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
 
   const startLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
 
-  // 预计算每步数据
-  let totalSanity = 0;
-  const stepData = safePath.map((step) => {
-    const item = getItemById(Number(step.id));
-    if (!item) return null;
-    totalSanity += (item.consume || 0) * step.count;
-    return { item, stepValue: item.item_value * step.count };
-  });
-
-  const runningTotals = stepData.reduce((acc, sd) => {
-    const prev = acc.length > 0 ? acc[acc.length - 1] : startLMD;
-    acc.push(prev + (sd ? sd.stepValue : 0));
-    return acc;
-  }, []);
+  const { steps: stepData, totalSanity } = computeStepData(safePath, getItemById);
+  const runningTotals = computeRunningTotals(stepData, startLMD);
 
   return (
     <div className={styles['path-renderer-container']}>
@@ -111,11 +100,6 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
       )}
     </div>
   );
-};
-
-const getRarityColor = (rarity) => {
-  const colorMap = { 1: "darkgreen", 2: "darkblue", 3: "purple", 5: "orange" };
-  return colorMap[rarity] || "black";
 };
 
 PathRenderer.propTypes = {

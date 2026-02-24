@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { computeDiff } from "../utils/calcLogic";
 
 const InputPanel = ({
   state,
@@ -11,14 +12,7 @@ const InputPanel = ({
   settingsDirty,
 }) => {
   // 实时计算差值
-  const diffInfo = useMemo(() => {
-    const n1 = state.num1, n2 = state.num2;
-    if (!n1 || !n2) return null;
-    const v1 = parseInt(n1, 10), v2 = parseInt(n2, 10);
-    if (isNaN(v1) || isNaN(v2)) return null;
-    const diff = v2 - v1;
-    return { value: diff, outOfRange: Math.abs(diff) > 5000 };
-  }, [state.num1, state.num2]);
+  const diffInfo = useMemo(() => computeDiff(state.num1, state.num2), [state.num1, state.num2]);
 
   // Enter 键触发计算
   const handleKeyDown = (e) => {

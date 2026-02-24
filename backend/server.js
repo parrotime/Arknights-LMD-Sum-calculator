@@ -89,7 +89,9 @@ app.set("trust proxy", "loopback");
 
 const port = process.env.PORT || 3002;
 
-app.use("/find-paths", apiLimiter); 
+if (process.env.NODE_ENV !== "test") {
+  app.use("/find-paths", apiLimiter);
+}
 
 const cache = new NodeCache({
   stdTTL: 3600,
@@ -198,7 +200,8 @@ app.post("/find-paths", async (req, res) => {
     const startTime = Date.now();
     let paths;
     try {
-      paths = await runCalculation(target, items, finalLimits);
+      const calcTimeout = parseInt(process.env.CALC_TIMEOUT) || 15000;
+      paths = await runCalculation(target, items, finalLimits, calcTimeout);
     } catch (error) {
       if (error.message.includes("timed out")) {
         return res.status(504).json({
@@ -232,6 +235,11 @@ app.post("/find-paths", async (req, res) => {
 });
 
 // --- Start Server ---
-app.listen(port, () => {
-  logger.info({ port }, "Backend server started");
-});
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] === __filename) {
+  app.listen(port, () => {
+    logger.info({ port }, "Backend server started");
+  });
+}
+
+export { app, cache, runCalculation };

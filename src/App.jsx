@@ -14,6 +14,7 @@ import {
   SettingsWarningModal, BonusModal,
 } from "./components/EasterEggs";
 import styles from "./assets/styles/App.module.css";
+import { validateInput, buildLimits, buildCacheKey } from "./utils/calcLogic";
 
 const defaultState = {
   num1: "", //当前数量
@@ -216,38 +217,6 @@ const reducer = (state, action) => {
       return state;
   }
 };
-
-// 输入验证：返回 { error, difference, num1Val, num2Val } 或 { error }
-const validateInput = (num1, num2) => {
-  if (!num1 || !num2) {
-    return { error: "请检查当前/目标龙门币数量是否填写完整~" };
-  }
-  if (num1 === num2) {
-    return { error: "好像输入了两个相同的数字，要不检查一下?" };
-  }
-  const num1Val = parseInt(num1, 10);
-  const num2Val = parseInt(num2, 10);
-  const difference = num2Val - num1Val;
-  if (Math.abs(difference) > 5000) {
-    return { error: "差值需在-5000~5000之间" };
-  }
-  return { error: null, difference, num1Val, num2Val };
-};
-
-// 构建升级限制参数
-const buildLimits = (state) => ({
-  upgrade0Limit: state.upgrade0Count === "" ? Infinity : parseInt(state.upgrade0Count, 10),
-  upgrade1Limit: state.upgrade1Count === "" ? Infinity : parseInt(state.upgrade1Count, 10),
-  upgrade2Limit: state.upgrade2Count === "" ? Infinity : parseInt(state.upgrade2Count, 10),
-  sanityLimit: state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10),
-});
-
-// 构建缓存键
-const buildCacheKey = (difference, settings, limits) =>
-  `${difference}_${Object.entries(settings)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([k, v]) => `${k}:${v}`)
-    .join("|")}_${limits.upgrade0Limit}_${limits.upgrade1Limit}_${limits.upgrade2Limit}_${limits.sanityLimit}`;
 
 // 检查本地缓存
 const checkCache = (cacheKey) => {
