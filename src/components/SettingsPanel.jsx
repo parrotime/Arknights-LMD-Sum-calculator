@@ -25,7 +25,7 @@ const groups = [
   { title: "干员升级", items: settingsOptions.slice(11) },
 ];
 
-const SettingsPanel = ({ settings, onToggle, styles }) => (
+const SettingsPanel = ({ settings, onToggle, onReset, styles }) => (
   <div className={`${styles['content-panel']} ${styles['right-panel']}`}>
     <div className={styles['title-bar']}>
       <h1>设置区域</h1>
@@ -54,6 +54,13 @@ const SettingsPanel = ({ settings, onToggle, styles }) => (
       <p className={styles['settings-footer-note']}>
         请注意当"只允许..."按钮开启时，请确保其他三个升级开关中至少有一个为开启状态。
       </p>
+
+      <button
+        className={styles['reset-settings-btn']}
+        onClick={onReset}
+      >
+        恢复默认设置
+      </button>
     </div>
   </div>
 );

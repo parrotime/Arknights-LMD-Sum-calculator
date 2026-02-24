@@ -1,116 +1,123 @@
-import React from "react";
 import PropTypes from "prop-types";
 import { getItemById } from "../DataService";
 import styles from "../assets/styles/PathRenderer.module.css";
 
-// 路径渲染器
 const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, onNextPath, isBonusReady, activeImageUrl,}) => {
   const safePath = Array.isArray(path) ? path : [];
-  
-  // 路径为空
+
   if (safePath.length === 0) {
     return <div className={styles['path-renderer-error']}>没有找到合适的路径</div>;
   }
 
-  // 预计算每步累计龙门币
   const startLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
-  const runningTotals = safePath.reduce((acc, step) => {
+
+  // 预计算每步数据
+  let totalSanity = 0;
+  const stepData = safePath.map((step) => {
     const item = getItemById(Number(step.id));
+    if (!item) return null;
+    totalSanity += (item.consume || 0) * step.count;
+    return { item, stepValue: item.item_value * step.count };
+  });
+
+  const runningTotals = stepData.reduce((acc, sd) => {
     const prev = acc.length > 0 ? acc[acc.length - 1] : startLMD;
-    acc.push(prev + (item ? item.item_value * step.count : 0));
+    acc.push(prev + (sd ? sd.stepValue : 0));
     return acc;
   }, []);
 
   return (
     <div className={styles['path-renderer-container']}>
-      <div className={styles['path-renderer-path-group']}>
-        <div className={styles.title}>参考路径方案</div>
+      <div className={styles.title}>参考路径方案</div>
+
+      {/* 摘要栏 */}
+      <div className={styles.summary}>
+        <span>共 <strong>{safePath.length}</strong> 步</span>
+        {totalSanity > 0 && <span>消耗理智 <strong>{totalSanity}</strong></span>}
+        <span>
+          龙门币 <strong>{startLMD}</strong> → <strong>{runningTotals[runningTotals.length - 1]}</strong>
+        </span>
+      </div>
+
+      {/* 三栏布局：左按钮 | 内容 | 右按钮 */}
+      <div className={totalPaths > 1 ? styles['path-body'] : undefined}>
         {totalPaths > 1 && (
-          <div className={styles['path-renderer-pagination']}>
-            <button
-              className={`${styles['path-renderer-nav-button']} ${styles['path-renderer-prev-button']}`}
-              onClick={onPrevPath}
-            >
-              {/* [修改] 根据 isBonusReady 状态显示不同文本 */}
-              {isBonusReady ? "🎁点击一下" : "← 上一路径"}
-            </button>
-            <div className={styles['path-renderer-dot-container']}>
-              {Array.from({ length: totalPaths }).map((_, index) => (
-                <span
-                  key={index}
-                  className={`${styles['path-renderer-dot']} ${
-                    index === currentIndex ? styles.active : ""
-                  }`}
-                />
-              ))}
-            </div>
-            <button
-              className={`${styles['path-renderer-nav-button']} ${styles['path-renderer-next-button']}`}
-              onClick={onNextPath}
-            >
-              {isBonusReady ? "🎁点击一下" : "下一路径 →"}
-            </button>
+          <button
+            className={`${styles['side-nav']} ${styles['side-nav-prev']}`}
+            onClick={onPrevPath}
+          >
+            {isBonusReady ? "🎁" : "←"}
+          </button>
+        )}
+
+        {totalPaths > 1 && (
+          <div className={styles['page-indicator']}>
+            第 {currentIndex + 1}/{totalPaths} 条
           </div>
         )}
 
-        {safePath.map((step, stepIndex) => {
-          if (!step || typeof step !== "object") {
+        <div className={totalPaths > 1 ? styles['path-main-steps'] : undefined}>
+          <div className={styles['step-list']}>
+        {safePath.map((step, i) => {
+          const sd = stepData[i];
+          if (!sd) {
             return (
-              <div key={`step-${stepIndex}`} className={styles['path-renderer-error']}>
-                无效步骤数据
-              </div>
-            );
-          }
-
-          const item = getItemById(Number(step.id));
-          if (!item) {
-            return (
-              <div key={`step-${stepIndex}`} className={styles['path-renderer-error']}>
+              <div key={i} className={styles['path-renderer-error']}>
                 未知物品ID: {step.id}
               </div>
             );
           }
-
-          const itemValue = item.item_value;
-          const itemName = item.item_name;
-          const rarity = item.rarity;
-          const stepValue = itemValue * step.count;
+          const { item, stepValue } = sd;
+          const isGain = stepValue > 0;
 
           return (
-            <div key={`step-${stepIndex}`} className={styles['path-renderer-step-item']}>
-              <span style={{ fontWeight: "bold" }}>步骤 {stepIndex + 1}：</span>
-              通过【{step.count}】次【
-              <span style={{ color: getRarityColor(rarity) }}>{itemName}</span>
-              】， 【{itemValue > 0 ? "获得" : "花费"}】 【{Math.abs(stepValue)}
-              】个龙门币， 当前龙门币数量为【{runningTotals[stepIndex]}】个。
+            <div key={i} className={styles['step-card']}>
+              <span className={styles['step-index']}>{i + 1}</span>
+              <span className={styles['step-desc']}>
+                <span style={{ color: getRarityColor(item.rarity), fontWeight: 600 }}>
+                  {item.item_name}
+                </span>
+                <span className={styles['count-tag']}>×{step.count}次</span>
+              </span>
+              <span className={styles['step-right']}>
+                <span className={isGain ? styles.gain : styles.spend}>
+                  {isGain ? "获得" : "消耗"} {Math.abs(stepValue)} 龙门币
+                </span>
+                <span className={i === safePath.length - 1 ? styles['running-total-final'] : styles['running-total']}>
+                  {i === safePath.length - 1 ? "结果" : "当前余额"} {runningTotals[i]}
+                </span>
+              </span>
             </div>
           );
         })}
+          </div>
+        </div>
+
+        {totalPaths > 1 && (
+          <button
+            className={`${styles['side-nav']} ${styles['side-nav-next']}`}
+            onClick={onNextPath}
+          >
+            {isBonusReady ? "🎁" : "→"}
+          </button>
+        )}
       </div>
 
-      
-      {/* [修改] 条件渲染彩蛋图片，现在它能显示任何激活的图片 */}
+      {/* 彩蛋图片 */}
       {activeImageUrl && (
-          <div className={styles['romantic-image-container']}>
-            <img
-              src={activeImageUrl}
-              alt="Surprise"
-              className={styles['romantic-image']}
-            />
-          </div>
-        )
-      }
+        <div className={styles['romantic-image-container']}>
+          <img src={activeImageUrl} alt="Surprise" className={styles['romantic-image']} />
+        </div>
+      )}
     </div>
   );
 };
 
-// 字符串颜色标记
 const getRarityColor = (rarity) => {
   const colorMap = { 1: "darkgreen", 2: "darkblue", 3: "purple", 5: "orange" };
   return colorMap[rarity] || "black";
 };
 
-// Check
 PathRenderer.propTypes = {
   path: PropTypes.arrayOf(
     PropTypes.shape({
@@ -123,8 +130,8 @@ PathRenderer.propTypes = {
   currentIndex: PropTypes.number,
   onPrevPath: PropTypes.func,
   onNextPath: PropTypes.func,
-  isBonusReady: PropTypes.bool, // 新增
-  activeImageUrl: PropTypes.string, // 新增
+  isBonusReady: PropTypes.bool,
+  activeImageUrl: PropTypes.string,
 };
 
 export default PathRenderer;

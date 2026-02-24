@@ -27,6 +27,7 @@ const defaultState = {
   currentPathIndex: 0, //路径索引
   clickCount: 0, // 路径切换次数
   isCalculating: false,
+  settingsDirty: false,
   settings: {
     allow3Star: true,
     allow2Star: true,
@@ -129,6 +130,7 @@ const reducer = (state, action) => {
         pathCache: action.paths,
         currentPathIndex: 0,
         clickCount: 0,
+        settingsDirty: false,
       };
     case "APPEND_HISTORY":
       return {
@@ -147,6 +149,7 @@ const reducer = (state, action) => {
           ...state.settings,
           [action.key]: !state.settings[action.key],
         },
+        settingsDirty: true,
       };
     case "CHANGE_PATH":
       return {
@@ -160,6 +163,17 @@ const reducer = (state, action) => {
       return {
         ...state,
         [action.field]: action.value,
+        settingsDirty: true,
+      };
+    case "RESET_SETTINGS":
+      return {
+        ...state,
+        settings: { ...defaultState.settings, ...freshDefaults },
+        upgrade0Count: "",
+        upgrade1Count: "",
+        upgrade2Count: "",
+        sanityCount: "",
+        settingsDirty: true,
       };
     default:
       return state;
@@ -281,11 +295,14 @@ const MainCalculator = () => {
 
   const handleToggleChange = useCallback(
     (key) => {
-      // 就让它只负责“按下开关”，别的啥也不干
       dispatch({ type: "TOGGLE_SETTING", key });
     },
-    [] // 这里的依赖项可以清空
+    []
   );
+
+  const handleResetSettings = useCallback(() => {
+    dispatch({ type: "RESET_SETTINGS" });
+  }, []);
 
   // 优化后的输入验证
   const handleInputChange = useCallback((e, field) => {
@@ -387,12 +404,9 @@ const MainCalculator = () => {
   const handleChangePath = useCallback(
     (delta) => {
       if (state.pathCache.length > 0) {
-        // [修改] 彩蛋触发逻辑
         if (isBonusReady) {
-          // 如果彩蛋已准备好，这次点击就直接显示弹窗
           setShowBonusModal(true);
         } else {
-          // 否则，正常推进点击计数
           const newClickCount = state.clickCount + 1;
           if (newClickCount === 29) {
             setIsBonusReady(true);
@@ -401,9 +415,24 @@ const MainCalculator = () => {
         dispatch({ type: "CHANGE_PATH", delta });
       }
     },
-    // [修改] 依赖项中加入 isBonusReady
     [state.pathCache.length, state.clickCount, isBonusReady]
   );
+
+  // 键盘左右方向键切换路径
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (state.pathCache.length <= 1) return;
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.key === 'ArrowLeft') {
+        handleChangePath(-1);
+      } else if (e.key === 'ArrowRight') {
+        handleChangePath(1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleChangePath, state.pathCache.length]);
 
   return (
     <>
@@ -416,10 +445,12 @@ const MainCalculator = () => {
               handleInputChange={handleInputChange}
               handleUpgradeCountChange={handleUpgradeCountChange}
               handleCalculate={handleCalculate}
+              settingsDirty={state.settingsDirty}
             />
             <SettingsPanel
               settings={state.settings}
               onToggle={handleToggleChange}
+              onReset={handleResetSettings}
               styles={styles}
             />
           </div>

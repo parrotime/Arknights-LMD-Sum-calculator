@@ -6,6 +6,7 @@ const InputPanel = ({
   handleInputChange,
   handleUpgradeCountChange,
   handleCalculate,
+  settingsDirty,
 }) => (
   <div className={`${styles['content-panel']} ${styles['left-panel']}`}>
     <div className={styles['title-bar']}>
@@ -71,13 +72,19 @@ const InputPanel = ({
               min="0"
               max={max}
               step="1"
-              placeholder={`0~${max}`}
+              placeholder="不限"
               value={state[field]}
               onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
             />
           </div>
         ))}
       </div>
+
+      {settingsDirty && state.pathCache.length > 0 && (
+        <div className={styles['settings-dirty-hint']}>
+          设置已更改，请重新计算
+        </div>
+      )}
 
       <button
         className={styles['calculate-button']}

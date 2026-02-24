@@ -215,11 +215,8 @@
   color: black;
   font-weight: bold;
   text-align: left;
-  flex: 1; 
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 10px; 
+  flex: 1;
+  padding-right: 10px;
   font-size:16px;
 }
 
@@ -468,9 +465,41 @@ input:invalid {
 
 .settings-footer-note {
   margin-top: 0px;
-  color: #666; 
-  font-size: 14px; 
-  font-style: italic; 
+  color: #666;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.reset-settings-btn {
+  display: block;
+  margin: 10px auto 0;
+  padding: 6px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reset-settings-btn:hover {
+  color: #dc2626;
+  border-color: #dc2626;
+  background: #fff5f5;
+}
+
+.settings-dirty-hint {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e67e22;
+  background: #fef9e7;
+  border: 1px solid #f0d78c;
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-top: 10px;
 }
 
 
