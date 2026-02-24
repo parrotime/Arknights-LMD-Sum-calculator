@@ -8,9 +8,38 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import NodeCache from "node-cache";
-import { findPaths } from "./DPnew.js";
+import { Worker } from "worker_threads";
+import pino from "pino";
 import { classifyData } from "./DataService.js";
 import rateLimit from "express-rate-limit";
+
+const logger = pino({
+  level: process.env.LOG_LEVEL || "info",
+  ...(process.env.NODE_ENV !== "production" && {
+    transport: { target: "pino-pretty" },
+  }),
+});
+
+const workerPath = join(dirname(fileURLToPath(import.meta.url)), "calcWorker.js");
+
+const runCalculation = (target, items, limits, timeout = 15000) =>
+  new Promise((resolve, reject) => {
+    const worker = new Worker(workerPath, {
+      workerData: { target, items, limits },
+    });
+    const timer = setTimeout(() => {
+      worker.terminate();
+      reject(new Error("Calculation timed out after 15 seconds"));
+    }, timeout);
+    worker.on("message", (result) => {
+      clearTimeout(timer);
+      resolve(result);
+    });
+    worker.on("error", (err) => {
+      clearTimeout(timer);
+      reject(err);
+    });
+  });
 
 // 根据前端 settings 过滤物品列表
 const filterItems = (settings) => {
@@ -49,7 +78,7 @@ const apiLimiter = rateLimit({
     return req.ip;
   },
   handler: (req, res, next, options) => {
-    console.warn(`Rate limit exceeded for IP: ${options.keyGenerator(req)} on path: ${ req.path}`);
+    logger.warn({ ip: options.keyGenerator(req), path: req.path }, "Rate limit exceeded");
     res.status(options.statusCode).json(options.message);
   },
 });
@@ -141,13 +170,7 @@ app.post("/find-paths", async (req, res) => {
       });
     }
 
-    console.log(
-      `[${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false })}]`,
-      "Goal(用户想凑) =", rawGoal,
-      "Diff(差值): target =", target,
-      "items count =", items.length,
-      "limits =", limits
-    );
+    logger.info({ rawGoal, target, itemCount: items.length, limits }, "Calculation request");
 
     const finalLimits = {};
     for (const key in limits) {
@@ -172,19 +195,10 @@ app.post("/find-paths", async (req, res) => {
       });
     }
 
-    const calculationPromise = findPaths(target, items, finalLimits);
-    const timeoutPromise = new Promise(
-      (_, reject) =>
-        setTimeout(
-          () => reject(new Error("Calculation timed out after 15 seconds")),
-          15000
-        ) // 15秒超时
-    );
-
     const startTime = Date.now();
     let paths;
     try {
-      paths = await Promise.race([calculationPromise, timeoutPromise]);
+      paths = await runCalculation(target, items, finalLimits);
     } catch (error) {
       if (error.message.includes("timed out")) {
         return res.status(504).json({
@@ -198,12 +212,9 @@ app.post("/find-paths", async (req, res) => {
 
     if (paths && paths.length > 0) {
       cache.set(cacheKey, paths); // 使用默认 TTL (1小时)
-      console.log(
-        "Result stored in cache for key:",
-        cacheKey.substring(0, 50) + "..."
-      );
+      logger.info({ cacheKey: cacheKey.substring(0, 50) }, "Result cached");
     } else {
-      console.log("Calculation resulted in empty/invalid paths, not caching.");
+      logger.info("Empty paths, not caching");
     }
 
     // 向前端发送结果
@@ -222,7 +233,5 @@ app.post("/find-paths", async (req, res) => {
 
 // --- Start Server ---
 app.listen(port, () => {
-  console.log(
-    `Backend server running behind proxy, listening internally on port ${port}`
-  );
+  logger.info({ port }, "Backend server started");
 });

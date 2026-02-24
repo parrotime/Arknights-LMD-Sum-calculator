@@ -154,10 +154,6 @@ function savePath(ctx, sum, path) {
     const item = itemMap.get(step.id);
     if (item?.item_value) {
       actualNormalizedSum += item.item_value * step.count;
-    } else {
-      console.warn(
-        `Item value not found for ID ${step.id} in normalized path!`
-      );
     }
   }
   if (actualNormalizedSum !== sum) {
