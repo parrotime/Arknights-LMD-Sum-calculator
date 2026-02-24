@@ -1,23 +1,27 @@
 .main-about-content{
-  width: 100%; 
+  width: 100%;
   padding-left: 30px;
-  background-color: #afd3f3; 
-  display: flex; 
-  justify-content: center; 
-  min-height: 100vh; 
-  box-sizing: border-box; 
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-top: calc(var(--ark-nav-height) + var(--ark-space-lg));
 }
 
 .about-page {
-  margin-top: 10px;
+  margin-top: 0;
   margin-right: 20px;
   width: 100%;
+  max-width: 960px;
   height: 100%;
   padding: 12px 20px;
-  background-color: #f9f9f9; 
-  border-radius: 15px; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-left: 230px;
+  background-color: var(--ark-surface-card);
+  border-radius: var(--ark-radius-lg);
+  box-shadow: var(--ark-shadow-md);
+  margin-left: 0;
+  border: 1px solid var(--ark-border-subtle);
+  border-top: 2px solid var(--ark-primary-500);
 }
 
 .about-page h1 {

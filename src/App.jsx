@@ -23,6 +23,8 @@ const defaultState = {
   error2: "", // num2错误信息
   history: [], //计算历史记录
   differenceError: "", //差值错误信息
+  calcError: "", // 计算结果错误（显示在ResultArea）
+  calcMeta: null, // { fromCache: bool, elapsed: number } 计算元信息
   pathCache: [], //计算出来的路径缓存
   currentPathIndex: 0, //路径索引
   clickCount: 0, // 路径切换次数
@@ -124,6 +126,16 @@ const reducer = (state, action) => {
         ...state,
         result: action.value,
       };
+    case "SET_CALC_ERROR":
+      return {
+        ...state,
+        calcError: action.value,
+      };
+    case "SET_CALC_META":
+      return {
+        ...state,
+        calcMeta: action.value,
+      };
     case "SET_PATHS":
       return {
         ...state,
@@ -164,6 +176,31 @@ const reducer = (state, action) => {
         ...state,
         [action.field]: action.value,
         settingsDirty: true,
+      };
+    case "SWAP_NUMS":
+      return {
+        ...state,
+        num1: state.num2,
+        num2: state.num1,
+        error1: "",
+        error2: "",
+      };
+    case "RESET_INPUTS":
+      return {
+        ...state,
+        num1: "",
+        num2: "",
+        result: "",
+        error1: "",
+        error2: "",
+        differenceError: "",
+        upgrade0Count: "",
+        upgrade1Count: "",
+        upgrade2Count: "",
+        sanityCount: "",
+        pathCache: [],
+        currentPathIndex: 0,
+        clickCount: 0,
       };
     case "RESET_SETTINGS":
       return {
@@ -304,6 +341,14 @@ const MainCalculator = () => {
     dispatch({ type: "RESET_SETTINGS" });
   }, []);
 
+  const handleSwapNums = useCallback(() => {
+    dispatch({ type: "SWAP_NUMS" });
+  }, []);
+
+  const handleResetInputs = useCallback(() => {
+    dispatch({ type: "RESET_INPUTS" });
+  }, []);
+
   // 优化后的输入验证
   const handleInputChange = useCallback((e, field) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
@@ -362,17 +407,21 @@ const MainCalculator = () => {
 
       const { difference, num1Val, num2Val } = validation;
       dispatch({ type: "SET_ERROR", field: "differenceError", value: "" });
+      dispatch({ type: "SET_CALC_ERROR", value: "" });
+      dispatch({ type: "SET_CALC_META", value: null });
       dispatch({ type: "SET_RESULT", value: difference.toString() });
       dispatch({ type: "SET_CALCULATING", value: true });
       dispatch({ type: "SET_PATHS", paths: [] });
 
       const limits = buildLimits(state);
       const cacheKey = buildCacheKey(difference, state.settings, limits);
+      const t0 = performance.now();
 
       // 检查缓存
       const cachedPaths = checkCache(cacheKey);
       if (cachedPaths) {
         dispatch({ type: "SET_PATHS", paths: cachedPaths });
+        dispatch({ type: "SET_CALC_META", value: { fromCache: true, elapsed: 0 } });
         dispatch({ type: "SET_CALCULATING", value: false });
         dispatch({ type: "APPEND_HISTORY", entry: { path: cachedPaths[0], timestamp: new Date().toLocaleString(), initialLMD: num1Val } });
         return;
@@ -381,17 +430,19 @@ const MainCalculator = () => {
       // 调用 API
       try {
         const paths = await callAPI(difference, state.settings, limits, num2Val);
+        const elapsed = Math.round(performance.now() - t0);
         if (!paths || paths.length === 0) {
-          dispatch({ type: "SET_ERROR", field: "differenceError", value: "计算完成，但未找到满足条件的路径方案。" });
+          dispatch({ type: "SET_CALC_ERROR", value: "计算完成，但未找到满足条件的路径方案。" });
           dispatch({ type: "SET_PATHS", paths: [] });
         } else {
           localStorage.setItem(`pathCache_${cacheKey}`, JSON.stringify(paths));
           managePathCache(cacheKey);
+          dispatch({ type: "SET_CALC_META", value: { fromCache: false, elapsed } });
         }
         dispatch({ type: "SET_PATHS", paths });
         dispatch({ type: "APPEND_HISTORY", entry: { path: paths[0], timestamp: new Date().toLocaleString(), initialLMD: num1Val } });
       } catch (error) {
-        dispatch({ type: "SET_ERROR", field: "differenceError", value: formatError(error) });
+        dispatch({ type: "SET_CALC_ERROR", value: formatError(error) });
         dispatch({ type: "SET_PATHS", paths: [] });
         dispatch({ type: "APPEND_HISTORY", entry: `计算失败: ${formatError(error)}` });
       } finally {
@@ -445,6 +496,8 @@ const MainCalculator = () => {
               handleInputChange={handleInputChange}
               handleUpgradeCountChange={handleUpgradeCountChange}
               handleCalculate={handleCalculate}
+              onSwap={handleSwapNums}
+              onResetInputs={handleResetInputs}
               settingsDirty={state.settingsDirty}
             />
             <SettingsPanel
@@ -460,6 +513,8 @@ const MainCalculator = () => {
             handleChangePath={handleChangePath}
             isBonusReady={isBonusReady}
             activeImageUrl={activeImageUrl}
+            calcError={state.calcError}
+            calcMeta={state.calcMeta}
           />
         </div>
       </div>

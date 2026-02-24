@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 const InputPanel = ({
   state,
@@ -6,78 +6,107 @@ const InputPanel = ({
   handleInputChange,
   handleUpgradeCountChange,
   handleCalculate,
+  onSwap,
+  onResetInputs,
   settingsDirty,
-}) => (
+}) => {
+  // 实时计算差值
+  const diffInfo = useMemo(() => {
+    const n1 = state.num1, n2 = state.num2;
+    if (!n1 || !n2) return null;
+    const v1 = parseInt(n1, 10), v2 = parseInt(n2, 10);
+    if (isNaN(v1) || isNaN(v2)) return null;
+    const diff = v2 - v1;
+    return { value: diff, outOfRange: Math.abs(diff) > 5000 };
+  }, [state.num1, state.num2]);
+
+  // Enter 键触发计算
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !state.isCalculating) {
+      handleCalculate(e);
+    }
+  };
+
+  return (
   <div className={`${styles['content-panel']} ${styles['left-panel']}`}>
     <div className={styles['title-bar']}>
       <h1>龙门币凑数计算器</h1>
     </div>
 
-    <div className={styles['left-panel-title-container']}>
-      <div className={styles['title-text']}>
-        请输入两个[0,99999999]区间的整数
-      </div>
-      <div className={styles['title-text']}>且两数差值处于[-5000,5000]区间</div>
+    <div className={styles['info-banner']}>
+      请输入两个 [0, 99999999] 区间的整数，且两数差值处于 [-5000, 5000] 区间
     </div>
 
     <div className={styles['main-content']}>
-      <div className={styles['input-container']}>
-        <div className={styles['input-group-horizontal']}>
-          <div className={styles['input-group']}>
-            <div className={styles['input-wrapper-text']}>当前龙门币数量:</div>
-            <div className={styles['input-wrapper']}>
-              <input
-                type="text"
-                className={styles['input-box']}
-                placeholder="请输入数字"
-                value={state.num1}
-                onChange={(e) => handleInputChange(e, "num1")}
-              />
-              {state.error1 && (
-                <div className={styles['error-message']}>{state.error1}</div>
-              )}
-            </div>
+      <div className={styles['input-rows']}>
+        <div className={styles['input-row']}>
+          <label className={styles['input-label']}>当前龙门币数量</label>
+          <div className={styles['input-field']}>
+            <input
+              type="text"
+              className={styles['input-box']}
+              placeholder="请输入数字"
+              value={state.num1}
+              onChange={(e) => handleInputChange(e, "num1")}
+              onKeyDown={handleKeyDown}
+            />
+            {state.error1 && (
+              <div className={styles['error-message']}>{state.error1}</div>
+            )}
           </div>
+        </div>
 
-          <div className={styles['input-group']}>
-            <div className={styles['input-wrapper-text']}>目标龙门币数量:</div>
-            <div className={styles['input-wrapper']}>
-              <input
-                type="text"
-                className={styles['input-box']}
-                placeholder="请输入数字"
-                value={state.num2}
-                onChange={(e) => handleInputChange(e, "num2")}
-              />
-              {state.error2 && (
-                <div className={styles['error-message']}>{state.error2}</div>
-              )}
-            </div>
+        <button
+          type="button"
+          className={styles['swap-btn']}
+          onClick={onSwap}
+          title="交换当前与目标数值"
+        >
+          ⇅ 交换
+        </button>
+
+        <div className={styles['input-row']}>
+          <label className={styles['input-label']}>目标龙门币数量</label>
+          <div className={styles['input-field']}>
+            <input
+              type="text"
+              className={styles['input-box']}
+              placeholder="请输入数字"
+              value={state.num2}
+              onChange={(e) => handleInputChange(e, "num2")}
+              onKeyDown={handleKeyDown}
+            />
+            {state.error2 && (
+              <div className={styles['error-message']}>{state.error2}</div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className={styles['upgrade-count-container']}>
-        {[
-          { label: "允许升级的精零干员数量：", field: "upgrade0Count", max: 10 },
-          { label: "允许升级的精一干员数量：", field: "upgrade1Count", max: 10 },
-          { label: "允许升级的精二干员数量：", field: "upgrade2Count", max: 10 },
-          { label: "允许升级的理智的数量：", field: "sanityCount", max: 200 },
-        ].map(({ label, field, max }) => (
-          <div className={styles['toggle-container']} key={field}>
-            <div className={styles['toggle-text']}>{label}</div>
-            <input
-              type="number"
-              className={styles['short-input-box']}
-              min="0"
-              max={max}
-              step="1"
-              placeholder="不限"
-              value={state[field]}
-              onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
-            />
-          </div>
-        ))}
+      <div className={styles['limit-section']}>
+        <div className={styles['limit-title']}>数量限制</div>
+        <div className={styles['limit-grid']}>
+          {[
+            { label: "精零干员升级", field: "upgrade0Count", max: 10 },
+            { label: "精一干员升级", field: "upgrade1Count", max: 10 },
+            { label: "精二干员升级", field: "upgrade2Count", max: 10 },
+            { label: "理智数量", field: "sanityCount", max: 200 },
+          ].map(({ label, field, max }) => (
+            <div className={styles['limit-item']} key={field}>
+              <span className={styles['limit-label']}>{label}</span>
+              <input
+                type="number"
+                className={styles['short-input-box']}
+                min="0"
+                max={max}
+                step="1"
+                placeholder="不限"
+                value={state[field]}
+                onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       {settingsDirty && state.pathCache.length > 0 && (
@@ -86,26 +115,31 @@ const InputPanel = ({
         </div>
       )}
 
-      <button
-        className={styles['calculate-button']}
-        onClick={handleCalculate}
-        disabled={state.isCalculating}
-      >
-        {state.isCalculating ? "计算中..." : "立即计算"}
-      </button>
+      <div className={styles['action-buttons']}>
+        <button
+          className={styles['calculate-button']}
+          onClick={handleCalculate}
+          disabled={state.isCalculating}
+        >
+          {state.isCalculating ? "计算中..." : "立即计算"}
+        </button>
+        <button
+          type="button"
+          className={styles['reset-inputs-btn']}
+          onClick={onResetInputs}
+        >
+          清空
+        </button>
+      </div>
 
-      <div className={styles['result-section']}>
-        <div className={styles['output-wrapper-text']}>
-          计算得到还需要龙门币数量:
-        </div>
-        <div className={styles['result-container']}>
-          <input
-            type="text"
-            className={styles['result-box']}
-            placeholder="两者相差"
-            value={state.result}
-            readOnly
-          />
+      <div className={styles['diff-section']}>
+        <div className={styles['diff-label']}>还需龙门币:</div>
+        <div className={`${styles['diff-value']} ${diffInfo?.outOfRange ? styles['diff-out-of-range'] : ''}`}>
+          {diffInfo
+            ? (diffInfo.outOfRange
+                ? `${diffInfo.value}（超出 [-5000, 5000] 范围）`
+                : diffInfo.value)
+            : "—"}
         </div>
         {state.differenceError && (
           <div className={styles['error-message']}>{state.differenceError}</div>
@@ -124,6 +158,7 @@ const InputPanel = ({
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default InputPanel;

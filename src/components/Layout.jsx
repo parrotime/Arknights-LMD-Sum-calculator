@@ -15,16 +15,21 @@ const Layout = ({ children }) => {
 
   return (
     <div className="app-container">
-      <div className="sidebar">
-        <div className="sidebar-title">凑数计算器</div>
-        {navItems.map(({ to, text }) => (
-          <div className="sidebar-box" key={to}>
-            <NavLink to={to} end={to === "/"}>
-              {text}
-            </NavLink>
+      <nav className="top-nav">
+        <div className="nav-inner">
+          <div className="nav-brand">
+            <img src="/LMD.webp" alt="龙门币" className="nav-brand-icon" />
+            龙门币凑数计算器
           </div>
-        ))}
-      </div>
+          <div className="nav-links">
+            {navItems.map(({ to, text }) => (
+              <NavLink to={to} end={to === "/"} className="nav-item" key={to}>
+                {text}
+              </NavLink>
+            ))}
+          </div>
+        </div>
+      </nav>
 
       <button className="back-to-top" onClick={scrollToTop}>
         ↑ 返回顶部

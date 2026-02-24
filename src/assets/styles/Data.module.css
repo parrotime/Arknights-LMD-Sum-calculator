@@ -1,12 +1,13 @@
 
 .main-data-content{
   padding-left: 30px;
-  background-color: #afd3f3;
+  background: transparent;
   display: flex;
   flex-direction: column;
   gap: 25px;
   min-height: 100vh;
-  margin-left: 230px;
+  margin-left: 0;
+  padding-top: calc(var(--ark-nav-height) + var(--ark-space-lg));
   align-items: flex-start;
   box-sizing: border-box;
 }

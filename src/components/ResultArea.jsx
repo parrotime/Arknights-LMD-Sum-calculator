@@ -1,5 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PathRenderer from "./PathRenderer";
+
+// 加载计时器子组件
+const LoadingTimer = ({ styles }) => {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setElapsed((s) => s + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className={styles['loading-container']}>
+      <div className={styles['pulse-dots']}>
+        <span className={styles['pulse-dot']} />
+        <span className={styles['pulse-dot']} />
+        <span className={styles['pulse-dot']} />
+      </div>
+      <p className={styles['loading-text']}>正在计算路径，请稍候...</p>
+      {elapsed >= 2 && (
+        <p className={styles['loading-elapsed']}>已等待 {elapsed} 秒</p>
+      )}
+    </div>
+  );
+};
 
 const ResultArea = ({
   state,
@@ -7,26 +31,37 @@ const ResultArea = ({
   handleChangePath,
   isBonusReady,
   activeImageUrl,
+  calcError,
+  calcMeta,
 }) => (
   <div className={styles['history-box']}>
     {state.isCalculating ? (
-      <div className={styles['loading-container']}>
-        <div className={styles['progress-bar']}>
-          <div className={styles['progress-bar-fill']}></div>
-        </div>
-        <p>正在计算路径，请稍候...</p>
+      <LoadingTimer styles={styles} />
+    ) : calcError ? (
+      <div className={styles['calc-error-card']}>
+        <div className={styles['calc-error-icon']}>!</div>
+        <div className={styles['calc-error-text']}>{calcError}</div>
       </div>
     ) : state.pathCache.length > 0 ? (
-      <PathRenderer
-        path={state.pathCache[state.currentPathIndex] || []}
-        initialLMD={parseInt(state.num1) || 0}
-        totalPaths={state.pathCache.length}
-        currentIndex={state.currentPathIndex}
-        onPrevPath={() => handleChangePath(-1)}
-        onNextPath={() => handleChangePath(1)}
-        isBonusReady={isBonusReady}
-        activeImageUrl={activeImageUrl}
-      />
+      <div className={styles['fade-in']}>
+        {calcMeta && (
+          <div className={styles['calc-meta-badge']}>
+            {calcMeta.fromCache
+              ? "从缓存读取"
+              : `计算耗时 ${calcMeta.elapsed}ms`}
+          </div>
+        )}
+        <PathRenderer
+          path={state.pathCache[state.currentPathIndex] || []}
+          initialLMD={parseInt(state.num1) || 0}
+          totalPaths={state.pathCache.length}
+          currentIndex={state.currentPathIndex}
+          onPrevPath={() => handleChangePath(-1)}
+          onNextPath={() => handleChangePath(1)}
+          isBonusReady={isBonusReady}
+          activeImageUrl={activeImageUrl}
+        />
+      </div>
     ) : (
       <div className={styles['no-path']}>{""}</div>
     )}
