@@ -1,23 +1,23 @@
 
 .main-data-content{
-  padding-left: 30px;
   background: transparent;
   display: flex;
   flex-direction: column;
   gap: 25px;
   min-height: 100vh;
-  margin-left: 0;
-  padding-top: calc(var(--ark-nav-height) + var(--ark-space-lg));
-  align-items: flex-start;
+  padding: calc(var(--ark-nav-height) + var(--ark-space-lg)) var(--ark-space-lg) 0;
+  align-items: center;
   box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 
 .accordion-panel {
   width: 96%;
-  background: #ffffff;
+  background: var(--ark-surface-card);
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: var(--ark-shadow-md);
   margin: 0 auto;
   overflow: hidden;
   will-change: transform;
@@ -26,7 +26,7 @@
 
 .accordion-panel:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  box-shadow: var(--ark-shadow-lg);
 }
 
 .accordion-panel:not(.collapsed) .panel-header {
@@ -39,7 +39,7 @@
 
 .panel-header {
   padding: 15px 25px;
-  background: linear-gradient(135deg, #5da8f0 0%, #8dc1f5 100%);
+  background: linear-gradient(135deg, var(--ark-gradient-start) 0%, var(--ark-gradient-end) 100%);
   border-radius: 16px;
   color: white;
   cursor: pointer;
@@ -50,7 +50,7 @@
 }
 
 .panel-header:hover {
-  background: linear-gradient(135deg, #4e9ae6 0%, #7bb3e8 100%);
+  background: linear-gradient(135deg, var(--ark-gradient-hover-start) 0%, var(--ark-gradient-hover-end) 100%);
 }
 
 .panel-header:active {
@@ -93,7 +93,7 @@
 
 .explain-text{
   text-align: left;
-  color: #34495e; 
+  color: var(--ark-text-body);
   line-height: 1.6; 
   margin-bottom: 20px;
 }
@@ -108,8 +108,8 @@
 
 .material-table {
   border-collapse: collapse;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  background: #ffffff;
+  box-shadow: var(--ark-shadow-sm);
+  background: var(--ark-surface-card);
   border-radius: 8px;
   overflow: hidden;
   flex: 0 1 auto;
@@ -118,23 +118,23 @@
 .material-table th,
 .material-table td {
   padding: 12px 15px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--ark-table-border);
   text-align: center;
   font-size: 14px;
 }
 
 .material-table th {
-  background: #f1f5f9; 
-  color: #1a3c64;
+  background: var(--ark-table-header-bg);
+  color: var(--ark-table-header-text);
   font-weight: 700;
 }
 
 .material-table tr:nth-child(even) {
-  background-color: #fafbfc;
+  background-color: var(--ark-table-stripe);
 }
 
 .material-table tr:hover {
-  background-color: #eef2f7;
+  background-color: var(--ark-table-hover);
   transition: background-color 0.2s ease;
 }
 
@@ -164,16 +164,16 @@
 }
 
 .path-card {
-  background: #ffffff;
+  background: var(--ark-surface-card);
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--ark-shadow-sm);
   overflow: hidden;
-  border: 1px solid #e8edf2;
+  border: 1px solid var(--ark-border-default);
 }
 
 .path-card-header {
   display: inline-block;
-  background: linear-gradient(135deg, #5da8f0 0%, #8dc1f5 100%);
+  background: linear-gradient(135deg, var(--ark-gradient-start) 0%, var(--ark-gradient-end) 100%);
   color: #fff;
   font-weight: 700;
   font-size: 1rem;
@@ -198,7 +198,7 @@
 .path-steps {
   margin: 0;
   padding-left: 1.4em;
-  color: #2c3e50;
+  color: var(--ark-text-body);
   line-height: 1.7;
   font-size: 0.92rem;
 }
@@ -210,8 +210,7 @@
 
 @media (max-width: 800px) {
   .main-data-content {
-    margin-left: 0;
-    padding: 10px;
+    padding: var(--ark-space-md);
     padding-top: 0px;
   }
   

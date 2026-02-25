@@ -72,7 +72,7 @@ const ResultArea = ({
         <div className={styles['change-over-text']}>
           <p>
             {state.clickCount < 20
-              ? "已经尝试过所有路径"
+              ? "已经尝试过所有方案"
               : "再按几次，好像有什么东西要出来了？"}
           </p>
         </div>

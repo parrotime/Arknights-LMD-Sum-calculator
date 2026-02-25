@@ -66,8 +66,134 @@
   --ark-font-body: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB",
                    "Noto Sans SC", system-ui, sans-serif;
 
+  /* 文本色 */
+  --ark-text-heading: #1a1a1a;
+  --ark-text-body: #2c3e50;
+  --ark-text-secondary: #555;
+  --ark-text-muted: #666;
+
+  /* 额外表面色 */
+  --ark-surface-hover: #fafafa;
+  --ark-surface-summary: #e8eef5;
+  --ark-surface-tag: #edf2f7;
+
+  /* 额外边框 */
+  --ark-border-accent: #c0d0e8;
+
+  /* 危险色变体 */
+  --ark-danger-bg: #fff5f5;
+  --ark-danger-border: #fca5a5;
+
+  /* 警告色变体 */
+  --ark-warning-bg: #fef9e7;
+  --ark-warning-border: #f0d78c;
+
+  /* 链接 */
+  --ark-link: #5c9edc;
+  --ark-link-hover: #468acb;
+
+  /* 表格 */
+  --ark-table-header-bg: #f1f5f9;
+  --ark-table-header-text: #1a3c64;
+  --ark-table-stripe: #fafbfc;
+  --ark-table-hover: #eef2f7;
+  --ark-table-border: #e0e0e0;
+
+  /* 渐变（Data 面板头） */
+  --ark-gradient-start: #5da8f0;
+  --ark-gradient-end: #8dc1f5;
+  --ark-gradient-hover-start: #4e9ae6;
+  --ark-gradient-hover-end: #7bb3e8;
+
   /* 导航栏高度 */
   --ark-nav-height: 56px;
+}
+
+/* === 深色主题 === */
+[data-theme="dark"] {
+  /* 主色阶（深色背景下稍微提亮） */
+  --ark-primary-900: #1a6fcc;
+  --ark-primary-800: #2a7fd6;
+  --ark-primary-700: #3a8fe0;
+  --ark-primary-600: #4a9fea;
+  --ark-primary-500: #5aaff4;
+  --ark-primary-400: #7ac1f8;
+  --ark-primary-300: #9ad3fc;
+  --ark-primary-200: #2a4a6e;
+  --ark-primary-100: #1e3550;
+  --ark-primary-50:  #162a40;
+
+  /* 中性色 */
+  --ark-neutral-900: #e8ecf1;
+  --ark-neutral-800: #c8cdd6;
+  --ark-neutral-700: #9ca3af;
+  --ark-neutral-600: #7a8494;
+  --ark-neutral-500: #5a6478;
+  --ark-neutral-400: #404a5e;
+  --ark-neutral-300: #2d3446;
+  --ark-neutral-200: #232a3a;
+  --ark-neutral-100: #1a2030;
+  --ark-neutral-50:  #151b28;
+
+  /* 功能色 */
+  --ark-success: #22c55e;
+  --ark-danger:  #f87171;
+  --ark-warning: #fbbf24;
+
+  /* 表面色 */
+  --ark-surface-page: #0f1219;
+  --ark-surface-card: #1a2030;
+  --ark-surface-inset: #151b28;
+
+  /* 边框 */
+  --ark-border-default: #2d3446;
+  --ark-border-subtle:  #232a3a;
+  --ark-border-focus:   var(--ark-primary-400);
+
+  /* 阴影 */
+  --ark-shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.3);
+  --ark-shadow-md:  0 4px 12px rgba(0, 0, 0, 0.4);
+  --ark-shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.5);
+  --ark-shadow-nav: 0 2px 16px rgba(0, 0, 0, 0.5);
+
+  /* 文本色 */
+  --ark-text-heading: #e8ecf1;
+  --ark-text-body: #c8cdd6;
+  --ark-text-secondary: #9ca3af;
+  --ark-text-muted: #7a8494;
+
+  /* 额外表面色 */
+  --ark-surface-hover: #222a3a;
+  --ark-surface-summary: #1e2a3e;
+  --ark-surface-tag: #232a3a;
+
+  /* 额外边框 */
+  --ark-border-accent: #2a4a6e;
+
+  /* 危险色变体 */
+  --ark-danger-bg: #2a1520;
+  --ark-danger-border: #7f1d1d;
+
+  /* 警告色变体 */
+  --ark-warning-bg: #2a2515;
+  --ark-warning-border: #78600a;
+
+  /* 链接 */
+  --ark-link: #7ac1f8;
+  --ark-link-hover: #9ad3fc;
+
+  /* 表格 */
+  --ark-table-header-bg: #1e2a3e;
+  --ark-table-header-text: #9ad3fc;
+  --ark-table-stripe: #1a2030;
+  --ark-table-hover: #222a3a;
+  --ark-table-border: #2d3446;
+
+  /* 渐变 */
+  --ark-gradient-start: #2a5a8a;
+  --ark-gradient-end: #3a7ab0;
+  --ark-gradient-hover-start: #1e4a7a;
+  --ark-gradient-hover-end: #2a6a9e;
 }
 
 body {
@@ -78,11 +204,7 @@ body {
   color: var(--ark-neutral-800);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--ark-surface-page);
-  background-image:
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"),
-    linear-gradient(160deg, #e8f0fa 0%, #dfe9f5 30%, #eaf1f9 60%, #f0f2f5 100%);
-  background-attachment: fixed;
+  background: var(--ark-surface-page);
 }
 
 code {
@@ -176,6 +298,29 @@ html, body, #root {
   height: 2px;
   background: var(--ark-primary-300);
   border-radius: 1px;
+}
+
+/* === 主题切换按钮 === */
+.theme-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--ark-radius-md);
+  padding: 6px 10px;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--ark-transition-fast),
+              transform var(--ark-transition-fast);
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.08);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
 }
 
 .app-container {

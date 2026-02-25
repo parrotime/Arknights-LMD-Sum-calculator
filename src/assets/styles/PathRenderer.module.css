@@ -1,16 +1,23 @@
 
 .path-renderer-container {
   font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
-  padding: 10px 14px;
+  padding: 4px 14px 10px;
   max-width: 98%;
+}
+
+.title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 6px;
 }
 
 .title {
   font-size: 18px;
   text-align: center;
   font-weight: 600;
-  margin-bottom: 6px;
-  color: #1a1a1a;
+  color: var(--ark-text-heading);
 }
 
 /* 摘要栏 */
@@ -18,12 +25,52 @@
   display: flex;
   gap: 16px;
   justify-content: center;
+  align-items: center;
   padding: 8px 14px;
   margin-bottom: 8px;
-  background: #e8eef5;
+  background: var(--ark-surface-summary);
   border-radius: 6px;
   font-size: 15px;
-  color: #444;
+  color: var(--ark-text-secondary);
+}
+
+.copy-btn {
+  margin-left: auto;
+  padding: 6px 16px;
+  border: 1.5px solid var(--ark-border-accent);
+  border-radius: 5px;
+  background: var(--ark-neutral-50);
+  color: var(--ark-primary-700);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover {
+  background: var(--ark-primary-700);
+  color: #fff;
+  border-color: var(--ark-primary-700);
+}
+
+.copy-btn-done {
+  margin-left: auto;
+  padding: 6px 16px;
+  border: 1.5px solid var(--ark-success);
+  border-radius: 5px;
+  background: var(--ark-success);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: default;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.copy-btn-done:hover {
+  background: var(--ark-success);
+  border-color: var(--ark-success);
 }
 
 .summary span {
@@ -31,7 +78,7 @@
 }
 
 .summary strong {
-  color: #1a1a1a;
+  color: var(--ark-text-heading);
 }
 
 /* 步骤卡片列表 */
@@ -47,15 +94,15 @@
   gap: 8px;
   padding: 8px 10px;
   border-radius: 5px;
-  background: #fff;
-  border: 1px solid #e8e8e8;
+  background: var(--ark-surface-card);
+  border: 1px solid var(--ark-border-default);
   font-size: 16px;
   line-height: 1.5;
   transition: background-color 0.15s;
 }
 
 .step-card:hover {
-  background: #fafafa;
+  background: var(--ark-surface-hover);
 }
 
 .step-index {
@@ -65,7 +112,7 @@
   width: 22px;
   height: 22px;
   border-radius: 5px;
-  background: #4a5568;
+  background: var(--ark-neutral-700);
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -75,17 +122,17 @@
 .step-desc {
   flex: 1;
   min-width: 0;
-  color: #333;
+  color: var(--ark-text-body);
 }
 
 .count-tag {
   display: inline-block;
   margin-left: 4px;
   padding: 0 6px;
-  background: #edf2f7;
+  background: var(--ark-surface-tag);
   border-radius: 3px;
   font-size: 14px;
-  color: #555;
+  color: var(--ark-text-secondary);
   font-weight: 600;
 }
 
@@ -101,74 +148,75 @@
 
 .gain {
   font-weight: 700;
-  color: #16a34a;
+  color: var(--ark-success);
 }
 
 .spend {
   font-weight: 700;
-  color: #dc2626;
+  color: var(--ark-danger);
 }
 
 .running-total {
-  color: #555;
+  color: var(--ark-text-secondary);
   font-size: 14px;
   font-weight: 700;
-  border-left: 1px solid #ddd;
+  border-left: 1px solid var(--ark-border-default);
   padding-left: 6px;
 }
 
 .running-total-final {
-  color: #1a56db;
+  color: var(--ark-primary-800);
   font-size: 15px;
   font-weight: 700;
-  border-left: 1px solid #93b4e8;
+  border-left: 1px solid var(--ark-primary-300);
   padding-left: 6px;
-  background: #e8f0fe;
+  background: var(--ark-primary-50);
   border-radius: 3px;
   padding: 1px 8px 1px 8px;
 }
 
 /* 错误 */
 .path-renderer-error {
-  color: #dc3545;
-  border: 2px solid #dc3545;
+  color: var(--ark-danger);
+  border: 2px solid var(--ark-danger);
   border-radius: 6px;
   padding: 14px;
   margin: 10px 0;
-  background: #fff5f5;
+  background: var(--ark-danger-bg);
   text-align: center;
 }
 
 /* 三栏布局容器 */
 .path-body {
   display: grid;
-  grid-template-columns: 38px 1fr 38px;
-  grid-template-rows: auto 1fr;
-  gap: 2px 6px;
+  grid-template-columns: 70px 1fr 70px;
+  gap: 0 6px;
   align-items: start;
 }
 
 .side-nav {
-  width: 38px;
+  width: 70px;
   border-radius: 8px;
-  border: 1.5px solid #c0d0e8;
-  background: #f0f4fa;
-  color: #007bff;
-  font-size: 22px;
-  font-weight: 700;
+  border: 1.5px solid var(--ark-border-accent);
+  background: var(--ark-primary-50);
+  color: var(--ark-primary-500);
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   transition: all 0.2s;
-  padding: 0;
-  line-height: 1;
+  padding: 8px 4px;
+  line-height: 1.2;
 }
 
 .side-nav:hover {
-  background: #007bff;
+  background: var(--ark-primary-500);
   color: #fff;
-  border-color: #007bff;
+  border-color: var(--ark-primary-500);
 }
 
 .side-nav:active {
@@ -177,36 +225,46 @@
 
 .side-nav-prev {
   grid-column: 1;
-  grid-row: 1 / 3;
+  grid-row: 1;
   align-self: stretch;
 }
 
 .side-nav-next {
   grid-column: 3;
-  grid-row: 1 / 3;
+  grid-row: 1;
   align-self: stretch;
 }
 
 .page-indicator {
-  grid-column: 2;
-  grid-row: 1;
-  text-align: center;
-  font-size: 15px;
-  color: #555;
+  font-size: 14px;
+  color: var(--ark-text-secondary);
   font-weight: 600;
-  padding: 4px 0;
+  white-space: nowrap;
+}
+
+.nav-arrow {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.nav-text {
+  font-size: 12px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.08em;
 }
 
 .path-main-steps {
   grid-column: 2;
-  grid-row: 2;
+  grid-row: 1;
 }
 
 /* 彩蛋图片 */
 .romantic-image-container {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px dashed #ddd;
+  border-top: 1px dashed var(--ark-border-default);
   text-align: center;
 }
 
@@ -240,34 +298,35 @@
   }
 
   .path-body {
-    grid-template-columns: 32px 1fr 32px;
-    grid-template-rows: auto auto;
+    grid-template-columns: 36px 1fr 36px;
     gap: 4px 6px;
   }
 
   .side-nav {
-    width: 32px;
-    font-size: 18px;
+    width: 36px;
+    padding: 6px 2px;
   }
 
-  .side-nav-prev {
-    grid-row: 1;
-    align-self: center;
+  .nav-text {
+    display: none;
   }
 
+  .nav-arrow {
+    font-size: 16px;
+  }
+
+  .side-nav-prev,
   .side-nav-next {
-    grid-row: 1;
-    align-self: center;
+    align-self: stretch;
   }
 
   .page-indicator {
-    font-size: 14px;
-    padding: 2px 0;
+    font-size: 13px;
   }
 
   .path-main-steps {
-    grid-column: 1 / -1;
-    grid-row: 2;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .romantic-image {

@@ -238,7 +238,7 @@ const callAPI = (difference, settings, limits, num2Val) =>
   Promise.race([
     Transmission(difference, settings, limits, num2Val),
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("计算超时,请重试")), 15000)
+      setTimeout(() => reject(new Error("计算超时,请重试")), 5000)
     ),
   ]);
 
@@ -328,11 +328,11 @@ const MainCalculator = () => {
     }
 
     const numValue = parseInt(value, 10);
-    if (numValue > 99999999) {
+    if (numValue > 999999999) {
       dispatch({
         type: "SET_ERROR",
         field: `error${field.slice(-1)}`,
-        value: "你真的有这么多龙门币吗？",
+        value: "这么多龙门币可以分我一点吗？",
       });
       return;
     }

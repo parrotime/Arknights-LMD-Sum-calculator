@@ -1,9 +1,13 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 import { getItemById } from "../DataService";
 import { getRarityColor, computeStepData, computeRunningTotals } from "../utils/calcLogic";
 import styles from "../assets/styles/PathRenderer.module.css";
 
+const CIRCLED_NUMS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
+
 const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, onNextPath, isBonusReady, activeImageUrl,}) => {
+  const [copied, setCopied] = useState(false);
   const safePath = Array.isArray(path) ? path : [];
 
   if (safePath.length === 0) {
@@ -15,9 +19,43 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
   const { steps: stepData, totalSanity } = computeStepData(safePath, getItemById);
   const runningTotals = computeRunningTotals(stepData, startLMD);
 
+  const formatPathText = () => {
+    const endLMD = runningTotals[runningTotals.length - 1];
+    const header = `【龙门币凑数计算器 ark-lmd.top】`;
+    const sanityPart = totalSanity > 0 ? ` | 消耗理智 ${totalSanity}` : "";
+    const summaryLine = `龙门币 ${startLMD} → ${endLMD} | 共 ${safePath.length} 步${sanityPart}`;
+
+    const lines = safePath.map((step, i) => {
+      const sd = stepData[i];
+      if (!sd) return `${i + 1}. 未知物品`;
+      const { item, stepValue } = sd;
+      const num = i < CIRCLED_NUMS.length ? CIRCLED_NUMS[i] : `${i + 1}.`;
+      const action = stepValue > 0 ? "获得" : "消耗";
+      const label = i === safePath.length - 1 ? "结果" : "当前";
+      return `${num} ${item.item_name} ×${step.count}次 → ${action} ${Math.abs(stepValue)} 龙门币（${label} ${runningTotals[i]}）`;
+    });
+
+    return `${header}\n${summaryLine}\n\n${lines.join("\n")}`;
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(formatPathText());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch { /* clipboard not available */ }
+  };
+
   return (
     <div className={styles['path-renderer-container']}>
-      <div className={styles.title}>参考路径方案</div>
+      <div className={styles['title-row']}>
+        <div className={styles.title}>参考路径方案</div>
+        {totalPaths > 1 && (
+          <div className={styles['page-indicator']}>
+            第 {currentIndex + 1}/{totalPaths} 个方案
+          </div>
+        )}
+      </div>
 
       {/* 摘要栏 */}
       <div className={styles.summary}>
@@ -26,6 +64,12 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
         <span>
           龙门币 <strong>{startLMD}</strong> → <strong>{runningTotals[runningTotals.length - 1]}</strong>
         </span>
+        <button
+          className={copied ? styles['copy-btn-done'] : styles['copy-btn']}
+          onClick={handleCopy}
+        >
+          {copied ? "已复制 ✓" : "复制当前方案"}
+        </button>
       </div>
 
       {/* 三栏布局：左按钮 | 内容 | 右按钮 */}
@@ -35,14 +79,8 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
             className={`${styles['side-nav']} ${styles['side-nav-prev']}`}
             onClick={onPrevPath}
           >
-            {isBonusReady ? "🎁" : "←"}
+            {isBonusReady ? "🎁" : <><span className={styles['nav-arrow']}>←</span>{safePath.length > 1 && <span className={styles['nav-text']}>上一方案</span>}</>}
           </button>
-        )}
-
-        {totalPaths > 1 && (
-          <div className={styles['page-indicator']}>
-            第 {currentIndex + 1}/{totalPaths} 条
-          </div>
         )}
 
         <div className={totalPaths > 1 ? styles['path-main-steps'] : undefined}>
@@ -87,7 +125,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
             className={`${styles['side-nav']} ${styles['side-nav-next']}`}
             onClick={onNextPath}
           >
-            {isBonusReady ? "🎁" : "→"}
+            {isBonusReady ? "🎁" : <>{safePath.length > 1 && <span className={styles['nav-text']}>下一方案</span>}<span className={styles['nav-arrow']}>→</span></>}
           </button>
         )}
       </div>

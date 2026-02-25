@@ -77,11 +77,19 @@
   letter-spacing: 0.04em;
 }
 
+.input-area-with-swap {
+  display: flex;
+  align-items: stretch;
+  gap: var(--ark-space-sm);
+  width: 100%;
+}
+
 .input-rows {
   display: flex;
   flex-direction: column;
   gap: var(--ark-space-md);
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 .input-row {
@@ -93,11 +101,10 @@
 
 .input-label {
   flex-shrink: 0;
-  width: 130px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--ark-neutral-700);
-  text-align: right;
+  white-space: nowrap;
 }
 
 .input-field {
@@ -131,17 +138,25 @@
 }
 
 .swap-btn {
-  align-self: center;
-  padding: 4px 14px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: var(--ark-primary-600);
   background: var(--ark-primary-50);
   border: 1px solid var(--ark-primary-200);
   border-radius: var(--ark-radius-md);
   cursor: pointer;
   transition: all var(--ark-transition-fast);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .swap-btn:hover {
@@ -155,18 +170,24 @@
 }
 
 .diff-section {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: var(--ark-space-md);
   margin-top: var(--ark-space-md);
+  width: 100%;
 }
 
 .diff-label {
-  font-size: 0.85rem;
+  flex-shrink: 0;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--ark-neutral-600);
-  margin-bottom: 4px;
+  white-space: nowrap;
 }
 
 .diff-value {
+  flex: 1;
+  min-width: 0;
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--ark-primary-600);
@@ -174,14 +195,14 @@
   background: var(--ark-primary-50);
   border: 1px solid var(--ark-primary-200);
   border-radius: var(--ark-radius-md);
-  display: inline-block;
-  min-width: 80px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .diff-out-of-range {
   color: var(--ark-danger);
-  background: #fff5f5;
-  border-color: #fca5a5;
+  background: var(--ark-danger-bg);
+  border-color: var(--ark-danger-border);
 }
 
 .error-message {
@@ -207,12 +228,13 @@
 }
 
 .limit-title {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
   color: var(--ark-primary-600);
   margin-bottom: var(--ark-space-sm);
-  padding-bottom: 4px;
+  padding-bottom: 5px;
   border-bottom: 1px solid var(--ark-primary-100);
+  letter-spacing: 0.06em;
 }
 
 .limit-grid {
@@ -230,8 +252,8 @@
 }
 
 .limit-label {
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--ark-neutral-700);
   white-space: nowrap;
 }
@@ -242,6 +264,7 @@
   border: 1px solid var(--ark-border-default);
   border-radius: var(--ark-radius-md);
   font-size: 0.9rem;
+  line-height: normal;
   text-align: center;
   background: var(--ark-surface-card);
   transition: border-color var(--ark-transition-fast),
@@ -255,8 +278,7 @@
 }
 
 .calculate-button {
-  width: 100%;
-  max-width: 300px;
+  flex: 1;
   margin-top: var(--ark-space-xl);
   margin-bottom: var(--ark-space-sm);
   padding: 12px 24px;
@@ -307,6 +329,8 @@
 }
 
 .reset-inputs-btn {
+  flex-shrink: 0;
+  min-width: 5.5em;
   padding: 12px 20px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -321,7 +345,7 @@
 .reset-inputs-btn:hover {
   color: var(--ark-danger);
   border-color: var(--ark-danger);
-  background: #fff5f5;
+  background: var(--ark-danger-bg);
 }
 
 .reset-inputs-btn:active {
@@ -358,11 +382,11 @@
 
 .toggle-text {
   color: var(--ark-neutral-700);
-  font-weight: 500;
+  font-weight: 600;
   text-align: left;
   flex: 1;
   padding-right: 10px;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   line-height: 1.4;
 }
 
@@ -411,42 +435,85 @@ input:checked + .slider:before {
 }
 
 input:invalid {
-  border-color: #e74c3c;
+  border-color: var(--ark-danger);
 }
 
 .info-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin: var(--ark-space-sm) 0 var(--ark-space-md);
   padding: 10px 14px;
   background: var(--ark-primary-50);
   border-left: 3px solid var(--ark-primary-500);
   border-radius: 0 var(--ark-radius-sm) var(--ark-radius-sm) 0;
   color: var(--ark-neutral-700);
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
   line-height: 1.6;
 }
 
+.info-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ark-primary-500);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.info-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .main-content {
-  flex: 1 1 auto; 
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 .notice-content {
   padding-left: 10px;
   color: var(--ark-neutral-500);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   line-height: 1.7;
 }
 
+.notice-content p {
+  margin: 0 0 0.8rem 0;
+}
+
+.notice-content p:last-child {
+  margin-bottom: 0;
+}
+
 .notice-title {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.9rem;
   margin-top: 5px;
   margin-bottom: 0.5rem;
-  text-align: center;
-  color: var(--ark-neutral-600);
+  text-align: left;
+  color: var(--ark-primary-600);
+  border-bottom: 1px solid var(--ark-primary-100);
+  padding-bottom: 5px;
+  letter-spacing: 0.06em;
+}
+
+.usage-guide {
+  width: 100%;
+  margin-top: var(--ark-space-md);
 }
 
 
@@ -457,7 +524,7 @@ input:invalid {
   border: 1px solid var(--ark-border-subtle);
   border-top: 2px solid var(--ark-primary-500);
   border-radius: var(--ark-radius-lg);
-  padding: var(--ark-space-lg);
+  padding: var(--ark-space-sm) var(--ark-space-lg) var(--ark-space-lg);
   box-shadow: var(--ark-shadow-md);
   height: fit-content;
 }
@@ -482,6 +549,10 @@ input:invalid {
   text-align: center;
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+.change-over-text p {
+  margin: var(--ark-space-sm) 0 0;
 }
 
 .modal-overlay {
@@ -509,10 +580,10 @@ input:invalid {
 }
 
 .modal-content {
-  background: white;
+  background: var(--ark-surface-card);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--ark-shadow-lg);
   max-width: 400px;
   text-align: center; 
   display: flex;
@@ -528,13 +599,13 @@ input:invalid {
 
 .modal-content h3 {
   margin-top: 0;
-  color: #333;
+  color: var(--ark-text-body);
 }
 
 .modal-content button {
   margin-top: 15px;
   padding: 8px 16px;
-  background: #007bff;
+  background: var(--ark-primary-500);
   color: white;
   border: none;
   border-radius: 4px;
@@ -542,7 +613,7 @@ input:invalid {
 }
 
 .modal-content button:hover {
-  background: #0056b3;
+  background: var(--ark-primary-700);
 }
 
 .bonus-modal {
@@ -558,7 +629,7 @@ input:invalid {
 
 .bonus-text {
   font-size: 16px;
-  color: #333;
+  color: var(--ark-text-body);
   margin: 0 0 15px 0;
   font-weight: bold;
 }
@@ -604,7 +675,7 @@ input:invalid {
 .reset-settings-btn:hover {
   color: var(--ark-danger);
   border-color: var(--ark-danger);
-  background: #fff5f5;
+  background: var(--ark-danger-bg);
 }
 
 .settings-dirty-hint {
@@ -612,8 +683,8 @@ input:invalid {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--ark-warning);
-  background: #fef9e7;
-  border: 1px solid #f0d78c;
+  background: var(--ark-warning-bg);
+  border: 1px solid var(--ark-warning-border);
   border-radius: var(--ark-radius-md);
   padding: 6px 12px;
   margin-top: var(--ark-space-sm);
@@ -667,6 +738,17 @@ input:invalid {
     flex-direction: column;
     align-items: stretch;
     gap: 4px;
+  }
+
+  .input-area-with-swap {
+    flex-direction: column;
+  }
+
+  .swap-btn {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    align-self: center;
+    padding: 6px 20px;
   }
 
   .input-label {
@@ -777,8 +859,8 @@ input:invalid {
   align-items: center;
   gap: var(--ark-space-md);
   padding: var(--ark-space-md) var(--ark-space-lg);
-  background: #fff5f5;
-  border: 1px solid #fca5a5;
+  background: var(--ark-danger-bg);
+  border: 1px solid var(--ark-danger-border);
   border-left: 4px solid var(--ark-danger);
   border-radius: var(--ark-radius-md);
   margin: var(--ark-space-md) 0;

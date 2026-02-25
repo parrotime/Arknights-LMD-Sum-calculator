@@ -28,25 +28,42 @@ const InputPanel = ({
     </div>
 
     <div className={styles['info-banner']}>
-      请输入两个 [0, 99999999] 区间的整数，且两数差值处于 [-5000, 5000] 区间
+      <span className={styles['info-icon']}>ℹ</span>
+      <div className={styles['info-lines']}>
+        <span>输入范围：两个 [0, 999999999] 区间的整数</span>
+        <span>差值范围：两数之差需在 [-5000, 5000] 区间内</span>
+      </div>
     </div>
 
     <div className={styles['main-content']}>
-      <div className={styles['input-rows']}>
-        <div className={styles['input-row']}>
-          <label className={styles['input-label']}>当前龙门币数量</label>
-          <div className={styles['input-field']}>
-            <input
-              type="text"
-              className={styles['input-box']}
-              placeholder="请输入数字"
-              value={state.num1}
-              onChange={(e) => handleInputChange(e, "num1")}
-              onKeyDown={handleKeyDown}
-            />
-            {state.error1 && (
-              <div className={styles['error-message']}>{state.error1}</div>
-            )}
+      <div className={styles['input-area-with-swap']}>
+        <div className={styles['input-rows']}>
+          <div className={styles['input-row']}>
+            <label className={styles['input-label']}>当前龙门币数量</label>
+            <div className={styles['input-field']}>
+              <input
+                type="text"
+                className={styles['input-box']}
+                placeholder="请输入数字"
+                value={state.num1}
+                onChange={(e) => handleInputChange(e, "num1")}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+          </div>
+
+          <div className={styles['input-row']}>
+            <label className={styles['input-label']}>目标龙门币数量</label>
+            <div className={styles['input-field']}>
+              <input
+                type="text"
+                className={styles['input-box']}
+                placeholder="请输入数字"
+                value={state.num2}
+                onChange={(e) => handleInputChange(e, "num2")}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
           </div>
         </div>
 
@@ -56,35 +73,18 @@ const InputPanel = ({
           onClick={onSwap}
           title="交换当前与目标数值"
         >
-          ⇅ 交换
+          交换
         </button>
-
-        <div className={styles['input-row']}>
-          <label className={styles['input-label']}>目标龙门币数量</label>
-          <div className={styles['input-field']}>
-            <input
-              type="text"
-              className={styles['input-box']}
-              placeholder="请输入数字"
-              value={state.num2}
-              onChange={(e) => handleInputChange(e, "num2")}
-              onKeyDown={handleKeyDown}
-            />
-            {state.error2 && (
-              <div className={styles['error-message']}>{state.error2}</div>
-            )}
-          </div>
-        </div>
       </div>
 
       <div className={styles['limit-section']}>
         <div className={styles['limit-title']}>数量限制</div>
         <div className={styles['limit-grid']}>
           {[
-            { label: "精零干员升级", field: "upgrade0Count", max: 10 },
-            { label: "精一干员升级", field: "upgrade1Count", max: 10 },
-            { label: "精二干员升级", field: "upgrade2Count", max: 10 },
-            { label: "理智数量", field: "sanityCount", max: 200 },
+            { label: "允许升级精零干员数量", field: "upgrade0Count", max: 10 },
+            { label: "允许升级精一干员数量", field: "upgrade1Count", max: 10 },
+            { label: "允许升级精二干员数量", field: "upgrade2Count", max: 10 },
+            { label: "允许使用理智数量", field: "sanityCount", max: 200 },
           ].map(({ label, field, max }) => (
             <div className={styles['limit-item']} key={field}>
               <span className={styles['limit-label']}>{label}</span>
@@ -111,43 +111,45 @@ const InputPanel = ({
 
       <div className={styles['action-buttons']}>
         <button
-          className={styles['calculate-button']}
-          onClick={handleCalculate}
-          disabled={state.isCalculating}
-        >
-          {state.isCalculating ? "计算中..." : "立即计算"}
-        </button>
-        <button
           type="button"
           className={styles['reset-inputs-btn']}
           onClick={onResetInputs}
         >
           清空
         </button>
+        <button
+          className={styles['calculate-button']}
+          onClick={handleCalculate}
+          disabled={state.isCalculating}
+        >
+          {state.isCalculating ? "计算中..." : "立即计算"}
+        </button>
       </div>
 
       <div className={styles['diff-section']}>
         <div className={styles['diff-label']}>还需龙门币:</div>
-        <div className={`${styles['diff-value']} ${diffInfo?.outOfRange ? styles['diff-out-of-range'] : ''}`}>
-          {diffInfo
-            ? (diffInfo.outOfRange
-                ? `${diffInfo.value}（超出 [-5000, 5000] 范围）`
-                : diffInfo.value)
-            : "—"}
+        <div className={`${styles['diff-value']} ${
+          (state.error1 || state.error2 || state.differenceError)
+            ? styles['diff-out-of-range']
+            : diffInfo?.outOfRange ? styles['diff-out-of-range'] : ''
+        }`}>
+          {state.error1 || state.error2 || state.differenceError
+            ? (state.error1 || state.error2 || state.differenceError)
+            : diffInfo
+              ? (diffInfo.outOfRange
+                  ? `${diffInfo.value}（超出 [-5000, 5000] 范围）`
+                  : diffInfo.value)
+              : "—"}
         </div>
-        {state.differenceError && (
-          <div className={styles['error-message']}>{state.differenceError}</div>
-        )}
       </div>
 
       <div className={styles['usage-guide']}>
         <div className={styles['notice-title']}>注意事项</div>
         <div className={styles['notice-content']}>
-          1.点击"立即计算"按钮开始计算，点击页面底部参考路径方案中的"上一路径"和"下一路径"按钮可以切换路径方案。
-          <br />
-          2.设置面板中的开关调整之后，需要重新点击"立即计算"按钮才会生效。
+          <p>1.点击"立即计算"按钮开始计算，点击页面底部参考路径方案中的"上一方案"和"下一方案"按钮可以切换路径方案。</p>
+          <p>2.设置面板中的开关调整之后，需要重新点击"立即计算"按钮才会生效。
           如果点击"立即计算"之后不起作用，建议重新点击或者刷新一下网页。
-          对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果。后续会继续优化计算速度。
+          对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果。后续会继续优化计算速度。</p>
         </div>
       </div>
     </div>

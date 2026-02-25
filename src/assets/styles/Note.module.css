@@ -1,23 +1,19 @@
 .main-note-content {
   width: 100%;
-  padding-left: 30px;
   background: transparent;
   display: flex;
   justify-content: center;
   min-height: 100vh;
   box-sizing: border-box;
-  padding-top: calc(var(--ark-nav-height) + var(--ark-space-lg));
+  padding: calc(var(--ark-nav-height) + var(--ark-space-lg)) var(--ark-space-lg) 0;
 }
 
 .note-page {
-  margin-top: 0;
-  margin-right: 20px;
   width: 100%;
-  max-width: 960px;
+  max-width: 1200px;
   padding: 12px 20px;
   background-color: var(--ark-surface-card);
   border-radius: var(--ark-radius-lg);
-  margin-left: 0;
   box-shadow: var(--ark-shadow-md);
   border: 1px solid var(--ark-border-subtle);
   border-top: 2px solid var(--ark-primary-500);
@@ -27,11 +23,11 @@
   font-family: 'Segoe UI', system-ui;
   font-size: 2.4rem;
   font-weight: bold;
-  color: #2c3e50;
+  color: var(--ark-text-body);
   text-align: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #5c9edc;
+  border-bottom: 2px solid var(--ark-link);
   letter-spacing: 0.05em;
 }
 
@@ -43,9 +39,9 @@
 
 .notice-list .notice-item {
   padding: 18px 25px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--ark-surface-card);
   border-radius: 8px;
-  color: #2c3e50;
+  color: var(--ark-text-body);
   line-height: 1.6;
   font-size: 1.1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -73,17 +69,17 @@
 .formula {
   font-family: 'Courier New', monospace;
   font-size: 1.3rem;
-  color: #2c3e50;
+  color: var(--ark-text-body);
   padding: 15px;
   display: block;
   text-align: center;
-  background: #f5f7fa;
+  background: var(--ark-surface-inset);
   border-radius: 8px;
   margin: 0.8rem 0;
 }
 
 .external-link3 {
-  color: #5c9edc;
+  color: var(--ark-link);
   text-decoration: none;
   border-bottom: 2px dotted rgba(92, 158, 220, 0.3);
   transition: all 0.2s ease;
@@ -91,7 +87,7 @@
 }
 
 .external-link3:hover {
-  color: #468acb;
+  color: var(--ark-link-hover);
   border-bottom-style: solid;
   border-bottom-color: currentColor;
 }
@@ -125,7 +121,7 @@
 .image-caption {
   display: block;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--ark-text-muted);
   margin-top: 5px;
   line-height: 1.4;
 }
@@ -152,17 +148,14 @@
 }
 
 @media (max-width: 800px) {
-.main-note-content {
-    margin-left: 0; 
-    padding-left: 0;
-    padding-top: 20px; 
+  .main-note-content {
+    padding: var(--ark-space-md);
+    padding-top: 20px;
   }
 
   .note-page {
-    margin: 0 auto; 
-    width: 88%; 
+    width: 100%;
     padding: 15px;
-    margin-bottom: 20px;
   }
 
   .note-page h1 {

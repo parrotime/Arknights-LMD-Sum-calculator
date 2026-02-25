@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
@@ -9,6 +9,13 @@ const navItems = [
 ];
 
 const Layout = ({ children }) => {
+  const [dark, setDark] = useState(() => localStorage.getItem("theme") === "dark");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  }, [dark]);
+
   const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -28,6 +35,14 @@ const Layout = ({ children }) => {
               </NavLink>
             ))}
           </div>
+          <button
+            className="theme-toggle"
+            onClick={() => setDark(d => !d)}
+            aria-label={dark ? "切换到浅色模式" : "切换到深色模式"}
+            title={dark ? "浅色模式" : "深色模式"}
+          >
+            {dark ? "☀️" : "🌙"}
+          </button>
         </div>
       </nav>
 

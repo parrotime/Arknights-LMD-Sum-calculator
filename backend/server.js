@@ -174,9 +174,12 @@ app.post("/find-paths", async (req, res) => {
 
     logger.info({ rawGoal, target, itemCount: items.length, limits }, "Calculation request");
 
+    const hardCaps = { upgrade0Limit: 10, upgrade1Limit: 10, upgrade2Limit: 10, sanityLimit: 200 };
     const finalLimits = {};
     for (const key in limits) {
-      finalLimits[key] = limits[key] === null ? Infinity : limits[key];
+      finalLimits[key] = (limits[key] === null || limits[key] === Infinity)
+        ? hardCaps[key] ?? 10
+        : limits[key];
     }
     // --- 2. 服务器端缓存（简化 key：target + settings + limits）---
     const serializableFinalLimits = {};
