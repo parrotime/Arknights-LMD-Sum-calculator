@@ -260,6 +260,29 @@
   grid-row: 1;
 }
 
+/* 移动端方案切换（桌面端隐藏） */
+.mobile-nav-row {
+  display: none;
+}
+
+.mobile-nav-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--ark-border-accent);
+  border-radius: 6px;
+  background: var(--ark-primary-50);
+  color: var(--ark-primary-600);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mobile-nav-btn:active {
+  transform: scale(0.97);
+  background: var(--ark-primary-100);
+}
+
 /* 彩蛋图片 */
 .romantic-image-container {
   margin-top: 12px;
@@ -297,35 +320,38 @@
     padding-left: 0;
   }
 
+  .mobile-nav-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .summary {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .copy-btn,
+  .copy-btn-done {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+    margin-top: 4px;
+  }
+
   .path-body {
-    grid-template-columns: 36px 1fr 36px;
+    grid-template-columns: 1fr;
     gap: 4px 6px;
   }
 
   .side-nav {
-    width: 36px;
-    padding: 6px 2px;
-  }
-
-  .nav-text {
     display: none;
   }
 
-  .nav-arrow {
-    font-size: 16px;
-  }
-
-  .side-nav-prev,
-  .side-nav-next {
-    align-self: stretch;
-  }
-
-  .page-indicator {
-    font-size: 13px;
-  }
-
   .path-main-steps {
-    grid-column: 2;
+    grid-column: 1;
     grid-row: 1;
   }
 

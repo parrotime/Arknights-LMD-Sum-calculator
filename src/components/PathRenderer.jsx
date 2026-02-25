@@ -72,6 +72,14 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
         </button>
       </div>
 
+      {/* 移动端方案切换按钮 */}
+      {totalPaths > 1 && (
+        <div className={styles['mobile-nav-row']}>
+          <button className={styles['mobile-nav-btn']} onClick={onPrevPath}>← 上一方案</button>
+          <button className={styles['mobile-nav-btn']} onClick={onNextPath}>下一方案 →</button>
+        </div>
+      )}
+
       {/* 三栏布局：左按钮 | 内容 | 右按钮 */}
       <div className={totalPaths > 1 ? styles['path-body'] : undefined}>
         {totalPaths > 1 && (

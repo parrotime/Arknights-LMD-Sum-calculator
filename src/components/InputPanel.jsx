@@ -52,6 +52,15 @@ const InputPanel = ({
             </div>
           </div>
 
+          <button
+            type="button"
+            className={styles['swap-btn']}
+            onClick={onSwap}
+            title="交换当前与目标数值"
+          >
+            交换
+          </button>
+
           <div className={styles['input-row']}>
             <label className={styles['input-label']}>目标龙门币数量</label>
             <div className={styles['input-field']}>
@@ -66,15 +75,6 @@ const InputPanel = ({
             </div>
           </div>
         </div>
-
-        <button
-          type="button"
-          className={styles['swap-btn']}
-          onClick={onSwap}
-          title="交换当前与目标数值"
-        >
-          交换
-        </button>
       </div>
 
       <div className={styles['limit-section']}>
