@@ -32,7 +32,8 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
       const num = i < CIRCLED_NUMS.length ? CIRCLED_NUMS[i] : `${i + 1}.`;
       const action = stepValue > 0 ? "获得" : "消耗";
       const label = i === safePath.length - 1 ? "结果" : "当前";
-      return `${num} ${item.item_name} ×${step.count}次 → ${action} ${Math.abs(stepValue)} 龙门币（${label} ${runningTotals[i]}）`;
+      const breakdown = step.count > 1 ? `(${Math.abs(item.item_value)}×${step.count}=)` : "";
+      return `${num} ${item.item_name} ×${step.count}次 → ${action} ${breakdown}${Math.abs(stepValue)} 龙门币（${label} ${runningTotals[i]}）`;
     });
 
     return `${header}\n${summaryLine}\n\n${lines.join("\n")}`;
@@ -116,7 +117,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
               </span>
               <span className={styles['step-right']}>
                 <span className={isGain ? styles.gain : styles.spend}>
-                  {isGain ? "获得" : "消耗"} {Math.abs(stepValue)} 龙门币
+                  {isGain ? "获得" : "消耗"} {step.count > 1 && `(${Math.abs(item.item_value)}×${step.count}=)`}{Math.abs(stepValue)} 龙门币
                 </span>
                 <span className={i === safePath.length - 1 ? styles['running-total-final'] : styles['running-total']}>
                   {i === safePath.length - 1 ? "结果" : "当前余额"} {runningTotals[i]}

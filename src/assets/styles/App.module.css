@@ -711,7 +711,6 @@ input:invalid {
   .input-area {
     width: 100%;
     padding: var(--ark-space-md);
-    padding-top: calc(40px + var(--ark-space-md));
   }
 
   .main-container {
@@ -774,17 +773,22 @@ input:invalid {
     writing-mode: horizontal-tb;
     text-orientation: mixed;
     align-self: center;
-    padding: 6px 24px;
+    padding: 4px 20px;
+    font-size: 0.85rem;
+    margin: -2px 0;
   }
 
   .input-label {
     width: auto;
-    text-align: left;
   }
 
   .limit-grid {
     grid-template-columns: 1fr;
     gap: 4px 0;
+  }
+
+  .limit-item {
+    padding: 2px 0;
   }
 
   .upgrade-count-container {

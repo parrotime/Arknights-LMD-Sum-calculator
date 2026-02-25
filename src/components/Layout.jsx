@@ -16,9 +16,25 @@ const Layout = ({ children }) => {
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
 
-  const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const [scrollDir, setScrollDir] = useState("down");
+
+  useEffect(() => {
+    const onScroll = () => {
+      const threshold = window.innerHeight * 0.5;
+      setScrollDir(window.scrollY < threshold ? "down" : "up");
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const handleScrollBtn = useCallback(() => {
+    if (scrollDir === "down") {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [scrollDir]);
 
   return (
     <div className="app-container">
@@ -46,8 +62,8 @@ const Layout = ({ children }) => {
         </div>
       </nav>
 
-      <button className="back-to-top" onClick={scrollToTop}>
-        ↑ 返回顶部
+      <button className="back-to-top" onClick={handleScrollBtn}>
+        {scrollDir === "down" ? "↓ 前往底部" : "↑ 返回顶部"}
       </button>
 
       {children}

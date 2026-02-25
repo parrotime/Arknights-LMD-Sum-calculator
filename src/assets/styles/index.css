@@ -417,6 +417,7 @@ html, body, #root {
   .app-container {
     flex-direction: column;
     height: auto;
+    padding-top: 100px;
   }
 
   .top-nav {
@@ -426,9 +427,27 @@ html, body, #root {
   }
 
   .nav-inner {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
     gap: var(--ark-space-sm);
     padding: 0 var(--ark-space-md);
+    align-items: center;
+  }
+
+  .nav-brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .nav-links {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .theme-toggle {
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .nav-brand {
