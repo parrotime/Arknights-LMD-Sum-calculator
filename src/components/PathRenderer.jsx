@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import { getItemById } from "../DataService";
 import { getRarityColor, computeStepData, computeRunningTotals } from "../utils/calcLogic";
@@ -6,8 +6,24 @@ import styles from "../assets/styles/PathRenderer.module.css";
 
 const CIRCLED_NUMS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
 
-const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, onNextPath, isBonusReady, activeImageUrl,}) => {
+const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, maxSteps, onPrevPath, onNextPath, isBonusReady, activeImageUrl,}) => {
   const [copied, setCopied] = useState(false);
+  const stepListRef = useRef(null);
+  const stepHeightRef = useRef(0);
+
+  // 首次渲染后测量单步高度，用 maxSteps 预设 min-height
+  useEffect(() => {
+    const el = stepListRef.current;
+    if (!el || !maxSteps) return;
+    const cards = el.children;
+    if (cards.length > 0 && stepHeightRef.current === 0) {
+      stepHeightRef.current = cards[0].offsetHeight;
+    }
+    if (stepHeightRef.current > 0) {
+      const gap = 4; // step-list gap
+      el.style.minHeight = `${maxSteps * stepHeightRef.current + (maxSteps - 1) * gap}px`;
+    }
+  });
   const safePath = Array.isArray(path) ? path : [];
 
   if (safePath.length === 0) {
@@ -93,7 +109,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, onPrevPath, o
         )}
 
         <div className={totalPaths > 1 ? styles['path-main-steps'] : undefined}>
-          <div className={styles['step-list']}>
+          <div className={styles['step-list']} ref={stepListRef}>
         {safePath.map((step, i) => {
           const sd = stepData[i];
           if (!sd) {
@@ -159,6 +175,7 @@ PathRenderer.propTypes = {
   initialLMD: PropTypes.number.isRequired,
   totalPaths: PropTypes.number,
   currentIndex: PropTypes.number,
+  maxSteps: PropTypes.number,
   onPrevPath: PropTypes.func,
   onNextPath: PropTypes.func,
   isBonusReady: PropTypes.bool,

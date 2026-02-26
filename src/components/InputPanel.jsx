@@ -43,6 +43,7 @@ const InputPanel = ({
             <div className={styles['input-field']}>
               <input
                 type="text"
+                inputMode="numeric"
                 className={styles['input-box']}
                 placeholder="请输入数字"
                 value={state.num1}
@@ -66,6 +67,7 @@ const InputPanel = ({
             <div className={styles['input-field']}>
               <input
                 type="text"
+                inputMode="numeric"
                 className={styles['input-box']}
                 placeholder="请输入数字"
                 value={state.num2}
@@ -105,7 +107,7 @@ const InputPanel = ({
 
       {settingsDirty && state.pathCache.length > 0 && (
         <div className={styles['settings-dirty-hint']}>
-          设置已更改，请重新计算
+          设置发生更改，请重新计算结果
         </div>
       )}
 

@@ -56,15 +56,14 @@ const ResultArea = ({
           initialLMD={parseInt(state.num1) || 0}
           totalPaths={state.pathCache.length}
           currentIndex={state.currentPathIndex}
+          maxSteps={Math.max(...state.pathCache.map(p => p.length))}
           onPrevPath={() => handleChangePath(-1)}
           onNextPath={() => handleChangePath(1)}
           isBonusReady={isBonusReady}
           activeImageUrl={activeImageUrl}
         />
       </div>
-    ) : (
-      <div className={styles['no-path']}>{""}</div>
-    )}
+    ) : null}
 
     {state.pathCache.length > 0 &&
       state.clickCount >= 10 &&
