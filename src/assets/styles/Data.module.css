@@ -5,7 +5,7 @@
   flex-direction: column;
   gap: 25px;
   min-height: 100vh;
-  padding: calc(var(--ark-nav-height) + var(--ark-space-lg)) var(--ark-space-lg) 0;
+  padding: var(--ark-space-lg) var(--ark-space-lg) 0;
   align-items: center;
   box-sizing: border-box;
   max-width: 1200px;
@@ -14,39 +14,38 @@
 
 
 .accordion-panel {
-  width: 96%;
+  width: 100%;
   background: var(--ark-surface-card);
-  border-radius: 16px;
+  border-radius: var(--ark-radius-lg);
   box-shadow: var(--ark-shadow-md);
-  margin: 0 auto;
   overflow: hidden;
-  will-change: transform;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .accordion-panel:hover {
-  transform: translateY(-3px);
   box-shadow: var(--ark-shadow-lg);
 }
 
 .accordion-panel:not(.collapsed) .panel-header {
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--ark-radius-lg) var(--ark-radius-lg) 0 0;
 }
 
-.accordion-panel:first-child {
-  margin-top: 25px; 
-}
 
 .panel-header {
   padding: 15px 25px;
   background: linear-gradient(135deg, var(--ark-gradient-start) 0%, var(--ark-gradient-end) 100%);
-  border-radius: 16px;
+  border-radius: var(--ark-radius-lg);
   color: white;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 1rem;
 }
 
 .panel-header:hover {
@@ -84,7 +83,7 @@
 }
 
 .accordion-panel.collapsed .panel-header {
-  border-radius: 12px;
+  border-radius: var(--ark-radius-lg);
 }
 
 .accordion-panel.collapsed .panel-header::after {
@@ -110,7 +109,6 @@
   border-collapse: collapse;
   box-shadow: var(--ark-shadow-sm);
   background: var(--ark-surface-card);
-  border-radius: 8px;
   overflow: hidden;
   flex: 0 1 auto;
 }
@@ -165,7 +163,7 @@
 
 .path-card {
   background: var(--ark-surface-card);
-  border-radius: 10px;
+  border-radius: var(--ark-radius-md);
   box-shadow: var(--ark-shadow-sm);
   overflow: hidden;
   border: 1px solid var(--ark-border-default);
@@ -178,7 +176,7 @@
   font-weight: 700;
   font-size: 1rem;
   padding: 6px 18px;
-  border-radius: 0 0 10px 0;
+  border-radius: 0 0 var(--ark-radius-md) 0;
 }
 
 .path-card-body {
@@ -190,7 +188,7 @@
 
 .path-label {
   font-weight: 600;
-  color: #34495e;
+  color: var(--ark-text-heading);
   font-size: 0.95rem;
   margin-bottom: 4px;
 }
@@ -211,11 +209,6 @@
 @media (max-width: 800px) {
   .main-data-content {
     padding: var(--ark-space-md);
-    padding-top: 0px;
-  }
-  
-  .accordion-panel {
-    width: 100%;
   }
   
   .panel-header {

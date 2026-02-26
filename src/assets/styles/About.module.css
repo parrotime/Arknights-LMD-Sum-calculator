@@ -5,13 +5,12 @@
   justify-content: center;
   min-height: 100vh;
   box-sizing: border-box;
-  padding: calc(var(--ark-nav-height) + var(--ark-space-lg)) var(--ark-space-lg) 0;
+  padding: var(--ark-space-lg) var(--ark-space-lg) 0;
 }
 
 .about-page {
   width: 100%;
   max-width: 1200px;
-  height: 100%;
   padding: 12px 20px;
   background-color: var(--ark-surface-card);
   border-radius: var(--ark-radius-lg);
@@ -21,36 +20,41 @@
 }
 
 .about-page h1 {
-  font-family: "Segoe UI", system-ui;
-  font-size: 2.4rem;
-  font-weight: bold;
-  color: var(--ark-text-body);
+  font-family: var(--ark-font-body);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ark-neutral-900);
   text-align: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--ark-link);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--ark-border-default);
   letter-spacing: 0.05em;
 }
 
 .notice-list .notice-item {
   padding: 18px 25px;
   background: var(--ark-surface-card);
-  border-radius: 8px;
+  border-radius: var(--ark-radius-md);
+  border: 1px solid var(--ark-border-subtle);
   color: var(--ark-text-body);
   line-height: 1.6;
   font-size: 1.1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--ark-shadow-sm);
   margin-bottom: 15px;
 }
 
 .notice-title {
-  font-weight: bold;
-  font-size: 1.2rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ark-primary-600);
   margin-bottom: 0.5rem;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--ark-primary-100);
+  letter-spacing: 0.06em;
 }
 
 .notice-content {
-  padding-left: 10px;
+  padding-left: 16px;
   font-size: 1rem;
 }
 
@@ -98,7 +102,7 @@
 
 .timeline-version {
   font-weight: 700;
-  color: var(--ark-primary-400);
+  color: var(--ark-primary-600);
   margin-right: 8px;
 }
 
@@ -116,16 +120,11 @@
 @media (max-width: 800px) {
   .main-about-content {
     padding: var(--ark-space-md);
-    padding-top: 20px;
   }
 
   .about-page {
     width: 100%;
     padding: 15px;
-  }
-
-  .about-page h1 {
-    font-size: 1.8rem;
   }
 
   .notice-list .notice-item {
