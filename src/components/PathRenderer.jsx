@@ -11,10 +11,15 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, maxSteps, onP
   const stepListRef = useRef(null);
   const stepHeightRef = useRef(0);
 
-  // 首次渲染后测量单步高度，用 maxSteps 预设 min-height
+  // 仅移动端：首次渲染后测量单步高度，用 maxSteps 预设 min-height 防止按钮跳动
   useEffect(() => {
     const el = stepListRef.current;
     if (!el || !maxSteps) return;
+    const isMobile = window.matchMedia('(max-width: 800px)').matches;
+    if (!isMobile) {
+      el.style.minHeight = '';
+      return;
+    }
     const cards = el.children;
     if (cards.length > 0 && stepHeightRef.current === 0) {
       stepHeightRef.current = cards[0].offsetHeight;

@@ -32,6 +32,7 @@
   box-shadow: var(--ark-shadow-md);
   border: 1px solid var(--ark-border-subtle);
   border-top: 2px solid var(--ark-primary-500);
+  box-sizing: border-box;
   flex: 1;
 }
 
