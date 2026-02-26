@@ -5,7 +5,7 @@
   justify-content: center;
   min-height: 100vh;
   box-sizing: border-box;
-  padding: calc(var(--ark-nav-height) + var(--ark-space-lg)) var(--ark-space-lg) 0;
+  padding: var(--ark-space-lg) var(--ark-space-lg) 0;
 }
 
 .note-page {
@@ -20,14 +20,14 @@
 }
 
 .note-page h1 {
-  font-family: 'Segoe UI', system-ui;
-  font-size: 2.4rem;
-  font-weight: bold;
-  color: var(--ark-text-body);
+  font-family: var(--ark-font-body);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ark-neutral-900);
   text-align: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--ark-link);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--ark-border-default);
   letter-spacing: 0.05em;
 }
 
@@ -41,6 +41,7 @@
   padding: 18px 25px;
   background: var(--ark-surface-card);
   border-radius: 8px;
+  border: 1px solid var(--ark-border-subtle);
   color: var(--ark-text-body);
   line-height: 1.6;
   font-size: 1.1rem;
@@ -48,9 +49,13 @@
 }
 
 .notice-title {
-  font-weight: bold;
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem; 
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ark-primary-600);
+  margin-bottom: 0.5rem;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--ark-primary-100);
+  letter-spacing: 0.06em;
 }
 
 .notice-content {
@@ -67,7 +72,7 @@
 }
 
 .formula {
-  font-family: 'Courier New', monospace;
+  font-family: "JetBrains Mono", "Fira Code", "Source Code Pro", 'Courier New', monospace;
   font-size: 1.3rem;
   color: var(--ark-text-body);
   padding: 15px;
@@ -132,11 +137,12 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.8); 
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; 
+  z-index: 1000;
+  animation: overlayFadeIn 0.25s ease-out;
 }
 
 .zoomed-image {
@@ -145,12 +151,22 @@
   object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: zoomIn 0.25s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 @media (max-width: 800px) {
   .main-note-content {
     padding: var(--ark-space-md);
-    padding-top: 20px;
   }
 
   .note-page {
@@ -172,6 +188,6 @@
   }
 
   .image-gallery img {
-    height: 150px; 
+    height: auto;
   }
 }
