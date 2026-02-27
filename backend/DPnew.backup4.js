@@ -144,7 +144,7 @@ function normalizePath(path, itemMap, caches) {
 }
 
 function savePath(ctx, sum, path) {
-  const { dp, maxPaths, target, itemMap, upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, caches } = ctx;
+  const { dp, maxPaths, target, itemMap, upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit } = ctx;
 
   // 检查用户限制
   let upgrade0Count = 0,
@@ -170,25 +170,8 @@ function savePath(ctx, sum, path) {
     return false;
   }
 
-  // target 路径用 normalized 做比较和存储，中间状态用原始路径（性能关键路径）
-  const isTarget = sum === target;
-  let effectivePath, pathKey;
-
-  if (isTarget) {
-    const np = normalizePath(path, itemMap, caches);
-    // 验证 normalize 后 sum 仍正确
-    let npSum = 0;
-    for (const step of np) {
-      const item = itemMap.get(step.id);
-      if (item?.item_value) npSum += item.item_value * step.count;
-    }
-    if (npSum !== sum) return false;
-    effectivePath = np;
-  } else {
-    effectivePath = path;
-  }
-
-  pathKey = effectivePath
+  // 延迟 normalization：搜索阶段用原始路径做去重和比较，最终由 finalizeResult 统一 normalize
+  const pathKey = path
     .map((s) => `${s.id}x${s.count}`)
     .join("_");
 
@@ -201,18 +184,26 @@ function savePath(ctx, sum, path) {
   const existingPaths = state.paths;
   const existingKeys = state.keys;
 
-  if (existingKeys.has(pathKey)) return false;
+  // 检查是否重合
+  if (existingKeys.has(pathKey)) {
+    return false;
+  }
 
-  const effectiveMaxPaths = isTarget ? MAX_PATHS_FOR_TARGET : maxPaths;
-  const currentPathLength = effectivePath.length;
+  // target 值多保留路径，增加最终多样性
+  const effectiveMaxPaths = (sum === target) ? MAX_PATHS_FOR_TARGET : maxPaths;
+
+  // 决定是否savepath
+  const currentPathLength = path.length;
   let pathWasAddedOrReplaced = false;
 
   if (existingPaths.length < effectiveMaxPaths) {
-    existingPaths.push(effectivePath);
+    // 列表未满
+    existingPaths.push(path);
     existingKeys.add(pathKey);
     existingPaths.sort((a, b) => a.length - b.length);
     pathWasAddedOrReplaced = true;
   } else {
+    // 列表已满
     const longestExistingPath = existingPaths[existingPaths.length - 1];
     const longestExistingPathLength = longestExistingPath.length;
 
@@ -222,12 +213,12 @@ function savePath(ctx, sum, path) {
         .join("_");
       existingKeys.delete(removedPathKey);
       existingPaths.pop();
-      existingPaths.push(effectivePath);
+      existingPaths.push(path);
       existingKeys.add(pathKey);
       existingPaths.sort((a, b) => a.length - b.length);
       pathWasAddedOrReplaced = true;
     } else if (currentPathLength === longestExistingPathLength) {
-      const newTotalCount = effectivePath.reduce(
+      const newTotalCount = path.reduce(
         (sum, step) => sum + step.count, 0
       );
       const longestExistingTotalCount = longestExistingPath.reduce(
@@ -240,7 +231,7 @@ function savePath(ctx, sum, path) {
           .join("_");
         existingKeys.delete(removedPathKey);
         existingPaths.pop();
-        existingPaths.push(effectivePath);
+        existingPaths.push(path);
         existingKeys.add(pathKey);
         existingPaths.sort((a, b) => a.length - b.length);
         pathWasAddedOrReplaced = true;
@@ -249,7 +240,7 @@ function savePath(ctx, sum, path) {
   }
 
   // 检查是否找到精确解（以实际存储上限为准）
-  if (pathWasAddedOrReplaced && isTarget) {
+  if (pathWasAddedOrReplaced && sum === target) {
     const targetState = dp.get(target);
     const targetPaths = targetState?.paths;
     if (targetPaths && targetPaths.length >= MAX_PATHS_FOR_TARGET) {

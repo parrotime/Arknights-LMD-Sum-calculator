@@ -4,8 +4,6 @@ const MAX_STEPS = 6;
 const MAX_PATHS_PER_SUM = 10;
 const MAX_PATHS_FOR_TARGET = 15; // target 值多保留，最终由 finalizeResult 裁剪
 const TARGET_PATH_COUNT = 10;
-const TIME_BUDGET = 8000; // 时间预算 8s，超时且有路径时提前返回
-const MIN_PATHS_FOR_EARLY_EXIT = 5; // 至少有这么多路径才允许超时退出
 
 // 获取物品最大使用次数
 const getMaxCountForId = (id, itemMap) => {
@@ -146,7 +144,7 @@ function normalizePath(path, itemMap, caches) {
 function savePath(ctx, sum, path) {
   const { dp, maxPaths, target, itemMap, upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, caches } = ctx;
 
-  // 检查用户限制
+  // 先检查用户限制（廉价操作），再做 normalizePath（昂贵操作）
   let upgrade0Count = 0,
     upgrade1Count = 0,
     upgrade2Count = 0,
@@ -170,27 +168,22 @@ function savePath(ctx, sum, path) {
     return false;
   }
 
-  // target 路径用 normalized 做比较和存储，中间状态用原始路径（性能关键路径）
-  const isTarget = sum === target;
-  let effectivePath, pathKey;
-
-  if (isTarget) {
-    const np = normalizePath(path, itemMap, caches);
-    // 验证 normalize 后 sum 仍正确
-    let npSum = 0;
-    for (const step of np) {
-      const item = itemMap.get(step.id);
-      if (item?.item_value) npSum += item.item_value * step.count;
-    }
-    if (npSum !== sum) return false;
-    effectivePath = np;
-  } else {
-    effectivePath = path;
-  }
-
-  pathKey = effectivePath
+  const normalizedPath = normalizePath(path, itemMap, caches);
+  const normalizedPathKey = normalizedPath
     .map((s) => `${s.id}x${s.count}`)
     .join("_");
+
+  let actualNormalizedSum = 0;
+
+  for (const step of normalizedPath) {
+    const item = itemMap.get(step.id);
+    if (item?.item_value) {
+      actualNormalizedSum += item.item_value * step.count;
+    }
+  }
+  if (actualNormalizedSum !== sum) {
+    return false;
+  }
 
   // 获取或初始化state
   if (!dp.has(sum)) {
@@ -201,33 +194,43 @@ function savePath(ctx, sum, path) {
   const existingPaths = state.paths;
   const existingKeys = state.keys;
 
-  if (existingKeys.has(pathKey)) return false;
+  // 检查是否重合
+  if (existingKeys.has(normalizedPathKey)) {
+    return false;
+  }
 
-  const effectiveMaxPaths = isTarget ? MAX_PATHS_FOR_TARGET : maxPaths;
-  const currentPathLength = effectivePath.length;
+  // target 值多保留路径，增加最终多样性
+  const effectiveMaxPaths = (sum === target) ? MAX_PATHS_FOR_TARGET : maxPaths;
+
+  // 决定是否savepath
+  const currentNormalizedPathLength = normalizedPath.length;
   let pathWasAddedOrReplaced = false;
 
   if (existingPaths.length < effectiveMaxPaths) {
-    existingPaths.push(effectivePath);
-    existingKeys.add(pathKey);
-    existingPaths.sort((a, b) => a.length - b.length);
+    // 列表未满
+    existingPaths.push(normalizedPath);
+    existingKeys.add(normalizedPathKey);
+    existingPaths.sort((a, b) => a.length - b.length); // 按种类数排序
     pathWasAddedOrReplaced = true;
   } else {
-    const longestExistingPath = existingPaths[existingPaths.length - 1];
+    // 列表已满
+    const longestExistingPath = existingPaths[existingPaths.length - 1]; 
     const longestExistingPathLength = longestExistingPath.length;
 
-    if (currentPathLength < longestExistingPathLength) {
+    if (currentNormalizedPathLength < longestExistingPathLength) {
+      // 新路径种类: 直接替换 
       const removedPathKey = longestExistingPath
         .map((s) => `${s.id}x${s.count}`)
         .join("_");
       existingKeys.delete(removedPathKey);
       existingPaths.pop();
-      existingPaths.push(effectivePath);
-      existingKeys.add(pathKey);
-      existingPaths.sort((a, b) => a.length - b.length);
+      existingPaths.push(normalizedPath);
+      existingKeys.add(normalizedPathKey);
+      existingPaths.sort((a, b) => a.length - b.length); // 保持种类数排序
       pathWasAddedOrReplaced = true;
-    } else if (currentPathLength === longestExistingPathLength) {
-      const newTotalCount = effectivePath.reduce(
+    } else if (currentNormalizedPathLength === longestExistingPathLength) {
+      // 新路径种类 最长路径相同: 比较总物品数 
+      const newTotalCount = normalizedPath.reduce(
         (sum, step) => sum + step.count, 0
       );
       const longestExistingTotalCount = longestExistingPath.reduce(
@@ -235,13 +238,15 @@ function savePath(ctx, sum, path) {
       );
 
       if (newTotalCount < longestExistingTotalCount) {
+        // 只有新路径总数更少时才替换
         const removedPathKey = longestExistingPath
           .map((s) => `${s.id}x${s.count}`)
           .join("_");
         existingKeys.delete(removedPathKey);
         existingPaths.pop();
-        existingPaths.push(effectivePath);
-        existingKeys.add(pathKey);
+        existingPaths.push(normalizedPath);
+        existingKeys.add(normalizedPathKey);
+        // 重新排序以防万一 (虽然理论上长度不变，但替换可能影响顺序)
         existingPaths.sort((a, b) => a.length - b.length);
         pathWasAddedOrReplaced = true;
       }
@@ -249,7 +254,7 @@ function savePath(ctx, sum, path) {
   }
 
   // 检查是否找到精确解（以实际存储上限为准）
-  if (pathWasAddedOrReplaced && isTarget) {
+  if (pathWasAddedOrReplaced && sum === target) {
     const targetState = dp.get(target);
     const targetPaths = targetState?.paths;
     if (targetPaths && targetPaths.length >= MAX_PATHS_FOR_TARGET) {
@@ -291,28 +296,13 @@ function mergeAndSortPath(oldPath, newSteps) {
 
 function finalizeResult(dp, target, maxPaths, itemMap) {
   const targetState = dp.get(target);
-  const rawPaths = targetState ? targetState.paths : [];
-
-  // 延迟 normalization：在此统一对原始路径做 normalize
-  const caches = { trade: new Map(), material: new Map(), stage: new Map() };
-  const normalizedPaths = [];
-  for (const path of rawPaths) {
-    if (!Array.isArray(path)) continue;
-    const np = normalizePath(path, itemMap, caches);
-    // 验证 normalize 后 sum 仍正确
-    let sum = 0;
-    for (const step of np) {
-      const item = itemMap.get(step.id);
-      if (item?.item_value) sum += item.item_value * step.count;
-    }
-    if (sum === target) normalizedPaths.push(np);
-  }
-
+  const result = targetState ? targetState.paths : [];
   const uniquePaths = new Set();
 
-  //路径去重（基于 normalized 路径）
-  const finalResult = normalizedPaths
+  //路径去重
+  const finalResult = result
     .map((path) => {
+      if (!Array.isArray(path)) return null;
       const nonStageKey = path
         .filter((step) => {
           const t = itemMap.get(step.id)?.type;
@@ -401,7 +391,6 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
     return [];
   }
 
-  const startTime = performance.now();
   const caches = { trade: new Map(), material: new Map(), stage: new Map() };
   const itemMap = new Map(items.map(i => [i.id, i]));
   const pruneThreshold = Math.min(Math.max(Math.abs(target), 1000), 3000);
@@ -429,15 +418,15 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
     upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, caches };
 
   // 第一阶段：单步路径（不提前终止，收集所有单步解作为 Phase 2 基础）
-  const absTarget = Math.abs(target);
-  const phase1Bound = absTarget + pruneThreshold; // 只生成 Phase 2 能用到的中间状态
   for (const item of sortedItems) {
     const itemValue = item.item_value;
     const maxCount = getMaxCountForId(item.id, itemMap);
-    for (let count = 1; count <= maxCount; count++) {
+    let count = 0;
+    while (
+      count < maxCount &&
+      Math.abs(itemValue * (count + 1) - target) <= Math.abs(target) + Math.abs(itemValue)*0.5 ) {
+      count++;
       const newSum = itemValue * count;
-      if (Math.abs(newSum) > phase1Bound) break;          // 超出有效范围，后续 count 更大，直接 break
-      if (Math.abs(newSum - target) > phase1Bound) continue; // 离 target 太远，跳过但不 break（正负交替时可能回来）
       const newPath = getOptimalFragment(item, count, stageItems, itemMap, caches);
       if (!newPath) continue;
       savePath(ctx, newSum, newPath);
@@ -451,36 +440,17 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
   }
 
   // 第二阶段：多步路径
-  // enoughPaths 仅在步级之间检查，确保每个 step 级别的所有状态都有机会贡献路径
   for (let step = 2; step <= MAX_STEPS && !enoughPaths; step++) {
-    // 时间预算检查：超时且已有足够路径时提前退出
-    const targetStateTime = dp.get(target);
-    if (performance.now() - startTime > TIME_BUDGET &&
-        targetStateTime && targetStateTime.paths.length >= MIN_PATHS_FOR_EARLY_EXIT) {
-      break;
-    }
-
     // 动态剪枝：step 越大，离 target 应越近
     const remainingBudget = MAX_STEPS - step + 1;
     const dynamicThreshold = Math.ceil(pruneThreshold * remainingBudget / MAX_STEPS);
 
-    // 按离 target 的距离升序排列，优先处理最接近的状态
-    const currentStatesEntries = Array.from(dp.entries())
-      .filter(([sum]) => Math.abs(sum - target) <= dynamicThreshold)
-      .sort((a, b) => Math.abs(a[0] - target) - Math.abs(b[0] - target));
-
+    const currentStatesEntries = Array.from(dp.entries());
     for (const [currentSum, state] of currentStatesEntries) {
-      // 状态级时间预算检查
-      const targetStateInLoop = dp.get(target);
-      if (performance.now() - startTime > TIME_BUDGET &&
-          targetStateInLoop && targetStateInLoop.paths.length >= MIN_PATHS_FOR_EARLY_EXIT) {
-        enoughPaths = true;
-        break;
-      }
-
       const paths = state.paths;
+      if (Math.abs(currentSum - target) > dynamicThreshold) continue;
+
       const remaining = target - currentSum;
-      const absRemaining = Math.abs(remaining);
 
       // 优先尝试精确匹配：找能一步到位的物品
       let exactMatchTried = false;
@@ -495,50 +465,45 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
             if (!newPathFragment) continue;
             const potentialNewPath = mergeAndSortPath(oldPath, newPathFragment);
             if (isPathValid(potentialNewPath, itemMap)) {
-              if (savePath(ctx, target, potentialNewPath)) { enoughPaths = true; break; }
+              if (savePath(ctx, target, potentialNewPath)) {
+                enoughPaths = true;
+              }
+              if (enoughPaths) break;
             }
           }
           if (enoughPaths) break;
         }
       }
-
       if (enoughPaths) break;
 
-      // 常规遍历：大 remaining 时启用方向过滤，保留原始紧凑边界
+      // 常规遍历所有物品
       for (const item of sortedItems) {
-        if (enoughPaths) break;
         const itemValue = item.item_value;
-        // 方向过滤：remaining 较大时跳过反向物品（小 remaining 时允许微调）
-        if (absRemaining > 500) {
-          if (remaining > 0 && itemValue < 0) continue;
-          if (remaining < 0 && itemValue > 0) continue;
-        }
-
         const maxCount = getMaxCountForId(item.id, itemMap);
         let count = 0;
         while (
           count < maxCount &&
-          !enoughPaths &&
-          Math.abs(currentSum + itemValue * (count + 1) - target) <= absTarget + Math.abs(itemValue)) {
+          Math.abs(currentSum + itemValue * (count + 1) - target) <= Math.abs(target) + Math.abs(itemValue)) {
           count++;
           const newSum = currentSum + itemValue * count;
+          // 跳过精确匹配已处理的情况
           if (exactMatchTried && newSum === target) continue;
           for (const oldPath of paths) {
             const newPathFragment = getOptimalFragment(item, count, stageItems, itemMap, caches);
             if (!newPathFragment) continue;
             const potentialNewPath = mergeAndSortPath(oldPath, newPathFragment);
             if (isPathValid(potentialNewPath, itemMap)) {
-              if (savePath(ctx, newSum, potentialNewPath)) { enoughPaths = true; break; }
+              if (savePath(ctx, newSum, potentialNewPath)){
+                enoughPaths = true;
+              }
+              if (enoughPaths) break;
             }
           }
+          if (enoughPaths) break;
         }
+        if (enoughPaths) break;
       }
-    }
-
-    // 步级结束后检查是否已找够
-    const targetStateAfterStep = dp.get(target);
-    if (targetStateAfterStep && targetStateAfterStep.paths.length >= MAX_PATHS_FOR_TARGET) {
-      enoughPaths = true;
+      if (enoughPaths) break;
     }
   }
 
