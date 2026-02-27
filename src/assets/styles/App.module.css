@@ -919,8 +919,8 @@ input:invalid {
 }
 
 .calc-error-text {
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--ark-neutral-800);
   line-height: 1.5;
 }

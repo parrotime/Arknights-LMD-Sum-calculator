@@ -70,7 +70,7 @@ const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 分钟窗口
   max: 15, 
   message: {
-    error: "您所在的IP地址在短时间内发出过多计算请求，请休息一下再试~",
+    error: "您所在的IP地址计算请求过于频繁，请休息一下再试~",
   },
   standardHeaders: true, 
   legacyHeaders: false, 
@@ -89,6 +89,14 @@ app.set("trust proxy", "loopback");
 
 const port = process.env.PORT || 3002;
 
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "https://ark-lmd.top",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 if (process.env.NODE_ENV !== "test") {
   app.use("/find-paths", apiLimiter);
 }
@@ -98,15 +106,6 @@ const cache = new NodeCache({
   checkperiod: 600,
   useClones: false,
 });
-
-
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN || "https://ark-lmd.top",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
 app.use(express.json({ limit: "100kb" }));
 
 // 测试路由
