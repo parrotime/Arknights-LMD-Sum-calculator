@@ -15,8 +15,20 @@ import rateLimit from "express-rate-limit";
 
 const logger = pino({
   level: process.env.LOG_LEVEL || "info",
+  timestamp: () => {
+    const now = new Date();
+    const beijingTime = new Date(now.getTime() + (8 * 60 * 60 * 1000) + (now.getTimezoneOffset() * 60 * 1000));
+    const date = `${beijingTime.getFullYear()}/${String(beijingTime.getMonth() + 1).padStart(2, '0')}/${String(beijingTime.getDate()).padStart(2, '0')}`;
+    const time = `${String(beijingTime.getHours()).padStart(2, '0')}:${String(beijingTime.getMinutes()).padStart(2, '0')}:${String(beijingTime.getSeconds()).padStart(2, '0')}`;
+    return `,"time":"${date} ${time}"`;
+  },
   ...(process.env.NODE_ENV !== "production" && {
-    transport: { target: "pino-pretty" },
+    transport: {
+      target: "pino-pretty",
+      options: {
+        translateTime: false
+      }
+    },
   }),
 });
 
@@ -171,7 +183,7 @@ app.post("/find-paths", async (req, res) => {
       });
     }
 
-    logger.info({ rawGoal, target, itemCount: items.length, limits }, "Calculation request");
+    logger.info({ ip: req.ip, rawGoal, target, itemCount: items.length, limits }, "Calculation request");
 
     const hardCaps = { upgrade0Limit: 10, upgrade1Limit: 10, upgrade2Limit: 10, sanityLimit: 200 };
     const finalLimits = {};
