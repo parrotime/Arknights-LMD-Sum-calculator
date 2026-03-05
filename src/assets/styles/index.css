@@ -346,7 +346,7 @@ html, body, #root {
   cursor: pointer;
   box-shadow: var(--ark-shadow-md);
   transition: all var(--ark-transition-fast);
-  z-index: 900;
+  z-index: 1001;
 }
 
 .back-to-top:hover {
