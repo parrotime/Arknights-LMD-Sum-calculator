@@ -1,0 +1,51 @@
+/* 隐藏系统光标（仅非触屏设备） */
+@media (pointer: fine) {
+  body.custom-cursor-active,
+  body.custom-cursor-active * {
+    cursor: none !important;
+  }
+
+  /* 拖选文本时恢复系统光标 */
+  body.custom-cursor-dragging,
+  body.custom-cursor-dragging * {
+    cursor: auto !important;
+  }
+}
+
+/* 外层容器：负责位置跟踪 */
+.click-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+  z-index: 99999;
+  will-change: transform;
+  transition: opacity 0.15s ease;
+}
+
+/* 内层：负责缩放动画 + 旋转 */
+.click-cursor-inner {
+  width: 100%;
+  height: 100%;
+  background: url('/cursors/cursor-static.png') center / contain no-repeat;
+  transform: rotate(30deg) scale(1);
+  transition: transform 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+/* 按下：缩小 */
+.click-cursor-inner.pressing {
+  transform: rotate(30deg) scale(0.82);
+  transition: transform 0.1s cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* 计算中：持续脉冲 */
+.click-cursor.calculating .click-cursor-inner {
+  animation: cursor-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes cursor-pulse {
+  0%, 100% { transform: rotate(30deg) scale(1); }
+  50%      { transform: rotate(30deg) scale(0.85); }
+}

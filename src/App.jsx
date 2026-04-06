@@ -2,6 +2,7 @@ import React, { useReducer, useState, useCallback, useEffect, Suspense, lazy } f
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import { Transmission } from "./components/Transmission";
+import { CursorProvider, useCursorState } from "./components/CursorContext";
 
 const NotePage = lazy(() => import("./pages/Note"));
 const DataPage = lazy(() => import("./pages/Data"));
@@ -282,12 +283,18 @@ const MainCalculator = () => {
   const [isBonusReady, setIsBonusReady] = useState(false);
   const [activeImageUrl, setActiveImageUrl] = useState("");
   const [heartsElement, triggerHeart] = useHeartEffect();
+  const { setCalculating } = useCursorState();
 
   useEffect(() => {
     const toSave = {};
     for (const key of PERSISTED_KEYS) toSave[key] = state[key];
     localStorage.setItem("calculatorState", JSON.stringify(toSave));
   }, [state.settings, state.num1, state.num2, state.upgrade0Count, state.upgrade1Count, state.upgrade2Count, state.sanityCount]);
+
+  // 同步计算状态到光标 context
+  useEffect(() => {
+    setCalculating(state.isCalculating);
+  }, [state.isCalculating, setCalculating]);
 
   //处理弹窗逻辑
   useEffect(() => {
@@ -515,18 +522,20 @@ const MainCalculator = () => {
 };
 
 const App = () => (
-  <Router>
-    <Layout>
-      <Suspense fallback={<div style={{ textAlign: "center", padding: "2rem" }}>加载中…</div>}>
-        <Routes>
-          <Route path="/" element={<MainCalculator />} />
-          <Route path="/note" element={<NotePage />} />
-          <Route path="/data" element={<DataPage />} />
-          <Route path="/about" element={<AboutPage />} />
-        </Routes>
-      </Suspense>
-    </Layout>
-  </Router>
+  <CursorProvider>
+    <Router>
+      <Layout>
+        <Suspense fallback={<div style={{ textAlign: "center", padding: "2rem" }}>加载中…</div>}>
+          <Routes>
+            <Route path="/" element={<MainCalculator />} />
+            <Route path="/note" element={<NotePage />} />
+            <Route path="/data" element={<DataPage />} />
+            <Route path="/about" element={<AboutPage />} />
+          </Routes>
+        </Suspense>
+      </Layout>
+    </Router>
+  </CursorProvider>
 );
 
 export default App;

@@ -1,5 +1,7 @@
 import React, { useCallback, useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
+import ClickCursor from "./ClickCursor";
+import { useCursorState } from "./CursorContext";
 
 const navItems = [
   { to: "/", text: "计算主页" },
@@ -27,6 +29,7 @@ const loadBtnPos = () => {
 };
 
 const Layout = ({ children }) => {
+  const { isCalculating } = useCursorState();
   const [dark, setDark] = useState(() => localStorage.getItem("theme") === "dark");
 
   useEffect(() => {
@@ -126,6 +129,7 @@ const Layout = ({ children }) => {
 
   return (
     <div className="app-container">
+      <ClickCursor isCalculating={isCalculating} />
       <nav className="top-nav">
         <div className="nav-inner">
           <div className="nav-brand">
