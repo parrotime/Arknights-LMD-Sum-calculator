@@ -70,7 +70,7 @@
 }
 
 .title-bar h1 {
-  font-family: var(--ark-font-body);
+  font-family: var(--ark-font-title);
   font-weight: 700;
   font-size: 1.4rem;
   margin: 0;

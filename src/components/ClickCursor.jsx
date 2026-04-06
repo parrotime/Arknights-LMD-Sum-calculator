@@ -10,10 +10,14 @@ const ClickCursor = ({ isCalculating = false }) => {
   const draggingRef = useRef(false);
   const mouseDownRef = useRef(false);
 
+  // 光标热点偏移：旋转30°后尖端相对div左上角的位置
+  const HOTSPOT_X = 21;
+  const HOTSPOT_Y = -3;
+
   const updatePosition = useCallback(() => {
     if (cursorRef.current) {
       cursorRef.current.style.transform =
-        `translate3d(${posRef.current.x}px, ${posRef.current.y}px, 0)`;
+        `translate3d(${posRef.current.x - HOTSPOT_X}px, ${posRef.current.y - HOTSPOT_Y}px, 0)`;
     }
     rafRef.current = null;
   }, []);

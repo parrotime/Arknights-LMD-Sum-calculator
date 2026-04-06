@@ -1,3 +1,12 @@
+/* === 自定义字体 === */
+@font-face {
+  font-family: "WenYuan Serif";
+  src: url('/fonts/WenYuanSerif-title.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* === 设计令牌 === */
 :root {
   /* 主色阶 (明亮蓝体系) */
@@ -62,6 +71,7 @@
   --ark-space-xl: 32px;
 
   /* 字体 */
+  --ark-font-title: "WenYuan Serif", "Noto Serif SC", "Source Han Serif CN", serif;
   --ark-font-display: "Noto Serif SC", "Source Han Serif CN", "STSong", serif;
   --ark-font-body: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB",
                    "Noto Sans SC", system-ui, sans-serif;
@@ -207,6 +217,16 @@ body {
   background: var(--ark-surface-page);
 }
 
+/* 隐藏 number input 原生 spinner 按钮 */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 code {
   font-family: "JetBrains Mono", "Fira Code", "Source Code Pro",
     'Courier New', monospace;
@@ -248,7 +268,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--ark-font-body);
+  font-family: var(--ark-font-title);
   font-size: 1.3rem;
   font-weight: 700;
   color: #ffffff;
@@ -270,6 +290,7 @@ html, body, #root {
 .nav-item {
   color: var(--ark-neutral-400);
   text-decoration: none;
+  font-family: var(--ark-font-title);
   font-size: 1rem;
   font-weight: 600;
   padding: 10px 22px;

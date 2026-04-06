@@ -14,6 +14,7 @@
 }
 
 .title {
+  font-family: var(--ark-font-title);
   font-size: 18px;
   text-align: center;
   font-weight: 600;
