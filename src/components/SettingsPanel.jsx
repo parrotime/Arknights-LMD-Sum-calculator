@@ -7,6 +7,8 @@ const settingsOptions = [
   { text: "允许使用龙门币副本(CE系列关卡)", key: "allowCE" },
   { text: "允许使用基建物品合成", key: "allowMaterial" },
   { text: "允许使用贸易站售卖赤金", key: "allowTrade" },
+  { text: "允许使用绿土搓玉生产源石碎片", key: "allowOrundumsGreen" },
+  { text: "允许使用装置搓玉生产源石碎片", key: "allowOrundumsDevice" },
   { text: "允许使用活动商店1代币换10龙门币", key: "allowStore10" },
   { text: "允许使用活动商店1代币换20龙门币", key: "allowStore20" },
   { text: "允许使用危机合约1代币换70龙门币", key: "allowStore70" },
@@ -20,9 +22,9 @@ const settingsOptions = [
 
 const groups = [
   { title: "使用理智", items: settingsOptions.slice(0, 4) },
-  { title: "基建", items: settingsOptions.slice(4, 6) },
-  { title: "使用代币", items: settingsOptions.slice(6, 11) },
-  { title: "干员升级", items: settingsOptions.slice(11) },
+  { title: "基建", items: settingsOptions.slice(4, 8) },
+  { title: "使用代币", items: settingsOptions.slice(8, 13) },
+  { title: "干员升级", items: settingsOptions.slice(13) },
 ];
 
 const SettingsPanel = ({ settings, onToggle, onReset, styles }) => (

@@ -73,6 +73,8 @@ const filterItems = (settings) => {
       (settings.allowUpgradeOnly0 || t !== "upgrade_only_0") &&
       (settings.allowUpgradeOnly1 || t !== "upgrade_only_1") &&
       (settings.allowUpgradeOnly2 || t !== "upgrade_only_2") &&
+      (settings.allowOrundumsGreen || item.id !== 220) &&
+      (settings.allowOrundumsDevice || item.id !== 221) &&
       isUpgradeAllowed
     );
   });

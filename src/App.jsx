@@ -48,6 +48,8 @@ const defaultState = {
     allowUpgradeOnly1: false,
     allowUpgradeOnly2: false,
     allowUpgradeOnlyFor1: false,
+    allowOrundumsGreen: false,
+    allowOrundumsDevice: false,
   },
   upgrade0Count: "",
   upgrade1Count: "",
@@ -88,6 +90,8 @@ const migrateSettings = (settings) => {
     allowUpgradeOnly1: !!settings.enableUpgradeOnly1,
     allowUpgradeOnly2: !!settings.enableUpgradeOnly2,
     allowUpgradeOnlyFor1: !!settings.enableUpgradeOnlyFor1,
+    allowOrundumsGreen: false,
+    allowOrundumsDevice: false,
   };
 };
 
@@ -101,7 +105,7 @@ const getInitialState = () => {
     for (const key of PERSISTED_KEYS) {
       if (key in parsed) restored[key] = parsed[key];
     }
-    restored.settings = migrateSettings(restored.settings);
+    restored.settings = { ...defaultState.settings, ...migrateSettings(restored.settings) };
     return restored;
   }
   return {

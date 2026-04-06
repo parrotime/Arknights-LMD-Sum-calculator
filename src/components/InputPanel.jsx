@@ -30,8 +30,7 @@ const InputPanel = ({
     <div className={styles['info-banner']}>
       <span className={styles['info-icon']}>ℹ</span>
       <div className={styles['info-lines']}>
-        <span>输入范围：两个 [0, 999999999] 区间的整数</span>
-        <span>差值范围：两数之差需在 [-5000, 5000] 区间内</span>
+        <span>输入范围：0 ~ 999999999 | 差值范围：-5000 ~ 5000</span>
       </div>
     </div>
 

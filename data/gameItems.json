@@ -1969,5 +1969,23 @@
     "rarity": 5,
     "type": "ce",
     "consume": 10
+  },
+    {
+    "id": 220,
+    "item_id": "3-2",
+    "item_name": "绿土搓玉生产1个源石碎片",
+    "item_value": -1600,
+    "rarity": 5,
+    "type": "Orundums",
+    "consume": 0
+  },
+    {
+    "id": 221,
+    "item_id": "3-2",
+    "item_name": "装置搓玉生产1个源石碎片",
+    "item_value": -1000,
+    "rarity": 5,
+    "type": "Orundums",
+    "consume": 0
   }
 ]
