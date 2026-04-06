@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 process.env.NODE_ENV = "test";
 
-const { app, cache } = await import("./server.js");
+const { app, cache, pool } = await import("./server.js");
 
 let server;
 let baseUrl;
@@ -39,7 +39,10 @@ before(async () => {
   });
 });
 
-after(() => new Promise((resolve) => server.close(resolve)));
+after(async () => {
+  await new Promise((resolve) => server.close(resolve));
+  await pool.shutdown();
+});
 
 beforeEach(() => cache.flushAll());
 
@@ -175,7 +178,7 @@ describe("/find-paths 超时处理", () => {
       const res = await post("/find-paths", validBody);
       assert.equal(res.status, 504);
       const data = await res.json();
-      assert.ok(data.error.includes("timed out"));
+      assert.ok(data.error.includes("计算超时"));
     } finally {
       process.env.CALC_TIMEOUT = original;
     }

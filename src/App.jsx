@@ -237,12 +237,12 @@ const checkCache = (cacheKey) => {
   return null;
 };
 
-// 调用计算 API（带超时）
+// 调用计算 API（带超时，对齐后端 15s + 网络余量）
 const callAPI = (difference, settings, limits, num2Val) =>
   Promise.race([
     Transmission(difference, settings, limits, num2Val),
     new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("计算超时,请重试")), 5000)
+      setTimeout(() => reject(new Error("计算超时,请重试")), 18000)
     ),
   ]);
 
@@ -253,6 +253,7 @@ const formatError = (error) => {
     const map = {
       400: `输入错误: ${error.message}`,
       429: `请求过于频繁: ${error.message}`,
+      503: `服务器繁忙，请稍后再试`,
       504: `计算超时: ${error.message}`,
       500: `服务器内部错误: ${error.message}. 如果问题持续，请联系管理员。`,
     };

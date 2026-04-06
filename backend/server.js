@@ -5,6 +5,7 @@ import { dirname, join } from "path";
 dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), ".env") });
 
 import express from "express";
+import compression from "compression";
 import cors from "cors";
 import helmet from "helmet";
 import NodeCache from "node-cache";
@@ -32,26 +33,125 @@ const logger = pino({
   }),
 });
 
+// ---- Worker Pool ----
 const workerPath = join(dirname(fileURLToPath(import.meta.url)), "calcWorker.js");
+const POOL_SIZE = parseInt(process.env.WORKER_POOL_SIZE) || 2;
+const MAX_QUEUE = parseInt(process.env.MAX_QUEUE) || 10;
 
-const runCalculation = (target, items, limits, timeout = 15000) =>
-  new Promise((resolve, reject) => {
-    const worker = new Worker(workerPath, {
-      workerData: { target, items, limits },
-    });
-    const timer = setTimeout(() => {
-      worker.terminate();
-      reject(new Error("Calculation timed out after 15 seconds"));
-    }, timeout);
-    worker.on("message", (result) => {
-      clearTimeout(timer);
-      resolve(result);
+class WorkerPool {
+  constructor(size) {
+    this.workers = [];
+    this.queue = [];       // 等待中的任务
+    this.taskId = 0;
+    this.pendingTasks = new Map(); // taskId -> { resolve, reject, timer }
+    this.activeCount = 0;
+
+    for (let i = 0; i < size; i++) {
+      this._addWorker();
+    }
+  }
+
+  _addWorker() {
+    const worker = new Worker(workerPath);
+    worker.on("message", ({ taskId, result, error }) => {
+      const task = this.pendingTasks.get(taskId);
+      if (!task) return;
+      clearTimeout(task.timer);
+      this.pendingTasks.delete(taskId);
+      this.activeCount--;
+      if (error) {
+        task.reject(new Error(error));
+      } else {
+        task.resolve(result);
+      }
+      this._processQueue();
     });
     worker.on("error", (err) => {
-      clearTimeout(timer);
-      reject(err);
+      // worker 崩溃，拒绝所有该 worker 上的任务，然后重建
+      logger.error({ err: err.message }, "Worker crashed, replacing");
+      const idx = this.workers.indexOf(worker);
+      if (idx !== -1) this.workers.splice(idx, 1);
+      this._addWorker();
     });
-  });
+    this.workers.push(worker);
+  }
+
+  run(target, items, limits, timeout = 15000) {
+    return new Promise((resolve, reject) => {
+      if (this.queue.length >= MAX_QUEUE) {
+        return reject(new Error("服务器繁忙，请稍后再试"));
+      }
+      const taskId = ++this.taskId;
+      const task = { taskId, target, items, limits, timeout, resolve, reject };
+      this.queue.push(task);
+      this._processQueue();
+    });
+  }
+
+  _processQueue() {
+    while (this.queue.length > 0 && this.activeCount < this.workers.length) {
+      const task = this.queue.shift();
+      this.activeCount++;
+      const worker = this.workers[this.activeCount - 1] || this.workers[0];
+
+      const timer = setTimeout(() => {
+        this.pendingTasks.delete(task.taskId);
+        this.activeCount--;
+        task.reject(new Error("Calculation timed out after 15 seconds"));
+        // 超时后终止并替换该 worker
+        const idx = this.workers.indexOf(worker);
+        worker.terminate();
+        if (idx !== -1) this.workers.splice(idx, 1);
+        this._addWorker();
+        this._processQueue();
+      }, task.timeout);
+
+      this.pendingTasks.set(task.taskId, {
+        resolve: task.resolve,
+        reject: task.reject,
+        timer,
+      });
+
+      worker.postMessage({
+        taskId: task.taskId,
+        target: task.target,
+        items: task.items,
+        limits: task.limits,
+      });
+    }
+  }
+
+  get queueLength() {
+    return this.queue.length;
+  }
+
+  async shutdown() {
+    // 拒绝队列中等待的任务
+    for (const task of this.queue) {
+      task.reject(new Error("Server shutting down"));
+    }
+    this.queue = [];
+    // 等待正在执行的任务完成（最多等 5 秒）
+    if (this.pendingTasks.size > 0) {
+      await Promise.race([
+        new Promise((resolve) => {
+          const check = setInterval(() => {
+            if (this.pendingTasks.size === 0) { clearInterval(check); resolve(); }
+          }, 100);
+        }),
+        new Promise((resolve) => setTimeout(resolve, 5000)),
+      ]);
+    }
+    // 终止所有 worker
+    for (const w of this.workers) w.terminate();
+    this.workers = [];
+  }
+}
+
+const pool = new WorkerPool(POOL_SIZE);
+
+const runCalculation = (target, items, limits, timeout = 15000) =>
+  pool.run(target, items, limits, timeout);
 
 // 根据前端 settings 过滤物品列表
 const filterItems = (settings) => {
@@ -99,6 +199,7 @@ const apiLimiter = rateLimit({
 
 const app = express();
 app.use(helmet());
+app.use(compression({ threshold: 512 })); // 响应 > 512B 时启用 gzip
 app.set("trust proxy", "loopback");
 
 const port = process.env.PORT || 3002;
@@ -222,7 +323,12 @@ app.post("/find-paths", async (req, res) => {
       if (error.message.includes("timed out")) {
         return res.status(504).json({
           error:
-            "Calculation timed out. Please try simplifying the request or contact support.",
+            "计算超时，请尝试简化设置后重试。",
+        });
+      }
+      if (error.message.includes("服务器繁忙")) {
+        return res.status(503).json({
+          error: "服务器繁忙，当前排队请求过多，请稍后再试。",
         });
       }
       throw error;
@@ -252,10 +358,31 @@ app.post("/find-paths", async (req, res) => {
 
 // --- Start Server ---
 const __filename = fileURLToPath(import.meta.url);
+let server;
 if (process.argv[1] === __filename) {
-  app.listen(port, () => {
+  server = app.listen(port, () => {
     logger.info({ port }, "Backend server started");
   });
+
+  // 优雅关闭：PM2 发送 SIGINT，等当前请求处理完再退出
+  const gracefulShutdown = async (signal) => {
+    logger.info({ signal }, "Received shutdown signal, closing gracefully...");
+    // 停止接受新连接
+    server.close(async () => {
+      logger.info("HTTP server closed");
+      await pool.shutdown();
+      logger.info("Worker pool shut down");
+      process.exit(0);
+    });
+    // 兜底：最多等 10 秒强制退出
+    setTimeout(() => {
+      logger.warn("Forced shutdown after timeout");
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on("SIGINT", gracefulShutdown);
+  process.on("SIGTERM", gracefulShutdown);
 }
 
-export { app, cache, runCalculation };
+export { app, cache, runCalculation, pool };
