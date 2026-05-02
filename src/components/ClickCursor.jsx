@@ -1,13 +1,41 @@
 import { useEffect, useRef, useCallback } from "react";
 import "../assets/styles/ClickCursor.css";
 
+const FINE_POINTER_QUERY = "(pointer: fine)";
+const TEXT_CURSOR_SELECTOR = [
+  'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"])',
+  "textarea",
+  "select",
+  '[contenteditable="true"]',
+  '[contenteditable=""]',
+].join(",");
+const INTERACTIVE_SELECTOR = [
+  "a[href]",
+  "button",
+  "input",
+  "select",
+  "textarea",
+  "summary",
+  '[role="button"]',
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+const DISABLED_SELECTOR = [
+  "button:disabled",
+  "input:disabled",
+  "select:disabled",
+  "textarea:disabled",
+  '[aria-disabled="true"]',
+].join(",");
+
+const getElementTarget = (target) => (target instanceof Element ? target : null);
+
 const ClickCursor = ({ isCalculating = false }) => {
   const cursorRef = useRef(null);
   const innerRef = useRef(null);
   const posRef = useRef({ x: -100, y: -100 });
   const rafRef = useRef(null);
   const visibleRef = useRef(false);
-  const draggingRef = useRef(false);
+  const nativeCursorRef = useRef(false);
   const mouseDownRef = useRef(false);
 
   // 光标热点偏移：旋转30°后尖端相对div左上角的位置
@@ -36,42 +64,68 @@ const ClickCursor = ({ isCalculating = false }) => {
     }
   }, []);
 
-  const enterDragging = useCallback(() => {
-    if (!draggingRef.current) {
-      draggingRef.current = true;
+  const enterNativeCursor = useCallback(() => {
+    if (!nativeCursorRef.current) {
+      nativeCursorRef.current = true;
       hideCursor();
-      document.body.classList.add("custom-cursor-dragging");
+      document.body.classList.add("custom-cursor-native");
     }
   }, [hideCursor]);
 
-  const exitDragging = useCallback(() => {
-    if (draggingRef.current) {
-      draggingRef.current = false;
-      document.body.classList.remove("custom-cursor-dragging");
+  const exitNativeCursor = useCallback(() => {
+    if (nativeCursorRef.current) {
+      nativeCursorRef.current = false;
+      document.body.classList.remove("custom-cursor-native");
       showCursor();
     }
   }, [showCursor]);
 
-  useEffect(() => {
-    if (window.matchMedia("(pointer: coarse)").matches) return;
+  const updateCursorAffordance = useCallback((target) => {
+    const cursor = cursorRef.current;
+    if (!cursor) return;
 
-    const onMove = (e) => {
+    const element = getElementTarget(target);
+    const disabled = Boolean(element?.closest(DISABLED_SELECTOR));
+    const dragTarget = Boolean(element?.closest(".back-to-top"));
+    const interactive = Boolean(element?.closest(INTERACTIVE_SELECTOR));
+
+    cursor.classList.toggle("disabled", disabled);
+    cursor.classList.toggle("drag-target", dragTarget && !disabled);
+    cursor.classList.toggle("interactive", interactive && !dragTarget && !disabled);
+  }, []);
+
+  const resetInteraction = useCallback(() => {
+    mouseDownRef.current = false;
+    if (innerRef.current) innerRef.current.classList.remove("pressing");
+    document.body.classList.remove("custom-cursor-dragging");
+    exitNativeCursor();
+  }, [exitNativeCursor]);
+
+  useEffect(() => {
+    if (window.matchMedia(FINE_POINTER_QUERY).matches === false) return;
+
+    const onPointerMove = (e) => {
       posRef.current.x = e.clientX;
       posRef.current.y = e.clientY;
+      updateCursorAffordance(e.target);
 
+      const element = getElementTarget(e.target);
+      const overTextTarget = Boolean(element?.closest(TEXT_CURSOR_SELECTOR));
+      let selectingText = false;
       if (mouseDownRef.current) {
-        // 鼠标按下拖动中，检测是否有选区
         const sel = window.getSelection();
-        if (sel && sel.toString().length > 0) {
-          enterDragging();
+        selectingText = Boolean(sel && sel.toString().length > 0);
+        if (selectingText) {
+          document.body.classList.add("custom-cursor-dragging");
         }
-      } else if (draggingRef.current) {
-        // 鼠标已松开但还处于 dragging 状态 → 恢复
-        exitDragging();
+      } else {
+        document.body.classList.remove("custom-cursor-dragging");
       }
 
-      if (!draggingRef.current) {
-        showCursor();
+      if (overTextTarget || selectingText) {
+        enterNativeCursor();
+      } else {
+        exitNativeCursor();
       }
 
       if (!rafRef.current) {
@@ -80,40 +134,62 @@ const ClickCursor = ({ isCalculating = false }) => {
     };
 
     const onLeave = () => hideCursor();
-    const onEnter = () => { if (!draggingRef.current) showCursor(); };
-
-    const onDown = () => {
-      mouseDownRef.current = true;
-      if (innerRef.current) innerRef.current.classList.add("pressing");
+    const onEnter = (e) => {
+      updateCursorAffordance(e.target);
+      if (!nativeCursorRef.current) showCursor();
     };
 
-    const onUp = () => {
+    const onPointerDown = (e) => {
+      if (e.button !== 0) return;
+      mouseDownRef.current = true;
+      updateCursorAffordance(e.target);
+      if (!nativeCursorRef.current && innerRef.current) {
+        innerRef.current.classList.add("pressing");
+      }
+    };
+
+    const onPointerUp = (e) => {
       mouseDownRef.current = false;
       if (innerRef.current) innerRef.current.classList.remove("pressing");
-      // 无条件尝试退出 dragging
-      exitDragging();
+      document.body.classList.remove("custom-cursor-dragging");
+      updateCursorAffordance(e.target);
     };
 
-    document.addEventListener("mousemove", onMove, { passive: true });
-    document.addEventListener("mouseleave", onLeave);
-    document.addEventListener("mouseenter", onEnter);
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("mouseup", onUp);
+    document.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.addEventListener("pointerleave", onLeave);
+    document.addEventListener("pointerenter", onEnter);
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("pointerup", onPointerUp);
+    document.addEventListener("pointercancel", resetInteraction);
+    window.addEventListener("blur", resetInteraction);
+    window.addEventListener("contextmenu", resetInteraction);
     document.body.classList.add("custom-cursor-active");
 
     return () => {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseleave", onLeave);
-      document.removeEventListener("mouseenter", onEnter);
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("mouseup", onUp);
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerleave", onLeave);
+      document.removeEventListener("pointerenter", onEnter);
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("pointerup", onPointerUp);
+      document.removeEventListener("pointercancel", resetInteraction);
+      window.removeEventListener("blur", resetInteraction);
+      window.removeEventListener("contextmenu", resetInteraction);
       document.body.classList.remove("custom-cursor-active");
+      document.body.classList.remove("custom-cursor-native");
       document.body.classList.remove("custom-cursor-dragging");
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [updatePosition, showCursor, hideCursor, enterDragging, exitDragging]);
+  }, [
+    updatePosition,
+    showCursor,
+    hideCursor,
+    enterNativeCursor,
+    exitNativeCursor,
+    updateCursorAffordance,
+    resetInteraction,
+  ]);
 
-  if (typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches) {
+  if (typeof window !== "undefined" && window.matchMedia(FINE_POINTER_QUERY).matches === false) {
     return null;
   }
 

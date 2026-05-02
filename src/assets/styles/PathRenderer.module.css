@@ -30,7 +30,7 @@
   padding: 8px 14px;
   margin-bottom: 8px;
   background: var(--ark-surface-summary);
-  border-radius: 6px;
+  border-radius: 0;
   font-size: 15px;
   color: var(--ark-text-secondary);
 }
@@ -39,7 +39,7 @@
   margin-left: auto;
   padding: 6px 16px;
   border: 1.5px solid var(--ark-border-accent);
-  border-radius: 5px;
+  border-radius: 0;
   background: var(--ark-neutral-50);
   color: var(--ark-primary-700);
   font-size: 14px;
@@ -59,7 +59,7 @@
   margin-left: auto;
   padding: 6px 16px;
   border: 1.5px solid var(--ark-success);
-  border-radius: 5px;
+  border-radius: 0;
   background: var(--ark-success);
   color: #fff;
   font-size: 14px;
@@ -94,7 +94,7 @@
   align-items: baseline;
   gap: 8px;
   padding: 8px 10px;
-  border-radius: 5px;
+  border-radius: 0;
   background: var(--ark-surface-card);
   border: 1px solid var(--ark-border-default);
   font-size: 16px;
@@ -112,7 +112,7 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  border-radius: 5px;
+  border-radius: 0;
   background: var(--ark-neutral-700);
   color: #fff;
   font-size: 12px;
@@ -131,7 +131,7 @@
   margin-left: 4px;
   padding: 0 6px;
   background: var(--ark-surface-tag);
-  border-radius: 3px;
+  border-radius: 0;
   font-size: 14px;
   color: var(--ark-text-secondary);
   font-weight: 600;
@@ -172,7 +172,7 @@
   border-left: 1px solid var(--ark-primary-300);
   padding-left: 6px;
   background: var(--ark-primary-50);
-  border-radius: 3px;
+  border-radius: 0;
   padding: 1px 8px 1px 8px;
 }
 
@@ -180,7 +180,7 @@
 .path-renderer-error {
   color: var(--ark-danger);
   border: 2px solid var(--ark-danger);
-  border-radius: 6px;
+  border-radius: 0;
   padding: 14px;
   margin: 10px 0;
   background: var(--ark-danger-bg);
@@ -197,7 +197,7 @@
 
 .side-nav {
   width: 70px;
-  border-radius: 8px;
+  border-radius: 0;
   border: 1.5px solid var(--ark-border-accent);
   background: var(--ark-primary-50);
   color: var(--ark-primary-500);
@@ -270,7 +270,7 @@
   flex: 1;
   padding: 8px 12px;
   border: 1.5px solid var(--ark-border-accent);
-  border-radius: 6px;
+  border-radius: 0;
   background: var(--ark-primary-50);
   color: var(--ark-primary-600);
   font-size: 14px;
@@ -295,7 +295,7 @@
 .romantic-image {
   max-width: 10%;
   height: auto;
-  border-radius: 6px;
+  border-radius: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 

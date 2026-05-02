@@ -28,9 +28,14 @@ const loadBtnPos = () => {
   return null;
 };
 
+const loadTheme = () => {
+  const saved = localStorage.getItem("theme");
+  return saved ? saved === "dark" : true;
+};
+
 const Layout = ({ children }) => {
   const { isCalculating } = useCursorState();
-  const [dark, setDark] = useState(() => localStorage.getItem("theme") === "dark");
+  const [dark, setDark] = useState(loadTheme);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
@@ -83,9 +88,11 @@ const Layout = ({ children }) => {
   const onPointerDown = useCallback((e) => {
     e.preventDefault();
     const btn = btnRef.current;
+    if (!btn) return;
     dragState.current = {
       startX: e.clientX,
       startY: e.clientY,
+      pointerId: e.pointerId,
       originX: btnPos.x,
       originY: btnPos.y,
     };
@@ -108,19 +115,20 @@ const Layout = ({ children }) => {
     const x = Math.min(Math.max(dragState.current.originX + dx, 0), window.innerWidth - w);
     const y = Math.min(Math.max(dragState.current.originY + dy, 0), window.innerHeight - h);
     setBtnPos({ x, y });
-    // 手动派发 mousemove 让自定义光标跟随
-    document.dispatchEvent(new MouseEvent("mousemove", {
-      clientX: e.clientX,
-      clientY: e.clientY,
-    }));
   }, []);
 
-  const onPointerUp = useCallback((e) => {
+  const resetPointerDrag = useCallback((e, shouldClick = false) => {
     if (!dragState.current) return;
     const dx = e.clientX - dragState.current.startX;
     const dy = e.clientY - dragState.current.startY;
+    const pointerId = dragState.current.pointerId;
     dragState.current = null;
-    if (Math.hypot(dx, dy) <= DRAG_THRESHOLD) {
+    const btn = btnRef.current;
+    if (btn?.hasPointerCapture?.(pointerId)) {
+      btn.releasePointerCapture(pointerId);
+    }
+
+    if (shouldClick && Math.hypot(dx, dy) <= DRAG_THRESHOLD) {
       handleScrollBtn();
     } else {
       setBtnPos(prev => {
@@ -131,6 +139,14 @@ const Layout = ({ children }) => {
     isDraggingRef.current = false;
     setIsDragging(false);
   }, [handleScrollBtn]);
+
+  const onPointerUp = useCallback((e) => {
+    resetPointerDrag(e, true);
+  }, [resetPointerDrag]);
+
+  const onPointerCancel = useCallback((e) => {
+    resetPointerDrag(e, false);
+  }, [resetPointerDrag]);
 
   return (
     <div className="app-container">
@@ -166,6 +182,7 @@ const Layout = ({ children }) => {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        onPointerCancel={onPointerCancel}
         title="可拖动"
       >
         {scrollDir === "down" ? <><span>前往</span><span>底部</span></> : <><span>返回</span><span>顶部</span></>}

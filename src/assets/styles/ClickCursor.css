@@ -5,10 +5,29 @@
     cursor: none !important;
   }
 
-  /* 拖选文本时恢复系统光标 */
-  body.custom-cursor-dragging,
-  body.custom-cursor-dragging * {
+  body.custom-cursor-native,
+  body.custom-cursor-native *,
+  body.custom-cursor-active input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  body.custom-cursor-active textarea,
+  body.custom-cursor-active select,
+  body.custom-cursor-active [contenteditable="true"],
+  body.custom-cursor-active [contenteditable=""] {
     cursor: auto !important;
+  }
+
+  body.custom-cursor-active input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  body.custom-cursor-active textarea,
+  body.custom-cursor-active [contenteditable="true"],
+  body.custom-cursor-active [contenteditable=""] {
+    cursor: text !important;
+  }
+
+  body.custom-cursor-active .back-to-top {
+    cursor: grab !important;
+  }
+
+  body.custom-cursor-active .back-to-top.dragging {
+    cursor: grabbing !important;
   }
 }
 
@@ -34,6 +53,19 @@
   transition: transform 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 }
 
+.click-cursor.interactive .click-cursor-inner {
+  transform: rotate(30deg) scale(0.92);
+}
+
+.click-cursor.drag-target .click-cursor-inner {
+  transform: rotate(30deg) scale(1.08);
+  filter: drop-shadow(0 0 8px rgba(154, 211, 252, 0.35));
+}
+
+.click-cursor.disabled .click-cursor-inner {
+  opacity: 0.45;
+}
+
 /* 按下：缩小 */
 .click-cursor-inner.pressing {
   transform: rotate(30deg) scale(0.82);
@@ -48,4 +80,13 @@
 @keyframes cursor-pulse {
   0%, 100% { transform: rotate(30deg) scale(1); }
   50%      { transform: rotate(30deg) scale(0.85); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .click-cursor,
+  .click-cursor-inner,
+  .click-cursor.calculating .click-cursor-inner {
+    animation: none;
+    transition: none;
+  }
 }

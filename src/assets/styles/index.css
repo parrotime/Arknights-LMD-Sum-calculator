@@ -52,6 +52,8 @@
   --ark-surface-page: #edf1f7;
   --ark-surface-card: #ffffff;
   --ark-surface-inset: #f5f7fa;
+  --ark-grid-major: rgba(45, 52, 70, 0.1);
+  --ark-grid-minor: rgba(45, 52, 70, 0.045);
 
   /* 边框 */
   --ark-border-default: #dfe3ea;
@@ -164,6 +166,8 @@
   --ark-surface-page: #0f1219;
   --ark-surface-card: #1a2030;
   --ark-surface-inset: #151b28;
+  --ark-grid-major: rgba(255, 255, 255, 0.085);
+  --ark-grid-minor: rgba(255, 255, 255, 0.034);
 
   /* 边框 */
   --ark-border-default: #2d3446;
@@ -224,7 +228,13 @@ body {
   color: var(--ark-neutral-800);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--ark-surface-page);
+  background-color: var(--ark-surface-page);
+  background-image:
+    linear-gradient(var(--ark-grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ark-grid-major) 1px, transparent 1px),
+    linear-gradient(var(--ark-grid-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ark-grid-minor) 1px, transparent 1px);
+  background-size: 48px 48px, 48px 48px, 12px 12px, 12px 12px;
 }
 
 /* 隐藏 number input 原生 spinner 按钮 */
@@ -303,7 +313,7 @@ html, body, #root {
 }
 
 .nav-item {
-  color: var(--ark-neutral-400);
+  color: rgba(232, 236, 241, 0.82);
   text-decoration: none;
   font-family: var(--ark-font-title);
   font-size: 1rem;
