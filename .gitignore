@@ -13,6 +13,8 @@
 
 # misc
 .DS_Store
+.codex/
+.claude/
 .env.local
 .env.development.local
 .env.test.local

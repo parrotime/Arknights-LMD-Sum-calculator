@@ -13,8 +13,8 @@ const navItems = [
 const DRAG_THRESHOLD = 5;
 
 const getDefaultPos = () => ({
-  x: window.innerWidth - 24 - 120,
-  y: window.innerHeight - 24 - 40,
+  x: window.innerWidth - 24 - 64,
+  y: window.innerHeight - 24 - 64,
 });
 
 const loadBtnPos = () => {
@@ -108,6 +108,11 @@ const Layout = ({ children }) => {
     const x = Math.min(Math.max(dragState.current.originX + dx, 0), window.innerWidth - w);
     const y = Math.min(Math.max(dragState.current.originY + dy, 0), window.innerHeight - h);
     setBtnPos({ x, y });
+    // 手动派发 mousemove 让自定义光标跟随
+    document.dispatchEvent(new MouseEvent("mousemove", {
+      clientX: e.clientX,
+      clientY: e.clientY,
+    }));
   }, []);
 
   const onPointerUp = useCallback((e) => {
@@ -163,7 +168,7 @@ const Layout = ({ children }) => {
         onPointerUp={onPointerUp}
         title="可拖动"
       >
-        {scrollDir === "down" ? "↓ 前往底部" : "↑ 返回顶部"}
+        {scrollDir === "down" ? <><span>前往</span><span>底部</span></> : <><span>返回</span><span>顶部</span></>}
       </button>
 
       {children}
@@ -173,7 +178,7 @@ const Layout = ({ children }) => {
           鄂ICP备2025105560号-1
         </a>
         <a className="footer-link">
-          © 2025 龙门币凑数计算器（https://ark-lmd.top）
+          © 2025~2026 龙门币凑数计算器（https://ark-lmd.top）
         </a>
       </div>
     </div>

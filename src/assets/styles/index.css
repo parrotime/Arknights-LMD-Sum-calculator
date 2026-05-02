@@ -7,6 +7,16 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Rajdhani";
+  src: url('/fonts/Rajdhani-digits.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+30-39; /* 只匹配 0-9 */
+  size-adjust: 120%;
+}
+
 /* === 设计令牌 === */
 :root {
   /* 主色阶 (明亮蓝体系) */
@@ -73,7 +83,7 @@
   /* 字体 */
   --ark-font-title: "WenYuan Serif", "Noto Serif SC", "Source Han Serif CN", serif;
   --ark-font-display: "Noto Serif SC", "Source Han Serif CN", "STSong", serif;
-  --ark-font-body: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB",
+  --ark-font-body: "Rajdhani", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB",
                    "Noto Sans SC", system-ui, sans-serif;
 
   /* 文本色 */
@@ -227,6 +237,11 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+/* 表单元素继承 body 字体（让 Rajdhani 数字生效） */
+input, select, textarea, button {
+  font-family: inherit;
+}
+
 code {
   font-family: "JetBrains Mono", "Fira Code", "Source Code Pro",
     'Courier New', monospace;
@@ -355,23 +370,49 @@ html, body, #root {
 /* === 回到顶部按钮 === */
 .back-to-top {
   position: fixed;
-  padding: 10px 16px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.3;
+  padding: 0 6px;
   background: var(--ark-primary-600);
+  background-image: url('/LMD.webp');
+  background-size: 70%;
+  background-position: center;
+  background-repeat: no-repeat;
   color: white;
-  font-weight: 600;
-  font-size: 0.85rem;
-  border: none;
-  border-radius: var(--ark-radius-md);
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  border: 3px solid var(--ark-primary-900);
+  border-radius: 50%;
   cursor: grab;
   box-shadow: var(--ark-shadow-md);
-  transition: background var(--ark-transition-fast), box-shadow var(--ark-transition-fast);
+  transition: background-color var(--ark-transition-fast), box-shadow var(--ark-transition-fast);
   z-index: 1001;
   user-select: none;
   touch-action: none;
+  overflow: hidden;
+}
+
+/* 龙门币背景降低不透明度 */
+.back-to-top::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ark-primary-600);
+  opacity: 0.7;
+  border-radius: 50%;
+  z-index: -1;
 }
 
 .back-to-top:hover {
-  background: var(--ark-primary-500);
+  background-color: var(--ark-primary-500);
   box-shadow: var(--ark-shadow-lg);
 }
 
