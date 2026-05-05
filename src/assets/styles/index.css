@@ -316,23 +316,23 @@ html, body, #root {
   color: rgba(232, 236, 241, 0.82);
   text-decoration: none;
   font-family: var(--ark-font-title);
-  font-size: 1rem;
+  font-size: 1.08rem;
   font-weight: 600;
   padding: 10px 22px;
   border-radius: var(--ark-radius-md);
   transition: color var(--ark-transition-fast),
-              background var(--ark-transition-fast);
+              text-shadow var(--ark-transition-fast);
   position: relative;
 }
 
 .nav-item:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.06);
+  color: #f8fbff;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.24);
 }
 
 .nav-item.active {
   color: #ffffff;
-  background: rgba(109, 179, 240, 0.15);
+  text-shadow: 0 0 14px rgba(154, 211, 252, 0.32);
 }
 
 .nav-item.active::after {
@@ -348,16 +348,27 @@ html, body, #root {
 
 /* === 主题切换按钮 === */
 .theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--ark-radius-md);
-  padding: 6px 10px;
-  font-size: 1.15rem;
+  width: 42px;
+  height: 34px;
+  padding: 0;
   line-height: 1;
   cursor: pointer;
   transition: background var(--ark-transition-fast),
               transform var(--ark-transition-fast);
   flex-shrink: 0;
+}
+
+.theme-toggle-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
 }
 
 .theme-toggle:hover {

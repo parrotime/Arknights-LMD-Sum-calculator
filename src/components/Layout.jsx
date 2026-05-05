@@ -170,7 +170,16 @@ const Layout = ({ children }) => {
             aria-label={dark ? "切换到浅色模式" : "切换到深色模式"}
             title={dark ? "浅色模式" : "深色模式"}
           >
-            {dark ? "☀️" : "🌙"}
+            <img
+              className="theme-toggle-icon"
+              src={
+                dark
+                  ? "https://ark-lmd.oss-cn-beijing.aliyuncs.com/day_mod.webp"
+                  : "https://ark-lmd.oss-cn-beijing.aliyuncs.com/night_mod.webp"
+              }
+              alt=""
+              aria-hidden="true"
+            />
           </button>
         </div>
       </nav>

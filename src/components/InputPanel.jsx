@@ -24,55 +24,63 @@ const InputPanel = ({
   return (
   <div className={`${styles['content-panel']} ${styles['left-panel']}`}>
     <div className={styles['title-bar']}>
-      <h1>龙门币凑数计算器</h1>
-    </div>
-
-    <div className={styles['info-banner']}>
-      <span className={styles['info-icon']}>ℹ</span>
-      <div className={styles['info-lines']}>
-        <span>输入范围：0 ~ 999999999 | 差值范围：-5000 ~ 5000</span>
-      </div>
+      <h1>// 01 罗德岛物资清点 :: LMD INVENTORY</h1>
     </div>
 
     <div className={styles['main-content']}>
-      <div className={styles['input-area-with-swap']}>
-        <div className={styles['input-rows']}>
-          <div className={styles['input-row']}>
-            <label className={styles['input-label']}>当前龙门币数量</label>
-            <div className={styles['input-field']}>
-              <input
-                type="text"
-                inputMode="numeric"
-                className={styles['input-box']}
-                placeholder="请输入数字"
-                value={state.num1}
-                onChange={(e) => handleInputChange(e, "num1")}
-                onKeyDown={handleKeyDown}
-              />
+      <div className={`${styles['limit-section']} ${styles['lmd-section']}`}>
+        <div className={styles['limit-title']}>龙门币统计清单</div>
+        <div className={styles['input-area-with-swap']}>
+          <div className={styles['input-rows']}>
+            <div className={styles['input-row']}>
+              <div className={styles['input-field']}>
+                <input
+                  id="current-lmd-input"
+                  type="text"
+                  inputMode="numeric"
+                  className={styles['input-box']}
+                  placeholder=" "
+                  value={state.num1}
+                  onChange={(e) => handleInputChange(e, "num1")}
+                  onKeyDown={handleKeyDown}
+                />
+                <label className={styles['input-label']} htmlFor="current-lmd-input">
+                  请输入当前龙门币数量
+                </label>
+              </div>
             </div>
-          </div>
 
-          <button
-            type="button"
-            className={styles['swap-btn']}
-            onClick={onSwap}
-            title="交换当前与目标数值"
-          >
-            交换
-          </button>
-
-          <div className={styles['input-row']}>
-            <label className={styles['input-label']}>目标龙门币数量</label>
-            <div className={styles['input-field']}>
-              <input
-                type="text"
-                inputMode="numeric"
-                className={styles['input-box']}
-                placeholder="请输入数字"
-                value={state.num2}
-                onChange={(e) => handleInputChange(e, "num2")}
-                onKeyDown={handleKeyDown}
+            <button
+              type="button"
+              className={styles['swap-btn']}
+              onClick={onSwap}
+              title="交换数字"
+              aria-label="交换数字"
+            >
+              <img
+                className={styles['swap-icon']}
+                src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/exchange.webp"
+                alt=""
+                aria-hidden="true"
               />
+            </button>
+
+            <div className={styles['input-row']}>
+              <div className={styles['input-field']}>
+                <input
+                  id="target-lmd-input"
+                  type="text"
+                  inputMode="numeric"
+                  className={styles['input-box']}
+                  placeholder=" "
+                  value={state.num2}
+                  onChange={(e) => handleInputChange(e, "num2")}
+                  onKeyDown={handleKeyDown}
+                />
+                <label className={styles['input-label']} htmlFor="target-lmd-input">
+                  请输入目标龙门币数量
+                </label>
+              </div>
             </div>
           </div>
         </div>
