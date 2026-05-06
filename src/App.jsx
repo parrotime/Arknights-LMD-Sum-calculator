@@ -56,6 +56,10 @@ const defaultState = {
   upgrade1Count: "",
   upgrade2Count: "",
   sanityCount: "",
+  trade2Count: "",
+  trade3Count: "",
+  trade4Count: "",
+  trade5Count: "",
 };
 
 // 默认设置按钮的初始状态
@@ -96,7 +100,19 @@ const migrateSettings = (settings) => {
   };
 };
 
-const PERSISTED_KEYS = ["settings", "num1", "num2", "upgrade0Count", "upgrade1Count", "upgrade2Count", "sanityCount"];
+const PERSISTED_KEYS = [
+  "settings",
+  "num1",
+  "num2",
+  "upgrade0Count",
+  "upgrade1Count",
+  "upgrade2Count",
+  "sanityCount",
+  "trade2Count",
+  "trade3Count",
+  "trade4Count",
+  "trade5Count",
+];
 
 const getInitialState = () => {
   const saved = localStorage.getItem("calculatorState");
@@ -122,6 +138,13 @@ const reducer = (state, action) => {
         ...state,
         [action.field]: action.value,
         [`error${action.field.slice(-1)}`]: "",
+      };
+    case "CLEAR_LMD_INPUT":
+      return {
+        ...state,
+        [action.field]: "",
+        [`error${action.field.slice(-1)}`]: "",
+        differenceError: "",
       };
     case "SET_ERROR":
       return {
@@ -205,6 +228,10 @@ const reducer = (state, action) => {
         upgrade1Count: "",
         upgrade2Count: "",
         sanityCount: "",
+        trade2Count: "",
+        trade3Count: "",
+        trade4Count: "",
+        trade5Count: "",
         pathCache: [],
         currentPathIndex: 0,
         clickCount: 0,
@@ -217,6 +244,10 @@ const reducer = (state, action) => {
         upgrade1Count: "",
         upgrade2Count: "",
         sanityCount: "",
+        trade2Count: "",
+        trade3Count: "",
+        trade4Count: "",
+        trade5Count: "",
         settingsDirty: true,
       };
     default:
@@ -289,7 +320,19 @@ const MainCalculator = () => {
     const toSave = {};
     for (const key of PERSISTED_KEYS) toSave[key] = state[key];
     localStorage.setItem("calculatorState", JSON.stringify(toSave));
-  }, [state.settings, state.num1, state.num2, state.upgrade0Count, state.upgrade1Count, state.upgrade2Count, state.sanityCount]);
+  }, [
+    state.settings,
+    state.num1,
+    state.num2,
+    state.upgrade0Count,
+    state.upgrade1Count,
+    state.upgrade2Count,
+    state.sanityCount,
+    state.trade2Count,
+    state.trade3Count,
+    state.trade4Count,
+    state.trade5Count,
+  ]);
 
   // 同步计算状态到光标 context
   useEffect(() => {
@@ -329,6 +372,10 @@ const MainCalculator = () => {
 
   const handleResetInputs = useCallback(() => {
     dispatch({ type: "RESET_INPUTS" });
+  }, []);
+
+  const handleClearLmdInput = useCallback((field) => {
+    dispatch({ type: "CLEAR_LMD_INPUT", field });
   }, []);
 
   // 优化后的输入验证
@@ -431,7 +478,19 @@ const MainCalculator = () => {
         dispatch({ type: "SET_CALCULATING", value: false });
       }
     },
-    [state.num1, state.num2, state.settings, state.upgrade0Count, state.upgrade1Count, state.upgrade2Count, state.sanityCount]
+    [
+      state.num1,
+      state.num2,
+      state.settings,
+      state.upgrade0Count,
+      state.upgrade1Count,
+      state.upgrade2Count,
+      state.sanityCount,
+      state.trade2Count,
+      state.trade3Count,
+      state.trade4Count,
+      state.trade5Count,
+    ]
   );
 
   const handleChangePath = useCallback(
@@ -480,6 +539,7 @@ const MainCalculator = () => {
               handleCalculate={handleCalculate}
               onSwap={handleSwapNums}
               onResetInputs={handleResetInputs}
+              onClearLmdInput={handleClearLmdInput}
               settingsDirty={state.settingsDirty}
             />
             <SettingsPanel

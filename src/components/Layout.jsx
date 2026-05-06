@@ -1,5 +1,5 @@
-import React, { useCallback, useState, useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
+import React, { useCallback, useState, useEffect, useLayoutEffect, useRef } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import ClickCursor from "./ClickCursor";
 import { useCursorState } from "./CursorContext";
 
@@ -36,6 +36,10 @@ const loadTheme = () => {
 const Layout = ({ children }) => {
   const { isCalculating } = useCursorState();
   const [dark, setDark] = useState(loadTheme);
+  const location = useLocation();
+  const navLinksRef = useRef(null);
+  const navItemRefs = useRef({});
+  const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0, ready: false });
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
@@ -43,6 +47,43 @@ const Layout = ({ children }) => {
   }, [dark]);
 
   const [scrollDir, setScrollDir] = useState("down");
+
+  const updateNavIndicator = useCallback(() => {
+    const container = navLinksRef.current;
+    if (!container) return;
+
+    const activeItem = navItems.find(({ to }) =>
+      to === "/" ? location.pathname === "/" : location.pathname.startsWith(to)
+    );
+    const activeNode = activeItem ? navItemRefs.current[activeItem.to] : null;
+    if (!activeNode) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const itemRect = activeNode.getBoundingClientRect();
+    const sideInset = 18;
+    const next = {
+      left: itemRect.left - containerRect.left + sideInset,
+      width: Math.max(itemRect.width - sideInset * 2, 0),
+      ready: true,
+    };
+
+    setNavIndicator(prev =>
+      prev.left === next.left && prev.width === next.width && prev.ready === next.ready
+        ? prev
+        : next
+    );
+  }, [location.pathname]);
+
+  useLayoutEffect(() => {
+    updateNavIndicator();
+  }, [updateNavIndicator]);
+
+  useEffect(() => {
+    const onResize = () => updateNavIndicator();
+    window.addEventListener("resize", onResize);
+    document.fonts?.ready?.then(updateNavIndicator);
+    return () => window.removeEventListener("resize", onResize);
+  }, [updateNavIndicator]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -157,12 +198,29 @@ const Layout = ({ children }) => {
             <img src="/LMD.webp" alt="龙门币" className="nav-brand-icon" />
             龙门币凑数计算器
           </div>
-          <div className="nav-links">
+          <div className="nav-links" ref={navLinksRef}>
             {navItems.map(({ to, text }) => (
-              <NavLink to={to} end={to === "/"} className="nav-item" key={to}>
+              <NavLink
+                to={to}
+                end={to === "/"}
+                className={({ isActive }) => `nav-item${isActive ? " active" : ""}`}
+                ref={(node) => {
+                  if (node) navItemRefs.current[to] = node;
+                  else delete navItemRefs.current[to];
+                }}
+                key={to}
+              >
                 {text}
               </NavLink>
             ))}
+            <span
+              className={`nav-indicator${navIndicator.ready ? " ready" : ""}`}
+              style={{
+                width: navIndicator.width,
+                transform: `translateX(${navIndicator.left}px)`,
+              }}
+              aria-hidden="true"
+            />
           </div>
           <button
             className="theme-toggle"

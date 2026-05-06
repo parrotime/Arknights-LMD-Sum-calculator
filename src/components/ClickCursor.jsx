@@ -9,6 +9,10 @@ const TEXT_CURSOR_SELECTOR = [
   '[contenteditable="true"]',
   '[contenteditable=""]',
 ].join(",");
+const NATIVE_CURSOR_ZONE_SELECTOR = [
+  TEXT_CURSOR_SELECTOR,
+  '[data-native-cursor="true"]',
+].join(",");
 const INTERACTIVE_SELECTOR = [
   "a[href]",
   "button",
@@ -110,7 +114,7 @@ const ClickCursor = ({ isCalculating = false }) => {
       updateCursorAffordance(e.target);
 
       const element = getElementTarget(e.target);
-      const overTextTarget = Boolean(element?.closest(TEXT_CURSOR_SELECTOR));
+      const overNativeTarget = Boolean(element?.closest(NATIVE_CURSOR_ZONE_SELECTOR));
       let selectingText = false;
       if (mouseDownRef.current) {
         const sel = window.getSelection();
@@ -122,7 +126,7 @@ const ClickCursor = ({ isCalculating = false }) => {
         document.body.classList.remove("custom-cursor-dragging");
       }
 
-      if (overTextTarget || selectingText) {
+      if (overNativeTarget || selectingText) {
         enterNativeCursor();
       } else {
         exitNativeCursor();

@@ -52,13 +52,20 @@
   --ark-surface-page: #edf1f7;
   --ark-surface-card: #ffffff;
   --ark-surface-inset: #f5f7fa;
+  --ark-input-bg: #f8fafc;
+  --ark-input-bg-focus: #ffffff;
   --ark-grid-major: rgba(45, 52, 70, 0.1);
   --ark-grid-minor: rgba(45, 52, 70, 0.045);
+  --ark-panel-frame-top: rgba(45, 52, 70, 0.64);
+  --ark-panel-frame-side: rgba(45, 52, 70, 0.62);
+  --ark-panel-corner-mark: #0e5db1;
 
   /* 边框 */
   --ark-border-default: #dfe3ea;
   --ark-border-subtle:  #ebeef3;
   --ark-border-focus:   var(--ark-primary-300);
+  --ark-input-border: #b9c7d8;
+  --ark-input-border-hover: #8fa9c8;
 
   /* 阴影 */
   --ark-shadow-sm:  0 1px 2px rgba(10, 22, 40, 0.05);
@@ -166,13 +173,20 @@
   --ark-surface-page: #0f1219;
   --ark-surface-card: #1a2030;
   --ark-surface-inset: #151b28;
+  --ark-input-bg: #101725;
+  --ark-input-bg-focus: #121c2d;
   --ark-grid-major: rgba(255, 255, 255, 0.085);
   --ark-grid-minor: rgba(255, 255, 255, 0.034);
+  --ark-panel-frame-top: rgba(255, 255, 255, 0.86);
+  --ark-panel-frame-side: rgba(255, 255, 255, 0.9);
+  --ark-panel-corner-mark: #1a6fcc;
 
   /* 边框 */
   --ark-border-default: #2d3446;
   --ark-border-subtle:  #232a3a;
   --ark-border-focus:   var(--ark-primary-400);
+  --ark-input-border: #3a4a63;
+  --ark-input-border-hover: #5f7f9f;
 
   /* 阴影 */
   --ark-shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.3);
@@ -258,6 +272,11 @@ code {
 }
 
 /* 全局共享样式 */
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -310,6 +329,8 @@ html, body, #root {
 .nav-links {
   display: flex;
   gap: var(--ark-space-md);
+  align-items: center;
+  position: relative;
 }
 
 .nav-item {
@@ -335,15 +356,23 @@ html, body, #root {
   text-shadow: 0 0 14px rgba(154, 211, 252, 0.32);
 }
 
-.nav-item.active::after {
-  content: '';
+.nav-indicator {
   position: absolute;
+  left: 0;
   bottom: -1px;
-  left: 18px;
-  right: 18px;
   height: 2px;
   background: var(--ark-primary-300);
   border-radius: 1px;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              width 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              opacity var(--ark-transition-fast);
+  will-change: transform, width;
+}
+
+.nav-indicator.ready {
+  opacity: 1;
 }
 
 /* === 主题切换按钮 === */
@@ -549,7 +578,7 @@ html, body, #root {
     padding: 6px 14px;
   }
 
-  .nav-item.active::after {
+  .nav-indicator {
     display: none;
   }
 }

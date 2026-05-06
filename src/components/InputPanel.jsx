@@ -9,10 +9,94 @@ const InputPanel = ({
   handleCalculate,
   onSwap,
   onResetInputs,
+  onClearLmdInput,
   settingsDirty,
 }) => {
   // 实时计算差值
   const diffInfo = useMemo(() => computeDiff(state.num1, state.num2), [state.num1, state.num2]);
+
+  const limitGroups = [
+    {
+      title: "理智类",
+      code: "SANITY CATEGORY",
+      row: "top",
+      layout: "sanity",
+      items: [
+        {
+          labelCn: "允许使用理智数量",
+          labelEn: "PERMITTED SANITY",
+          field: "sanityCount",
+          max: 200,
+          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/san.webp",
+        },
+      ],
+    },
+    {
+      title: "允许升级的干员人数",
+      code: "ALLOWED OPERATOR PROMOTION COUNT",
+      row: "top",
+      layout: "elite",
+      items: [
+        {
+          labelCn: "精零人数",
+          labelEn: "ELITE-0",
+          field: "upgrade0Count",
+          max: 10,
+          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/elite_0.webp",
+        },
+        {
+          labelCn: "精一人数",
+          labelEn: "ELITE-I",
+          field: "upgrade1Count",
+          max: 10,
+          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/elite_1.webp",
+        },
+        {
+          labelCn: "精二人数",
+          labelEn: "ELITE-II",
+          field: "upgrade2Count",
+          max: 10,
+          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/elite_2.webp",
+        },
+      ],
+    },
+    {
+      title: "贸易站赤金订单数",
+      code: "TRADING POST PURE GOLD ORDERS",
+      row: "bottom",
+      layout: "trade",
+      items: [
+        {
+          labelCn: "2赤金订单",
+          labelEn: "ORDER-2",
+          field: "trade2Count",
+          max: 99,
+          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_flow_gs.webp",
+        },
+        {
+          labelCn: "3赤金订单",
+          labelEn: "ORDER-3",
+          field: "trade3Count",
+          max: 99,
+          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_wtcost1.webp",
+        },
+        {
+          labelCn: "4赤金订单",
+          labelEn: "ORDER-4",
+          field: "trade4Count",
+          max: 99,
+          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_wtcost2.webp",
+        },
+        {
+          labelCn: "5赤金订单",
+          labelEn: "ORDER-5",
+          field: "trade5Count",
+          max: 99,
+          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_against2.webp",
+        },
+      ],
+    },
+  ];
 
   // Enter 键触发计算
   const handleKeyDown = (e) => {
@@ -24,89 +108,201 @@ const InputPanel = ({
   return (
   <div className={`${styles['content-panel']} ${styles['left-panel']}`}>
     <div className={styles['title-bar']}>
-      <h1>// 01 罗德岛物资清点 :: LMD INVENTORY</h1>
+      <h1>// [01] 罗德岛物资清点 </h1>
     </div>
 
     <div className={styles['main-content']}>
       <div className={`${styles['limit-section']} ${styles['lmd-section']}`}>
-        <div className={styles['limit-title']}>龙门币统计清单</div>
+        <div className={styles['limit-block-title']}>
+          <span className={styles['limit-block-title-main']}>龙门币统计清单</span>
+          <span className={styles['limit-block-title-code']}>LMD INVENTORY</span>
+        </div>
         <div className={styles['input-area-with-swap']}>
           <div className={styles['input-rows']}>
-            <div className={styles['input-row']}>
-              <div className={styles['input-field']}>
-                <input
-                  id="current-lmd-input"
-                  type="text"
-                  inputMode="numeric"
-                  className={styles['input-box']}
-                  placeholder=" "
-                  value={state.num1}
-                  onChange={(e) => handleInputChange(e, "num1")}
-                  onKeyDown={handleKeyDown}
-                />
-                <label className={styles['input-label']} htmlFor="current-lmd-input">
-                  请输入当前龙门币数量
-                </label>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className={styles['swap-btn']}
-              onClick={onSwap}
-              title="交换数字"
-              aria-label="交换数字"
-            >
+            <div className={`${styles['lmd-input-side']} ${styles['lmd-input-side-left']}`}>
               <img
-                className={styles['swap-icon']}
-                src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/exchange.webp"
+                className={styles['lmd-prefix-icon']}
+                src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/42.webp"
                 alt=""
                 aria-hidden="true"
               />
-            </button>
-
-            <div className={styles['input-row']}>
-              <div className={styles['input-field']}>
-                <input
-                  id="target-lmd-input"
-                  type="text"
-                  inputMode="numeric"
-                  className={styles['input-box']}
-                  placeholder=" "
-                  value={state.num2}
-                  onChange={(e) => handleInputChange(e, "num2")}
-                  onKeyDown={handleKeyDown}
-                />
-                <label className={styles['input-label']} htmlFor="target-lmd-input">
-                  请输入目标龙门币数量
-                </label>
+              <img
+                className={styles['lmd-inventory-icon']}
+                src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/lmd_logo.webp"
+                alt=""
+                aria-hidden="true"
+              />
+              <div className={styles['input-row']}>
+                <div className={styles['input-field']} data-native-cursor="true">
+                  <input
+                    id="current-lmd-input"
+                    type="text"
+                    inputMode="numeric"
+                    className={styles['input-box']}
+                    placeholder=" "
+                    value={state.num1}
+                    onChange={(e) => handleInputChange(e, "num1")}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <label className={styles['input-label']} htmlFor="current-lmd-input">
+                    请输入当前龙门币数量
+                  </label>
+                  {state.num1 && (
+                    <button
+                      type="button"
+                      className={styles['input-clear-btn']}
+                      onClick={() => onClearLmdInput("num1")}
+                      title="清除当前龙门币数量"
+                      aria-label="清除当前龙门币数量"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
               </div>
+            </div>
+
+            <img
+              className={styles['lmd-flow-icon']}
+              src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/turn_right.webp"
+              alt=""
+              aria-hidden="true"
+            />
+
+            <div className={`${styles['lmd-input-side']} ${styles['lmd-input-side-right']}`}>
+              <div className={styles['input-row']}>
+                <div className={styles['input-field']} data-native-cursor="true">
+                  <input
+                    id="target-lmd-input"
+                    type="text"
+                    inputMode="numeric"
+                    className={styles['input-box']}
+                    placeholder=" "
+                    value={state.num2}
+                    onChange={(e) => handleInputChange(e, "num2")}
+                    onKeyDown={handleKeyDown}
+                  />
+                  <label className={styles['input-label']} htmlFor="target-lmd-input">
+                    请输入目标龙门币数量
+                  </label>
+                  {state.num2 && (
+                    <button
+                      type="button"
+                      className={styles['input-clear-btn']}
+                      onClick={() => onClearLmdInput("num2")}
+                      title="清除目标龙门币数量"
+                      aria-label="清除目标龙门币数量"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className={styles['swap-btn']}
+                onClick={onSwap}
+                title="交换数字"
+                aria-label="交换数字"
+              >
+                <img
+                  className={styles['swap-icon']}
+                  src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/exchange.webp"
+                  alt=""
+                  aria-hidden="true"
+                />
+              </button>
+
+              <button
+                type="button"
+                className={`${styles['swap-btn']} ${styles['clean-btn']}`}
+                onClick={onResetInputs}
+                title="清空数字"
+                aria-label="清空数字"
+              >
+                <img
+                  className={styles['swap-icon']}
+                  src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/clean.webp"
+                  alt=""
+                  aria-hidden="true"
+                />
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <div className={styles['limit-section']}>
-        <div className={styles['limit-title']}>数量限制</div>
-        <div className={styles['limit-grid']}>
-          {[
-            { label: "允许升级精零干员数量", field: "upgrade0Count", max: 10 },
-            { label: "允许升级精一干员数量", field: "upgrade1Count", max: 10 },
-            { label: "允许升级精二干员数量", field: "upgrade2Count", max: 10 },
-            { label: "允许使用理智数量", field: "sanityCount", max: 200 },
-          ].map(({ label, field, max }) => (
-            <div className={styles['limit-item']} key={field}>
-              <span className={styles['limit-label']}>{label}</span>
-              <input
-                type="number"
-                className={styles['short-input-box']}
-                min="0"
-                max={max}
-                step="1"
-                placeholder="不限"
-                value={state[field]}
-                onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
-              />
+        <div className={styles['limit-block-title']}>
+          <span className={styles['limit-block-title-main']}>数量限制</span>
+          <span className={styles['limit-block-title-note']}>未输入时默认为不设置上限</span>
+          <span className={styles['limit-block-title-code']}>LIMIT CONTROL</span>
+        </div>
+        <div className={styles['limit-category-list']}>
+          <div className={styles['limit-category-row']}>
+            {limitGroups.filter((group) => group.row === "top").map((group) => (
+              <div className={`${styles['limit-category']} ${styles[`limit-category-${group.layout}`]}`} key={group.code}>
+                <div className={styles['limit-category-header']}>
+                  <span className={styles['limit-category-title']}>{group.title}</span>
+                  <span className={styles['limit-category-code']}>{group.code}</span>
+                </div>
+                <div className={`${styles['limit-card-grid']} ${styles[`limit-card-grid-${group.layout}`]}`}>
+                  {group.items.map(({ labelCn, labelEn, field, max, icon }) => (
+                    <label className={styles['limit-card']} key={field}>
+                      <img className={styles['limit-card-icon']} src={icon} alt="" aria-hidden="true" />
+                      <span className={styles['limit-card-text']}>
+                        <span className={styles['limit-card-label-cn']}>{labelCn}</span>
+                        <span className={styles['limit-card-label-en']}>{labelEn}</span>
+                      </span>
+                      <span className={styles['limit-input-field']}>
+                        <input
+                          type="number"
+                          className={styles['short-input-box']}
+                          min="0"
+                          max={max}
+                          step="1"
+                          placeholder="不限"
+                          value={state[field] ?? ""}
+                          onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
+                        />
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {limitGroups.filter((group) => group.row === "bottom").map((group) => (
+            <div className={`${styles['limit-category']} ${styles[`limit-category-${group.layout}`]}`} key={group.code}>
+              <div className={styles['limit-category-header']}>
+                <span className={styles['limit-category-title']}>{group.title}</span>
+                <span className={styles['limit-category-code']}>{group.code}</span>
+              </div>
+              <div className={`${styles['limit-card-grid']} ${styles[`limit-card-grid-${group.layout}`]}`}>
+                {group.items.map(({ labelCn, labelEn, field, max, icon }) => (
+                  <label className={styles['limit-card']} key={field}>
+                    <img className={styles['limit-card-icon']} src={icon} alt="" aria-hidden="true" />
+                    <span className={styles['limit-card-text']}>
+                      <span className={styles['limit-card-label-cn']}>{labelCn}</span>
+                      <span className={styles['limit-card-label-en']}>{labelEn}</span>
+                    </span>
+                    <span className={styles['limit-input-field']}>
+                      <input
+                        type="number"
+                        className={styles['short-input-box']}
+                        min="0"
+                        max={max}
+                        step="1"
+                        placeholder="不限"
+                        value={state[field] ?? ""}
+                        onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
+                      />
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -117,6 +313,13 @@ const InputPanel = ({
           设置发生更改，请重新计算结果
         </div>
       )}
+
+      <div className={styles['operation-section']}>
+        <div className={styles['limit-block-title']}>
+          <span className={styles['limit-block-title-main']}>操作区域</span>
+          <span className={styles['limit-block-title-code']}>OPERATION AREA</span>
+        </div>
+      </div>
 
       <div className={styles['action-buttons']}>
         <button
@@ -152,15 +355,6 @@ const InputPanel = ({
         </div>
       </div>
 
-      <div className={styles['usage-guide']}>
-        <div className={styles['notice-title']}>注意事项</div>
-        <div className={styles['notice-content']}>
-          <p>1.点击"立即计算"按钮开始计算，点击页面底部参考路径方案中的"上一方案"和"下一方案"按钮可以切换路径方案。</p>
-          <p>2.设置面板中的开关调整之后，需要重新点击"立即计算"按钮才会生效。
-          如果点击"立即计算"之后不起作用，建议重新点击或者刷新一下网页。
-          对于某些较大的数字可能存在计算较慢的现象，但一般5秒左右能计算出结果。后续会继续优化计算速度。</p>
-        </div>
-      </div>
     </div>
   </div>
   );
