@@ -1,77 +1,78 @@
-
 .path-renderer-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 4px 8px 10px;
   font-family: "Rajdhani", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
-  padding: 4px 14px 10px;
-  max-width: 98%;
 }
 
-.title-row {
+.plan-list {
   display: flex;
-  align-items: baseline;
-  justify-content: center;
+  flex-direction: column;
+  gap: var(--ark-space-md);
+}
+
+.plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  margin-bottom: 6px;
+  min-width: 0;
+  padding: 12px;
+  background: var(--ark-surface-inset);
+  border: 1px solid var(--ark-border-subtle);
+  border-left: 3px solid var(--ark-primary-500);
+  border-radius: 0;
+  box-sizing: border-box;
 }
 
-.title {
+.plan-card-header {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 10px;
+  min-width: 0;
+}
+
+.plan-mark {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  min-height: 46px;
+  padding: 5px 10px;
+  background: var(--ark-primary-500);
+  color: #06101a;
+  border: 1px solid var(--ark-primary-300);
+  box-sizing: border-box;
+}
+
+.plan-mark-label {
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.14em;
+}
+
+.plan-mark-number {
   font-family: var(--ark-font-title);
-  font-size: 18px;
-  text-align: center;
-  font-weight: 600;
-  color: var(--ark-text-heading);
+  font-size: 1.55rem;
+  font-weight: 900;
+  line-height: 0.95;
 }
 
-/* 摘要栏 */
 .summary {
   display: flex;
-  gap: 16px;
-  justify-content: center;
   align-items: center;
-  padding: 8px 14px;
-  margin-bottom: 8px;
+  justify-content: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 8px 12px;
   background: var(--ark-surface-summary);
+  border: 1px solid var(--ark-border-default);
   border-radius: 0;
-  font-size: 15px;
   color: var(--ark-text-secondary);
-}
-
-.copy-btn {
-  margin-left: auto;
-  padding: 6px 16px;
-  border: 1.5px solid var(--ark-border-accent);
-  border-radius: 0;
-  background: var(--ark-neutral-50);
-  color: var(--ark-primary-700);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-}
-
-.copy-btn:hover {
-  background: var(--ark-primary-700);
-  color: #fff;
-  border-color: var(--ark-primary-700);
-}
-
-.copy-btn-done {
-  margin-left: auto;
-  padding: 6px 16px;
-  border: 1.5px solid var(--ark-success);
-  border-radius: 0;
-  background: var(--ark-success);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: default;
-  white-space: nowrap;
-  transition: all 0.2s;
-}
-
-.copy-btn-done:hover {
-  background: var(--ark-success);
-  border-color: var(--ark-success);
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
 .summary span {
@@ -80,9 +81,44 @@
 
 .summary strong {
   color: var(--ark-text-heading);
+  font-weight: 900;
 }
 
-/* 步骤卡片列表 */
+.copy-btn,
+.copy-btn-done {
+  min-width: 124px;
+  padding: 0 16px;
+  border-radius: 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s,
+              border-color 0.2s,
+              color 0.2s,
+              box-shadow 0.2s;
+}
+
+.copy-btn {
+  border: 1px solid var(--ark-border-accent);
+  background: var(--ark-input-bg);
+  color: var(--ark-primary-400);
+}
+
+.copy-btn:hover {
+  background: var(--ark-primary-500);
+  color: #06101a;
+  border-color: var(--ark-primary-300);
+  box-shadow: 0 0 12px rgba(43, 131, 198, 0.22);
+}
+
+.copy-btn-done {
+  border: 1px solid var(--ark-success);
+  background: var(--ark-success);
+  color: #fff;
+  cursor: default;
+}
+
 .step-list {
   display: flex;
   flex-direction: column;
@@ -97,7 +133,8 @@
   border-radius: 0;
   background: var(--ark-surface-card);
   border: 1px solid var(--ark-border-default);
-  font-size: 16px;
+  color: var(--ark-text-body);
+  font-size: 1rem;
   line-height: 1.5;
   transition: background-color 0.15s;
 }
@@ -115,8 +152,8 @@
   border-radius: 0;
   background: var(--ark-neutral-700);
   color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 800;
   flex-shrink: 0;
 }
 
@@ -132,9 +169,9 @@
   padding: 0 6px;
   background: var(--ark-surface-tag);
   border-radius: 0;
-  font-size: 14px;
   color: var(--ark-text-secondary);
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 700;
 }
 
 .step-right {
@@ -142,149 +179,50 @@
   align-items: baseline;
   gap: 6px;
   flex-shrink: 0;
+  margin-left: auto;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  margin-left: auto;
 }
 
 .gain {
-  font-weight: 700;
   color: var(--ark-success);
+  font-weight: 800;
 }
 
 .spend {
-  font-weight: 700;
   color: var(--ark-danger);
+  font-weight: 800;
 }
 
 .running-total {
-  color: var(--ark-text-secondary);
-  font-size: 14px;
-  font-weight: 700;
-  border-left: 1px solid var(--ark-border-default);
   padding-left: 6px;
+  border-left: 1px solid var(--ark-border-default);
+  color: var(--ark-text-secondary);
+  font-size: 0.88rem;
+  font-weight: 800;
 }
 
 .running-total-final {
-  color: var(--ark-primary-800);
-  font-size: 15px;
-  font-weight: 700;
+  padding: 1px 8px;
   border-left: 1px solid var(--ark-primary-300);
-  padding-left: 6px;
   background: var(--ark-primary-50);
+  color: var(--ark-primary-800);
   border-radius: 0;
-  padding: 1px 8px 1px 8px;
+  font-size: 0.94rem;
+  font-weight: 900;
 }
 
-/* 错误 */
 .path-renderer-error {
-  color: var(--ark-danger);
+  margin: 10px 0;
+  padding: 14px;
   border: 2px solid var(--ark-danger);
   border-radius: 0;
-  padding: 14px;
-  margin: 10px 0;
   background: var(--ark-danger-bg);
+  color: var(--ark-danger);
   text-align: center;
+  font-weight: 800;
 }
 
-/* 三栏布局容器 */
-.path-body {
-  display: grid;
-  grid-template-columns: 70px 1fr 70px;
-  gap: 0 6px;
-  align-items: start;
-}
-
-.side-nav {
-  width: 70px;
-  border-radius: 0;
-  border: 1.5px solid var(--ark-border-accent);
-  background: var(--ark-primary-50);
-  color: var(--ark-primary-500);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  transition: all 0.2s;
-  padding: 8px 4px;
-  line-height: 1.2;
-}
-
-.side-nav:hover {
-  background: var(--ark-primary-500);
-  color: #fff;
-  border-color: var(--ark-primary-500);
-}
-
-.side-nav:active {
-  transform: scale(0.96);
-}
-
-.side-nav-prev {
-  grid-column: 1;
-  grid-row: 1;
-  align-self: stretch;
-}
-
-.side-nav-next {
-  grid-column: 3;
-  grid-row: 1;
-  align-self: stretch;
-}
-
-.page-indicator {
-  font-size: 14px;
-  color: var(--ark-text-secondary);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.nav-arrow {
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.nav-text {
-  font-size: 12px;
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  letter-spacing: 0.08em;
-}
-
-.path-main-steps {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-/* 移动端方案切换（桌面端隐藏） */
-.mobile-nav-row {
-  display: none;
-}
-
-.mobile-nav-btn {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1.5px solid var(--ark-border-accent);
-  border-radius: 0;
-  background: var(--ark-primary-50);
-  color: var(--ark-primary-600);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.mobile-nav-btn:active {
-  transform: scale(0.97);
-  background: var(--ark-primary-100);
-}
-
-/* 彩蛋图片 */
 .romantic-image-container {
   margin-top: 12px;
   padding-top: 12px;
@@ -301,7 +239,29 @@
 
 @media (max-width: 800px) {
   .path-renderer-container {
-    padding: 8px 10px;
+    padding: 4px 0 8px;
+  }
+
+  .plan-card {
+    padding: 10px;
+  }
+
+  .plan-card-header {
+    grid-template-columns: 78px minmax(0, 1fr);
+  }
+
+  .summary {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 6px 10px;
+    font-size: 0.88rem;
+  }
+
+  .copy-btn,
+  .copy-btn-done {
+    grid-column: 1 / -1;
+    min-height: 34px;
+    width: 100%;
   }
 
   .step-card {
@@ -312,48 +272,13 @@
   .step-right {
     width: 100%;
     justify-content: space-between;
-    font-size: 13px;
+    font-size: 0.82rem;
   }
 
   .running-total,
   .running-total-final {
     border-left: none;
     padding-left: 0;
-  }
-
-  .mobile-nav-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .summary {
-    flex-wrap: wrap;
-    gap: 6px 12px;
-    font-size: 14px;
-    padding: 8px 12px;
-  }
-
-  .copy-btn,
-  .copy-btn-done {
-    margin-left: 0;
-    width: 100%;
-    text-align: center;
-    margin-top: 4px;
-  }
-
-  .path-body {
-    grid-template-columns: 1fr;
-    gap: 4px 6px;
-  }
-
-  .side-nav {
-    display: none;
-  }
-
-  .path-main-steps {
-    grid-column: 1;
-    grid-row: 1;
   }
 
   .romantic-image {

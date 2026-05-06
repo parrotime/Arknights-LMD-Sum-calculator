@@ -13,7 +13,7 @@ import ResultArea from "./components/ResultArea";
 import {
   romanticImageUrls, funnyImageUrl,
   isRomanticNumber, isFunnyNumber, useHeartEffect,
-  SettingsWarningModal, BonusModal,
+  SettingsWarningModal,
 } from "./components/EasterEggs";
 import styles from "./assets/styles/App.module.css";
 import { validateInput, buildLimits, buildCacheKey } from "./utils/calcLogic";
@@ -310,8 +310,6 @@ const managePathCache = (newKey) => {
 const MainCalculator = () => {
   const [state, dispatch] = useReducer(reducer, getInitialState());
   const [showModal, setShowModal] = useState(false);
-  const [showBonusModal, setShowBonusModal] = useState(false);
-  const [isBonusReady, setIsBonusReady] = useState(false);
   const [activeImageUrl, setActiveImageUrl] = useState("");
   const [heartsElement, triggerHeart] = useHeartEffect();
   const { setCalculating } = useCursorState();
@@ -493,39 +491,6 @@ const MainCalculator = () => {
     ]
   );
 
-  const handleChangePath = useCallback(
-    (delta) => {
-      if (state.pathCache.length > 0) {
-        if (isBonusReady) {
-          setShowBonusModal(true);
-        } else {
-          const newClickCount = state.clickCount + 1;
-          if (newClickCount === 29) {
-            setIsBonusReady(true);
-          }
-        }
-        dispatch({ type: "CHANGE_PATH", delta });
-      }
-    },
-    [state.pathCache.length, state.clickCount, isBonusReady]
-  );
-
-  // 键盘左右方向键切换路径
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (state.pathCache.length <= 1) return;
-      const tag = e.target.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-      if (e.key === 'ArrowLeft') {
-        handleChangePath(-1);
-      } else if (e.key === 'ArrowRight') {
-        handleChangePath(1);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleChangePath, state.pathCache.length]);
-
   return (
     <>
       <div className={styles['input-area']}>
@@ -552,8 +517,6 @@ const MainCalculator = () => {
           <ResultArea
             state={state}
             styles={styles}
-            handleChangePath={handleChangePath}
-            isBonusReady={isBonusReady}
             activeImageUrl={activeImageUrl}
             calcError={state.calcError}
             calcMeta={state.calcMeta}
@@ -568,14 +531,6 @@ const MainCalculator = () => {
           styles={styles}
         />
       )}
-      <BonusModal
-        show={showBonusModal}
-        onClose={() => {
-          setShowBonusModal(false);
-          setIsBonusReady(false);
-        }}
-        styles={styles}
-      />
       {heartsElement}
     </>
   );

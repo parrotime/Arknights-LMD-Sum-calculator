@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import { getItemById } from "../DataService";
 import { getRarityColor, computeStepData, computeRunningTotals } from "../utils/calcLogic";
@@ -6,29 +6,30 @@ import styles from "../assets/styles/PathRenderer.module.css";
 
 const CIRCLED_NUMS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
 
-const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, maxSteps, onPrevPath, onNextPath, isBonusReady, activeImageUrl,}) => {
-  const [copied, setCopied] = useState(false);
-  const stepListRef = useRef(null);
-  const stepHeightRef = useRef(0);
+const formatPlanNumber = (index) => String(index + 1).padStart(2, "0");
 
-  // 仅移动端：首次渲染后测量单步高度，用 maxSteps 预设 min-height 防止按钮跳动
-  useEffect(() => {
-    const el = stepListRef.current;
-    if (!el || !maxSteps) return;
-    const isMobile = window.matchMedia('(max-width: 800px)').matches;
-    if (!isMobile) {
-      el.style.minHeight = '';
-      return;
-    }
-    const cards = el.children;
-    if (cards.length > 0 && stepHeightRef.current === 0) {
-      stepHeightRef.current = cards[0].offsetHeight;
-    }
-    if (stepHeightRef.current > 0) {
-      const gap = 4; // step-list gap
-      el.style.minHeight = `${maxSteps * stepHeightRef.current + (maxSteps - 1) * gap}px`;
-    }
+const buildPathText = ({ safePath, stepData, runningTotals, startLMD, totalSanity, planIndex }) => {
+  const endLMD = runningTotals[runningTotals.length - 1];
+  const header = `【龙门币凑数计算器 ark-lmd.top | PLAN ${formatPlanNumber(planIndex)}】`;
+  const sanityPart = totalSanity > 0 ? ` | 消耗理智 ${totalSanity}` : "";
+  const summaryLine = `龙门币 ${startLMD} → ${endLMD} | 共 ${safePath.length} 步${sanityPart}`;
+
+  const lines = safePath.map((step, i) => {
+    const sd = stepData[i];
+    if (!sd) return `${i + 1}. 未知物品`;
+    const { item, stepValue } = sd;
+    const num = i < CIRCLED_NUMS.length ? CIRCLED_NUMS[i] : `${i + 1}.`;
+    const action = stepValue > 0 ? "获得" : "消耗";
+    const label = i === safePath.length - 1 ? "结果" : "当前";
+    const breakdown = step.count > 1 ? `(${Math.abs(item.item_value)}×${step.count}=)` : "";
+    return `${num} ${item.item_name} ×${step.count}次 → ${action} ${breakdown}${Math.abs(stepValue)} 龙门币（${label} ${runningTotals[i]}）`;
   });
+
+  return `${header}\n${summaryLine}\n\n${lines.join("\n")}`;
+};
+
+const PathPlanCard = ({ path, initialLMD, planIndex }) => {
+  const [copied, setCopied] = useState(false);
   const safePath = Array.isArray(path) ? path : [];
 
   if (safePath.length === 0) {
@@ -36,56 +37,38 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, maxSteps, onP
   }
 
   const startLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
-
   const { steps: stepData, totalSanity } = computeStepData(safePath, getItemById);
   const runningTotals = computeRunningTotals(stepData, startLMD);
-
-  const formatPathText = () => {
-    const endLMD = runningTotals[runningTotals.length - 1];
-    const header = `【龙门币凑数计算器 ark-lmd.top】`;
-    const sanityPart = totalSanity > 0 ? ` | 消耗理智 ${totalSanity}` : "";
-    const summaryLine = `龙门币 ${startLMD} → ${endLMD} | 共 ${safePath.length} 步${sanityPart}`;
-
-    const lines = safePath.map((step, i) => {
-      const sd = stepData[i];
-      if (!sd) return `${i + 1}. 未知物品`;
-      const { item, stepValue } = sd;
-      const num = i < CIRCLED_NUMS.length ? CIRCLED_NUMS[i] : `${i + 1}.`;
-      const action = stepValue > 0 ? "获得" : "消耗";
-      const label = i === safePath.length - 1 ? "结果" : "当前";
-      const breakdown = step.count > 1 ? `(${Math.abs(item.item_value)}×${step.count}=)` : "";
-      return `${num} ${item.item_name} ×${step.count}次 → ${action} ${breakdown}${Math.abs(stepValue)} 龙门币（${label} ${runningTotals[i]}）`;
-    });
-
-    return `${header}\n${summaryLine}\n\n${lines.join("\n")}`;
-  };
+  const endLMD = runningTotals[runningTotals.length - 1];
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(formatPathText());
+      await navigator.clipboard.writeText(
+        buildPathText({ safePath, stepData, runningTotals, startLMD, totalSanity, planIndex })
+      );
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch { /* clipboard not available */ }
+    } catch {
+      /* clipboard not available */
+    }
   };
 
   return (
-    <div className={styles['path-renderer-container']}>
-      <div className={styles['title-row']}>
-        <div className={styles.title}>参考路径方案</div>
-        {totalPaths > 1 && (
-          <div className={styles['page-indicator']}>
-            第 {currentIndex + 1}/{totalPaths} 个方案
-          </div>
-        )}
-      </div>
+    <article className={styles['plan-card']}>
+      <div className={styles['plan-card-header']}>
+        <div className={styles['plan-mark']} aria-label={`方案 ${planIndex + 1}`}>
+          <span className={styles['plan-mark-label']}>PLAN</span>
+          <span className={styles['plan-mark-number']}>{formatPlanNumber(planIndex)}</span>
+        </div>
 
-      {/* 摘要栏 */}
-      <div className={styles.summary}>
-        <span>共 <strong>{safePath.length}</strong> 步</span>
-        {totalSanity > 0 && <span>消耗理智 <strong>{totalSanity}</strong></span>}
-        <span>
-          龙门币 <strong>{startLMD}</strong> → <strong>{runningTotals[runningTotals.length - 1]}</strong>
-        </span>
+        <div className={styles.summary}>
+          <span>共 <strong>{safePath.length}</strong> 步</span>
+          {totalSanity > 0 && <span>消耗理智 <strong>{totalSanity}</strong></span>}
+          <span>
+            龙门币 <strong>{startLMD}</strong> → <strong>{endLMD}</strong>
+          </span>
+        </div>
+
         <button
           className={copied ? styles['copy-btn-done'] : styles['copy-btn']}
           onClick={handleCopy}
@@ -94,27 +77,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, maxSteps, onP
         </button>
       </div>
 
-      {/* 移动端方案切换按钮 */}
-      {totalPaths > 1 && (
-        <div className={styles['mobile-nav-row']}>
-          <button className={styles['mobile-nav-btn']} onClick={onPrevPath}>← 上一方案</button>
-          <button className={styles['mobile-nav-btn']} onClick={onNextPath}>下一方案 →</button>
-        </div>
-      )}
-
-      {/* 三栏布局：左按钮 | 内容 | 右按钮 */}
-      <div className={totalPaths > 1 ? styles['path-body'] : undefined}>
-        {totalPaths > 1 && (
-          <button
-            className={`${styles['side-nav']} ${styles['side-nav-prev']}`}
-            onClick={onPrevPath}
-          >
-            {isBonusReady ? "🎁" : <><span className={styles['nav-arrow']}>←</span>{safePath.length > 1 && <span className={styles['nav-text']}>上一方案</span>}</>}
-          </button>
-        )}
-
-        <div className={totalPaths > 1 ? styles['path-main-steps'] : undefined}>
-          <div className={styles['step-list']} ref={stepListRef}>
+      <div className={styles['step-list']}>
         {safePath.map((step, i) => {
           const sd = stepData[i];
           if (!sd) {
@@ -124,6 +87,7 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, maxSteps, onP
               </div>
             );
           }
+
           const { item, stepValue } = sd;
           const isGain = stepValue > 0;
 
@@ -147,20 +111,31 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, maxSteps, onP
             </div>
           );
         })}
-          </div>
-        </div>
+      </div>
+    </article>
+  );
+};
 
-        {totalPaths > 1 && (
-          <button
-            className={`${styles['side-nav']} ${styles['side-nav-next']}`}
-            onClick={onNextPath}
-          >
-            {isBonusReady ? "🎁" : <>{safePath.length > 1 && <span className={styles['nav-text']}>下一方案</span>}<span className={styles['nav-arrow']}>→</span></>}
-          </button>
-        )}
+const PathRenderer = ({ paths, initialLMD, activeImageUrl }) => {
+  const safePaths = Array.isArray(paths) ? paths : [];
+
+  if (safePaths.length === 0) {
+    return <div className={styles['path-renderer-error']}>没有找到合适的路径</div>;
+  }
+
+  return (
+    <div className={styles['path-renderer-container']}>
+      <div className={styles['plan-list']}>
+        {safePaths.map((path, index) => (
+          <PathPlanCard
+            key={`${index}-${path.length}`}
+            path={path}
+            initialLMD={initialLMD}
+            planIndex={index}
+          />
+        ))}
       </div>
 
-      {/* 彩蛋图片 */}
       {activeImageUrl && (
         <div className={styles['romantic-image-container']}>
           <img src={activeImageUrl} alt="Surprise" className={styles['romantic-image']} />
@@ -170,20 +145,22 @@ const PathRenderer = ({path, initialLMD, totalPaths, currentIndex, maxSteps, onP
   );
 };
 
-PathRenderer.propTypes = {
-  path: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      count: PropTypes.number.isRequired,
-    })
-  ).isRequired,
+const pathPropType = PropTypes.arrayOf(
+  PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    count: PropTypes.number.isRequired,
+  })
+);
+
+PathPlanCard.propTypes = {
+  path: pathPropType.isRequired,
   initialLMD: PropTypes.number.isRequired,
-  totalPaths: PropTypes.number,
-  currentIndex: PropTypes.number,
-  maxSteps: PropTypes.number,
-  onPrevPath: PropTypes.func,
-  onNextPath: PropTypes.func,
-  isBonusReady: PropTypes.bool,
+  planIndex: PropTypes.number.isRequired,
+};
+
+PathRenderer.propTypes = {
+  paths: PropTypes.arrayOf(pathPropType).isRequired,
+  initialLMD: PropTypes.number.isRequired,
   activeImageUrl: PropTypes.string,
 };
 

@@ -28,13 +28,26 @@ const LoadingTimer = ({ styles }) => {
 const ResultArea = ({
   state,
   styles,
-  handleChangePath,
-  isBonusReady,
   activeImageUrl,
   calcError,
   calcMeta,
 }) => (
   <div className={styles['history-box']}>
+    <div className={`${styles['title-bar']} ${styles['result-title-bar']}`}>
+      {calcMeta && !state.isCalculating && !calcError && (
+        <div className={styles['calc-meta-badge']}>
+          <span className={styles['calc-meta-label']}>
+            {calcMeta.fromCache ? "CACHE" : "TIME"}
+          </span>
+          <span className={styles['calc-meta-value']}>
+            {calcMeta.fromCache ? "从缓存读取" : `${calcMeta.elapsed}ms`}
+          </span>
+        </div>
+      )}
+      <h1>// [03] 推荐方案</h1>
+      <p className={styles['title-code']}>RECOMMENDED PLAN</p>
+    </div>
+
     {state.isCalculating ? (
       <LoadingTimer styles={styles} />
     ) : calcError ? (
@@ -44,38 +57,13 @@ const ResultArea = ({
       </div>
     ) : state.pathCache.length > 0 ? (
       <div className={styles['fade-in']}>
-        {calcMeta && (
-          <div className={styles['calc-meta-badge']}>
-            {calcMeta.fromCache
-              ? "从缓存读取"
-              : `计算耗时 ${calcMeta.elapsed}ms`}
-          </div>
-        )}
         <PathRenderer
-          path={state.pathCache[state.currentPathIndex] || []}
+          paths={state.pathCache}
           initialLMD={parseInt(state.num1) || 0}
-          totalPaths={state.pathCache.length}
-          currentIndex={state.currentPathIndex}
-          maxSteps={Math.max(...state.pathCache.map(p => p.length))}
-          onPrevPath={() => handleChangePath(-1)}
-          onNextPath={() => handleChangePath(1)}
-          isBonusReady={isBonusReady}
           activeImageUrl={activeImageUrl}
         />
       </div>
     ) : null}
-
-    {state.pathCache.length > 0 &&
-      state.clickCount >= 10 &&
-      state.clickCount < 30 && (
-        <div className={styles['change-over-text']}>
-          <p>
-            {state.clickCount < 20
-              ? "已经尝试过所有方案"
-              : "再按几次，好像有什么东西要出来了？"}
-          </p>
-        </div>
-      )}
   </div>
 );
 
