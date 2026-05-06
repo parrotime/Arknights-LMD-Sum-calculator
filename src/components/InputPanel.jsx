@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { computeDiff } from "../utils/calcLogic";
 
 const InputPanel = ({
@@ -12,6 +12,8 @@ const InputPanel = ({
   onClearLmdInput,
   settingsDirty,
 }) => {
+  const [pressedCalculate, setPressedCalculate] = useState(null);
+
   // 实时计算差值
   const diffInfo = useMemo(() => computeDiff(state.num1, state.num2), [state.num1, state.num2]);
   const diffLabel = diffInfo
@@ -110,6 +112,18 @@ const InputPanel = ({
     if (e.key === "Enter" && !state.isCalculating) {
       handleCalculate(e);
     }
+  };
+
+  const handleCalculateClick = (e, mode) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const originX = e.clientX
+      ? `${e.clientX - rect.left}px`
+      : "50%";
+
+    e.currentTarget.style.setProperty("--confirm-origin-x", originX);
+    setPressedCalculate(null);
+    requestAnimationFrame(() => setPressedCalculate(mode));
+    handleCalculate(e);
   };
 
   return (
@@ -347,15 +361,21 @@ const InputPanel = ({
 
           <div className={styles['action-buttons']}>
             <button
-              className={`${styles['calculate-button']} ${styles['calculate-button-fast']}`}
-              onClick={handleCalculate}
+              className={`${styles['calculate-button']} ${styles['calculate-button-fast']} ${
+                pressedCalculate === 'fast' ? styles['calculate-button-confirming'] : ''
+              }`}
+              onClick={(e) => handleCalculateClick(e, 'fast')}
+              onAnimationEnd={() => setPressedCalculate(null)}
               disabled={state.isCalculating}
             >
               {state.isCalculating ? "计算中..." : "快速计算模式"}
             </button>
             <button
-              className={`${styles['calculate-button']} ${styles['calculate-button-strong']}`}
-              onClick={handleCalculate}
+              className={`${styles['calculate-button']} ${styles['calculate-button-strong']} ${
+                pressedCalculate === 'strong' ? styles['calculate-button-confirming'] : ''
+              }`}
+              onClick={(e) => handleCalculateClick(e, 'strong')}
+              onAnimationEnd={() => setPressedCalculate(null)}
               disabled={state.isCalculating}
             >
               {state.isCalculating ? "计算中..." : "计算加强模式"}

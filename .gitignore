@@ -30,3 +30,6 @@ yarn-error.log*
 #backend
 /backend/node_modules
 /backend/.env
+
+
+JS_TO_TS_MIGRATION_PLAN.md

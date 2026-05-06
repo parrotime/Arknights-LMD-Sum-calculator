@@ -136,6 +136,9 @@
 
   /* 导航栏高度 */
   --ark-nav-height: 56px;
+
+  /* 设置面板 */
+  --ark-setting-keyword-color: #1e4d7a;
 }
 
 /* === 深色主题 === */
@@ -232,6 +235,9 @@
   --ark-gradient-end: #3a7ab0;
   --ark-gradient-hover-start: #1e4a7a;
   --ark-gradient-hover-end: #2a6a9e;
+
+  /* 设置面板 */
+  --ark-setting-keyword-color: #8ec8f5;
 }
 
 body {
