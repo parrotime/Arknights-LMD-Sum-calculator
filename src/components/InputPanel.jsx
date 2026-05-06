@@ -14,6 +14,13 @@ const InputPanel = ({
 }) => {
   // 实时计算差值
   const diffInfo = useMemo(() => computeDiff(state.num1, state.num2), [state.num1, state.num2]);
+  const diffLabel = diffInfo
+    ? diffInfo.value > 0
+      ? "还需获得龙门币"
+      : diffInfo.value < 0
+        ? "还需消耗龙门币"
+        : "无需调整龙门币"
+    : "还需龙门币";
 
   const limitGroups = [
     {
@@ -109,6 +116,7 @@ const InputPanel = ({
   <div className={`${styles['content-panel']} ${styles['left-panel']}`}>
     <div className={styles['title-bar']}>
       <h1>// [01] 罗德岛物资清点 </h1>
+      <p className={styles['title-code']}>RHODES ISLAND MATERIAL INVENTORY</p>
     </div>
 
     <div className={styles['main-content']}>
@@ -319,39 +327,40 @@ const InputPanel = ({
           <span className={styles['limit-block-title-main']}>操作区域</span>
           <span className={styles['limit-block-title-code']}>OPERATION AREA</span>
         </div>
-      </div>
+        <div className={styles['operation-row']}>
+          <div className={`${styles['diff-section']} ${
+            (state.error1 || state.error2 || state.differenceError)
+              ? styles['diff-out-of-range']
+              : diffInfo?.outOfRange ? styles['diff-out-of-range'] : ''
+          }`}>
+            <span className={styles['diff-label']}>{diffLabel}</span>
+            <span className={styles['diff-value']}>
+              {state.error1 || state.error2 || state.differenceError
+                ? (state.error1 || state.error2 || state.differenceError)
+                : diffInfo
+                  ? (diffInfo.outOfRange
+                      ? `${diffInfo.value}（超出 [-5000, 5000] 范围）`
+                      : diffInfo.value)
+                  : "—"}
+            </span>
+          </div>
 
-      <div className={styles['action-buttons']}>
-        <button
-          type="button"
-          className={styles['reset-inputs-btn']}
-          onClick={onResetInputs}
-        >
-          清空
-        </button>
-        <button
-          className={styles['calculate-button']}
-          onClick={handleCalculate}
-          disabled={state.isCalculating}
-        >
-          {state.isCalculating ? "计算中..." : "立即计算"}
-        </button>
-      </div>
-
-      <div className={styles['diff-section']}>
-        <div className={styles['diff-label']}>还需龙门币:</div>
-        <div className={`${styles['diff-value']} ${
-          (state.error1 || state.error2 || state.differenceError)
-            ? styles['diff-out-of-range']
-            : diffInfo?.outOfRange ? styles['diff-out-of-range'] : ''
-        }`}>
-          {state.error1 || state.error2 || state.differenceError
-            ? (state.error1 || state.error2 || state.differenceError)
-            : diffInfo
-              ? (diffInfo.outOfRange
-                  ? `${diffInfo.value}（超出 [-5000, 5000] 范围）`
-                  : diffInfo.value)
-              : "—"}
+          <div className={styles['action-buttons']}>
+            <button
+              className={`${styles['calculate-button']} ${styles['calculate-button-fast']}`}
+              onClick={handleCalculate}
+              disabled={state.isCalculating}
+            >
+              {state.isCalculating ? "计算中..." : "快速计算模式"}
+            </button>
+            <button
+              className={`${styles['calculate-button']} ${styles['calculate-button-strong']}`}
+              onClick={handleCalculate}
+              disabled={state.isCalculating}
+            >
+              {state.isCalculating ? "计算中..." : "计算加强模式"}
+            </button>
+          </div>
         </div>
       </div>
 
