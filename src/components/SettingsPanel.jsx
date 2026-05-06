@@ -18,7 +18,7 @@ const settingsOptions = [
   { text: "允许连续多次对精一1级干员进行升级", key: "allowUpgradeOnly1", highlight: "精一1级" },
   { text: "允许连续多次对精二1级干员进行升级", key: "allowUpgradeOnly2", highlight: "精二1级" },
   {
-    text: "只允许连续多次对精零/精一/精二1级干员进行升级",
+    text: "只允许连续多次对精零/一/二1级干员进行升级",
     key: "allowUpgradeOnlyFor1",
     highlight: "1级干员",
     helpText: [
@@ -35,35 +35,30 @@ const groups = [
     title: "理智使用设置",
     code: "SANITY USAGE SETTINGS",
     icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/AP_GAMEPLAY.webp",
-    column: "left",
+    layout: "sanity",
     items: settingsOptions.slice(0, 4),
   },
   {
     title: "基建相关设置",
     code: "BASE INFRASTRUCTURE SETTINGS",
     icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/premium_material_issue_voucher.webp",
-    column: "right",
+    layout: "base",
     items: settingsOptions.slice(4, 8),
   },
   {
     title: "代币使用设置",
     code: "TOKEN USAGE SETTINGS",
     icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/act2mainss_token_courage.webp",
-    column: "left",
+    layout: "token",
     items: settingsOptions.slice(8, 13),
   },
   {
     title: "干员相关设置",
     code: "OPERATOR SETTINGS",
     icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/sprite_exp_card_t4.webp",
-    column: "right",
+    layout: "operator",
     items: settingsOptions.slice(13),
   },
-];
-
-const columns = [
-  groups.filter((group) => group.column === "left"),
-  groups.filter((group) => group.column === "right"),
 ];
 
 const renderSettingText = (text, highlight, styles) => {
@@ -126,10 +121,8 @@ const SettingsPanel = ({ settings, onToggle, onReset, styles }) => {
 
       <div className={styles['toggle-wrapper']}>
         <div className={styles['settings-grid']}>
-          {columns.map((columnGroups, columnIndex) => (
-            <div className={styles['settings-column']} key={columnIndex}>
-              {columnGroups.map(({ title, code, icon, items }) => (
-                <section className={styles['settings-card']} key={title}>
+          {groups.map(({ title, code, icon, layout, items }) => (
+            <section className={`${styles['settings-card']} ${styles[`settings-card-${layout}`]}`} key={title}>
                   <div className={styles['settings-card-header']}>
                     <img
                       className={styles['settings-card-icon']}
@@ -144,39 +137,8 @@ const SettingsPanel = ({ settings, onToggle, onReset, styles }) => {
                   </div>
 
                   <div className={styles['settings-card-options']}>
-                    {items.map(({ text, key, highlight, helpText }) => (
-                      <div className={styles['toggle-container']} key={key}>
-                        <div className={styles['toggle-text']}>
-                          {renderSettingText(text, highlight, styles)}
-                          {helpText && (
-                            <span className={styles['setting-help-root']} data-setting-help-root="true">
-                              <button
-                                type="button"
-                                className={styles['setting-help-trigger']}
-                                aria-label="查看设置说明"
-                                aria-expanded={openHelpKey === key}
-                                onClick={() => setOpenHelpKey(openHelpKey === key ? null : key)}
-                              >
-                                ?
-                              </button>
-                              {openHelpKey === key && (
-                                <span className={styles['setting-help-popover']}>
-                                  <button
-                                    type="button"
-                                    className={styles['setting-help-close']}
-                                    aria-label="关闭设置说明"
-                                    onClick={() => setOpenHelpKey(null)}
-                                  >
-                                    ×
-                                  </button>
-                                  {helpText.map((line, index) => (
-                                    <span key={index}>{line}</span>
-                                  ))}
-                                </span>
-                              )}
-                            </span>
-                          )}
-                        </div>
+                    {items.map(({ text, key, highlight, helpText }) => {
+                      const switchControl = (
                         <label className={styles['toggle-switch']}>
                           <input
                             type="checkbox"
@@ -185,12 +147,66 @@ const SettingsPanel = ({ settings, onToggle, onReset, styles }) => {
                           />
                           <span className={styles.slider} />
                         </label>
-                      </div>
-                    ))}
+                      );
+
+                      const helpControl = helpText && (
+                        <span className={styles['setting-help-root']} data-setting-help-root="true">
+                          <button
+                            type="button"
+                            className={styles['setting-help-trigger']}
+                            aria-label="查看设置说明"
+                            aria-expanded={openHelpKey === key}
+                            onClick={() => setOpenHelpKey(openHelpKey === key ? null : key)}
+                            onMouseEnter={() => setOpenHelpKey(key)}
+                          >
+                            ?
+                          </button>
+                          {openHelpKey === key && (
+                            <span className={styles['setting-help-popover']}>
+                              <button
+                                type="button"
+                                className={styles['setting-help-close']}
+                                aria-label="关闭设置说明"
+                                onClick={() => setOpenHelpKey(null)}
+                              >
+                                ×
+                              </button>
+                              {helpText.map((line, index) => (
+                                <span key={index}>{line}</span>
+                              ))}
+                            </span>
+                          )}
+                        </span>
+                      );
+
+                      if (helpText) {
+                        return (
+                          <React.Fragment key={key}>
+                            <div className={`${styles['advanced-rule-header']} ${styles['toggle-text']}`}>
+                              <span className={styles['advanced-rule-badge']}>ADVANCED</span>
+                              {helpControl}
+                            </div>
+                            <div className={`${styles['toggle-container']} ${styles['toggle-container-advanced']}`}>
+                              <div className={styles['toggle-text']}>
+                                {renderSettingText(text, highlight, styles)}
+                              </div>
+                              {switchControl}
+                            </div>
+                          </React.Fragment>
+                        );
+                      }
+
+                      return (
+                        <div className={styles['toggle-container']} key={key}>
+                          <div className={styles['toggle-text']}>
+                            {renderSettingText(text, highlight, styles)}
+                          </div>
+                          {switchControl}
+                        </div>
+                      );
+                    })}
                   </div>
                 </section>
-              ))}
-            </div>
           ))}
         </div>
 

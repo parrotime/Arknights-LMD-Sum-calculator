@@ -139,6 +139,7 @@
 
   /* 设置面板 */
   --ark-setting-keyword-color: #1e4d7a;
+  --ark-setting-badge-text-color: #f8f9fb;
 }
 
 /* === 深色主题 === */
@@ -238,6 +239,7 @@
 
   /* 设置面板 */
   --ark-setting-keyword-color: #8ec8f5;
+  --ark-setting-badge-text-color: #07111d;
 }
 
 body {
