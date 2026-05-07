@@ -696,16 +696,18 @@ html, body, #root {
   letter-spacing: 0.02em;
 }
 
+.assistant-bubble-kaomoji {
+  display: block;
+  margin-top: 4px;
+  text-align: center;
+}
+
 .assistant-bubble-image-wrap {
   display: grid;
   place-items: center;
   min-height: 126px;
   padding: 9px;
-  background:
-    linear-gradient(rgba(122, 193, 248, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(122, 193, 248, 0.06) 1px, transparent 1px),
-    rgba(255, 255, 255, 0.035);
-  background-size: 14px 14px;
+  background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(122, 193, 248, 0.18);
   border-radius: 12px;
 }
@@ -738,11 +740,7 @@ html, body, #root {
 }
 
 [data-theme="light"] .assistant-bubble-image-wrap {
-  background:
-    linear-gradient(rgba(14, 93, 177, 0.09) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(14, 93, 177, 0.09) 1px, transparent 1px),
-    rgba(255, 255, 255, 0.52);
-  background-size: 14px 14px;
+  background: rgba(255, 255, 255, 0.52);
   border-color: rgba(14, 93, 177, 0.22);
 }
 

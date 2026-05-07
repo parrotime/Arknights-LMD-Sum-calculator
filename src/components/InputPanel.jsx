@@ -129,7 +129,7 @@ const InputPanel = ({
   return (
   <div className={`${styles['content-panel']} ${styles['left-panel']}`}>
     <div className={styles['title-bar']}>
-      <h1>// [01] 罗德岛物资清点 </h1>
+      <h1 data-assistant-anchor="main-title">// [01] 罗德岛物资清点 </h1>
       <p className={styles['title-code']}>RHODES ISLAND MATERIAL INVENTORY</p>
     </div>
 

@@ -8,6 +8,8 @@ export const romanticImageUrls = [
   "https://ark-lmd.oss-cn-beijing.aliyuncs.com/rosmontis4.webp",
 ];
 export const funnyImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/114514.webp";
+export const zc325ImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/zc325.webp";
+export const sami325ImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/799is325.webp";
 
 const romanticClickEffects = [
   { type: "text", value: "" },
@@ -41,6 +43,14 @@ export const isFunnyNumber = (numStr) => {
   if (num >= 1919810 && num % 1919810 === 0 && isPowerOfTen(num / 1919810)) return true;
   return false;
 };
+
+export const isZc325Number = (numStr) => (
+  typeof numStr === "string" && numStr.includes("325")
+);
+
+export const isSami325Number = (numStr) => (
+  typeof numStr === "string" && numStr.includes("799") && numStr.includes("325")
+);
 
 // 爱心特效 hook
 let heartId = 0;

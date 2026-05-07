@@ -11,8 +11,8 @@ import InputPanel from "./components/InputPanel";
 import SettingsPanel from "./components/SettingsPanel";
 import ResultArea from "./components/ResultArea";
 import {
-  romanticImageUrls, funnyImageUrl,
-  isRomanticNumber, isFunnyNumber, useHeartEffect,
+  romanticImageUrls, funnyImageUrl, zc325ImageUrl, sami325ImageUrl,
+  isRomanticNumber, isFunnyNumber, isZc325Number, isSami325Number, useHeartEffect,
   SettingsWarningModal,
 } from "./components/EasterEggs";
 import styles from "./assets/styles/App.module.css";
@@ -114,6 +114,24 @@ const PERSISTED_KEYS = [
   "trade5Count",
 ];
 
+const SIGNATURE_KEYS = [
+  "num1",
+  "num2",
+  "upgrade0Count",
+  "upgrade1Count",
+  "upgrade2Count",
+  "sanityCount",
+  "trade2Count",
+  "trade3Count",
+  "trade4Count",
+  "trade5Count",
+];
+
+const buildResultSignature = (state) => JSON.stringify({
+  inputs: Object.fromEntries(SIGNATURE_KEYS.map((key) => [key, state[key] ?? ""])),
+  settings: state.settings,
+});
+
 const getInitialState = () => {
   const saved = localStorage.getItem("calculatorState");
   if (saved) {
@@ -123,6 +141,16 @@ const getInitialState = () => {
       if (key in parsed) restored[key] = parsed[key];
     }
     restored.settings = { ...defaultState.settings, ...migrateSettings(restored.settings) };
+    const resultSnapshot = parsed.resultSnapshot;
+    if (
+      resultSnapshot?.signature === buildResultSignature(restored) &&
+      (Array.isArray(resultSnapshot.pathCache) || resultSnapshot.calcError)
+    ) {
+      restored.result = resultSnapshot.result || "";
+      restored.calcError = resultSnapshot.calcError || "";
+      restored.calcMeta = resultSnapshot.calcMeta || null;
+      restored.pathCache = Array.isArray(resultSnapshot.pathCache) ? resultSnapshot.pathCache : [];
+    }
     return restored;
   }
   return {
@@ -131,17 +159,27 @@ const getInitialState = () => {
   };
 };
 
+const clearResultState = (state) => ({
+  ...state,
+  result: "",
+  calcError: "",
+  calcMeta: null,
+  pathCache: [],
+  currentPathIndex: 0,
+  clickCount: 0,
+});
+
 const reducer = (state, action) => {
   switch (action.type) {
     case "SET_NUM":
       return {
-        ...state,
+        ...clearResultState(state),
         [action.field]: action.value,
         [`error${action.field.slice(-1)}`]: "",
       };
     case "CLEAR_LMD_INPUT":
       return {
-        ...state,
+        ...clearResultState(state),
         [action.field]: "",
         [`error${action.field.slice(-1)}`]: "",
         differenceError: "",
@@ -186,7 +224,7 @@ const reducer = (state, action) => {
       };
     case "TOGGLE_SETTING":
       return {
-        ...state,
+        ...clearResultState(state),
         settings: {
           ...state.settings,
           [action.key]: !state.settings[action.key],
@@ -203,13 +241,13 @@ const reducer = (state, action) => {
       };
     case "SET_UPGRADE_COUNT":
       return {
-        ...state,
+        ...clearResultState(state),
         [action.field]: action.value,
         settingsDirty: true,
       };
     case "SWAP_NUMS":
       return {
-        ...state,
+        ...clearResultState(state),
         num1: state.num2,
         num2: state.num1,
         error1: "",
@@ -217,7 +255,7 @@ const reducer = (state, action) => {
       };
     case "RESET_INPUTS":
       return {
-        ...state,
+        ...clearResultState(state),
         num1: "",
         num2: "",
         result: "",
@@ -232,13 +270,10 @@ const reducer = (state, action) => {
         trade3Count: "",
         trade4Count: "",
         trade5Count: "",
-        pathCache: [],
-        currentPathIndex: 0,
-        clickCount: 0,
       };
     case "RESET_SETTINGS":
       return {
-        ...state,
+        ...clearResultState(state),
         settings: { ...defaultState.settings, ...freshDefaults },
         upgrade0Count: "",
         upgrade1Count: "",
@@ -316,11 +351,24 @@ const MainCalculator = ({ onAssistantEgg }) => {
   useEffect(() => {
     const toSave = {};
     for (const key of PERSISTED_KEYS) toSave[key] = state[key];
+    if (state.pathCache.length > 0 || state.calcError) {
+      toSave.resultSnapshot = {
+        signature: buildResultSignature(state),
+        result: state.result,
+        calcError: state.calcError,
+        calcMeta: state.calcMeta,
+        pathCache: state.pathCache,
+      };
+    }
     localStorage.setItem("calculatorState", JSON.stringify(toSave));
   }, [
     state.settings,
     state.num1,
     state.num2,
+    state.result,
+    state.calcError,
+    state.calcMeta,
+    state.pathCache,
     state.upgrade0Count,
     state.upgrade1Count,
     state.upgrade2Count,
@@ -424,6 +472,16 @@ const MainCalculator = ({ onAssistantEgg }) => {
         onAssistantEgg?.({
           imageUrl: funnyImageUrl,
           type: "funny",
+        });
+      } else if (isSami325Number(state.num2)) {
+        onAssistantEgg?.({
+          imageUrl: sami325ImageUrl,
+          type: "sami325",
+        });
+      } else if (isZc325Number(state.num2)) {
+        onAssistantEgg?.({
+          imageUrl: zc325ImageUrl,
+          type: "zc325",
         });
       } else {
         onAssistantEgg?.(null);
