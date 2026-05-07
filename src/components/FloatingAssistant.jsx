@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 
 const DRAG_THRESHOLD = 5;
 const BUTTON_SIZE = 64;
-const BUBBLE_WIDTH = 252;
+const BUBBLE_WIDTH = 300;
 const BUBBLE_GAP = 14;
+const BUBBLE_POINTER_SIZE = 18;
 const WELCOME_MESSAGE = "博士你好，点击我可以快速到达网页底部或者回到顶部哦";
 const FAST_DRAG_SPEED_THRESHOLD = 1.5;
 const FAST_DRAG_MIN_DISTANCE_RATIO = 1.5;
@@ -24,13 +25,19 @@ const getTitleAnchorPos = () => {
   const anchor = document.querySelector(TITLE_ANCHOR_SELECTOR);
   if (!anchor) return getDefaultPos();
   const rect = anchor.getBoundingClientRect();
+  const titleBar = anchor.closest("div");
+  const titleCode = titleBar?.querySelector("p");
+  const titleCodeRect = titleCode?.getBoundingClientRect();
+  const groupTop = rect.top;
+  const groupBottom = titleCodeRect ? titleCodeRect.bottom : rect.bottom;
   return clampPosition({
-    x: rect.right + 16,
-    y: rect.top + rect.height / 2 - BUTTON_SIZE / 2,
+    x: rect.right + 14,
+    y: groupTop + (groupBottom - groupTop) / 2 - BUTTON_SIZE / 2,
   });
 };
 
 const getAssistantMessage = (type) => {
+  if (type === "recalculate") return "计算设置发生变化，请注意重新计算";
   if (type === "dizzy") {
     return {
       text: "博士快停下，我要晕掉了",
@@ -66,6 +73,13 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   const [btnPos, setBtnPos] = useState(() => getTitleAnchorPos());
   const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
+
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const timer = window.requestAnimationFrame(() => {
@@ -274,21 +288,35 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
     resetPointerDrag(e, false);
   }, [resetPointerDrag]);
 
+  const assistantMessage = assistantEgg?.message ?? getAssistantMessage(assistantEgg?.type);
+  const dragEggMessage = getAssistantMessage("dizzy");
+  const showAssistantBubble = assistantVisible && !!assistantEgg;
+  const showDragBubble = dragEggVisible && !showAssistantBubble;
+  const showWelcomeBubble = welcomeVisible && !showAssistantBubble && !showDragBubble;
+  const activeMessage = showDragBubble ? dragEggMessage : assistantMessage;
   const bubblePlacement = btnPos.x + BUTTON_SIZE + BUBBLE_GAP + BUBBLE_WIDTH > window.innerWidth
     ? "left"
     : "right";
+  const bubbleHasImage = showAssistantBubble && assistantEgg?.imageUrl;
+  const estimatedBubbleHeight = bubbleHasImage ? 252 : 86;
+  const assistantCenterY = btnPos.y + BUTTON_SIZE / 2;
   const assistantBubbleStyle = {
-    top: Math.min(Math.max(btnPos.y - 112, 72), Math.max(window.innerHeight - 260, 72)),
+    top: Math.min(
+      Math.max(assistantCenterY - estimatedBubbleHeight / 2, 72),
+      Math.max(window.innerHeight - estimatedBubbleHeight - 16, 72)
+    ),
     left: bubblePlacement === "right"
       ? btnPos.x + BUTTON_SIZE + BUBBLE_GAP
       : Math.max(btnPos.x - BUBBLE_WIDTH - BUBBLE_GAP, 8),
   };
-  const assistantMessage = getAssistantMessage(assistantEgg?.type);
-  const dragEggMessage = getAssistantMessage("dizzy");
-  const showDragBubble = dragEggVisible && !assistantEgg;
-  const showWelcomeBubble = welcomeVisible && !assistantEgg && !showDragBubble;
-  const showAssistantBubble = assistantVisible && assistantEgg?.imageUrl;
-  const activeMessage = showDragBubble ? dragEggMessage : assistantMessage;
+  const bubblePointerTop = Math.min(
+    Math.max(
+      btnPos.y + BUTTON_SIZE / 2 - assistantBubbleStyle.top,
+      22
+    ),
+    bubbleHasImage ? 158 : estimatedBubbleHeight - 22
+  );
+  assistantBubbleStyle["--assistant-pointer-top"] = `${bubblePointerTop}px`;
 
   return (
     <>
@@ -334,7 +362,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
               </>
             )}
           </p>
-          {showAssistantBubble && (
+          {showAssistantBubble && assistantEgg.imageUrl && (
             <div className="assistant-bubble-image-wrap">
               <img
                 src={assistantEgg.imageUrl}

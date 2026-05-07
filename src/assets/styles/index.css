@@ -612,7 +612,7 @@ html, body, #root {
 .assistant-bubble {
   position: fixed;
   z-index: 1002;
-  width: 252px;
+  width: min(300px, calc(100vw - 24px));
   padding: 14px 14px 13px;
   box-sizing: border-box;
   background:
@@ -630,18 +630,19 @@ html, body, #root {
 .assistant-bubble::before {
   content: "";
   position: absolute;
-  top: 140px;
+  top: var(--assistant-pointer-top, 50%);
   width: 18px;
   height: 18px;
-  background: var(--ark-surface-inset);
-  border-bottom: 1px solid rgba(122, 193, 248, 0.38);
-  border-left: 1px solid rgba(122, 193, 248, 0.38);
-  transform: rotate(45deg);
+  background:
+    linear-gradient(135deg, rgba(122, 193, 248, 0.18), transparent 100%),
+    var(--ark-surface-inset);
+  transform: translateY(-50%) rotate(45deg);
+  filter: drop-shadow(0 0 0.5px rgba(122, 193, 248, 0.65))
+          drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
 }
 
 .assistant-bubble-right::before {
   left: -7px;
-  transform: rotate(45deg);
 }
 
 .assistant-bubble-right {
@@ -650,9 +651,9 @@ html, body, #root {
 
 .assistant-bubble-left::before {
   right: -7px;
-  border: 0;
-  border-top: 1px solid rgba(122, 193, 248, 0.38);
-  border-right: 1px solid rgba(122, 193, 248, 0.38);
+  background:
+    linear-gradient(315deg, rgba(122, 193, 248, 0.18), transparent 100%),
+    var(--ark-surface-inset);
 }
 
 .assistant-bubble-left {
@@ -694,6 +695,9 @@ html, body, #root {
   font-weight: 800;
   line-height: 1.45;
   letter-spacing: 0.02em;
+  text-wrap: pretty;
+  word-break: auto-phrase;
+  overflow-wrap: anywhere;
 }
 
 .assistant-bubble-kaomoji {
@@ -731,8 +735,15 @@ html, body, #root {
 }
 
 [data-theme="light"] .assistant-bubble::before {
-  background: #f4f7fb;
-  border-color: rgba(14, 93, 177, 0.42);
+  background:
+    linear-gradient(135deg, rgba(14, 93, 177, 0.12), transparent 100%),
+    #f4f7fb;
+}
+
+[data-theme="light"] .assistant-bubble-left::before {
+  background:
+    linear-gradient(315deg, rgba(14, 93, 177, 0.12), transparent 100%),
+    #f4f7fb;
 }
 
 [data-theme="light"] .assistant-bubble-text {

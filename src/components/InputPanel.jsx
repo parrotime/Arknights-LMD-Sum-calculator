@@ -10,19 +10,30 @@ const InputPanel = ({
   onSwap,
   onResetInputs,
   onClearLmdInput,
-  settingsDirty,
 }) => {
   const [pressedCalculate, setPressedCalculate] = useState(null);
 
   // 实时计算差值
   const diffInfo = useMemo(() => computeDiff(state.num1, state.num2), [state.num1, state.num2]);
-  const diffLabel = diffInfo
+  const diffAmount = diffInfo ? Math.abs(diffInfo.value).toLocaleString("zh-CN") : "";
+  const hasInputError = !!(state.error1 || state.error2);
+  const isDiffOutOfRange = hasInputError || diffInfo?.outOfRange;
+  const diffText = hasInputError || diffInfo?.outOfRange
+    ? "超出范围"
+    : diffInfo
+      ? diffInfo.value > 0
+        ? `需获取 ${diffAmount} 龙门币`
+        : diffInfo.value < 0
+          ? `需消耗 ${diffAmount} 龙门币`
+          : "无需变化"
+      : "—";
+  const diffToneClass = diffInfo
     ? diffInfo.value > 0
-      ? "还需获得龙门币"
+      ? styles['diff-gain']
       : diffInfo.value < 0
-        ? "还需消耗龙门币"
-        : "无需调整龙门币"
-    : "还需龙门币";
+        ? styles['diff-spend']
+        : styles['diff-zero']
+    : "";
 
   const limitGroups = [
     {
@@ -129,7 +140,9 @@ const InputPanel = ({
   return (
   <div className={`${styles['content-panel']} ${styles['left-panel']}`}>
     <div className={styles['title-bar']}>
-      <h1 data-assistant-anchor="main-title">// [01] 罗德岛物资清点 </h1>
+      <h1>
+        <span data-assistant-anchor="main-title">// [01] 罗德岛物资清点</span>
+      </h1>
       <p className={styles['title-code']}>RHODES ISLAND MATERIAL INVENTORY</p>
     </div>
 
@@ -330,12 +343,6 @@ const InputPanel = ({
         </div>
       </div>
 
-      {settingsDirty && state.pathCache.length > 0 && (
-        <div className={styles['settings-dirty-hint']}>
-          设置发生更改，请重新计算结果
-        </div>
-      )}
-
       <div className={styles['operation-section']}>
         <div className={styles['limit-block-title']}>
           <span className={styles['limit-block-title-main']}>操作区域</span>
@@ -343,20 +350,9 @@ const InputPanel = ({
         </div>
         <div className={styles['operation-row']}>
           <div className={`${styles['diff-section']} ${
-            (state.error1 || state.error2 || state.differenceError)
-              ? styles['diff-out-of-range']
-              : diffInfo?.outOfRange ? styles['diff-out-of-range'] : ''
+            isDiffOutOfRange ? styles['diff-out-of-range'] : diffToneClass
           }`}>
-            <span className={styles['diff-label']}>{diffLabel}</span>
-            <span className={styles['diff-value']}>
-              {state.error1 || state.error2 || state.differenceError
-                ? (state.error1 || state.error2 || state.differenceError)
-                : diffInfo
-                  ? (diffInfo.outOfRange
-                      ? `${diffInfo.value}（超出 [-5000, 5000] 范围）`
-                      : diffInfo.value)
-                  : "—"}
-            </span>
+            <span className={styles['diff-value']}>{diffText}</span>
           </div>
 
           <div className={styles['action-buttons']}>

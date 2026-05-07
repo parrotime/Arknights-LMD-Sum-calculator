@@ -169,6 +169,10 @@ const clearResultState = (state) => ({
   clickCount: 0,
 });
 
+const shouldNotifyResultInvalidated = (state) => (
+  state.pathCache.length > 0 || !!state.calcError || !!state.result
+);
+
 const reducer = (state, action) => {
   switch (action.type) {
     case "SET_NUM":
@@ -211,6 +215,7 @@ const reducer = (state, action) => {
         currentPathIndex: 0,
         clickCount: 0,
         settingsDirty: false,
+        resultInvalidated: false,
       };
     case "APPEND_HISTORY":
       return {
@@ -230,6 +235,7 @@ const reducer = (state, action) => {
           [action.key]: !state.settings[action.key],
         },
         settingsDirty: true,
+        resultInvalidated: shouldNotifyResultInvalidated(state),
       };
     case "CHANGE_PATH":
       return {
@@ -284,6 +290,12 @@ const reducer = (state, action) => {
         trade4Count: "",
         trade5Count: "",
         settingsDirty: true,
+        resultInvalidated: shouldNotifyResultInvalidated(state),
+      };
+    case "ACK_RESULT_INVALIDATED":
+      return {
+        ...state,
+        resultInvalidated: false,
       };
     default:
       return state;
@@ -348,6 +360,21 @@ const MainCalculator = ({ onAssistantEgg }) => {
   const [heartsElement, triggerHeart] = useHeartEffect();
   const { setCalculating } = useCursorState();
 
+  const showAssistantText = useCallback((message, priority = "normal") => {
+    onAssistantEgg?.({
+      type: "message",
+      message,
+      priority,
+    });
+  }, [onAssistantEgg]);
+
+  const getDifferenceAssistantMessage = useCallback((difference) => {
+    const amount = Math.abs(difference).toLocaleString("zh-CN");
+    if (difference > 0) return `还需要获得 ${amount} 龙门币`;
+    if (difference < 0) return `还需要消耗 ${amount} 龙门币`;
+    return "当前龙门币数量已经和目标一致";
+  }, []);
+
   useEffect(() => {
     const toSave = {};
     for (const key of PERSISTED_KEYS) toSave[key] = state[key];
@@ -383,6 +410,15 @@ const MainCalculator = ({ onAssistantEgg }) => {
   useEffect(() => {
     setCalculating(state.isCalculating);
   }, [state.isCalculating, setCalculating]);
+
+  useEffect(() => {
+    if (!state.resultInvalidated) return;
+    onAssistantEgg?.({
+      type: "recalculate",
+      priority: "high",
+    });
+    dispatch({ type: "ACK_RESULT_INVALIDATED" });
+  }, [onAssistantEgg, state.resultInvalidated]);
 
   //处理弹窗逻辑
   useEffect(() => {
@@ -491,11 +527,20 @@ const MainCalculator = ({ onAssistantEgg }) => {
       const validation = validateInput(state.num1, state.num2);
       if (validation.error) {
         dispatch({ type: "SET_ERROR", field: "differenceError", value: validation.error });
+        showAssistantText(validation.error, "high");
         if (state.num1 && state.num2) dispatch({ type: "SET_RESULT", value: "" });
         return;
       }
 
       const { difference, num1Val, num2Val } = validation;
+      const hasAssistantEasterEgg =
+        isRomanticNumber(state.num2) ||
+        isFunnyNumber(state.num2) ||
+        isSami325Number(state.num2) ||
+        isZc325Number(state.num2);
+      if (!hasAssistantEasterEgg) {
+        showAssistantText(getDifferenceAssistantMessage(difference));
+      }
       dispatch({ type: "SET_ERROR", field: "differenceError", value: "" });
       dispatch({ type: "SET_CALC_ERROR", value: "" });
       dispatch({ type: "SET_CALC_META", value: null });
@@ -552,6 +597,8 @@ const MainCalculator = ({ onAssistantEgg }) => {
       state.trade4Count,
       state.trade5Count,
       onAssistantEgg,
+      showAssistantText,
+      getDifferenceAssistantMessage,
     ]
   );
 
@@ -569,7 +616,6 @@ const MainCalculator = ({ onAssistantEgg }) => {
               onSwap={handleSwapNums}
               onResetInputs={handleResetInputs}
               onClearLmdInput={handleClearLmdInput}
-              settingsDirty={state.settingsDirty}
             />
             <SettingsPanel
               settings={state.settings}
@@ -601,19 +647,31 @@ const MainCalculator = ({ onAssistantEgg }) => {
 
 const AppContent = () => {
   const [assistantEgg, setAssistantEgg] = useState(null);
+  const assistantEggRef = React.useRef(null);
 
   const handleAssistantEgg = useCallback((payload) => {
-    if (!payload?.imageUrl) {
+    if (!payload || (!payload.imageUrl && !payload.type && !payload.message)) {
       setAssistantEgg(null);
+      assistantEggRef.current = null;
       return;
     }
-    setAssistantEgg({ ...payload, id: Date.now() });
+    setAssistantEgg((current) => {
+      if (current?.priority === "high" && payload.priority !== "high") {
+        return current;
+      }
+      const next = { ...payload, id: Date.now() };
+      assistantEggRef.current = next;
+      return next;
+    });
   }, []);
 
   return (
     <Layout
       assistantEgg={assistantEgg}
-      onAssistantEggClose={() => setAssistantEgg(null)}
+      onAssistantEggClose={() => {
+        assistantEggRef.current = null;
+        setAssistantEgg(null);
+      }}
     >
       <Suspense fallback={<div style={{ textAlign: "center", padding: "2rem" }}>加载中…</div>}>
         <Routes>
