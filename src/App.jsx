@@ -307,10 +307,9 @@ const managePathCache = (newKey) => {
 };
 
 // 主计算组件
-const MainCalculator = () => {
+const MainCalculator = ({ onAssistantEgg }) => {
   const [state, dispatch] = useReducer(reducer, getInitialState());
   const [showModal, setShowModal] = useState(false);
-  const [activeImageUrl, setActiveImageUrl] = useState("");
   const [heartsElement, triggerHeart] = useHeartEffect();
   const { setCalculating } = useCursorState();
 
@@ -417,11 +416,17 @@ const MainCalculator = () => {
       // 彩蛋检测
       if (isRomanticNumber(state.num2)) {
         triggerHeart(event);
-        setActiveImageUrl(romanticImageUrls[Math.floor(Math.random() * romanticImageUrls.length)]);
+        onAssistantEgg?.({
+          imageUrl: romanticImageUrls[Math.floor(Math.random() * romanticImageUrls.length)],
+          type: "romantic",
+        });
       } else if (isFunnyNumber(state.num2)) {
-        setActiveImageUrl(funnyImageUrl);
+        onAssistantEgg?.({
+          imageUrl: funnyImageUrl,
+          type: "funny",
+        });
       } else {
-        setActiveImageUrl("");
+        onAssistantEgg?.(null);
       }
 
       // 输入验证
@@ -488,6 +493,7 @@ const MainCalculator = () => {
       state.trade3Count,
       state.trade4Count,
       state.trade5Count,
+      onAssistantEgg,
     ]
   );
 
@@ -517,7 +523,6 @@ const MainCalculator = () => {
           <ResultArea
             state={state}
             styles={styles}
-            activeImageUrl={activeImageUrl}
             calcError={state.calcError}
             calcMeta={state.calcMeta}
           />
@@ -536,19 +541,38 @@ const MainCalculator = () => {
   );
 };
 
+const AppContent = () => {
+  const [assistantEgg, setAssistantEgg] = useState(null);
+
+  const handleAssistantEgg = useCallback((payload) => {
+    if (!payload?.imageUrl) {
+      setAssistantEgg(null);
+      return;
+    }
+    setAssistantEgg({ ...payload, id: Date.now() });
+  }, []);
+
+  return (
+    <Layout
+      assistantEgg={assistantEgg}
+      onAssistantEggClose={() => setAssistantEgg(null)}
+    >
+      <Suspense fallback={<div style={{ textAlign: "center", padding: "2rem" }}>加载中…</div>}>
+        <Routes>
+          <Route path="/" element={<MainCalculator onAssistantEgg={handleAssistantEgg} />} />
+          <Route path="/note" element={<NotePage />} />
+          <Route path="/data" element={<DataPage />} />
+          <Route path="/about" element={<AboutPage />} />
+        </Routes>
+      </Suspense>
+    </Layout>
+  );
+};
+
 const App = () => (
   <CursorProvider>
     <Router>
-      <Layout>
-        <Suspense fallback={<div style={{ textAlign: "center", padding: "2rem" }}>加载中…</div>}>
-          <Routes>
-            <Route path="/" element={<MainCalculator />} />
-            <Route path="/note" element={<NotePage />} />
-            <Route path="/data" element={<DataPage />} />
-            <Route path="/about" element={<AboutPage />} />
-          </Routes>
-        </Suspense>
-      </Layout>
+      <AppContent />
     </Router>
   </CursorProvider>
 );

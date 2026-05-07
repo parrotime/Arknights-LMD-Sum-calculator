@@ -9,6 +9,13 @@ export const romanticImageUrls = [
 ];
 export const funnyImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/114514.webp";
 
+const romanticClickEffects = [
+  { type: "text", value: "" },
+  { type: "image", value: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq06.webp" },
+  { type: "image", value: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq17.webp" },
+  { type: "image", value: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq37.webp" },
+];
+
 // 检测函数
 const isPowerOfTen = (n) => {
   if (n <= 0) return false;
@@ -41,15 +48,19 @@ export const useHeartEffect = () => {
   const [hearts, setHearts] = useState([]);
   const triggerHeart = useCallback((event) => {
     const id = ++heartId;
-    setHearts((prev) => [...prev, { id, x: event.clientX, y: event.clientY }]);
+    const effect = romanticClickEffects[Math.floor(Math.random() * romanticClickEffects.length)];
+    const x = typeof event?.clientX === "number" ? event.clientX : window.innerWidth / 2;
+    const y = typeof event?.clientY === "number" ? event.clientY : window.innerHeight / 2;
+    setHearts((prev) => [...prev, { id, x, y, effect }]);
   }, []);
-  const heartsElement = hearts.map(({ id, x, y }) => (
+  const heartsElement = hearts.map(({ id, x, y, effect }) => (
     <div
       key={id}
-      className="love-heart"
+      className={`love-heart ${effect.type === "image" ? "love-heart-image" : "love-heart-text"}`}
       style={{ left: `${x}px`, top: `${y}px` }}
       onAnimationEnd={() => setHearts((prev) => prev.filter((h) => h.id !== id))}
     >
+      {effect.type === "image" && <img className="love-heart-icon" src={effect.value} alt="" />}
       ❤️
     </div>
   ));

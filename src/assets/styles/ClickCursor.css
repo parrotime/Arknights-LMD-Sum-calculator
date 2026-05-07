@@ -11,7 +11,8 @@
   body.custom-cursor-active textarea,
   body.custom-cursor-active select,
   body.custom-cursor-active [contenteditable="true"],
-  body.custom-cursor-active [contenteditable=""] {
+  body.custom-cursor-active [contenteditable=""],
+  body.custom-cursor-active .back-to-top {
     cursor: auto !important;
   }
 
@@ -41,7 +42,7 @@
   pointer-events: none;
   z-index: 99999;
   will-change: transform;
-  transition: opacity 0.15s ease;
+  transition: none;
 }
 
 /* 内层：负责缩放动画 + 旋转 */

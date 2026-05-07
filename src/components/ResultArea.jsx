@@ -28,7 +28,6 @@ const LoadingTimer = ({ styles }) => {
 const ResultArea = ({
   state,
   styles,
-  activeImageUrl,
   calcError,
   calcMeta,
 }) => {
@@ -65,7 +64,6 @@ const ResultArea = ({
           <PathRenderer
             paths={state.pathCache}
             initialLMD={parseInt(state.num1) || 0}
-            activeImageUrl={activeImageUrl}
           />
         </div>
       ) : null}

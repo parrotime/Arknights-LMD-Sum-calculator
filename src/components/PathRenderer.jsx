@@ -128,7 +128,7 @@ const PathPlanCard = ({ path, initialLMD, planIndex }) => {
   );
 };
 
-const PathRenderer = ({ paths, initialLMD, activeImageUrl }) => {
+const PathRenderer = ({ paths, initialLMD }) => {
   const safePaths = Array.isArray(paths) ? paths : [];
 
   if (safePaths.length === 0) {
@@ -148,11 +148,6 @@ const PathRenderer = ({ paths, initialLMD, activeImageUrl }) => {
         ))}
       </div>
 
-      {activeImageUrl && (
-        <div className={styles['romantic-image-container']}>
-          <img src={activeImageUrl} alt="Surprise" className={styles['romantic-image']} />
-        </div>
-      )}
     </div>
   );
 };
@@ -173,7 +168,6 @@ PathPlanCard.propTypes = {
 PathRenderer.propTypes = {
   paths: PropTypes.arrayOf(pathPropType).isRequired,
   initialLMD: PropTypes.number.isRequired,
-  activeImageUrl: PropTypes.string,
 };
 
 export default PathRenderer;

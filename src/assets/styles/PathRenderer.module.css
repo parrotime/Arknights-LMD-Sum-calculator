@@ -9,7 +9,7 @@
 .plan-list {
   display: flex;
   flex-direction: column;
-  gap: var(--ark-space-md);
+  gap: calc(var(--ark-space-md) * 1.35);
 }
 
 .plan-card {
@@ -34,9 +34,17 @@
   left: 0;
   top: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--ark-primary-400), rgba(122, 193, 248, 0.16), transparent);
+  height: 4px;
+  background: linear-gradient(90deg, var(--ark-primary-300), rgba(122, 193, 248, 0.28), transparent);
   pointer-events: none;
+}
+
+.plan-card:nth-child(3n + 2)::before {
+  background: linear-gradient(90deg, var(--ark-primary-400), rgba(122, 193, 248, 0.2), transparent);
+}
+
+.plan-card:nth-child(3n)::before {
+  background: linear-gradient(90deg, rgba(122, 193, 248, 0.62), rgba(122, 193, 248, 0.14), transparent);
 }
 
 .plan-card::after {
@@ -392,18 +400,125 @@
   font-weight: 800;
 }
 
-.romantic-image-container {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--ark-border-default);
-  text-align: center;
+:global([data-theme="light"]) .plan-card {
+  background:
+    linear-gradient(90deg, rgba(14, 93, 177, 0.08), transparent 34%),
+    #eef3f8;
+  border-color: #aab8c8;
 }
 
-.romantic-image {
-  max-width: 10%;
-  height: auto;
-  border-radius: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+:global([data-theme="light"]) .plan-card::before {
+  background: linear-gradient(90deg, #0e5db1, rgba(14, 93, 177, 0.46), transparent);
+}
+
+:global([data-theme="light"]) .plan-card:nth-child(3n + 2)::before {
+  background: linear-gradient(90deg, #1e4d7a, rgba(30, 77, 122, 0.4), transparent);
+}
+
+:global([data-theme="light"]) .plan-card:nth-child(3n)::before {
+  background: linear-gradient(90deg, #2a6a9e, rgba(42, 106, 158, 0.34), transparent);
+}
+
+:global([data-theme="light"]) .plan-card::after {
+  color: rgba(30, 77, 122, 0.065);
+}
+
+:global([data-theme="light"]) .plan-card-header,
+:global([data-theme="light"]) .plan-identity,
+:global([data-theme="light"]) .summary span,
+:global([data-theme="light"]) .copy-btn,
+:global([data-theme="light"]) .copy-btn-done {
+  border-color: #aab8c8;
+}
+
+:global([data-theme="light"]) .plan-identity {
+  background:
+    linear-gradient(135deg, rgba(14, 93, 177, 0.08), transparent 44%),
+    rgba(255, 255, 255, 0.5);
+}
+
+:global([data-theme="light"]) .plan-mark-label,
+:global([data-theme="light"]) .step-list::before,
+:global([data-theme="light"]) .step-index,
+:global([data-theme="light"]) .running-total b,
+:global([data-theme="light"]) .running-total-final b {
+  color: #526176;
+}
+
+:global([data-theme="light"]) .plan-mark-number,
+:global([data-theme="light"]) .summary em,
+:global([data-theme="light"]) .step-index strong,
+:global([data-theme="light"]) .count-tag,
+:global([data-theme="light"]) .running-total-final,
+:global([data-theme="light"]) .running-total-final strong {
+  color: #0e5db1;
+}
+
+:global([data-theme="light"]) .summary,
+:global([data-theme="light"]) .step-card,
+:global([data-theme="light"]) .step-desc,
+:global([data-theme="light"]) .running-total,
+:global([data-theme="light"]) .running-total strong,
+:global([data-theme="light"]) .summary strong {
+  color: #182236;
+}
+
+:global([data-theme="light"]) .summary b {
+  color: #334158;
+}
+
+:global([data-theme="light"]) .step-card {
+  border-bottom-color: rgba(30, 77, 122, 0.22);
+}
+
+:global([data-theme="light"]) .step-card:hover {
+  background:
+    linear-gradient(90deg, rgba(14, 93, 177, 0.08), transparent 58%),
+    rgba(14, 93, 177, 0.04);
+}
+
+:global([data-theme="light"]) .step-card::before {
+  background: rgba(30, 77, 122, 0.34);
+}
+
+:global([data-theme="light"]) .step-index {
+  background: #f8fafc;
+  border-color: rgba(30, 77, 122, 0.42);
+}
+
+:global([data-theme="light"]) .item-name {
+  filter: brightness(0.78) saturate(1.18);
+}
+
+:global([data-theme="light"]) .count-tag {
+  border-color: rgba(14, 93, 177, 0.48);
+  background: rgba(14, 93, 177, 0.1);
+}
+
+:global([data-theme="light"]) .gain {
+  color: #0f7a38;
+  filter: none;
+}
+
+:global([data-theme="light"]) .spend {
+  color: #b91c1c;
+  filter: none;
+}
+
+:global([data-theme="light"]) .copy-btn {
+  background: rgba(255, 255, 255, 0.42);
+  color: #0e5db1;
+}
+
+:global([data-theme="light"]) .copy-btn:hover {
+  background: rgba(14, 93, 177, 0.1);
+  color: #182236;
+  box-shadow: inset 0 -2px 0 #0e5db1;
+}
+
+:global([data-theme="light"]) .copy-btn-done {
+  color: #0f7a38;
+  box-shadow: inset 0 -2px 0 #0f7a38;
 }
 
 @media (max-width: 800px) {
@@ -482,7 +597,4 @@
     justify-content: flex-start;
   }
 
-  .romantic-image {
-    max-width: 20%;
-  }
 }

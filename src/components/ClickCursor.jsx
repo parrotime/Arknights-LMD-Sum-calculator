@@ -12,6 +12,7 @@ const TEXT_CURSOR_SELECTOR = [
 const NATIVE_CURSOR_ZONE_SELECTOR = [
   TEXT_CURSOR_SELECTOR,
   '[data-native-cursor="true"]',
+  ".back-to-top",
 ].join(",");
 const INTERACTIVE_SELECTOR = [
   "a[href]",

@@ -1949,3 +1949,40 @@ input:invalid {
   color: var(--ark-primary-400);
   font-size: 1.12em;
 }
+
+:global([data-theme="light"]) .calc-meta-badge {
+  background: #f8fafc;
+  border-color: #2a6a9e;
+  color: #182236;
+  box-shadow: inset 0 0 0 1px rgba(14, 93, 177, 0.16),
+              0 0 12px rgba(14, 93, 177, 0.12);
+}
+
+:global([data-theme="light"]) .calc-meta-label,
+:global([data-theme="light"]) .result-summary-source-label {
+  background: #0e5db1;
+  color: #ffffff;
+}
+
+:global([data-theme="light"]) .calc-meta-value,
+:global([data-theme="light"]) .result-summary-source-value {
+  color: #0e5db1;
+}
+
+:global([data-theme="light"]) .result-summary-bar {
+  background: #eef3f8;
+  border-color: #aab8c8;
+}
+
+:global([data-theme="light"]) .result-summary-source {
+  background: #f8fafc;
+  border-color: #2a6a9e;
+}
+
+:global([data-theme="light"]) .result-summary-count {
+  color: #182236;
+}
+
+:global([data-theme="light"]) .result-summary-count strong {
+  color: #0e5db1;
+}

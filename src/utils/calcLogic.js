@@ -57,8 +57,13 @@ export const buildCacheKey = (difference, settings, limits) =>
 
 /** 稀有度 → 颜色映射 */
 export const getRarityColor = (rarity) => {
-  const colorMap = { 1: "darkgreen", 2: "darkblue", 3: "purple", 5: "orange" };
-  return colorMap[rarity] || "black";
+  const colorMap = {
+    1: "#3f9f68",
+    2: "#4f8fd8",
+    3: "#b277ff",
+    5: "#f0a33a",
+  };
+  return colorMap[rarity] || "#d8e3ec";
 };
 
 /** 预计算每步数据和总理智消耗，getItemFn 为物品查找函数 */
