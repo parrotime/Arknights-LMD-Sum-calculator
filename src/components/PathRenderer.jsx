@@ -5,6 +5,8 @@ import { getRarityColor, computeStepData, computeRunningTotals } from "../utils/
 import styles from "../assets/styles/PathRenderer.module.css";
 
 const CIRCLED_NUMS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
+const COPY_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/duplication.webp";
+const COPIED_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq04.webp";
 
 const formatPlanNumber = (index) => String(index + 1).padStart(2, "0");
 
@@ -56,24 +58,30 @@ const PathPlanCard = ({ path, initialLMD, planIndex }) => {
   return (
     <article className={styles['plan-card']}>
       <div className={styles['plan-card-header']}>
-        <div className={styles['plan-mark']} aria-label={`方案 ${planIndex + 1}`}>
-          <span className={styles['plan-mark-label']}>PLAN</span>
-          <span className={styles['plan-mark-number']}>{formatPlanNumber(planIndex)}</span>
+        <div className={styles['plan-identity']} aria-label={`方案 ${planIndex + 1}`}>
+          <span className={styles['plan-mark-label']}>RECOMMENDED PLAN</span>
+          <span className={styles['plan-mark-number']}>PLAN-{formatPlanNumber(planIndex)}</span>
         </div>
 
         <div className={styles.summary}>
-          <span>共 <strong>{safePath.length}</strong> 步</span>
-          {totalSanity > 0 && <span>消耗理智 <strong>{totalSanity}</strong></span>}
+          <span><b>步骤共</b><strong>{safePath.length}</strong><b>步</b></span>
+          {totalSanity > 0 && <span><b>理智消耗</b><strong>{totalSanity}</strong></span>}
           <span>
-            龙门币 <strong>{startLMD}</strong> → <strong>{endLMD}</strong>
+            <b>龙门币变化</b><strong>{startLMD}</strong><em>-&gt;</em><strong>{endLMD}</strong>
           </span>
         </div>
 
         <button
           className={copied ? styles['copy-btn-done'] : styles['copy-btn']}
           onClick={handleCopy}
+          aria-label={copied ? "已复制当前方案" : "复制当前方案"}
         >
-          {copied ? "已复制 ✓" : "复制当前方案"}
+          <img
+            src={copied ? COPIED_ICON_URL : COPY_ICON_URL}
+            alt=""
+            className={`${styles['copy-icon']} ${copied ? styles['copy-icon-done'] : styles['copy-icon-copy']}`}
+          />
+          <span>{copied ? "COPIED" : "COPY"}</span>
         </button>
       </div>
 
@@ -90,22 +98,26 @@ const PathPlanCard = ({ path, initialLMD, planIndex }) => {
 
           const { item, stepValue } = sd;
           const isGain = stepValue > 0;
+          const stepTotalLabel = i === safePath.length - 1 ? "结果" : "当前";
 
           return (
             <div key={i} className={styles['step-card']}>
-              <span className={styles['step-index']}>{i + 1}</span>
+              <span className={styles['step-index']}>
+                <span>STEP</span>
+                <strong>{String(i + 1).padStart(2, "0")}</strong>
+              </span>
               <span className={styles['step-desc']}>
-                <span style={{ color: getRarityColor(item.rarity), fontWeight: 600 }}>
+                <span className={styles['item-name']} style={{ color: getRarityColor(item.rarity) }}>
                   {item.item_name}
                 </span>
                 <span className={styles['count-tag']}>×{step.count}次</span>
               </span>
               <span className={styles['step-right']}>
                 <span className={isGain ? styles.gain : styles.spend}>
-                  {isGain ? "获得" : "消耗"} {step.count > 1 && `(${Math.abs(item.item_value)}×${step.count}=)`}{Math.abs(stepValue)} 龙门币
+                  {isGain ? "+" : "-"}{step.count > 1 && `(${Math.abs(item.item_value)}×${step.count}=)`}{Math.abs(stepValue)} 龙门币
                 </span>
                 <span className={i === safePath.length - 1 ? styles['running-total-final'] : styles['running-total']}>
-                  {i === safePath.length - 1 ? "结果" : "当前余额"} {runningTotals[i]}
+                  <b>{stepTotalLabel}</b><strong>{runningTotals[i]}</strong>
                 </span>
               </span>
             </div>
