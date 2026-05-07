@@ -31,40 +31,46 @@ const ResultArea = ({
   activeImageUrl,
   calcError,
   calcMeta,
-}) => (
-  <div className={styles['history-box']}>
-    <div className={`${styles['title-bar']} ${styles['result-title-bar']}`}>
-      {calcMeta && !state.isCalculating && !calcError && (
-        <div className={styles['calc-meta-badge']}>
-          <span className={styles['calc-meta-label']}>
-            {calcMeta.fromCache ? "CACHE" : "TIME"}
-          </span>
-          <span className={styles['calc-meta-value']}>
-            {calcMeta.fromCache ? "从缓存读取" : `${calcMeta.elapsed}ms`}
-          </span>
-        </div>
-      )}
-      <h1>// [03] 推荐方案</h1>
-      <p className={styles['title-code']}>RECOMMENDED PLAN</p>
-    </div>
+}) => {
+  return (
+    <div className={styles['history-box']}>
+      <div className={`${styles['title-bar']} ${styles['result-title-bar']}`}>
+        <h1>// [03] 推荐方案</h1>
+        <p className={styles['title-code']}>RECOMMENDED PLAN</p>
+      </div>
 
-    {state.isCalculating ? (
-      <LoadingTimer styles={styles} />
-    ) : calcError ? (
-      <div className={styles['calc-error-card']}>
-        <div className={styles['calc-error-icon']}>!</div>
-        <div className={styles['calc-error-text']}>{calcError}</div>
-      </div>
-    ) : state.pathCache.length > 0 ? (
-      <div className={styles['fade-in']}>
-        <PathRenderer
-          paths={state.pathCache}
-          initialLMD={parseInt(state.num1) || 0}
-          activeImageUrl={activeImageUrl}
-        />
-      </div>
-    ) : null}
-  </div>
-);
+      {state.isCalculating ? (
+        <LoadingTimer styles={styles} />
+      ) : calcError ? (
+        <div className={styles['calc-error-card']}>
+          <div className={styles['calc-error-icon']}>!</div>
+          <div className={styles['calc-error-text']}>{calcError}</div>
+        </div>
+      ) : state.pathCache.length > 0 ? (
+        <div className={styles['fade-in']}>
+          <div className={styles['result-summary-bar']}>
+            <div className={styles['result-summary-source']}>
+              <span className={styles['result-summary-source-label']}>
+                {calcMeta?.fromCache ? "CACHE" : "TIME"}
+              </span>
+              <span className={styles['result-summary-source-value']}>
+                {calcMeta?.fromCache ? "从缓存读取" : `计算耗时 ${calcMeta?.elapsed ?? 0}ms`}
+              </span>
+            </div>
+            <div className={styles['result-summary-count']}>
+              计算得到共 <strong>{state.pathCache.length}</strong> 个方案
+            </div>
+          </div>
+
+          <PathRenderer
+            paths={state.pathCache}
+            initialLMD={parseInt(state.num1) || 0}
+            activeImageUrl={activeImageUrl}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+};
 
 export default ResultArea;
