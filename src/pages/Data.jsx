@@ -1,14 +1,174 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "../assets/styles/Data.module.css";
+import pathStyles from "../assets/styles/PathRenderer.module.css";
 import { classifyData } from "../DataService";
 
+const COPY_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/duplication.webp";
+const COPIED_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq04.webp";
+
+const parseSampleSteps = (way) =>
+  way.split("。").map(s => s.trim()).filter(Boolean);
+
+const parseSampleStepParts = (step, previousValue) => {
+  const usage = step.match(/通过【(\d+)】次使用【([^】]+)】/);
+  const action = step.match(/【(获得|花费)】\s*【?(-?\d+)】?/);
+  const current = step.match(/当前龙门币数量为【(-?\d+)】/);
+  const stepValue = action
+    ? (action[1] === "获得" ? 1 : -1) * Math.abs(Number(action[2]))
+    : 0;
+
+  return {
+    count: usage?.[1] || "1",
+    itemName: usage?.[2] || step,
+    actionType: action?.[1] || "",
+    actionValue: action ? Math.abs(Number(action[2])) : 0,
+    runningTotal: current ? Number(current[1]) : previousValue + stepValue,
+    stepValue,
+    text: step,
+  };
+};
+
+const getSampleBounds = (target) => {
+  const targetValue = Number(String(target).replace("+", ""));
+  if (Number.isNaN(targetValue)) {
+    return { start: 0, end: 0 };
+  }
+  return targetValue >= 0
+    ? { start: 0, end: targetValue }
+    : { start: Math.abs(targetValue), end: 0 };
+};
+
+const formatPlanNumber = (index) => String(index + 1).padStart(2, "0");
+
+const buildSamplePathText = ({ target, way, planIndex }) => {
+  const steps = parseSampleSteps(way);
+  const { start, end } = getSampleBounds(target);
+  const header = `【龙门币凑数计算器 ark-lmd.top | DATA SAMPLE PLAN ${formatPlanNumber(planIndex)}】`;
+  const summary = `目标差值 ${target} | 龙门币 ${start} -> ${end} | 共 ${steps.length} 步`;
+
+  return `${header}\n${summary}\n\n${steps.join("\n")}`;
+};
+
+const SamplePathCard = ({ target, way, planIndex, variant }) => {
+  const [copied, setCopied] = useState(false);
+  const steps = parseSampleSteps(way);
+  const { start, end } = getSampleBounds(target);
+  let previousValue = start;
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(buildSamplePathText({ target, way, planIndex }));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard not available */
+    }
+  };
+
+  return (
+    <article className={pathStyles['plan-card']}>
+      <div className={pathStyles['plan-card-header']}>
+        <div className={pathStyles['plan-identity']} aria-label={`样例方案 ${planIndex + 1}`}>
+          <span className={pathStyles['plan-mark-label']}>SAMPLE {variant}</span>
+          <span className={`${pathStyles['plan-mark-number']} ${styles['sample-target-mark']}`}>{target}</span>
+        </div>
+
+        <div className={pathStyles.summary}>
+          <span><b>目标差值</b><strong>{target}</strong></span>
+          <span><b>步骤共</b><strong>{steps.length}</strong><b>步</b></span>
+          <span>
+            <b>龙门币变化</b><strong>{start}</strong><em>-&gt;</em><strong>{end}</strong>
+          </span>
+        </div>
+
+        <button
+          type="button"
+          className={copied ? pathStyles['copy-btn-done'] : pathStyles['copy-btn']}
+          onClick={handleCopy}
+          aria-label={copied ? "已复制当前样例方案" : "复制当前样例方案"}
+        >
+          <img
+            src={copied ? COPIED_ICON_URL : COPY_ICON_URL}
+            alt=""
+            className={`${pathStyles['copy-icon']} ${copied ? pathStyles['copy-icon-done'] : pathStyles['copy-icon-copy']}`}
+          />
+          <span>{copied ? "COPIED" : "COPY"}</span>
+        </button>
+      </div>
+
+      <div className={pathStyles['step-list']}>
+        {steps.map((step, i) => {
+          const part = parseSampleStepParts(step, previousValue);
+          previousValue = part.runningTotal;
+          const isGain = part.actionType === "获得";
+          const stepTotalLabel = i === steps.length - 1 ? "结果" : "当前";
+
+          return (
+            <div key={`${planIndex}-${i}`} className={pathStyles['step-card']}>
+              <span className={pathStyles['step-index']}>
+                <span>STEP</span>
+                <strong>{String(i + 1).padStart(2, "0")}</strong>
+              </span>
+              <span className={pathStyles['step-desc']} title={part.text}>
+                <span className={`${pathStyles['item-name']} ${styles['sample-item-name']}`}>
+                  {part.itemName}
+                </span>
+                <span className={pathStyles['count-tag']}>×{part.count}次</span>
+              </span>
+              <span className={pathStyles['step-right']}>
+                {part.actionValue > 0 && (
+                  <span className={isGain ? pathStyles.gain : pathStyles.spend}>
+                    {isGain ? "+" : "-"}{Math.abs(part.stepValue)} 龙门币
+                  </span>
+                )}
+                <span className={i === steps.length - 1 ? pathStyles['running-total-final'] : pathStyles['running-total']}>
+                  <b>{stepTotalLabel}</b><strong>{part.runningTotal}</strong>
+                </span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </article>
+  );
+};
+
 function DataPage() {
+  const [activeSection, setActiveSection] = useState("upgrade-expense");
+
   const scrollToSection = (sectionId) => {
     document.getElementById(sectionId)?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
   };
+
+  useEffect(() => {
+    const sectionIds = ["upgrade-expense", "item-value", "sanity-index", "plan-sample"];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntry = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visibleEntry?.target?.id) {
+          setActiveSection(visibleEntry.target.id);
+        }
+      },
+      {
+        root: null,
+        rootMargin: "-18% 0px -62% 0px",
+        threshold: [0.08, 0.2, 0.4],
+      }
+    );
+
+    sectionIds.forEach((id) => {
+      const target = document.getElementById(id);
+      if (target) observer.observe(target);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   // 从 classifyData 动态生成升级表格数据（Table A）
   const eliteNames = { "0": "精零", "1": "精一", "2": "精二" };
@@ -46,6 +206,26 @@ function DataPage() {
     return { value1: v("upgrade_only_0","1-0"), value2: v("upgrade_only_1","1-1"), value3: v("upgrade_only_2","1-2") };
   });
 
+  const sanityRows = useMemo(() => [
+    { consume: "6理智", level: "1-7" },
+    { consume: "9理智", level: "活动关前三分之一关" },
+    { consume: "10理智", level: "作战记录LS-1，技巧概要CA-1，" },
+    { consume: "12理智", level: "活动关中间三分之一关" },
+    { consume: "15理智", level: "作战记录LS-2，技巧概要CA-2，" },
+    { consume: "18理智", level: "3次1-7，芯片本1，" },
+    { consume: "20理智", level: "作战记录LS-3，技巧概要CA-3，" },
+    { consume: "21理智", level: "活动关后三分之一关" },
+    { consume: "25理智", level: "作战记录LS-4，技巧概要CA-4，" },
+    { consume: "30理智", level: "5次1-7，作战记录LS-5，技巧概要CA-5，" },
+    { consume: "36理智", level: "6次1-7，作战记录LS-6，芯片本2，" },
+  ], []);
+
+  const getValueClass = (value) => {
+    const numericValue = Number(String(value).replace(/[+,]/g, ""));
+    if (Number.isNaN(numericValue) || numericValue === 0) return styles['value-neutral'];
+    return numericValue > 0 ? styles['value-gain'] : styles['value-cost'];
+  };
+
   const generateStaticTable = (data) => (
     <table className={`${styles['material-table']} ${styles['table-a']}`}>
       <thead>
@@ -59,8 +239,8 @@ function DataPage() {
         {data.map((row, i) => (
           <tr key={i}>
             <td>{row.name}</td>
-            <td>{row.value1}</td>
-            <td>{row.value2}</td>
+            <td className={getValueClass(row.value1)}>{row.value1}</td>
+            <td className={getValueClass(row.value2)}>{row.value2}</td>
           </tr>
         ))}
       </tbody>
@@ -79,51 +259,40 @@ function DataPage() {
         {data.map((row, i) => (
           <tr key={i}>
             <td>{row.name}</td>
-            <td>{row.value}</td>
+            <td className={getValueClass(row.value)}>{row.value}</td>
           </tr>
         ))}
       </tbody>
     </table>
   );
 
-  const parseSteps = (way) =>
-    way.split("。").map(s => s.trim()).filter(Boolean);
+  const generatePathCards = (data) => {
+    let activeTarget = "";
+    const targetCounts = {};
 
-  const generatePathCards = (data) => (
-    <div className={styles['path-cards']}>
-      {data.reduce((acc, row, index, array) => {
-        if (index % 2 === 0) {
-          const nextRow = array[index + 1];
-          acc.push(
-            <div className={styles['path-card']} key={index}>
-              <div className={styles['path-card-header']}>{row.num}</div>
-              <div className={styles['path-card-body']}>
-                <div>
-                  <div className={styles['path-label']}>路径 A</div>
-                  <ol className={styles['path-steps']}>
-                    {parseSteps(row.way).map((step, i) => (
-                      <li key={i}>{step}</li>
-                    ))}
-                  </ol>
-                </div>
-                {nextRow && (
-                  <div>
-                    <div className={styles['path-label']}>路径 B</div>
-                    <ol className={styles['path-steps']}>
-                      {parseSteps(nextRow.way).map((step, i) => (
-                        <li key={i}>{step}</li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        }
-        return acc;
-      }, [])}
-    </div>
-  );
+    return (
+      <div className={`${pathStyles['path-renderer-container']} ${styles['sample-path-container']}`}>
+        <div className={pathStyles['plan-list']}>
+          {data.map((row, index) => {
+            if (row.num) activeTarget = row.num;
+            const target = row.num || activeTarget;
+            targetCounts[target] = (targetCounts[target] || 0) + 1;
+            const variant = String.fromCharCode(64 + targetCounts[target]);
+
+            return (
+              <SamplePathCard
+                key={`${target}-${variant}-${index}`}
+                target={target}
+                way={row.way}
+                planIndex={index}
+                variant={variant}
+              />
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   const generateUpgradeTable4a = (data) => (
     <table className={`${styles['material-table']} ${styles['table-d']} ${styles['table-d1']}`}>
@@ -139,9 +308,9 @@ function DataPage() {
         {data.slice(0, 15).map((row, i) => (
           <tr key={i}>
             <td>{i + 1}</td>
-            <td>{row.value1}</td>
-            <td>{row.value2}</td>
-            <td>{row.value3}</td>
+            <td className={getValueClass(row.value1)}>{row.value1}</td>
+            <td className={getValueClass(row.value2)}>{row.value2}</td>
+            <td className={getValueClass(row.value3)}>{row.value3}</td>
           </tr>
         ))}
       </tbody>
@@ -162,32 +331,25 @@ function DataPage() {
         {data.slice(15, 30).map((row, i) => (
           <tr key={i}>
             <td>{i + 16}</td> 
-            <td>{row.value1}</td>
-            <td>{row.value2}</td>
-            <td>{row.value3}</td>
+            <td className={getValueClass(row.value1)}>{row.value1}</td>
+            <td className={getValueClass(row.value2)}>{row.value2}</td>
+            <td className={getValueClass(row.value3)}>{row.value3}</td>
           </tr>
         ))}
       </tbody>
     </table>
   );
 
-  const generateStaticTable5 = (data) => (
-    <table className={`${styles['material-table']} ${styles['table-c']}`}>
-      <thead>
-        <tr>
-          <th>消耗理智数量</th>
-          <th>对应关卡</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, i) => (
-          <tr key={i}>
-            <td>{row.consume}</td>
-            <td>{row.level}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+  const generateSanityList = (data) => (
+    <div className={styles['sanity-list']}>
+      {data.map((row, i) => (
+        <div className={styles['sanity-row']} key={`${row.consume}-${i}`}>
+          <span className={styles['sanity-code']}>{String(i + 1).padStart(2, "0")}</span>
+          <strong>{row.consume}</strong>
+          <span>{row.level}</span>
+        </div>
+      ))}
+    </div>
   );
 
   return (
@@ -199,10 +361,10 @@ function DataPage() {
         </header>
 
         <nav className={styles['data-index']} aria-label="数据档案索引">
-          <button type="button" onClick={() => scrollToSection("upgrade-expense")}>升级消耗</button>
-          <button type="button" onClick={() => scrollToSection("item-value")}>物品价值</button>
-          <button type="button" onClick={() => scrollToSection("sanity-index")}>理智速查</button>
-          <button type="button" onClick={() => scrollToSection("plan-sample")}>路径样例</button>
+          <button type="button" className={activeSection === "upgrade-expense" ? styles.active : ""} onClick={() => scrollToSection("upgrade-expense")}>升级消耗</button>
+          <button type="button" className={activeSection === "item-value" ? styles.active : ""} onClick={() => scrollToSection("item-value")}>物品价值</button>
+          <button type="button" className={activeSection === "sanity-index" ? styles.active : ""} onClick={() => scrollToSection("sanity-index")}>理智速查</button>
+          <button type="button" className={activeSection === "plan-sample" ? styles.active : ""} onClick={() => scrollToSection("plan-sample")}>路径样例</button>
         </nav>
 
         <section id="upgrade-expense" className={styles['data-section']}>
@@ -282,22 +444,7 @@ function DataPage() {
                 <br />
                 这里不包含龙门币副本CE系列相关数据，因为CE系列关卡掉落数量是特定的
               </p>
-              {generateStaticTable5([
-                { consume: "6理智", level: "1-7" },
-                { consume: "9理智", level: "活动关前三分之一关" },
-                { consume: "10理智", level: "作战记录LS-1，技巧概要CA-1，" },
-                { consume: "12理智", level: "活动关中间三分之一关" },
-                { consume: "15理智", level: "作战记录LS-2，技巧概要CA-2，" },
-                { consume: "18理智", level: "3次1-7，芯片本1，" },
-                { consume: "20理智", level: "作战记录LS-3，技巧概要CA-3，" },
-                { consume: "21理智", level: "活动关后三分之一关" },
-                { consume: "25理智", level: "作战记录LS-4，技巧概要CA-4，" },
-                {
-                  consume: "30理智",
-                  level: "5次1-7，作战记录LS-5，技巧概要CA-5，",
-                },
-                { consume: "36理智", level: "6次1-7，作战记录LS-6，芯片本2，" },
-              ])}
+              {generateSanityList(sanityRows)}
             </div>
           </div>
         </section>
