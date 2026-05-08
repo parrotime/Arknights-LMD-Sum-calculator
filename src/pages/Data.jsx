@@ -1,17 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "../assets/styles/Data.module.css";
 import { classifyData } from "../DataService";
 
 function DataPage() {
-  const [activePanels, setActivePanels] = useState([0]);
-  const [clickedPanel, setClickedPanel] = useState(null); 
-
-  const togglePanel = (index) => {
-    setClickedPanel(index);
-    setActivePanels((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-    );
-    setTimeout(() => setClickedPanel(null), 300);
+  const scrollToSection = (sectionId) => {
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   // 从 classifyData 动态生成升级表格数据（Table A）
@@ -196,20 +192,28 @@ function DataPage() {
 
   return (
     <div className={styles['main-data-content']}>
-        <div
-          className={`${styles['accordion-panel']} ${
-            !activePanels.includes(0) ? styles.collapsed : ""
-          }`}
-        >
-          <div
-            className={`${styles['panel-header']} ${clickedPanel === 0 ? styles.active : ""}`}
-            onClick={() => togglePanel(0)}
-          >
-            <h3>参考数据</h3>
+      <main className={styles['data-page']}>
+        <header className={styles['data-title-bar']}>
+          <h1>// [04] 数据档案</h1>
+          <p>DATA ARCHIVE</p>
+        </header>
+
+        <nav className={styles['data-index']} aria-label="数据档案索引">
+          <button type="button" onClick={() => scrollToSection("upgrade-expense")}>升级消耗</button>
+          <button type="button" onClick={() => scrollToSection("item-value")}>物品价值</button>
+          <button type="button" onClick={() => scrollToSection("sanity-index")}>理智速查</button>
+          <button type="button" onClick={() => scrollToSection("plan-sample")}>路径样例</button>
+        </nav>
+
+        <section id="upgrade-expense" className={styles['data-section']}>
+          <div className={styles['section-header']}>
+            <span className={styles['section-code']}>TABLE 01</span>
+            <div>
+              <h2>升级消耗</h2>
+              <p>OPERATOR EXPENSE</p>
+            </div>
           </div>
-          <div
-            className={`${styles['panel-content']} ${clickedPanel === 0 ? styles.active : ""}`}
-          >
+          <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
                 下面是计算过程中使用到的数据，负数表示使用龙门币，正数表示获得龙门币，数据仅供参考
@@ -225,7 +229,18 @@ function DataPage() {
 
               {generateStaticTable(upgradeTable2)}
             </div>
+          </div>
+        </section>
 
+        <section id="item-value" className={styles['data-section']}>
+          <div className={styles['section-header']}>
+            <span className={styles['section-code']}>TABLE 02</span>
+            <div>
+              <h2>物品价值</h2>
+              <p>ITEM VALUE</p>
+            </div>
+          </div>
+          <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
                 三星通关获得龙门币数量 = 使用理智数量 * 12
@@ -250,22 +265,17 @@ function DataPage() {
               {generateUpgradeTable4b(upgradeData)}
             </div>
           </div>
-        </div>
+        </section>
 
-        <div
-          className={`${styles['accordion-panel']} ${
-            !activePanels.includes(1) ? styles.collapsed : ""
-          }`}
-        >
-          <div
-            className={`${styles['panel-header']} ${clickedPanel === 1 ? styles.active : ""}`}
-            onClick={() => togglePanel(1)}
-          >
-            <h3>理智消耗与对应关卡速查表</h3>
+        <section id="sanity-index" className={styles['data-section']}>
+          <div className={styles['section-header']}>
+            <span className={styles['section-code']}>TABLE 03</span>
+            <div>
+              <h2>理智速查</h2>
+              <p>SANITY INDEX</p>
+            </div>
           </div>
-          <div
-            className={`${styles['panel-content']} ${clickedPanel === 1 ? styles.active : ""}`}
-          >
+          <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
                 理智消耗与对应关卡速查表，这里仅为推荐关卡
@@ -290,22 +300,17 @@ function DataPage() {
               ])}
             </div>
           </div>
-        </div>
+        </section>
 
-        <div
-          className={`${styles['accordion-panel']} ${
-            !activePanels.includes(2) ? styles.collapsed : ""
-          }`}
-        >
-          <div
-            className={`${styles['panel-header']} ${clickedPanel === 2 ? styles.active : ""}`}
-            onClick={() => togglePanel(2)}
-          >
-            <h3>推荐路径快速查找：目标龙门币 - 现有龙门币 &gt; 0 的情况</h3>
+        <section id="plan-sample" className={styles['data-section']}>
+          <div className={styles['section-header']}>
+            <span className={styles['section-code']}>PLAN 01</span>
+            <div>
+              <h2>路径样例：目标龙门币 - 现有龙门币 &gt; 0</h2>
+              <p>PLAN SAMPLE / ACQUIRE</p>
+            </div>
           </div>
-          <div
-            className={`${styles['panel-content']} ${clickedPanel === 2 ? styles.active : ""}`}
-          >
+          <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
                 以下路径用于快速查找，不一定是最适合、最简单的路径方案，仅供参考。（默认初始龙门币为0，目标龙门币为对应值）
@@ -364,22 +369,17 @@ function DataPage() {
               ])}
             </div>
           </div>
-        </div>
+        </section>
 
-        <div
-          className={`${styles['accordion-panel']} ${
-            !activePanels.includes(3) ? styles.collapsed : ""
-          }`}
-        >
-          <div
-            className={`${styles['panel-header']} ${clickedPanel === 3 ? styles.active : ""}`}
-            onClick={() => togglePanel(3)}
-          >
-            <h3>推荐路径快速查找：目标龙门币 - 现有龙门币 &lt; 0 的情况</h3>
+        <section className={styles['data-section']}>
+          <div className={styles['section-header']}>
+            <span className={styles['section-code']}>PLAN 02</span>
+            <div>
+              <h2>路径样例：目标龙门币 - 现有龙门币 &lt; 0</h2>
+              <p>PLAN SAMPLE / CONSUME</p>
+            </div>
           </div>
-          <div
-            className={`${styles['panel-content']} ${clickedPanel === 3 ? styles.active : ""}`}
-          >
+          <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
                 以下路径用于快速查找，不一定是最适合的、最简单的路径方案，仅供参考。（默认初始龙门币为对应值，目标龙门币为0）
@@ -438,7 +438,8 @@ function DataPage() {
               ])}
             </div>
           </div>
-        </div>
+        </section>
+      </main>
     </div>
   );
 }
