@@ -57,6 +57,7 @@ const PlanCard = ({
           className={copied ? styles['copy-btn-done'] : styles['copy-btn']}
           onClick={handleCopy}
           aria-label={copied ? copiedLabel : copyLabel}
+          aria-live="polite"
         >
           <img
             src={copied ? COPIED_ICON_URL : COPY_ICON_URL}

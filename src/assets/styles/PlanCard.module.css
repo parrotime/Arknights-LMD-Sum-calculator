@@ -161,6 +161,14 @@
   box-shadow: inset 0 -2px 0 var(--ark-plan-accent);
 }
 
+.copy-btn:focus-visible,
+.copy-btn-done:focus-visible {
+  outline: 2px solid var(--ark-border-focus);
+  outline-offset: 2px;
+  box-shadow: inset 0 -2px 0 var(--ark-plan-accent),
+              0 0 0 4px var(--ark-focus-ring);
+}
+
 .copy-btn-done {
   color: var(--ark-plan-success);
   cursor: default;
@@ -367,6 +375,14 @@
 
 .running-total-final strong {
   color: var(--ark-plan-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy-btn,
+  .copy-btn-done,
+  .step-card {
+    transition: none;
+  }
 }
 
 @media (max-width: 800px) {

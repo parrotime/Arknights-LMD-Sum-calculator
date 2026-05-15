@@ -81,6 +81,7 @@ const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
                 to={to}
                 end={to === "/"}
                 className={({ isActive }) => `nav-item${isActive ? " active" : ""}`}
+                aria-label={`前往${text}`}
                 ref={(node) => {
                   if (node) navItemRefs.current[to] = node;
                   else delete navItemRefs.current[to];

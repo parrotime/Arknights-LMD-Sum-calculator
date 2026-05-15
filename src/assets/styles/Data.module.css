@@ -155,6 +155,13 @@
 .data-floating-index button:focus-visible {
   outline: 2px solid var(--ark-primary-500);
   outline-offset: 2px;
+  color: var(--ark-neutral-900);
+  background: linear-gradient(90deg, var(--ark-tag-bg), transparent 72%);
+}
+
+.data-floating-index button[aria-current="location"] {
+  color: var(--ark-neutral-900);
+  border-left-color: var(--ark-primary-500);
 }
 
 .data-section {
@@ -166,6 +173,13 @@
   padding: var(--ark-space-md);
   margin-bottom: var(--ark-space-md);
   scroll-margin-top: 96px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .data-floating-index button,
+  .data-floating-index button.active::before {
+    transition: none;
+  }
 }
 
 .data-section:last-child {

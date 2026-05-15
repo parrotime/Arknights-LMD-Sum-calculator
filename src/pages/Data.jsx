@@ -5,6 +5,7 @@ import PlanCard from "../components/PlanCard";
 import { classifyData } from "../DataService";
 
 const DATA_SECTION_IDS = ["upgrade-expense", "item-value", "sanity-index", "plan-sample"];
+const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
 const parseSampleSteps = (way) =>
   way.split("。").map(s => s.trim()).filter(Boolean);
@@ -113,7 +114,7 @@ function DataPage() {
 
   const scrollToSection = (sectionId) => {
     document.getElementById(sectionId)?.scrollIntoView({
-      behavior: "smooth",
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
       block: "start",
     });
   };
@@ -359,10 +360,10 @@ function DataPage() {
 
         <nav className={styles['data-floating-index']} aria-label="数据档案索引">
           <span className={styles['floating-index-label']}>INDEX</span>
-          <button type="button" className={activeSection === "upgrade-expense" ? styles.active : ""} onClick={() => scrollToSection("upgrade-expense")}>升级消耗</button>
-          <button type="button" className={activeSection === "item-value" ? styles.active : ""} onClick={() => scrollToSection("item-value")}>物品价值</button>
-          <button type="button" className={activeSection === "sanity-index" ? styles.active : ""} onClick={() => scrollToSection("sanity-index")}>理智速查</button>
-          <button type="button" className={activeSection === "plan-sample" ? styles.active : ""} onClick={() => scrollToSection("plan-sample")}>路径样例</button>
+          <button type="button" className={activeSection === "upgrade-expense" ? styles.active : ""} aria-current={activeSection === "upgrade-expense" ? "location" : undefined} onClick={() => scrollToSection("upgrade-expense")}>升级消耗</button>
+          <button type="button" className={activeSection === "item-value" ? styles.active : ""} aria-current={activeSection === "item-value" ? "location" : undefined} onClick={() => scrollToSection("item-value")}>物品价值</button>
+          <button type="button" className={activeSection === "sanity-index" ? styles.active : ""} aria-current={activeSection === "sanity-index" ? "location" : undefined} onClick={() => scrollToSection("sanity-index")}>理智速查</button>
+          <button type="button" className={activeSection === "plan-sample" ? styles.active : ""} aria-current={activeSection === "plan-sample" ? "location" : undefined} onClick={() => scrollToSection("plan-sample")}>路径样例</button>
         </nav>
 
         <section id="upgrade-expense" className={styles['data-section']}>

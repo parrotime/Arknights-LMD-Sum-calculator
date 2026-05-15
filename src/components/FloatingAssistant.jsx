@@ -10,6 +10,7 @@ const FAST_DRAG_SPEED_THRESHOLD = 1.5;
 const FAST_DRAG_MIN_DISTANCE_RATIO = 1.5;
 const FAST_DRAG_COOLDOWN = 8000;
 const TITLE_ANCHOR_SELECTOR = '[data-assistant-anchor="main-title"]';
+const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
 const getDefaultPos = () => ({
   x: window.innerWidth - 24 - BUTTON_SIZE,
@@ -178,10 +179,11 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   }, [assistantEgg, closeAssistantBubble]);
 
   const handleScrollBtn = useCallback(() => {
+    const behavior = prefersReducedMotion() ? "auto" : "smooth";
     if (scrollDir === "down") {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      window.scrollTo({ top: document.body.scrollHeight, behavior });
     } else {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior });
     }
   }, [scrollDir]);
 
@@ -321,6 +323,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   return (
     <>
       <button
+        type="button"
         ref={btnRef}
         className={`back-to-top${isDragging ? " dragging" : ""}`}
         style={{ left: btnPos.x, top: btnPos.y }}
@@ -328,6 +331,13 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault();
+          handleScrollBtn();
+        }}
+        aria-label={scrollDir === "down" ? "前往页面底部" : "返回页面顶部"}
+        aria-describedby={(showWelcomeBubble || showDragBubble || showAssistantBubble) ? "assistant-bubble-message" : undefined}
         title="可拖动"
       >
         {scrollDir === "down"
@@ -341,6 +351,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
           style={assistantBubbleStyle}
           role="status"
           aria-live="polite"
+          aria-atomic="true"
         >
           <button
             type="button"
@@ -350,7 +361,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
           >
             ×
           </button>
-          <p className="assistant-bubble-text">
+          <p id="assistant-bubble-message" className="assistant-bubble-text">
             {showWelcomeBubble ? (
               WELCOME_MESSAGE
             ) : typeof activeMessage === "string" ? (

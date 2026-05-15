@@ -467,6 +467,17 @@ input:checked + .slider::after {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .reset-settings-btn,
+  .reset-settings-icon,
+  .reset-settings-btn-active,
+  .reset-settings-btn-active .reset-settings-icon {
+    transition: none;
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+}
+
 @media (max-width: 800px) {
   .settings-grid {
     grid-template-columns: 1fr;

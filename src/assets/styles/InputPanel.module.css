@@ -698,6 +698,15 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .calculate-button,
+  .calculate-button::after {
+    transition: none;
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+}
+
 @media (max-width: 800px) {
   .input-row {
     flex-direction: column;
