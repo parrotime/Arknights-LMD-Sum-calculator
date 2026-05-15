@@ -89,9 +89,7 @@
 .archive-card,
 .action-panel,
 .notice-list .notice-item {
-  background:
-    linear-gradient(135deg, rgba(122, 193, 248, 0.08), transparent 34%),
-    var(--ark-surface-inset);
+  background: var(--ark-archive-card-bg);
   border: 1px solid var(--ark-border-subtle);
   border-radius: var(--ark-radius-sm);
   box-shadow: var(--ark-shadow-sm);
@@ -139,7 +137,7 @@
   min-height: 20px;
   padding: 0 8px;
   background: var(--ark-primary-500);
-  color: #06111d;
+  color: var(--ark-code-label-text);
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.12em;
@@ -238,7 +236,7 @@
   padding: 4px 9px;
   border: 1px solid var(--ark-border-subtle);
   border-radius: 0;
-  background: rgba(90, 159, 224, 0.08);
+  background: var(--ark-accent-soft);
   color: var(--ark-text-body);
   cursor: pointer;
   transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
@@ -264,19 +262,19 @@
 
 .range-tab:hover,
 .range-tab-active {
-  background: rgba(90, 159, 224, 0.18);
-  border-color: rgba(90, 159, 224, 0.62);
+  background: var(--ark-tag-bg);
+  border-color: var(--ark-accent-line);
   color: var(--ark-neutral-900);
 }
 
 .chart-body {
   height: 330px;
   position: relative;
-  border: 1px solid rgba(90, 159, 224, 0.22);
+  border: 1px solid var(--ark-accent-border);
   background:
-    linear-gradient(rgba(122, 193, 248, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(122, 193, 248, 0.06) 1px, transparent 1px),
-    rgba(5, 12, 22, 0.12);
+    linear-gradient(var(--ark-chart-grid-y) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ark-chart-grid-x) 1px, transparent 1px),
+    var(--ark-chart-bg);
   background-size: 28px 28px;
   padding: 0 12px 34px;
   box-sizing: border-box;
@@ -302,23 +300,23 @@
 }
 
 .chart-grid-line {
-  stroke: rgba(122, 193, 248, 0.2);
+  stroke: var(--ark-chart-grid-line);
   stroke-width: 1;
   stroke-dasharray: 5 7;
 }
 
 .chart-axis-line {
-  stroke: rgba(122, 193, 248, 0.4);
+  stroke: var(--ark-chart-axis-line);
   stroke-width: 1;
 }
 
 .chart-axis-tick {
-  stroke: rgba(122, 193, 248, 0.62);
+  stroke: var(--ark-chart-axis-tick);
   stroke-width: 1.2;
 }
 
 .chart-axis-guide {
-  stroke: rgba(122, 193, 248, 0.11);
+  stroke: var(--ark-chart-axis-guide);
   stroke-width: 1;
   stroke-dasharray: 2 10;
 }
@@ -329,7 +327,7 @@
 
 .chart-polyline-shadow {
   fill: none;
-  stroke: rgba(99, 180, 247, 0.1);
+  stroke: var(--ark-chart-line-shadow);
   stroke-width: 6;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -344,7 +342,7 @@
 }
 
 .chart-point {
-  fill: #a8dcff;
+  fill: var(--ark-chart-point);
   stroke: var(--ark-surface-inset);
   stroke-width: 1.8;
 }
@@ -357,7 +355,7 @@
 }
 
 .chart-node:hover .chart-point {
-  fill: #d7efff;
+  fill: var(--ark-chart-point-hover);
   stroke: var(--ark-primary-500);
 }
 
@@ -374,7 +372,7 @@
   position: absolute;
   top: 0;
   transform: translateX(-50%);
-  color: rgba(176, 209, 236, 0.78);
+  color: var(--ark-chart-axis-label);
   font-size: 0.76rem;
   font-weight: 900;
   white-space: nowrap;
@@ -510,9 +508,9 @@
   min-height: 36px;
   min-width: 104px;
   padding: 0 12px;
-  background: rgba(90, 159, 224, 0.12);
+  background: var(--ark-accent-soft);
   color: var(--ark-link);
-  border: 1px solid rgba(90, 159, 224, 0.42);
+  border: 1px solid var(--ark-accent-border);
   border-radius: var(--ark-radius-sm);
   text-decoration: none;
   font-size: 0.88rem;
@@ -524,7 +522,7 @@
 .archive-link:hover {
   color: var(--ark-link-hover);
   border-color: currentColor;
-  background: rgba(90, 159, 224, 0.2);
+  background: var(--ark-tag-bg);
 }
 
 .archive-link[aria-disabled="true"] {
@@ -582,8 +580,8 @@
   justify-content: center;
   min-width: 34px;
   height: 22px;
-  background: rgba(90, 159, 224, 0.16);
-  border: 1px solid rgba(90, 159, 224, 0.46);
+  background: var(--ark-tag-bg);
+  border: 1px solid var(--ark-accent-border);
   color: var(--ark-primary-500);
   font-family: var(--ark-font-title);
   font-weight: 900;
@@ -656,42 +654,16 @@
   color: var(--ark-text-body);
 }
 
-[data-theme="light"] .card-label,
-[data-theme="light"] .panel-code {
-  color: #f7fbff;
-}
-
-[data-theme="light"] .archive-link {
-  background: rgba(14, 93, 177, 0.08);
-}
-
-[data-theme="light"] .chart-body {
-  background:
-    linear-gradient(rgba(14, 93, 177, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(14, 93, 177, 0.08) 1px, transparent 1px),
-    rgba(244, 247, 251, 0.78);
-}
-
-[data-theme="light"] .chart-axis-html-label {
-  color: #526173;
-}
-
 [data-theme="light"] .sync-help-trigger {
-  border-color: #0e5db1;
-  background: rgba(14, 93, 177, 0.1);
-  color: #0e5db1;
+  border-color: var(--ark-primary-900);
+  background: var(--ark-tag-bg);
+  color: var(--ark-primary-900);
 }
 
 [data-theme="light"] .sync-help-trigger:hover,
 [data-theme="light"] .sync-help-trigger:focus-visible {
-  background: rgba(14, 93, 177, 0.18);
-  color: #083d77;
-}
-
-[data-theme="light"] .hanging-index {
-  background: rgba(14, 93, 177, 0.12);
-  border-color: rgba(14, 93, 177, 0.42);
-  color: #0e5db1;
+  background: var(--ark-accent-soft);
+  color: var(--ark-primary-800);
 }
 
 @media (max-width: 800px) {

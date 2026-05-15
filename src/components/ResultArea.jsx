@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PathRenderer from "./PathRenderer";
+import panelStyles from "../assets/styles/PanelFrame.module.css";
+import styles from "../assets/styles/ResultArea.module.css";
 
 // 加载计时器子组件
 const LoadingTimer = ({ styles }) => {
@@ -27,15 +29,14 @@ const LoadingTimer = ({ styles }) => {
 
 const ResultArea = ({
   state,
-  styles,
   calcError,
   calcMeta,
 }) => {
   return (
-    <div className={styles['history-box']}>
-      <div className={`${styles['title-bar']} ${styles['result-title-bar']}`}>
+    <div className={panelStyles['history-box']}>
+      <div className={`${panelStyles['title-bar']} ${styles['result-title-bar']}`}>
         <h1>// [03] 推荐方案</h1>
-        <p className={styles['title-code']}>RECOMMENDED PLAN</p>
+        <p className={panelStyles['title-code']}>RECOMMENDED PLAN</p>
       </div>
 
       {state.isCalculating ? (

@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styles from "../assets/styles/Data.module.css";
-import pathStyles from "../assets/styles/PathRenderer.module.css";
+import pathRendererStyles from "../assets/styles/PathRenderer.module.css";
+import PlanCard from "../components/PlanCard";
 import { classifyData } from "../DataService";
 
-const COPY_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/duplication.webp";
-const COPIED_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq04.webp";
 const DATA_SECTION_IDS = ["upgrade-expense", "item-value", "sanity-index", "plan-sample"];
 
 const parseSampleSteps = (way) =>
@@ -51,86 +50,61 @@ const buildSamplePathText = ({ target, way, planIndex }) => {
 };
 
 const SamplePathCard = ({ target, way, planIndex, variant }) => {
-  const [copied, setCopied] = useState(false);
   const steps = parseSampleSteps(way);
   const { start, end } = getSampleBounds(target);
   let previousValue = start;
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(buildSamplePathText({ target, way, planIndex }));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      /* clipboard not available */
-    }
-  };
+  const summaryItems = [
+    {
+      label: "目标差值",
+      values: [{ text: target }],
+    },
+    {
+      label: "步骤共",
+      values: [{ text: steps.length }],
+      suffix: "步",
+    },
+    {
+      label: "龙门币变化",
+      values: [
+        { text: start },
+        { text: "->", type: "separator" },
+        { text: end },
+      ],
+    },
+  ];
+
+  const planSteps = steps.map((step, i) => {
+    const part = parseSampleStepParts(step, previousValue);
+    previousValue = part.runningTotal;
+    const isGain = part.actionType === "获得";
+
+    return {
+      key: `${planIndex}-${i}`,
+      title: part.text,
+      itemName: part.itemName,
+      itemClassName: styles['sample-item-name'],
+      count: part.count,
+      deltaText: part.actionValue > 0 ? `${isGain ? "+" : "-"}${Math.abs(part.stepValue)} 龙门币` : "",
+      deltaType: isGain ? "gain" : "spend",
+      totalLabel: i === steps.length - 1 ? "结果" : "当前",
+      runningTotal: part.runningTotal,
+      isFinal: i === steps.length - 1,
+    };
+  });
 
   return (
-    <article className={pathStyles['plan-card']}>
-      <div className={pathStyles['plan-card-header']}>
-        <div className={pathStyles['plan-identity']} aria-label={`样例方案 ${planIndex + 1}`}>
-          <span className={pathStyles['plan-mark-label']}>SAMPLE {variant}</span>
-          <span className={`${pathStyles['plan-mark-number']} ${styles['sample-target-mark']}`}>{target}</span>
-        </div>
-
-        <div className={pathStyles.summary}>
-          <span><b>目标差值</b><strong>{target}</strong></span>
-          <span><b>步骤共</b><strong>{steps.length}</strong><b>步</b></span>
-          <span>
-            <b>龙门币变化</b><strong>{start}</strong><em>-&gt;</em><strong>{end}</strong>
-          </span>
-        </div>
-
-        <button
-          type="button"
-          className={copied ? pathStyles['copy-btn-done'] : pathStyles['copy-btn']}
-          onClick={handleCopy}
-          aria-label={copied ? "已复制当前样例方案" : "复制当前样例方案"}
-        >
-          <img
-            src={copied ? COPIED_ICON_URL : COPY_ICON_URL}
-            alt=""
-            className={`${pathStyles['copy-icon']} ${copied ? pathStyles['copy-icon-done'] : pathStyles['copy-icon-copy']}`}
-          />
-          <span>{copied ? "COPIED" : "COPY"}</span>
-        </button>
-      </div>
-
-      <div className={pathStyles['step-list']}>
-        {steps.map((step, i) => {
-          const part = parseSampleStepParts(step, previousValue);
-          previousValue = part.runningTotal;
-          const isGain = part.actionType === "获得";
-          const stepTotalLabel = i === steps.length - 1 ? "结果" : "当前";
-
-          return (
-            <div key={`${planIndex}-${i}`} className={pathStyles['step-card']}>
-              <span className={pathStyles['step-index']}>
-                <span>STEP</span>
-                <strong>{String(i + 1).padStart(2, "0")}</strong>
-              </span>
-              <span className={pathStyles['step-desc']} title={part.text}>
-                <span className={`${pathStyles['item-name']} ${styles['sample-item-name']}`}>
-                  {part.itemName}
-                </span>
-                <span className={pathStyles['count-tag']}>×{part.count}次</span>
-              </span>
-              <span className={pathStyles['step-right']}>
-                {part.actionValue > 0 && (
-                  <span className={isGain ? pathStyles.gain : pathStyles.spend}>
-                    {isGain ? "+" : "-"}{Math.abs(part.stepValue)} 龙门币
-                  </span>
-                )}
-                <span className={i === steps.length - 1 ? pathStyles['running-total-final'] : pathStyles['running-total']}>
-                  <b>{stepTotalLabel}</b><strong>{part.runningTotal}</strong>
-                </span>
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </article>
+    <PlanCard
+      identityLabel={`SAMPLE ${variant}`}
+      identityValue={target}
+      identityValueClassName={styles['sample-target-mark']}
+      ariaLabel={`样例方案 ${planIndex + 1}`}
+      summaryItems={summaryItems}
+      steps={planSteps}
+      copyText={buildSamplePathText({ target, way, planIndex })}
+      copyLabel="复制当前样例方案"
+      copiedLabel="已复制当前样例方案"
+    />
   );
 };
 
@@ -286,8 +260,8 @@ function DataPage() {
     const targetCounts = {};
 
     return (
-      <div className={`${pathStyles['path-renderer-container']} ${styles['sample-path-container']}`}>
-        <div className={pathStyles['plan-list']}>
+      <div className={`${pathRendererStyles['path-renderer-container']} ${styles['sample-path-container']}`}>
+        <div className={pathRendererStyles['plan-list']}>
           {data.map((row, index) => {
             if (row.num) activeTarget = row.num;
             const target = row.num || activeTarget;

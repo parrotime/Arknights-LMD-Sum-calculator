@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import panelStyles from "../assets/styles/PanelFrame.module.css";
+import styles from "../assets/styles/SettingsPanel.module.css";
 
 const settingsOptions = [
   { text: "允许使用理智三星通关", key: "allow3Star", highlight: "三星通关" },
@@ -77,7 +79,7 @@ const renderSettingText = (text, highlight, styles) => {
   );
 };
 
-const SettingsPanel = ({ settings, onToggle, onReset, styles }) => {
+const SettingsPanel = ({ settings, onToggle, onReset }) => {
   const [openHelpKey, setOpenHelpKey] = useState(null);
   const [resetAnimating, setResetAnimating] = useState(false);
 
@@ -98,10 +100,10 @@ const SettingsPanel = ({ settings, onToggle, onReset, styles }) => {
   };
 
   return (
-    <div className={`${styles['content-panel']} ${styles['right-panel']}`}>
-      <div className={`${styles['title-bar']} ${styles['settings-title-bar']}`}>
+    <div className={`${panelStyles['content-panel']} ${styles['right-panel']}`}>
+      <div className={`${panelStyles['title-bar']} ${styles['settings-title-bar']}`}>
         <h1>// [02] 计算配置</h1>
-        <p className={styles['title-code']}>CALCULATION CONFIGURATION</p>
+        <p className={panelStyles['title-code']}>CALCULATION CONFIGURATION</p>
         <button
           type="button"
           className={`${styles['reset-settings-btn']} ${resetAnimating ? styles['reset-settings-btn-active'] : ''}`}

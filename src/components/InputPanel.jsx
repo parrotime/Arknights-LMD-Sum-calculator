@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { computeDiff } from "../utils/calcLogic";
+import panelStyles from "../assets/styles/PanelFrame.module.css";
+import styles from "../assets/styles/InputPanel.module.css";
 
 const InputPanel = ({
   state,
-  styles,
   handleInputChange,
   handleUpgradeCountChange,
   handleCalculate,
@@ -138,12 +139,12 @@ const InputPanel = ({
   };
 
   return (
-  <div className={`${styles['content-panel']} ${styles['left-panel']}`}>
-    <div className={styles['title-bar']}>
+  <div className={`${panelStyles['content-panel']} ${styles['left-panel']}`}>
+    <div className={panelStyles['title-bar']}>
       <h1>
         <span data-assistant-anchor="main-title">// [01] 罗德岛物资清点</span>
       </h1>
-      <p className={styles['title-code']}>RHODES ISLAND MATERIAL INVENTORY</p>
+      <p className={panelStyles['title-code']}>RHODES ISLAND MATERIAL INVENTORY</p>
     </div>
 
     <div className={styles['main-content']}>

@@ -1,0 +1,98 @@
+.content-panel,
+.history-box {
+  position: relative;
+  overflow: visible;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--ark-surface-card);
+  border: 1px solid var(--ark-border-subtle);
+  border-radius: 0;
+  padding: var(--ark-space-lg);
+  box-shadow: var(--ark-shadow-md);
+}
+
+.content-panel::before,
+.history-box::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: 0;
+  left: -8px;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(var(--ark-panel-frame-top), var(--ark-panel-frame-top)) top / 100% 12px no-repeat,
+    linear-gradient(var(--ark-panel-frame-side), var(--ark-panel-frame-side)) left top / 12px 100% no-repeat,
+    linear-gradient(var(--ark-panel-frame-side), var(--ark-panel-frame-side)) right top / 12px 100% no-repeat;
+}
+
+.content-panel::after,
+.history-box::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  width: 42px;
+  height: 42px;
+  background: var(--ark-panel-corner-mark);
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.content-panel > *,
+.history-box > * {
+  position: relative;
+  z-index: 2;
+}
+
+.history-box {
+  min-height: 100px;
+  height: fit-content;
+}
+
+.title-bar {
+  text-align: center;
+  background: transparent;
+  padding: 0 0 var(--ark-space-md) 0;
+  border-radius: 0;
+  box-shadow: none;
+  margin-bottom: var(--ark-space-md);
+  border-bottom: 1px solid var(--ark-border-default);
+}
+
+.title-bar h1 {
+  font-family: var(--ark-font-title);
+  font-weight: 900;
+  font-size: 1.62rem;
+  margin: 0;
+  color: var(--ark-neutral-900);
+  letter-spacing: 0.06em;
+}
+
+.title-code {
+  margin: 6px 0 0;
+  color: var(--ark-neutral-500);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 800px) {
+  .content-panel,
+  .history-box {
+    width: 90%;
+    max-width: none;
+  }
+
+  .history-box {
+    margin-top: 0;
+  }
+
+  .title-bar h1 {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}

@@ -1,0 +1,444 @@
+.plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--ark-plan-card-bg);
+  border: 1px solid var(--ark-plan-border);
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+.plan-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 4px;
+  background: var(--ark-status-line-main);
+  pointer-events: none;
+}
+
+.plan-card:nth-child(3n + 2)::before {
+  background: var(--ark-status-line-alt);
+}
+
+.plan-card:nth-child(3n)::before {
+  background: var(--ark-status-line-soft);
+}
+
+.plan-card::after {
+  content: "RHODES ISLAND";
+  position: absolute;
+  right: 12px;
+  bottom: -10px;
+  color: var(--ark-plan-watermark);
+  font-family: var(--ark-font-title);
+  font-size: 3.6rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+.plan-card-header {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr) 112px;
+  align-items: stretch;
+  min-width: 0;
+  border-bottom: 1px solid var(--ark-plan-border);
+}
+
+.plan-identity {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  min-height: 56px;
+  padding: 9px 14px;
+  background: var(--ark-plan-identity-bg);
+  border-right: 1px solid var(--ark-plan-border);
+  box-sizing: border-box;
+}
+
+.plan-mark-label {
+  color: var(--ark-plan-muted);
+  font-size: 0.66rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.16em;
+}
+
+.plan-mark-number {
+  margin-top: 5px;
+  color: var(--ark-plan-accent);
+  font-family: var(--ark-font-title);
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-width: 0;
+  padding: 0 14px;
+  color: var(--ark-plan-text);
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.summary span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+  padding: 0 14px;
+  border-left: 1px solid var(--ark-plan-border);
+  white-space: nowrap;
+}
+
+.summary span:first-child {
+  border-left: none;
+}
+
+.summary b {
+  color: var(--ark-plan-label);
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+}
+
+.summary strong {
+  color: var(--ark-plan-text);
+  font-size: 1.12rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary em {
+  color: var(--ark-plan-accent);
+  font-style: normal;
+  font-weight: 900;
+}
+
+.copy-btn,
+.copy-btn-done {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 112px;
+  min-width: 112px;
+  padding: 0 13px;
+  border: 0;
+  border-left: 1px solid var(--ark-plan-border);
+  border-radius: 0;
+  background: var(--ark-plan-copy-bg);
+  color: var(--ark-plan-accent);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.16s ease,
+              color 0.16s ease,
+              box-shadow 0.16s ease;
+}
+
+.copy-btn:hover {
+  background: var(--ark-plan-copy-hover-bg);
+  color: var(--ark-plan-text);
+  box-shadow: inset 0 -2px 0 var(--ark-plan-accent);
+}
+
+.copy-btn-done {
+  color: var(--ark-plan-success);
+  cursor: default;
+  box-shadow: inset 0 -2px 0 var(--ark-plan-success);
+}
+
+.copy-icon {
+  width: 19px;
+  height: 19px;
+  object-fit: contain;
+  display: block;
+}
+
+.copy-icon-copy {
+  filter: invert(78%) sepia(24%) saturate(876%) hue-rotate(177deg) brightness(112%) contrast(96%)
+          drop-shadow(0 0 6px rgba(122, 193, 248, 0.2));
+}
+
+.copy-icon-done {
+  filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.22));
+}
+
+:global([data-theme="light"]) .copy-icon-copy {
+  filter: invert(20%) sepia(34%) saturate(1274%) hue-rotate(174deg) brightness(92%) contrast(94%);
+}
+
+.step-list {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px 12px;
+}
+
+.step-list::before {
+  content: "LOG / MATERIAL ACCOUNTING / AUTO-SEQUENCE";
+  display: block;
+  margin: 0 0 4px 70px;
+  color: var(--ark-plan-muted);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.step-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--ark-plan-step-line);
+  color: var(--ark-plan-text);
+  font-size: 1rem;
+  line-height: 1.45;
+  transition: background-color 0.15s ease;
+}
+
+.step-card:last-child {
+  border-bottom: none;
+}
+
+.step-card:hover {
+  background: var(--ark-plan-step-hover-bg);
+}
+
+.step-card::before {
+  content: "";
+  position: absolute;
+  left: 28px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ark-plan-timeline);
+}
+
+.step-card:first-child::before {
+  top: 50%;
+}
+
+.step-card:last-child::before {
+  bottom: 50%;
+}
+
+.step-index {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  width: 56px;
+  height: 30px;
+  background: var(--ark-plan-index-bg);
+  border: 1px solid var(--ark-plan-index-border);
+  color: var(--ark-plan-muted);
+  box-sizing: border-box;
+}
+
+.step-index span {
+  font-size: 0.52rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.12em;
+}
+
+.step-index strong {
+  color: var(--ark-plan-accent);
+  font-size: 0.88rem;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.step-desc {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  color: var(--ark-plan-text);
+}
+
+.item-name {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 900;
+  filter: var(--ark-plan-item-filter);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count-tag {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border: 1px solid var(--ark-plan-chip-border);
+  background: var(--ark-plan-chip-bg);
+  color: var(--ark-plan-accent);
+  font-size: 0.88rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.step-right {
+  display: grid;
+  grid-template-columns: minmax(118px, auto) minmax(128px, auto);
+  align-items: baseline;
+  justify-content: end;
+  gap: 12px;
+  margin-left: auto;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.gain,
+.spend {
+  justify-self: end;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  filter: var(--ark-plan-delta-filter);
+}
+
+.gain {
+  color: var(--ark-plan-success);
+}
+
+.spend {
+  color: var(--ark-plan-danger);
+}
+
+.running-total,
+.running-total-final {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 6px;
+  color: var(--ark-plan-text);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.running-total b,
+.running-total-final b {
+  color: var(--ark-plan-label);
+  font-size: 0.94rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.running-total strong,
+.running-total-final strong {
+  color: var(--ark-plan-text);
+  font-size: 1.08rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.running-total-final {
+  color: var(--ark-plan-accent);
+}
+
+.running-total-final b {
+  color: var(--ark-plan-accent);
+}
+
+.running-total-final strong {
+  color: var(--ark-plan-accent);
+}
+
+@media (max-width: 800px) {
+  .plan-card-header {
+    grid-template-columns: 1fr auto;
+  }
+
+  .plan-identity {
+    min-height: 48px;
+    padding: 8px 10px;
+  }
+
+  .summary {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 6px 0;
+    padding: 9px 10px;
+    border-top: 1px solid var(--ark-border-default);
+    font-size: 0.86rem;
+  }
+
+  .summary span {
+    padding: 0 10px;
+  }
+
+  .summary span:first-child {
+    padding-left: 0;
+  }
+
+  .copy-btn,
+  .copy-btn-done {
+    min-width: 86px;
+    min-height: 48px;
+  }
+
+  .step-list {
+    padding: 8px 10px 10px;
+  }
+
+  .step-card {
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .step-index {
+    width: 50px;
+  }
+
+  .step-card::before {
+    left: 25px;
+  }
+
+  .step-right {
+    grid-column: 2;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    justify-content: start;
+    margin-left: 0;
+    white-space: normal;
+    font-size: 0.84rem;
+  }
+
+  .gain,
+  .spend {
+    justify-self: start;
+  }
+
+  .running-total,
+  .running-total-final {
+    justify-content: flex-start;
+  }
+
+}

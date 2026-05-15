@@ -140,6 +140,81 @@
   /* 设置面板 */
   --ark-setting-keyword-color: #1e4d7a;
   --ark-setting-badge-text-color: #f8f9fb;
+
+  /* 页面共享状态色 / 弱强调 */
+  --ark-accent-soft: rgba(14, 93, 177, 0.08);
+  --ark-accent-line: rgba(14, 93, 177, 0.64);
+  --ark-accent-border: rgba(14, 93, 177, 0.24);
+  --ark-inset-tint: rgba(234, 244, 252, 0.72);
+  --ark-row-tint: rgba(234, 244, 252, 0.82);
+  --ark-tag-bg: rgba(14, 93, 177, 0.1);
+  --ark-step-line: rgba(14, 93, 177, 0.18);
+  --ark-watermark: rgba(14, 93, 177, 0.07);
+  --ark-value-gain: #0e5db1;
+  --ark-value-cost: #40516a;
+  --ark-value-gain-border: rgba(14, 93, 177, 0.36);
+  --ark-value-cost-border: rgba(64, 81, 106, 0.32);
+  --ark-code-label-text: #f7fbff;
+
+  /* 档案卡片 / 状态线 */
+  --ark-archive-card-bg: linear-gradient(135deg, var(--ark-accent-soft), transparent 34%),
+                         var(--ark-surface-inset);
+  --ark-status-line-main: linear-gradient(90deg, #0e5db1, rgba(14, 93, 177, 0.46), transparent);
+  --ark-status-line-alt: linear-gradient(90deg, #1e4d7a, rgba(30, 77, 122, 0.4), transparent);
+  --ark-status-line-soft: linear-gradient(90deg, #2a6a9e, rgba(42, 106, 158, 0.34), transparent);
+
+  /* 推荐方案卡片 */
+  --ark-plan-card-bg: linear-gradient(90deg, rgba(14, 93, 177, 0.08), transparent 34%),
+                      #eef3f8;
+  --ark-plan-border: #aab8c8;
+  --ark-plan-identity-bg: linear-gradient(135deg, rgba(14, 93, 177, 0.08), transparent 44%),
+                          rgba(255, 255, 255, 0.5);
+  --ark-plan-watermark: rgba(30, 77, 122, 0.065);
+  --ark-plan-muted: #526176;
+  --ark-plan-label: #334158;
+  --ark-plan-text: #182236;
+  --ark-plan-accent: #0e5db1;
+  --ark-plan-index-bg: #f8fafc;
+  --ark-plan-index-border: rgba(30, 77, 122, 0.42);
+  --ark-plan-step-line: rgba(30, 77, 122, 0.22);
+  --ark-plan-step-hover-bg: linear-gradient(90deg, rgba(14, 93, 177, 0.08), transparent 58%),
+                            rgba(14, 93, 177, 0.04);
+  --ark-plan-timeline: rgba(30, 77, 122, 0.34);
+  --ark-plan-chip-bg: rgba(14, 93, 177, 0.1);
+  --ark-plan-chip-border: rgba(14, 93, 177, 0.48);
+  --ark-plan-copy-bg: rgba(255, 255, 255, 0.42);
+  --ark-plan-copy-hover-bg: rgba(14, 93, 177, 0.1);
+  --ark-plan-success: #0f7a38;
+  --ark-plan-danger: #b91c1c;
+  --ark-plan-item-filter: brightness(0.78) saturate(1.18);
+  --ark-plan-delta-filter: none;
+
+  /* 结果摘要 / 元信息 */
+  --ark-result-meta-bg: #f8fafc;
+  --ark-result-meta-border: #2a6a9e;
+  --ark-result-meta-text: #182236;
+  --ark-result-meta-label-bg: #0e5db1;
+  --ark-result-meta-label-text: #ffffff;
+  --ark-result-meta-value: #0e5db1;
+  --ark-result-meta-shadow: inset 0 0 0 1px rgba(14, 93, 177, 0.16),
+                            0 0 12px rgba(14, 93, 177, 0.12);
+  --ark-result-summary-bg: #eef3f8;
+  --ark-result-summary-border: #aab8c8;
+  --ark-result-summary-text: #182236;
+  --ark-result-summary-strong: #0e5db1;
+
+  /* 图表 */
+  --ark-chart-bg: rgba(244, 247, 251, 0.78);
+  --ark-chart-grid-x: rgba(14, 93, 177, 0.08);
+  --ark-chart-grid-y: rgba(14, 93, 177, 0.1);
+  --ark-chart-grid-line: rgba(122, 193, 248, 0.2);
+  --ark-chart-axis-line: rgba(122, 193, 248, 0.4);
+  --ark-chart-axis-tick: rgba(122, 193, 248, 0.62);
+  --ark-chart-axis-guide: rgba(122, 193, 248, 0.11);
+  --ark-chart-line-shadow: rgba(99, 180, 247, 0.1);
+  --ark-chart-point: #a8dcff;
+  --ark-chart-point-hover: #d7efff;
+  --ark-chart-axis-label: #526173;
 }
 
 /* === 深色主题 === */
@@ -240,6 +315,81 @@
   /* 设置面板 */
   --ark-setting-keyword-color: #8ec8f5;
   --ark-setting-badge-text-color: #07111d;
+
+  /* 页面共享状态色 / 弱强调 */
+  --ark-accent-soft: rgba(122, 193, 248, 0.1);
+  --ark-accent-line: rgba(90, 159, 224, 0.5);
+  --ark-accent-border: rgba(122, 193, 248, 0.22);
+  --ark-inset-tint: rgba(4, 13, 24, 0.18);
+  --ark-row-tint: rgba(4, 13, 24, 0.16);
+  --ark-tag-bg: rgba(122, 193, 248, 0.14);
+  --ark-step-line: rgba(122, 193, 248, 0.14);
+  --ark-watermark: rgba(122, 193, 248, 0.08);
+  --ark-value-gain: #86d9ff;
+  --ark-value-cost: #d7e6f4;
+  --ark-value-gain-border: rgba(134, 217, 255, 0.42);
+  --ark-value-cost-border: rgba(215, 230, 244, 0.34);
+  --ark-code-label-text: #06111d;
+
+  /* 档案卡片 / 状态线 */
+  --ark-archive-card-bg: linear-gradient(135deg, var(--ark-accent-soft), transparent 34%),
+                         var(--ark-surface-inset);
+  --ark-status-line-main: linear-gradient(90deg, var(--ark-primary-300), rgba(122, 193, 248, 0.28), transparent);
+  --ark-status-line-alt: linear-gradient(90deg, var(--ark-primary-400), rgba(122, 193, 248, 0.2), transparent);
+  --ark-status-line-soft: linear-gradient(90deg, rgba(122, 193, 248, 0.62), rgba(122, 193, 248, 0.14), transparent);
+
+  /* 推荐方案卡片 */
+  --ark-plan-card-bg: linear-gradient(90deg, rgba(122, 193, 248, 0.1), transparent 34%),
+                      var(--ark-surface-inset);
+  --ark-plan-border: var(--ark-border-default);
+  --ark-plan-identity-bg: linear-gradient(135deg, rgba(122, 193, 248, 0.11), transparent 44%),
+                          rgba(255, 255, 255, 0.035);
+  --ark-plan-watermark: rgba(122, 193, 248, 0.052);
+  --ark-plan-muted: var(--ark-neutral-500);
+  --ark-plan-label: var(--ark-neutral-600);
+  --ark-plan-text: var(--ark-neutral-900);
+  --ark-plan-accent: var(--ark-primary-300);
+  --ark-plan-index-bg: var(--ark-surface-inset);
+  --ark-plan-index-border: rgba(122, 193, 248, 0.36);
+  --ark-plan-step-line: rgba(122, 193, 248, 0.12);
+  --ark-plan-step-hover-bg: linear-gradient(90deg, rgba(122, 193, 248, 0.08), transparent 58%),
+                            rgba(122, 193, 248, 0.035);
+  --ark-plan-timeline: rgba(122, 193, 248, 0.26);
+  --ark-plan-chip-bg: rgba(122, 193, 248, 0.1);
+  --ark-plan-chip-border: rgba(122, 193, 248, 0.34);
+  --ark-plan-copy-bg: rgba(255, 255, 255, 0.02);
+  --ark-plan-copy-hover-bg: rgba(122, 193, 248, 0.12);
+  --ark-plan-success: var(--ark-success);
+  --ark-plan-danger: var(--ark-danger);
+  --ark-plan-item-filter: brightness(1.18) saturate(1.12);
+  --ark-plan-delta-filter: brightness(1.12) saturate(1.12);
+
+  /* 结果摘要 / 元信息 */
+  --ark-result-meta-bg: var(--ark-input-bg);
+  --ark-result-meta-border: var(--ark-primary-400);
+  --ark-result-meta-text: var(--ark-neutral-900);
+  --ark-result-meta-label-bg: var(--ark-primary-500);
+  --ark-result-meta-label-text: #06101a;
+  --ark-result-meta-value: var(--ark-primary-300);
+  --ark-result-meta-shadow: inset 0 0 0 1px rgba(122, 193, 248, 0.14),
+                            0 0 14px rgba(43, 131, 198, 0.16);
+  --ark-result-summary-bg: var(--ark-surface-inset);
+  --ark-result-summary-border: var(--ark-border-default);
+  --ark-result-summary-text: var(--ark-neutral-800);
+  --ark-result-summary-strong: var(--ark-primary-400);
+
+  /* 图表 */
+  --ark-chart-bg: rgba(5, 12, 22, 0.12);
+  --ark-chart-grid-x: rgba(122, 193, 248, 0.06);
+  --ark-chart-grid-y: rgba(122, 193, 248, 0.07);
+  --ark-chart-grid-line: rgba(122, 193, 248, 0.2);
+  --ark-chart-axis-line: rgba(122, 193, 248, 0.4);
+  --ark-chart-axis-tick: rgba(122, 193, 248, 0.62);
+  --ark-chart-axis-guide: rgba(122, 193, 248, 0.11);
+  --ark-chart-line-shadow: rgba(99, 180, 247, 0.1);
+  --ark-chart-point: #a8dcff;
+  --ark-chart-point-hover: #d7efff;
+  --ark-chart-axis-label: rgba(176, 209, 236, 0.78);
 }
 
 body {

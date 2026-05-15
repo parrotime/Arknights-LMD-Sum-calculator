@@ -609,7 +609,6 @@ const MainCalculator = ({ onAssistantEgg }) => {
           <div className={styles['main-content-container']}>
             <InputPanel
               state={state}
-              styles={styles}
               handleInputChange={handleInputChange}
               handleUpgradeCountChange={handleUpgradeCountChange}
               handleCalculate={handleCalculate}
@@ -621,12 +620,10 @@ const MainCalculator = ({ onAssistantEgg }) => {
               settings={state.settings}
               onToggle={handleToggleChange}
               onReset={handleResetSettings}
-              styles={styles}
             />
           </div>
           <ResultArea
             state={state}
-            styles={styles}
             calcError={state.calcError}
             calcMeta={state.calcMeta}
           />
