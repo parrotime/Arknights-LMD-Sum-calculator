@@ -5,6 +5,7 @@ import { classifyData } from "../DataService";
 
 const COPY_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/duplication.webp";
 const COPIED_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq04.webp";
+const DATA_SECTION_IDS = ["upgrade-expense", "item-value", "sanity-index", "plan-sample"];
 
 const parseSampleSteps = (way) =>
   way.split("。").map(s => s.trim()).filter(Boolean);
@@ -144,30 +145,44 @@ function DataPage() {
   };
 
   useEffect(() => {
-    const sectionIds = ["upgrade-expense", "item-value", "sanity-index", "plan-sample"];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntry = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    let ticking = false;
 
-        if (visibleEntry?.target?.id) {
-          setActiveSection(visibleEntry.target.id);
-        }
-      },
-      {
-        root: null,
-        rootMargin: "-18% 0px -62% 0px",
-        threshold: [0.08, 0.2, 0.4],
+    const updateActiveSection = () => {
+      const anchorLine = window.innerHeight * 0.36;
+      const sectionPositions = DATA_SECTION_IDS
+        .map((id) => {
+          const target = document.getElementById(id);
+          if (!target) return null;
+          return { id, top: target.getBoundingClientRect().top };
+        })
+        .filter(Boolean);
+
+      const currentSection = sectionPositions.reduce((current, section) => {
+        if (section.top <= anchorLine) return section;
+        return current;
+      }, sectionPositions[0]);
+
+      if (currentSection?.id) {
+        setActiveSection(currentSection.id);
       }
-    );
 
-    sectionIds.forEach((id) => {
-      const target = document.getElementById(id);
-      if (target) observer.observe(target);
-    });
+      ticking = false;
+    };
 
-    return () => observer.disconnect();
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(updateActiveSection);
+    };
+
+    updateActiveSection();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
   }, []);
 
   // 从 classifyData 动态生成升级表格数据（Table A）
@@ -342,11 +357,19 @@ function DataPage() {
 
   const generateSanityList = (data) => (
     <div className={styles['sanity-list']}>
-      {data.map((row, i) => (
-        <div className={styles['sanity-row']} key={`${row.consume}-${i}`}>
-          <span className={styles['sanity-code']}>{String(i + 1).padStart(2, "0")}</span>
-          <strong>{row.consume}</strong>
-          <span>{row.level}</span>
+      {[data.slice(0, 6), data.slice(6)].map((column, columnIndex) => (
+        <div className={styles['sanity-column']} key={`sanity-column-${columnIndex}`}>
+          {column.map((row, i) => {
+            const rowIndex = columnIndex === 0 ? i : i + 6;
+
+            return (
+              <div className={styles['sanity-row']} key={`${row.consume}-${rowIndex}`}>
+                <span className={styles['sanity-code']}>{String(rowIndex + 1).padStart(2, "0")}</span>
+                <strong>{row.consume}</strong>
+                <span>{row.level}</span>
+              </div>
+            );
+          })}
         </div>
       ))}
     </div>
@@ -360,7 +383,8 @@ function DataPage() {
           <p>DATA ARCHIVE</p>
         </header>
 
-        <nav className={styles['data-index']} aria-label="数据档案索引">
+        <nav className={styles['data-floating-index']} aria-label="数据档案索引">
+          <span className={styles['floating-index-label']}>INDEX</span>
           <button type="button" className={activeSection === "upgrade-expense" ? styles.active : ""} onClick={() => scrollToSection("upgrade-expense")}>升级消耗</button>
           <button type="button" className={activeSection === "item-value" ? styles.active : ""} onClick={() => scrollToSection("item-value")}>物品价值</button>
           <button type="button" className={activeSection === "sanity-index" ? styles.active : ""} onClick={() => scrollToSection("sanity-index")}>理智速查</button>
