@@ -1,0 +1,50 @@
+{
+  "name": "trade-limits",
+  "description": "贸易站 2/3/4/5 赤金订单限制",
+  "cases": [
+    {
+      "name": "target-2500-default-keeps-5-and-2-plus-3",
+      "target": 2500,
+      "expect": {
+        "requiredPathKeys": ["222x1", "117x1_118x1"]
+      }
+    },
+    {
+      "name": "target-2500-trade5-zero",
+      "target": 2500,
+      "userLimits": { "trade5Limit": 0 },
+      "expect": {
+        "requiredPathKeys": ["117x1_118x1"],
+        "forbiddenPathKeys": ["222x1"],
+        "maxItemCounts": { "222": 0 }
+      }
+    },
+    {
+      "name": "target-2500-trade2-and-trade3-zero",
+      "target": 2500,
+      "userLimits": { "trade2Limit": 0, "trade3Limit": 0 },
+      "expect": {
+        "forbiddenPathKeys": ["117x1_118x1"],
+        "maxItemCounts": { "117": 0, "118": 0 }
+      }
+    },
+    {
+      "name": "target-2000-trade4-zero",
+      "target": 2000,
+      "userLimits": { "trade4Limit": 0 },
+      "expect": {
+        "forbiddenPathKeys": ["119x1"],
+        "maxItemCounts": { "119": 0 }
+      }
+    },
+    {
+      "name": "target-1000-trade2-zero",
+      "target": 1000,
+      "userLimits": { "trade2Limit": 0 },
+      "expect": {
+        "forbiddenPathKeys": ["117x1"],
+        "maxItemCounts": { "117": 0 }
+      }
+    }
+  ]
+}

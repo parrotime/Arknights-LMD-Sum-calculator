@@ -1,0 +1,19 @@
+{
+  "name": "stress",
+  "description": "并发压测用例池",
+  "cases": [
+    { "name": "stress-2500", "target": 2500 },
+    { "name": "stress-3764", "target": 3764 },
+    { "name": "stress-4999", "target": 4999 },
+    {
+      "name": "stress-2500-trade5-zero",
+      "target": 2500,
+      "userLimits": { "trade5Limit": 0 }
+    },
+    {
+      "name": "stress-no-sanity-3000",
+      "target": 3000,
+      "userLimits": { "sanityLimit": 0 }
+    }
+  ]
+}
