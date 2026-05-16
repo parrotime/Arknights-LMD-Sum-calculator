@@ -1987,5 +1987,14 @@
     "rarity": 5,
     "type": "Orundums",
     "consume": 0
+  },
+    {
+    "id": 222,
+    "item_id": "5-4",
+    "item_name": "贸易站售卖5条赤金",
+    "item_value": 2500,
+    "rarity": 5,
+    "type": "trade",
+    "consume": 0
   }
 ]

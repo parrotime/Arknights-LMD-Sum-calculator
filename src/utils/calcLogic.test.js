@@ -109,17 +109,41 @@ describe("computeDiff", () => {
 // ============================================================
 describe("buildLimits", () => {
   it("空字符串 → Infinity", () => {
-    const r = buildLimits({ upgrade0Count: "", upgrade1Count: "", upgrade2Count: "", sanityCount: "" });
+    const r = buildLimits({
+      upgrade0Count: "",
+      upgrade1Count: "",
+      upgrade2Count: "",
+      sanityCount: "",
+      trade2Count: "",
+      trade3Count: "",
+      trade4Count: "",
+      trade5Count: "",
+    });
     assert.equal(r.upgrade0Limit, Infinity);
     assert.equal(r.sanityLimit, Infinity);
+    assert.equal(r.trade2Limit, Infinity);
+    assert.equal(r.trade5Limit, Infinity);
   });
 
   it("数字字符串 → 解析为整数", () => {
-    const r = buildLimits({ upgrade0Count: "3", upgrade1Count: "5", upgrade2Count: "0", sanityCount: "100" });
+    const r = buildLimits({
+      upgrade0Count: "3",
+      upgrade1Count: "5",
+      upgrade2Count: "0",
+      sanityCount: "100",
+      trade2Count: "2",
+      trade3Count: "3",
+      trade4Count: "4",
+      trade5Count: "0",
+    });
     assert.equal(r.upgrade0Limit, 3);
     assert.equal(r.upgrade1Limit, 5);
     assert.equal(r.upgrade2Limit, 0);
     assert.equal(r.sanityLimit, 100);
+    assert.equal(r.trade2Limit, 2);
+    assert.equal(r.trade3Limit, 3);
+    assert.equal(r.trade4Limit, 4);
+    assert.equal(r.trade5Limit, 0);
   });
 });
 
@@ -129,21 +153,66 @@ describe("buildLimits", () => {
 describe("buildCacheKey", () => {
   it("相同输入产生相同 key", () => {
     const s = { a: true, b: false };
-    const l = { upgrade0Limit: 1, upgrade1Limit: 2, upgrade2Limit: 3, sanityLimit: Infinity };
+    const l = {
+      upgrade0Limit: 1,
+      upgrade1Limit: 2,
+      upgrade2Limit: 3,
+      sanityLimit: Infinity,
+      trade2Limit: Infinity,
+      trade3Limit: Infinity,
+      trade4Limit: Infinity,
+      trade5Limit: Infinity,
+    };
     assert.equal(buildCacheKey(100, s, l), buildCacheKey(100, s, l));
   });
 
   it("settings 顺序不影响 key（已排序）", () => {
     const s1 = { b: false, a: true };
     const s2 = { a: true, b: false };
-    const l = { upgrade0Limit: 0, upgrade1Limit: 0, upgrade2Limit: 0, sanityLimit: 0 };
+    const l = {
+      upgrade0Limit: 0,
+      upgrade1Limit: 0,
+      upgrade2Limit: 0,
+      sanityLimit: 0,
+      trade2Limit: 0,
+      trade3Limit: 0,
+      trade4Limit: 0,
+      trade5Limit: 0,
+    };
     assert.equal(buildCacheKey(50, s1, l), buildCacheKey(50, s2, l));
   });
 
   it("不同 difference 产生不同 key", () => {
     const s = { a: true };
-    const l = { upgrade0Limit: 0, upgrade1Limit: 0, upgrade2Limit: 0, sanityLimit: 0 };
+    const l = {
+      upgrade0Limit: 0,
+      upgrade1Limit: 0,
+      upgrade2Limit: 0,
+      sanityLimit: 0,
+      trade2Limit: 0,
+      trade3Limit: 0,
+      trade4Limit: 0,
+      trade5Limit: 0,
+    };
     assert.notEqual(buildCacheKey(100, s, l), buildCacheKey(200, s, l));
+  });
+
+  it("不同 trade 限制产生不同 key", () => {
+    const s = { a: true };
+    const base = {
+      upgrade0Limit: 0,
+      upgrade1Limit: 0,
+      upgrade2Limit: 0,
+      sanityLimit: 0,
+      trade2Limit: 0,
+      trade3Limit: 0,
+      trade4Limit: 0,
+      trade5Limit: 0,
+    };
+    assert.notEqual(
+      buildCacheKey(100, s, base),
+      buildCacheKey(100, s, { ...base, trade5Limit: 1 })
+    );
   });
 });
 
@@ -151,25 +220,25 @@ describe("buildCacheKey", () => {
 // 5. getRarityColor
 // ============================================================
 describe("getRarityColor", () => {
-  it("rarity=1 → darkgreen", () => {
-    assert.equal(getRarityColor(1), "darkgreen");
+  it("rarity=1 → 绿色", () => {
+    assert.equal(getRarityColor(1), "#3f9f68");
   });
 
-  it("rarity=2 → darkblue", () => {
-    assert.equal(getRarityColor(2), "darkblue");
+  it("rarity=2 → 蓝色", () => {
+    assert.equal(getRarityColor(2), "#4f8fd8");
   });
 
-  it("rarity=3 → purple", () => {
-    assert.equal(getRarityColor(3), "purple");
+  it("rarity=3 → 紫色", () => {
+    assert.equal(getRarityColor(3), "#b277ff");
   });
 
-  it("rarity=5 → orange", () => {
-    assert.equal(getRarityColor(5), "orange");
+  it("rarity=5 → 橙色", () => {
+    assert.equal(getRarityColor(5), "#f0a33a");
   });
 
-  it("未知 rarity → black", () => {
-    assert.equal(getRarityColor(99), "black");
-    assert.equal(getRarityColor(undefined), "black");
+  it("未知 rarity → 默认浅色", () => {
+    assert.equal(getRarityColor(99), "#d8e3ec");
+    assert.equal(getRarityColor(undefined), "#d8e3ec");
   });
 });
 

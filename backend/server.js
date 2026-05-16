@@ -251,7 +251,15 @@ app.post("/find-paths", async (req, res) => {
     const items = filterItems(settings);
 
     // 检查 userLimits
-    const defaultLimits = { upgrade0Limit: Infinity, upgrade1Limit: Infinity, upgrade2Limit: Infinity, sanityLimit: Infinity,
+    const defaultLimits = {
+      upgrade0Limit: Infinity,
+      upgrade1Limit: Infinity,
+      upgrade2Limit: Infinity,
+      sanityLimit: Infinity,
+      trade2Limit: Infinity,
+      trade3Limit: Infinity,
+      trade4Limit: Infinity,
+      trade5Limit: Infinity,
     };
     const limits = { ...defaultLimits, ...userLimits }; 
 
@@ -274,7 +282,11 @@ app.post("/find-paths", async (req, res) => {
       !checkLimit(limits.upgrade0Limit, "upgrade0Limit") ||
       !checkLimit(limits.upgrade1Limit, "upgrade1Limit") ||
       !checkLimit(limits.upgrade2Limit, "upgrade2Limit") ||
-      !checkLimit(limits.sanityLimit, "sanityLimit")
+      !checkLimit(limits.sanityLimit, "sanityLimit") ||
+      !checkLimit(limits.trade2Limit, "trade2Limit") ||
+      !checkLimit(limits.trade3Limit, "trade3Limit") ||
+      !checkLimit(limits.trade4Limit, "trade4Limit") ||
+      !checkLimit(limits.trade5Limit, "trade5Limit")
     ) {
       const safeLimits = {};
       for (const key in limits) {
@@ -288,7 +300,16 @@ app.post("/find-paths", async (req, res) => {
 
     logger.info({ ip: req.ip, rawGoal, target, itemCount: items.length, limits }, "Calculation request");
 
-    const hardCaps = { upgrade0Limit: 10, upgrade1Limit: 10, upgrade2Limit: 10, sanityLimit: 200 };
+    const hardCaps = {
+      upgrade0Limit: 10,
+      upgrade1Limit: 10,
+      upgrade2Limit: 10,
+      sanityLimit: 200,
+      trade2Limit: 10,
+      trade3Limit: 10,
+      trade4Limit: 10,
+      trade5Limit: 10,
+    };
     const finalLimits = {};
     for (const key in limits) {
       finalLimits[key] = (limits[key] === null || limits[key] === Infinity)

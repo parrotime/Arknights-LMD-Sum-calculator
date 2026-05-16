@@ -5,8 +5,10 @@ import { classifyData } from "./DataService.js";
 
 const {
   getOptimalGreedyCombo,
+  getLimitedCombos,
   getOptimalStageCombo,
   savePath,
+  hasRemovableZeroSumSubset,
   isPathValid,
   mergeAndSortPath,
   tradeDenoms,
@@ -92,6 +94,23 @@ describe("getOptimalGreedyCombo", () => {
     const r2 = getOptimalGreedyCombo(2000, tradeDenoms, cache);
     assert.deepEqual(r1, r2);
     assert.equal(cache.size, 1);
+  });
+});
+
+describe("getLimitedCombos", () => {
+  it("trade: 2500 同时保留 5 赤金和 2+3 赤金表达", () => {
+    const combos = getLimitedCombos(2500, tradeDenoms, new Map());
+    const keys = combos.map((combo) =>
+      [...combo].sort((a, b) => a.id - b.id).map((s) => `${s.id}x${s.count}`).join("_")
+    );
+    assert.ok(keys.includes("222x1"));
+    assert.ok(keys.includes("117x1_118x1"));
+  });
+
+  it("trade5Limit=0 时 2500 不能使用 5 赤金", () => {
+    const combos = getLimitedCombos(2500, tradeDenoms, new Map([[222, 0]]));
+    assert.ok(combos.length > 0);
+    assert.equal(combos.some((combo) => combo.some((step) => step.id === 222)), false);
   });
 });
 
@@ -218,6 +237,25 @@ describe("mergeAndSortPath", () => {
   });
 });
 
+describe("hasRemovableZeroSumSubset", () => {
+  it("识别可以删掉的正负抵消子集", () => {
+    const path = [
+      { id: 106, count: 2 },
+      { id: 222, count: 1 },
+      { id: 121, count: 4 },
+    ];
+    assert.equal(hasRemovableZeroSumSubset(path, itemMap), true);
+  });
+
+  it("纯赤金 2+3 不应被视为冗余", () => {
+    const path = [
+      { id: 117, count: 1 },
+      { id: 118, count: 1 },
+    ];
+    assert.equal(hasRemovableZeroSumSubset(path, itemMap), false);
+  });
+});
+
 // ============================================================
 // 5. findPaths 集成测试 — 边界值
 // ============================================================
@@ -286,6 +324,22 @@ describe("findPaths 已知输入", () => {
     }
   });
 
+  it("target=2500 同时返回 5 赤金和 2+3 赤金方案", () => {
+    const paths = findPaths(2500);
+    const keys = paths.map((p) =>
+      [...p].sort((a, b) => a.id - b.id).map((s) => `${s.id}x${s.count}`).join("_")
+    );
+    assert.ok(keys.includes("222x1"));
+    assert.ok(keys.includes("117x1_118x1"));
+  });
+
+  it("target=2500 不返回可删除正负抵消子集的路径", () => {
+    const paths = findPaths(2500);
+    for (const path of paths) {
+      assert.equal(hasRemovableZeroSumSubset(path, itemMap), false);
+    }
+  });
+
   it("返回路径数量不超过 TARGET_PATH_COUNT", () => {
     const paths = findPaths(500);
     assert.ok(paths.length <= TARGET_PATH_COUNT);
@@ -324,5 +378,14 @@ describe("findPaths 用户限制", () => {
         assert.notEqual(item?.type, "upgrade_only_0");
       }
     }
+  });
+
+  it("trade5Limit=0 时 target=2500 仍可返回 2+3 赤金方案", () => {
+    const paths = findPaths(2500, classifyData, { trade5Limit: 0 });
+    const keys = paths.map((p) =>
+      [...p].sort((a, b) => a.id - b.id).map((s) => `${s.id}x${s.count}`).join("_")
+    );
+    assert.equal(keys.includes("222x1"), false);
+    assert.ok(keys.includes("117x1_118x1"));
   });
 });

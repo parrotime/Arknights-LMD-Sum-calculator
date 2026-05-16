@@ -250,6 +250,7 @@ const reducer = (state, action) => {
         ...clearResultState(state),
         [action.field]: action.value,
         settingsDirty: true,
+        resultInvalidated: shouldNotifyResultInvalidated(state),
       };
     case "SWAP_NUMS":
       return {

@@ -16,8 +16,13 @@ const getMaxCountForId = (id, itemMap) => {
   return 10;
 };
 
-//通用贪心面额组合（售卖赤金 / 基建合成共用）
-const tradeDenoms = [{ id: 119, value: 2000 }, { id: 118, value: 1500 }, { id: 117, value: 1000 }];
+//通用面额组合（售卖赤金 / 基建合成共用）
+const tradeDenoms = [
+  { id: 222, value: 2500, limitKey: "trade5Limit" },
+  { id: 119, value: 2000, limitKey: "trade4Limit" },
+  { id: 118, value: 1500, limitKey: "trade3Limit" },
+  { id: 117, value: 1000, limitKey: "trade2Limit" },
+];
 const materialDenoms = [{ id: 103, value: 400 }, { id: 102, value: 300 }, { id: 101, value: 200 }, { id: 100, value: 100 }];
 
 const getOptimalGreedyCombo = (absTarget, denoms, cache) => {
@@ -38,6 +43,109 @@ const getOptimalGreedyCombo = (absTarget, denoms, cache) => {
   const result = remaining === 0 ? { steps, combo } : { steps: Infinity, combo: [] };
   cache.set(absTarget, result);
   return result;
+};
+
+const getTradeLimitCacheKey = (absTarget, denoms, limits) =>
+  `${absTarget}:${denoms
+    .map(({ id }) => `${id}:${limits?.get(id) ?? ""}`)
+    .join("|")}`;
+
+const isBetterCombo = (candidate, current, denoms) => {
+  if (!current) return true;
+  if (candidate.steps !== current.steps) return candidate.steps < current.steps;
+
+  const candidateCounts = new Map(candidate.combo.map((step) => [step.id, step.count]));
+  const currentCounts = new Map(current.combo.map((step) => [step.id, step.count]));
+  for (const { id } of denoms) {
+    const diff = (candidateCounts.get(id) || 0) - (currentCounts.get(id) || 0);
+    if (diff !== 0) return diff > 0;
+  }
+  return false;
+};
+
+const getOptimalLimitedCombo = (absTarget, denoms, limits, cache) => {
+  if (absTarget === 0) return { steps: 0, combo: [] };
+  if (absTarget < 0) return { steps: Infinity, combo: [] };
+
+  const cacheKey = getTradeLimitCacheKey(absTarget, denoms, limits);
+  if (cache.has(cacheKey)) return cache.get(cacheKey);
+
+  let dp = new Array(absTarget + 1).fill(null);
+  dp[0] = { steps: 0, combo: [] };
+
+  for (const denom of denoms) {
+    const next = dp.slice();
+    const rawLimit = limits?.get(denom.id) ?? Infinity;
+    const denomLimit = Number.isFinite(rawLimit)
+      ? Math.max(0, Math.floor(rawLimit))
+      : Infinity;
+
+    for (let amount = 0; amount <= absTarget; amount++) {
+      const base = dp[amount];
+      if (!base) continue;
+
+      const maxCount = Math.min(
+        denomLimit,
+        Math.floor((absTarget - amount) / denom.value)
+      );
+      for (let count = 1; count <= maxCount; count++) {
+        const nextAmount = amount + denom.value * count;
+        const candidate = {
+          steps: base.steps + count,
+          combo: [...base.combo, { id: denom.id, count }],
+        };
+        if (isBetterCombo(candidate, next[nextAmount], denoms)) {
+          next[nextAmount] = candidate;
+        }
+      }
+    }
+    dp = next;
+  }
+
+  const result = dp[absTarget] || { steps: Infinity, combo: [] };
+  cache.set(cacheKey, result);
+  return result;
+};
+
+const getLimitedCombos = (absTarget, denoms, limits, maxCombos = 10) => {
+  if (absTarget === 0) return [[]];
+  if (absTarget < 0) return [];
+
+  const results = [];
+  const current = [];
+
+  const dfs = (index, remaining) => {
+    if (results.length >= maxCombos) return;
+    if (index >= denoms.length) {
+      if (remaining === 0) {
+        results.push(current.map((step) => ({ ...step })));
+      }
+      return;
+    }
+
+    const denom = denoms[index];
+    const rawLimit = limits?.get(denom.id) ?? Infinity;
+    const denomLimit = Number.isFinite(rawLimit)
+      ? Math.max(0, Math.floor(rawLimit))
+      : Infinity;
+    const maxCount = Math.min(denomLimit, Math.floor(remaining / denom.value));
+
+    for (let count = maxCount; count >= 0; count--) {
+      if (count > 0) current.push({ id: denom.id, count });
+      dfs(index + 1, remaining - denom.value * count);
+      if (count > 0) current.pop();
+    }
+  };
+
+  dfs(0, absTarget);
+  return results
+    .filter((combo) => combo.length > 0)
+    .sort((a, b) => {
+      const totalCountA = a.reduce((sum, step) => sum + step.count, 0);
+      const totalCountB = b.reduce((sum, step) => sum + step.count, 0);
+      if (totalCountA !== totalCountB) return totalCountA - totalCountB;
+      return a[0]?.id - b[0]?.id;
+    });
 };
 
 //计算”消耗理智”最优组合（精确有界背包 DP）
@@ -82,11 +190,10 @@ const getOptimalStageCombo = (subTarget, stageItems, itemMap, cache) => {
 };
 
 //根据物品类型获取最优组合片段（两阶段共用）
-const getOptimalFragment = (item, count, stageItems, itemMap, caches) => {
+const getOptimalFragment = (item, count, stageItems, itemMap, caches, tradeLimits) => {
   const val = item.item_value * count;
   if (item.type === "trade") {
-    const { combo } = getOptimalGreedyCombo(val, tradeDenoms, caches.trade);
-    return combo.length > 0 ? combo : null;
+    return [{ id: item.id, count }];
   }
   if (item.type === "material") {
     const { combo } = getOptimalGreedyCombo(Math.abs(val), materialDenoms, caches.material);
@@ -100,23 +207,19 @@ const getOptimalFragment = (item, count, stageItems, itemMap, caches) => {
 };
 
 // 路径规范 - 只选择最优的步骤组合
-function normalizePath(path, itemMap, caches) {
-  let totalTradeValue = 0;
+function normalizePath(path, itemMap, caches, tradeLimits) {
   let totalMaterialValue = 0;
-  const otherSteps = []; //非售卖赤金、基建合成的步骤
+  const otherSteps = []; //非基建合成的步骤
 
   for (const step of path) {
     const item = itemMap.get(step.id);
-    if (item?.type === "trade") {
-      totalTradeValue += item.item_value * step.count;
-    } else if (item?.type === "material") {
+    if (item?.type === "material") {
       totalMaterialValue += item.item_value * step.count;
     } else {
       otherSteps.push(step);
     }
   }
 
-  const { combo: optimalTradeCombo } = getOptimalGreedyCombo(totalTradeValue, tradeDenoms, caches.trade);
   const { combo: optimalMaterialCombo } = getOptimalGreedyCombo(Math.abs(totalMaterialValue), materialDenoms, caches.material);
 
   const pathMap = new Map();
@@ -125,11 +228,6 @@ function normalizePath(path, itemMap, caches) {
     pathMap.set(step.id, (pathMap.get(step.id) || 0) + step.count);
   }
 
-  if (optimalTradeCombo.length > 0) {
-    for (const step of optimalTradeCombo) {
-      pathMap.set(step.id, (pathMap.get(step.id) || 0) + step.count);
-    }
-  }
   if (optimalMaterialCombo.length > 0) {
     for (const step of optimalMaterialCombo) {
       pathMap.set(step.id, (pathMap.get(step.id) || 0) + step.count);
@@ -141,8 +239,30 @@ function normalizePath(path, itemMap, caches) {
     .sort((a, b) => a.id - b.id);
 }
 
+const buildTradeLimits = (userLimits = {}) => {
+  const limits = new Map();
+  for (const { id, limitKey } of tradeDenoms) {
+    const value = userLimits[limitKey];
+    limits.set(id, value === undefined || value === null ? 10 : value);
+  }
+  return limits;
+};
+
+const isTradePathWithinLimits = (path, itemMap, tradeLimits) => {
+  const counts = new Map();
+  for (const step of path) {
+    const item = itemMap.get(step.id);
+    if (item?.type !== "trade") continue;
+    const nextCount = (counts.get(step.id) || 0) + step.count;
+    counts.set(step.id, nextCount);
+    const limit = tradeLimits?.get(step.id) ?? getMaxCountForId(step.id, itemMap);
+    if (nextCount > limit) return false;
+  }
+  return true;
+};
+
 function savePath(ctx, sum, path) {
-  const { dp, maxPaths, target, itemMap, upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, caches } = ctx;
+  const { dp, maxPaths, target, itemMap, upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, caches, tradeLimits } = ctx;
 
   // 先检查用户限制（廉价操作），再做 normalizePath（昂贵操作）
   let upgrade0Count = 0,
@@ -168,7 +288,10 @@ function savePath(ctx, sum, path) {
     return false;
   }
 
-  const normalizedPath = normalizePath(path, itemMap, caches);
+  const normalizedPath = normalizePath(path, itemMap, caches, tradeLimits);
+  if (!isTradePathWithinLimits(normalizedPath, itemMap, tradeLimits)) {
+    return false;
+  }
   const normalizedPathKey = normalizedPath
     .map((s) => `${s.id}x${s.count}`)
     .join("_");
@@ -293,6 +416,45 @@ function mergeAndSortPath(oldPath, newSteps) {
     .sort((a, b) => a.id - b.id);
 }
 
+function hasRemovableZeroSumSubset(path, itemMap) {
+  const values = [];
+  let hasPositive = false;
+  let hasNegative = false;
+
+  for (const step of path) {
+    const item = itemMap.get(step.id);
+    const value = item?.item_value || 0;
+    if (value === 0 || step.count <= 0) continue;
+    if (value > 0) hasPositive = true;
+    if (value < 0) hasNegative = true;
+    for (let i = 0; i < step.count; i++) {
+      values.push(value);
+    }
+  }
+
+  if (!hasPositive || !hasNegative || values.length < 2) return false;
+
+  const countsBySum = new Map([[0, new Set([0])]]);
+  for (const value of values) {
+    const snapshot = Array.from(countsBySum.entries());
+    for (const [sum, counts] of snapshot) {
+      for (const count of counts) {
+        const nextSum = sum + value;
+        const nextCount = count + 1;
+        if (nextSum === 0 && nextCount > 0 && nextCount < values.length) {
+          return true;
+        }
+        if (!countsBySum.has(nextSum)) {
+          countsBySum.set(nextSum, new Set());
+        }
+        countsBySum.get(nextSum).add(nextCount);
+      }
+    }
+  }
+
+  return false;
+}
+
 
 function finalizeResult(dp, target, maxPaths, itemMap) {
   const targetState = dp.get(target);
@@ -315,6 +477,7 @@ function finalizeResult(dp, target, maxPaths, itemMap) {
       return path;
     })
     .filter(Boolean)
+    .filter((path) => !hasRemovableZeroSumSubset(path, itemMap))
     .sort((a, b) => {
       // 优先 1: 比较路径中步骤的种类数量，种类少的排前面
       const lengthDiff = a.length - b.length;
@@ -399,6 +562,7 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
   const upgrade1Limit = userLimits.upgrade1Limit ?? 10;
   const upgrade2Limit = userLimits.upgrade2Limit ?? 10;
   const sanityLimit = userLimits.sanityLimit ?? Infinity;
+  const tradeLimits = buildTradeLimits(userLimits);
   const stageItems = items
     .filter(
       (item) => item.type === "3_star" || item.type === "2_star"
@@ -415,7 +579,7 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
   );
 
   const ctx = { dp, maxPaths: MAX_PATHS_PER_SUM, target, itemMap,
-    upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, caches };
+    upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit, tradeLimits, caches };
 
   // 第一阶段：单步路径（不提前终止，收集所有单步解作为 Phase 2 基础）
   for (const item of sortedItems) {
@@ -427,9 +591,16 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
       Math.abs(itemValue * (count + 1) - target) <= Math.abs(target) + Math.abs(itemValue)*0.5 ) {
       count++;
       const newSum = itemValue * count;
-      const newPath = getOptimalFragment(item, count, stageItems, itemMap, caches);
+      const newPath = getOptimalFragment(item, count, stageItems, itemMap, caches, tradeLimits);
       if (!newPath) continue;
       savePath(ctx, newSum, newPath);
+    }
+  }
+
+  if (target > 0) {
+    const tradeCombos = getLimitedCombos(target, tradeDenoms, tradeLimits, MAX_PATHS_FOR_TARGET);
+    for (const combo of tradeCombos) {
+      savePath(ctx, target, combo);
     }
   }
 
@@ -461,7 +632,7 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
         if (exactCount > 0 && Number.isInteger(exactCount) && exactCount <= getMaxCountForId(item.id, itemMap)) {
           exactMatchTried = true;
           for (const oldPath of paths) {
-            const newPathFragment = getOptimalFragment(item, exactCount, stageItems, itemMap, caches);
+            const newPathFragment = getOptimalFragment(item, exactCount, stageItems, itemMap, caches, tradeLimits);
             if (!newPathFragment) continue;
             const potentialNewPath = mergeAndSortPath(oldPath, newPathFragment);
             if (isPathValid(potentialNewPath, itemMap)) {
@@ -489,7 +660,7 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
           // 跳过精确匹配已处理的情况
           if (exactMatchTried && newSum === target) continue;
           for (const oldPath of paths) {
-            const newPathFragment = getOptimalFragment(item, count, stageItems, itemMap, caches);
+            const newPathFragment = getOptimalFragment(item, count, stageItems, itemMap, caches, tradeLimits);
             if (!newPathFragment) continue;
             const potentialNewPath = mergeAndSortPath(oldPath, newPathFragment);
             if (isPathValid(potentialNewPath, itemMap)) {
@@ -513,6 +684,7 @@ export const findPaths = (target, items = classifyData, userLimits = {}) => {
 // 导出内部函数供单元测试使用
 export const _test = {
   getOptimalGreedyCombo,
+  getLimitedCombos,
   getOptimalStageCombo,
   getOptimalFragment,
   normalizePath,
@@ -520,6 +692,7 @@ export const _test = {
   isPathValid,
   mergeAndSortPath,
   finalizeResult,
+  hasRemovableZeroSumSubset,
   getMaxCountForId,
   tradeDenoms,
   materialDenoms,

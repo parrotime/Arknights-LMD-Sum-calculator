@@ -36,20 +36,38 @@ export const computeDiff = (num1, num2) => {
 // 2. 限制参数与缓存键
 // ============================================================
 
-/** 从 state 构建升级/理智限制参数 */
+const parseLimit = (value) =>
+  value === "" || value === undefined || value === null ? Infinity : parseInt(value, 10);
+
+/** 从 state 构建数量限制参数 */
 export const buildLimits = (state) => ({
-  upgrade0Limit: state.upgrade0Count === "" ? Infinity : parseInt(state.upgrade0Count, 10),
-  upgrade1Limit: state.upgrade1Count === "" ? Infinity : parseInt(state.upgrade1Count, 10),
-  upgrade2Limit: state.upgrade2Count === "" ? Infinity : parseInt(state.upgrade2Count, 10),
-  sanityLimit: state.sanityCount === "" ? Infinity : parseInt(state.sanityCount, 10),
+  upgrade0Limit: parseLimit(state.upgrade0Count),
+  upgrade1Limit: parseLimit(state.upgrade1Count),
+  upgrade2Limit: parseLimit(state.upgrade2Count),
+  sanityLimit: parseLimit(state.sanityCount),
+  trade2Limit: parseLimit(state.trade2Count),
+  trade3Limit: parseLimit(state.trade3Count),
+  trade4Limit: parseLimit(state.trade4Count),
+  trade5Limit: parseLimit(state.trade5Count),
 });
+
+const LIMIT_CACHE_KEYS = [
+  "upgrade0Limit",
+  "upgrade1Limit",
+  "upgrade2Limit",
+  "sanityLimit",
+  "trade2Limit",
+  "trade3Limit",
+  "trade4Limit",
+  "trade5Limit",
+];
 
 /** 构建本地缓存键 */
 export const buildCacheKey = (difference, settings, limits) =>
   `${difference}_${Object.entries(settings)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([k, v]) => `${k}:${v}`)
-    .join("|")}_${limits.upgrade0Limit}_${limits.upgrade1Limit}_${limits.upgrade2Limit}_${limits.sanityLimit}`;
+    .join("|")}_${LIMIT_CACHE_KEYS.map((key) => `${key}:${limits[key]}`).join("|")}`;
 
 // ============================================================
 // 3. PathRenderer 计算逻辑

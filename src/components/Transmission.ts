@@ -7,6 +7,10 @@ interface UserLimits {
   upgrade1Limit: number | string;
   upgrade2Limit: number | string;
   sanityLimit: number | string;
+  trade2Limit: number | string;
+  trade3Limit: number | string;
+  trade4Limit: number | string;
+  trade5Limit: number | string;
 }
 
 interface ApiError extends Error {
@@ -17,7 +21,16 @@ interface ApiError extends Error {
 export const Transmission = async (
   target: number,
   settings: Settings,
-  { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit }: UserLimits,
+  {
+    upgrade0Limit,
+    upgrade1Limit,
+    upgrade2Limit,
+    sanityLimit,
+    trade2Limit,
+    trade3Limit,
+    trade4Limit,
+    trade5Limit,
+  }: UserLimits,
   rawGoal: number,
 ) => {
   try {
@@ -27,7 +40,16 @@ export const Transmission = async (
      body: JSON.stringify({
        target,
        settings,
-       userLimits: { upgrade0Limit, upgrade1Limit, upgrade2Limit, sanityLimit },
+       userLimits: {
+         upgrade0Limit,
+         upgrade1Limit,
+         upgrade2Limit,
+         sanityLimit,
+         trade2Limit,
+         trade3Limit,
+         trade4Limit,
+         trade5Limit,
+       },
        rawGoal,
      }),
    });

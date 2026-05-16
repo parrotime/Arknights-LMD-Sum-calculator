@@ -129,6 +129,14 @@ describe("/find-paths 输入校验", () => {
     });
     assert.equal(res.status, 400);
   });
+
+  it("userLimits 中 trade5Limit 超出范围 → 400", async () => {
+    const res = await post("/find-paths", {
+      ...validBody,
+      userLimits: { trade5Limit: 11 },
+    });
+    assert.equal(res.status, 400);
+  });
 });
 
 // ============================================================
@@ -165,17 +173,48 @@ describe("/find-paths 缓存", () => {
     const data = await res2.json();
     assert.equal(data.cache, "miss");
   });
+
+  it("不同 trade userLimits 不命中缓存", async () => {
+    await post("/find-paths", { ...validBody, target: 2500 });
+    const res2 = await post("/find-paths", {
+      ...validBody,
+      target: 2500,
+      userLimits: { trade5Limit: 0 },
+    });
+    const data = await res2.json();
+    assert.equal(data.cache, "miss");
+  });
 });
 
 // ============================================================
-// 4. 超时处理
+// 4. trade 限制
+// ============================================================
+describe("/find-paths trade 限制", () => {
+  it("trade5Limit=0 时 target=2500 不返回售卖5赤金方案", async () => {
+    const res = await post("/find-paths", {
+      ...validBody,
+      target: 2500,
+      userLimits: { trade5Limit: 0 },
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    const keys = data.paths.map((p) =>
+      [...p].sort((a, b) => a.id - b.id).map((s) => `${s.id}x${s.count}`).join("_")
+    );
+    assert.equal(keys.includes("222x1"), false);
+    assert.ok(keys.includes("117x1_118x1"));
+  });
+});
+
+// ============================================================
+// 5. 超时处理
 // ============================================================
 describe("/find-paths 超时处理", () => {
   it("worker 超时返回 504", async () => {
     const original = process.env.CALC_TIMEOUT;
     process.env.CALC_TIMEOUT = "1"; // 1ms，必然超时
     try {
-      const res = await post("/find-paths", validBody);
+      const res = await post("/find-paths", { ...validBody, target: 4999 });
       assert.equal(res.status, 504);
       const data = await res.json();
       assert.ok(data.error.includes("计算超时"));
