@@ -1,6 +1,8 @@
 package data
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"os"
 )
@@ -16,8 +18,9 @@ type Item struct {
 }
 
 type Store struct {
-	Items []Item
-	ByID  map[int]Item
+	Items   []Item
+	ByID    map[int]Item
+	Version string
 }
 
 func LoadItems(file string) (*Store, error) {
@@ -36,5 +39,8 @@ func LoadItems(file string) (*Store, error) {
 		byID[item.ID] = item
 	}
 
-	return &Store{Items: items, ByID: byID}, nil
+	sum := sha256.Sum256(bytes)
+	version := hex.EncodeToString(sum[:])
+
+	return &Store{Items: items, ByID: byID, Version: version}, nil
 }

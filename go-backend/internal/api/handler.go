@@ -16,6 +16,7 @@ import (
 
 type HandlerOptions struct {
 	Items          []data.Item
+	DataVersion    string
 	Cache          *cache.TTLCache
 	Logger         *slog.Logger
 	CalcTimeout    time.Duration
@@ -24,6 +25,7 @@ type HandlerOptions struct {
 
 type Handler struct {
 	items       []data.Item
+	dataVersion string
 	cache       *cache.TTLCache
 	logger      *slog.Logger
 	calcTimeout time.Duration
@@ -37,6 +39,7 @@ func NewHandler(options HandlerOptions) *Handler {
 	}
 	return &Handler{
 		items:       options.Items,
+		dataVersion: options.DataVersion,
 		cache:       options.Cache,
 		logger:      options.Logger,
 		calcTimeout: options.CalcTimeout,
@@ -81,7 +84,7 @@ func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
 	}
 
 	items := filterItems(h.items, *req.Settings)
-	cacheKey := buildCacheKey(target, *req.Settings, limits, req.CalcMode)
+	cacheKey := buildCacheKey(target, *req.Settings, limits, req.CalcMode, h.dataVersion)
 	if cached, ok := h.cache.Get(cacheKey); ok {
 		writeJSON(w, http.StatusOK, findPathsResponse{
 			Success:  true,
@@ -152,16 +155,17 @@ func (h *Handler) handleCalcError(w http.ResponseWriter, err error) {
 	writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "服务器繁忙，当前排队请求过多，请稍后再试。"})
 }
 
-func buildCacheKey(target int, reqSettings settings, limits calc.Limits, calcMode string) string {
+func buildCacheKey(target int, reqSettings settings, limits calc.Limits, calcMode string, dataVersion string) string {
 	if calcMode == "" {
 		calcMode = "fast"
 	}
 	payload := struct {
-		Target   int         `json:"target"`
-		Settings settings    `json:"settings"`
-		Limits   calc.Limits `json:"limits"`
-		Mode     string      `json:"calcMode"`
-	}{target, reqSettings, limits, calcMode}
+		Target      int         `json:"target"`
+		Settings    settings    `json:"settings"`
+		Limits      calc.Limits `json:"limits"`
+		Mode        string      `json:"calcMode"`
+		DataVersion string      `json:"dataVersion"`
+	}{target, reqSettings, limits, calcMode, dataVersion}
 	bytes, _ := json.Marshal(payload)
 	return "paths:" + string(bytes)
 }

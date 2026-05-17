@@ -32,6 +32,7 @@ func main() {
 	resultCache := cache.NewTTLCache(cfg.CacheTTL, cfg.CacheMaxEntries)
 	handler := api.NewHandler(api.HandlerOptions{
 		Items:          store.Items,
+		DataVersion:    store.Version,
 		Cache:          resultCache,
 		Logger:         logger,
 		CalcTimeout:    cfg.CalcTimeout,
@@ -64,7 +65,7 @@ func main() {
 	}
 
 	go func() {
-		logger.Info("Go backend started", "port", cfg.Port, "items", len(store.Items))
+		logger.Info("Go backend started", "port", cfg.Port, "items", len(store.Items), "data_version", store.Version)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Error("server failed", "error", err)
 			os.Exit(1)
