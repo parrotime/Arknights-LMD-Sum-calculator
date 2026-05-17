@@ -1,0 +1,30 @@
+{
+  "type": "comparison",
+  "createdAt": "2026-05-16T13:39:57.881Z",
+  "base": {
+    "backend": "js",
+    "mode": "fast",
+    "summary": {
+      "count": 20,
+      "passed": 20,
+      "failed": 0
+    }
+  },
+  "next": {
+    "backend": "go",
+    "mode": "fast",
+    "summary": {
+      "count": 20,
+      "passed": 20,
+      "failed": 0
+    }
+  },
+  "metrics": {
+    "overallP95Speedup": null,
+    "overallAvgSpeedup": null,
+    "coldP95Speedup": null,
+    "warmP95Speedup": null,
+    "errorRateRatio": null,
+    "timeoutRateRatio": null
+  }
+}

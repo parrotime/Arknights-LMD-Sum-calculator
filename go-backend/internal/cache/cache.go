@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"container/list"
 	"sync"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 )
 
 type entry struct {
+	key       string
 	value     []calc.Path
 	expiresAt time.Time
 }
@@ -16,7 +18,8 @@ type TTLCache struct {
 	mu         sync.RWMutex
 	ttl        time.Duration
 	maxEntries int
-	items      map[string]entry
+	items      map[string]*list.Element
+	lru        *list.List
 }
 
 func NewTTLCache(ttl time.Duration, maxEntries int) *TTLCache {
@@ -29,39 +32,73 @@ func NewTTLCache(ttl time.Duration, maxEntries int) *TTLCache {
 	return &TTLCache{
 		ttl:        ttl,
 		maxEntries: maxEntries,
-		items:      make(map[string]entry),
+		items:      make(map[string]*list.Element),
+		lru:        list.New(),
 	}
 }
 
 func (c *TTLCache) Get(key string) ([]calc.Path, bool) {
-	c.mu.RLock()
-	item, ok := c.items[key]
-	c.mu.RUnlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	element, ok := c.items[key]
 	if !ok {
 		return nil, false
 	}
+	item := element.Value.(*entry)
 	if time.Now().After(item.expiresAt) {
-		c.mu.Lock()
-		delete(c.items, key)
-		c.mu.Unlock()
+		c.removeElement(element)
 		return nil, false
 	}
+	c.lru.MoveToFront(element)
 	return clonePaths(item.value), true
 }
 
 func (c *TTLCache) Set(key string, value []calc.Path) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if len(c.items) >= c.maxEntries {
-		for existing := range c.items {
-			delete(c.items, existing)
-			break
-		}
+
+	if element, ok := c.items[key]; ok {
+		item := element.Value.(*entry)
+		item.value = clonePaths(value)
+		item.expiresAt = time.Now().Add(c.ttl)
+		c.lru.MoveToFront(element)
+		return
 	}
-	c.items[key] = entry{
+
+	c.removeExpiredLocked(time.Now())
+	if len(c.items) >= c.maxEntries {
+		c.removeOldestLocked()
+	}
+	item := &entry{
+		key:       key,
 		value:     clonePaths(value),
 		expiresAt: time.Now().Add(c.ttl),
 	}
+	c.items[key] = c.lru.PushFront(item)
+}
+
+func (c *TTLCache) removeExpiredLocked(now time.Time) {
+	for element := c.lru.Back(); element != nil; {
+		previous := element.Prev()
+		item := element.Value.(*entry)
+		if now.After(item.expiresAt) {
+			c.removeElement(element)
+		}
+		element = previous
+	}
+}
+
+func (c *TTLCache) removeOldestLocked() {
+	if element := c.lru.Back(); element != nil {
+		c.removeElement(element)
+	}
+}
+
+func (c *TTLCache) removeElement(element *list.Element) {
+	item := element.Value.(*entry)
+	delete(c.items, item.key)
+	c.lru.Remove(element)
 }
 
 func clonePaths(paths []calc.Path) []calc.Path {

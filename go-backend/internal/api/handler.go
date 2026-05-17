@@ -95,16 +95,17 @@ func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), h.calcTimeout)
 	defer cancel()
 
+	select {
+	case h.sem <- struct{}{}:
+	case <-ctx.Done():
+		h.handleCalcError(w, ctx.Err())
+		return
+	}
+
 	resultCh := make(chan []calc.Path, 1)
 	errCh := make(chan error, 1)
 	go func() {
-		select {
-		case h.sem <- struct{}{}:
-			defer func() { <-h.sem }()
-		case <-ctx.Done():
-			errCh <- ctx.Err()
-			return
-		}
+		defer func() { <-h.sem }()
 
 		paths, err := calc.FindPathsWithContext(ctx, target, items, limits)
 		if err != nil {

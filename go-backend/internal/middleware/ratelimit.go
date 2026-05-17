@@ -42,6 +42,11 @@ func RateLimit(next http.Handler, cfg RateLimitConfig) http.Handler {
 		ip := clientIP(r)
 		now := time.Now()
 		mu.Lock()
+		for client, window := range clients {
+			if now.After(window.resetAt) {
+				delete(clients, client)
+			}
+		}
 		window := clients[ip]
 		if window.resetAt.IsZero() || now.After(window.resetAt) {
 			window = clientWindow{count: 0, resetAt: now.Add(cfg.Window)}
