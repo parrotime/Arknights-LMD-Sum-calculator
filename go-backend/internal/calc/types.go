@@ -50,12 +50,20 @@ type contextState struct {
 	MaxPaths      int
 	Target        int
 	ItemMap       map[int]data.Item
+	ItemMeta      []itemMeta
 	Upgrade0Limit int
 	Upgrade1Limit int
 	Upgrade2Limit int
 	SanityLimit   int
 	TradeLimits   map[int]int
 	Caches        caches
+}
+
+type itemMeta struct {
+	Value    int
+	MaxCount int
+	IsTrade  bool
+	Exists   bool
 }
 
 type caches struct {

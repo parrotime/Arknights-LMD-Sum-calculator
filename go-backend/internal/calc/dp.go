@@ -27,6 +27,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 	for _, item := range items {
 		itemMap[item.ID] = item
 	}
+	itemMeta := buildItemMeta(items)
 
 	stageItems := make([]data.Item, 0)
 	validItems := make([]data.Item, 0, len(items))
@@ -53,6 +54,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 		MaxPaths:      MaxPathsPerSum,
 		Target:        target,
 		ItemMap:       itemMap,
+		ItemMeta:      itemMeta,
 		Upgrade0Limit: limits.Upgrade0Limit,
 		Upgrade1Limit: limits.Upgrade1Limit,
 		Upgrade2Limit: limits.Upgrade2Limit,
@@ -60,7 +62,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 		TradeLimits:   buildTradeLimits(limits),
 		Caches: caches{
 			Material: make(map[int]ComboResult),
-			Stage:    newStageComboCache(stageItems, itemMap),
+			Stage:    newStageComboCache(stageItems, itemMeta),
 		},
 	}
 
@@ -72,7 +74,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 			return nil, err
 		}
 		itemValue := item.ItemValue
-		maxCount := getMaxCountForID(item.ID, itemMap)
+		maxCount := getMaxCountFromMeta(item.ID, itemMeta)
 		count := 0
 		for count < maxCount &&
 			float64(abs(itemValue*(count+1)-target)) <= float64(abs(target))+float64(abs(itemValue))*0.5 {
@@ -125,7 +127,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 					continue
 				}
 				exactCount := remaining / iv
-				if exactCount <= 0 || exactCount > getMaxCountForID(item.ID, itemMap) {
+				if exactCount <= 0 || exactCount > getMaxCountFromMeta(item.ID, itemMeta) {
 					continue
 				}
 				exactMatchTried = true
@@ -135,7 +137,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 						continue
 					}
 					potential := mergeAndSortPath(oldPath, fragment)
-					if isPathValid(potential, itemMap) {
+					if isPathValid(potential, itemMeta) {
 						if savePath(calcState, target, potential) {
 							enoughPaths = true
 						}
@@ -157,7 +159,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 					return nil, err
 				}
 				itemValue := item.ItemValue
-				maxCount := getMaxCountForID(item.ID, itemMap)
+				maxCount := getMaxCountFromMeta(item.ID, itemMeta)
 				count := 0
 				for count < maxCount &&
 					abs(currentSum+itemValue*(count+1)-target) <= abs(target)+abs(itemValue) {
@@ -172,7 +174,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 							continue
 						}
 						potential := mergeAndSortPath(oldPath, fragment)
-						if isPathValid(potential, itemMap) {
+						if isPathValid(potential, itemMeta) {
 							if savePath(calcState, newSum, potential) {
 								enoughPaths = true
 							}
@@ -203,7 +205,51 @@ func getMaxCountForID(id int, itemMap map[int]data.Item) int {
 	if !ok {
 		return 10
 	}
-	switch item.Type {
+	return maxCountForType(item.Type)
+}
+
+func buildItemMeta(items []data.Item) []itemMeta {
+	maxID := 0
+	for _, item := range items {
+		if item.ID > maxID {
+			maxID = item.ID
+		}
+	}
+
+	metas := make([]itemMeta, maxID+1)
+	for _, item := range items {
+		metas[item.ID] = itemMeta{
+			Value:    item.ItemValue,
+			MaxCount: maxCountForType(item.Type),
+			IsTrade:  item.Type == "trade",
+			Exists:   true,
+		}
+	}
+	return metas
+}
+
+func buildItemMetaFromMap(itemMap map[int]data.Item) []itemMeta {
+	maxID := 0
+	for _, item := range itemMap {
+		if item.ID > maxID {
+			maxID = item.ID
+		}
+	}
+
+	metas := make([]itemMeta, maxID+1)
+	for _, item := range itemMap {
+		metas[item.ID] = itemMeta{
+			Value:    item.ItemValue,
+			MaxCount: maxCountForType(item.Type),
+			IsTrade:  item.Type == "trade",
+			Exists:   true,
+		}
+	}
+	return metas
+}
+
+func maxCountForType(itemType string) int {
+	switch itemType {
 	case "upgrade":
 		return 1
 	case "upgrade_only_1":
@@ -213,6 +259,13 @@ func getMaxCountForID(id int, itemMap map[int]data.Item) int {
 	default:
 		return 10
 	}
+}
+
+func getMaxCountFromMeta(id int, metas []itemMeta) int {
+	if id < 0 || id >= len(metas) || !metas[id].Exists {
+		return 10
+	}
+	return metas[id].MaxCount
 }
 
 func getOptimalGreedyCombo(absTarget int, denoms []Denom, cache map[int]ComboResult) ComboResult {
@@ -315,21 +368,23 @@ func getOptimalStageCombo(subTarget int, cache *stageComboCache) ComboResult {
 }
 
 type stageComboCache struct {
-	items   []data.Item
-	itemMap map[int]data.Item
-	dp      []int
-	from    []fromStep
-	builtTo int
-	results map[int]ComboResult
+	items      []data.Item
+	metas      []itemMeta
+	dp         []int
+	from       []fromStep
+	builtTo    int
+	prebuildTo int
+	results    map[int]ComboResult
 }
 
-func newStageComboCache(stageItems []data.Item, itemMap map[int]data.Item) *stageComboCache {
+func newStageComboCache(stageItems []data.Item, metas []itemMeta) *stageComboCache {
 	return &stageComboCache{
-		items:   stageItems,
-		itemMap: itemMap,
-		dp:      []int{0},
-		from:    []fromStep{{}},
-		results: make(map[int]ComboResult),
+		items:      stageItems,
+		metas:      metas,
+		dp:         []int{0},
+		from:       []fromStep{{}},
+		prebuildTo: maxStageComboTarget(stageItems, metas),
+		results:    make(map[int]ComboResult),
 	}
 }
 
@@ -340,7 +395,7 @@ func (cache *stageComboCache) get(subTarget int) ComboResult {
 	if result, ok := cache.results[subTarget]; ok {
 		return cloneComboResult(result)
 	}
-	cache.ensureBuilt(subTarget)
+	cache.ensureBuilt(max(subTarget, cache.prebuildTo))
 
 	const inf = MaxInt / 4
 	if cache.dp[subTarget] >= inf {
@@ -364,6 +419,17 @@ func (cache *stageComboCache) get(subTarget int) ComboResult {
 	return cloneComboResult(result)
 }
 
+func maxStageComboTarget(stageItems []data.Item, metas []itemMeta) int {
+	maxTarget := 0
+	for _, item := range stageItems {
+		target := item.ItemValue * getMaxCountFromMeta(item.ID, metas)
+		if target > maxTarget {
+			maxTarget = target
+		}
+	}
+	return maxTarget
+}
+
 func (cache *stageComboCache) ensureBuilt(target int) {
 	if target <= cache.builtTo {
 		return
@@ -378,7 +444,7 @@ func (cache *stageComboCache) ensureBuilt(target int) {
 
 	for _, item := range cache.items {
 		val := item.ItemValue
-		maxCount := getMaxCountForID(item.ID, cache.itemMap)
+		maxCount := getMaxCountFromMeta(item.ID, cache.metas)
 		for v := target; v >= val; v-- {
 			for k := 1; k <= maxCount && k*val <= v; k++ {
 				if dp[v-k*val]+k < dp[v] {
@@ -440,23 +506,7 @@ func normalizePath(path Path, itemMap map[int]data.Item, caches *caches) Path {
 		return normalized
 	}
 
-	sort.Slice(normalized, func(i, j int) bool {
-		return normalized[i].ID < normalized[j].ID
-	})
-
-	write := 0
-	for _, step := range normalized {
-		if step.Count <= 0 {
-			continue
-		}
-		if write > 0 && normalized[write-1].ID == step.ID {
-			normalized[write-1].Count += step.Count
-			continue
-		}
-		normalized[write] = step
-		write++
-	}
-	return normalized[:write]
+	return sortAndCompactPath(normalized)
 }
 
 func savePath(ctx *contextState, sum int, path Path) bool {
@@ -486,7 +536,7 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 	}
 
 	normalized := normalizePath(path, ctx.ItemMap, &ctx.Caches)
-	actualSum, valid := validateNormalizedPath(normalized, ctx.ItemMap, ctx.TradeLimits)
+	actualSum, valid := validateNormalizedPath(normalized, ctx.ItemMeta, ctx.TradeLimits)
 	if !valid {
 		return false
 	}
@@ -495,6 +545,11 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 	}
 
 	normalizedKey := pathKey(normalized)
+	effectiveMaxPaths := ctx.MaxPaths
+	if sum == ctx.Target {
+		effectiveMaxPaths = MaxPathsForTarget
+	}
+
 	st, ok := ctx.DP[sum]
 	if !ok {
 		st = &state{Paths: []Path{}, Keys: make(map[string]struct{})}
@@ -503,11 +558,6 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 	}
 	if _, exists := st.Keys[normalizedKey]; exists {
 		return false
-	}
-
-	effectiveMaxPaths := ctx.MaxPaths
-	if sum == ctx.Target {
-		effectiveMaxPaths = MaxPathsForTarget
 	}
 
 	added := false
@@ -533,11 +583,11 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 	return false
 }
 
-func isPathValid(path Path, itemMap map[int]data.Item) bool {
+func isPathValid(path Path, metas []itemMeta) bool {
 	counts := make(map[int]int)
 	for _, step := range path {
 		counts[step.ID] += step.Count
-		if counts[step.ID] > getMaxCountForID(step.ID, itemMap) {
+		if counts[step.ID] > getMaxCountFromMeta(step.ID, metas) {
 			return false
 		}
 	}
@@ -552,23 +602,33 @@ func mergeAndSortPath(oldPath Path, newSteps Path) Path {
 		return merged
 	}
 
-	sort.Slice(merged, func(i, j int) bool {
-		return merged[i].ID < merged[j].ID
-	})
+	return sortAndCompactPath(merged)
+}
+
+func sortAndCompactPath(path Path) Path {
+	for i := 1; i < len(path); i++ {
+		step := path[i]
+		j := i - 1
+		for j >= 0 && path[j].ID > step.ID {
+			path[j+1] = path[j]
+			j--
+		}
+		path[j+1] = step
+	}
 
 	write := 0
-	for _, step := range merged {
+	for _, step := range path {
 		if step.Count <= 0 {
 			continue
 		}
-		if write > 0 && merged[write-1].ID == step.ID {
-			merged[write-1].Count += step.Count
+		if write > 0 && path[write-1].ID == step.ID {
+			path[write-1].Count += step.Count
 			continue
 		}
-		merged[write] = step
+		path[write] = step
 		write++
 	}
-	return merged[:write]
+	return path[:write]
 }
 
 func hasRemovableZeroSumSubset(path Path, itemMap map[int]data.Item) bool {
@@ -740,20 +800,20 @@ func buildTradeLimits(limits Limits) map[int]int {
 }
 
 func isTradePathWithinLimits(path Path, itemMap map[int]data.Item, tradeLimits map[int]int) bool {
-	_, valid := validateNormalizedPath(path, itemMap, tradeLimits)
+	_, valid := validateNormalizedPath(path, buildItemMetaFromMap(itemMap), tradeLimits)
 	return valid
 }
 
-func validateNormalizedPath(path Path, itemMap map[int]data.Item, tradeLimits map[int]int) (int, bool) {
+func validateNormalizedPath(path Path, metas []itemMeta, tradeLimits map[int]int) (int, bool) {
 	trade2Count, trade3Count, trade4Count, trade5Count := 0, 0, 0, 0
 	actualSum := 0
 	for _, step := range path {
-		item, ok := itemMap[step.ID]
-		if !ok {
+		if step.ID < 0 || step.ID >= len(metas) || !metas[step.ID].Exists {
 			continue
 		}
-		actualSum += item.ItemValue * step.Count
-		if item.Type != "trade" {
+		meta := metas[step.ID]
+		actualSum += meta.Value * step.Count
+		if !meta.IsTrade {
 			continue
 		}
 
@@ -781,7 +841,7 @@ func validateNormalizedPath(path Path, itemMap map[int]data.Item, tradeLimits ma
 		default:
 			limit, ok := tradeLimits[step.ID]
 			if !ok {
-				limit = getMaxCountForID(step.ID, itemMap)
+				limit = meta.MaxCount
 			}
 			if step.Count > limit {
 				return actualSum, false
@@ -838,17 +898,16 @@ func pathKey(path Path) string {
 		return ""
 	}
 
-	var builder strings.Builder
-	builder.Grow(len(path) * 8)
+	buf := make([]byte, 0, len(path)*8)
 	for i, step := range path {
 		if i > 0 {
-			builder.WriteByte('_')
+			buf = append(buf, '_')
 		}
-		builder.WriteString(strconv.Itoa(step.ID))
-		builder.WriteByte('x')
-		builder.WriteString(strconv.Itoa(step.Count))
+		buf = strconv.AppendInt(buf, int64(step.ID), 10)
+		buf = append(buf, 'x')
+		buf = strconv.AppendInt(buf, int64(step.Count), 10)
 	}
-	return builder.String()
+	return string(buf)
 }
 
 func totalCount(path Path) int {

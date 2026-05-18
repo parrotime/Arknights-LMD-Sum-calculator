@@ -95,6 +95,22 @@ func TestMergeAndSortPathCombinesAndOrdersSteps(t *testing.T) {
 	}
 }
 
+func TestSortAndCompactPathOrdersCombinesAndFilters(t *testing.T) {
+	result := sortAndCompactPath(Path{
+		{ID: 222, Count: 1},
+		{ID: 117, Count: 0},
+		{ID: 118, Count: 2},
+		{ID: 222, Count: 3},
+		{ID: 100, Count: -1},
+		{ID: 118, Count: 1},
+	})
+
+	expected := Path{{ID: 118, Count: 3}, {ID: 222, Count: 4}}
+	if !pathsEqual(result, expected) {
+		t.Fatalf("unexpected compacted path: got %#v, want %#v", result, expected)
+	}
+}
+
 func TestNormalizePathRewritesMaterialAndCombinesSteps(t *testing.T) {
 	items := loadTestItems(t)
 	itemMap := make(map[int]data.Item, len(items))
