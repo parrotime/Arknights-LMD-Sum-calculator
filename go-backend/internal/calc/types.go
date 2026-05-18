@@ -60,7 +60,7 @@ type contextState struct {
 
 type caches struct {
 	Material map[int]ComboResult
-	Stage    map[int]ComboResult
+	Stage    *stageComboCache
 }
 
 var TradeDenoms = []Denom{

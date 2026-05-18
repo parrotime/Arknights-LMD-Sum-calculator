@@ -60,7 +60,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 		TradeLimits:   buildTradeLimits(limits),
 		Caches: caches{
 			Material: make(map[int]ComboResult),
-			Stage:    make(map[int]ComboResult),
+			Stage:    newStageComboCache(stageItems, itemMap),
 		},
 	}
 
@@ -78,7 +78,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 			float64(abs(itemValue*(count+1)-target)) <= float64(abs(target))+float64(abs(itemValue))*0.5 {
 			count++
 			newSum := itemValue * count
-			fragment, ok := getOptimalFragment(item, count, stageItems, itemMap, &calcState.Caches)
+			fragment, ok := getOptimalFragment(item, count, &calcState.Caches)
 			if !ok {
 				continue
 			}
@@ -130,7 +130,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 				}
 				exactMatchTried = true
 				for _, oldPath := range paths {
-					fragment, ok := getOptimalFragment(item, exactCount, stageItems, itemMap, &calcState.Caches)
+					fragment, ok := getOptimalFragment(item, exactCount, &calcState.Caches)
 					if !ok {
 						continue
 					}
@@ -167,7 +167,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 						continue
 					}
 					for _, oldPath := range paths {
-						fragment, ok := getOptimalFragment(item, count, stageItems, itemMap, &calcState.Caches)
+						fragment, ok := getOptimalFragment(item, count, &calcState.Caches)
 						if !ok {
 							continue
 						}
@@ -307,51 +307,92 @@ func getLimitedCombos(absTarget int, denoms []Denom, limits map[int]int, maxComb
 	return filtered
 }
 
-func getOptimalStageCombo(subTarget int, stageItems []data.Item, itemMap map[int]data.Item, cache map[int]ComboResult) ComboResult {
+func getOptimalStageCombo(subTarget int, cache *stageComboCache) ComboResult {
+	if cache == nil {
+		return ComboResult{Steps: MaxInt, Combo: Path{}}
+	}
+	return cache.get(subTarget)
+}
+
+type stageComboCache struct {
+	items   []data.Item
+	itemMap map[int]data.Item
+	dp      []int
+	from    []fromStep
+	builtTo int
+	results map[int]ComboResult
+}
+
+func newStageComboCache(stageItems []data.Item, itemMap map[int]data.Item) *stageComboCache {
+	return &stageComboCache{
+		items:   stageItems,
+		itemMap: itemMap,
+		dp:      []int{0},
+		from:    []fromStep{{}},
+		results: make(map[int]ComboResult),
+	}
+}
+
+func (cache *stageComboCache) get(subTarget int) ComboResult {
 	if subTarget <= 0 {
 		return ComboResult{Steps: 0, Combo: Path{}}
 	}
-	if result, ok := cache[subTarget]; ok {
+	if result, ok := cache.results[subTarget]; ok {
 		return cloneComboResult(result)
+	}
+	cache.ensureBuilt(subTarget)
+
+	const inf = MaxInt / 4
+	if cache.dp[subTarget] >= inf {
+		result := ComboResult{Steps: MaxInt, Combo: Path{}}
+		cache.results[subTarget] = result
+		return result
+	}
+
+	combo := Path{}
+	for v := subTarget; v > 0; {
+		step := cache.from[v]
+		if step.ID == 0 || step.Count <= 0 {
+			break
+		}
+		combo = append(combo, Step{ID: step.ID, Count: step.Count})
+		v = step.Prev
+	}
+
+	result := ComboResult{Steps: cache.dp[subTarget], Combo: combo}
+	cache.results[subTarget] = cloneComboResult(result)
+	return cloneComboResult(result)
+}
+
+func (cache *stageComboCache) ensureBuilt(target int) {
+	if target <= cache.builtTo {
+		return
 	}
 
 	const inf = MaxInt / 4
-	t := subTarget
-	dp := make([]int, t+1)
-	from := make([]*fromStep, t+1)
-	for i := 1; i <= t; i++ {
+	dp := make([]int, target+1)
+	from := make([]fromStep, target+1)
+	for i := 1; i <= target; i++ {
 		dp[i] = inf
 	}
 
-	for _, item := range stageItems {
+	for _, item := range cache.items {
 		val := item.ItemValue
-		maxCount := getMaxCountForID(item.ID, itemMap)
-		for v := t; v >= val; v-- {
+		maxCount := getMaxCountForID(item.ID, cache.itemMap)
+		for v := target; v >= val; v-- {
 			for k := 1; k <= maxCount && k*val <= v; k++ {
 				if dp[v-k*val]+k < dp[v] {
 					dp[v] = dp[v-k*val] + k
-					from[v] = &fromStep{ID: item.ID, Count: k, Prev: v - k*val}
+					from[v] = fromStep{ID: item.ID, Count: k, Prev: v - k*val}
 				}
 			}
 		}
 	}
 
-	if dp[t] >= inf {
-		result := ComboResult{Steps: MaxInt, Combo: Path{}}
-		cache[subTarget] = result
-		return result
-	}
-
-	combo := Path{}
-	for v := t; v > 0 && from[v] != nil; {
-		step := from[v]
-		combo = append(combo, Step{ID: step.ID, Count: step.Count})
-		v = step.Prev
-	}
-
-	result := ComboResult{Steps: dp[t], Combo: combo}
-	cache[subTarget] = cloneComboResult(result)
-	return cloneComboResult(result)
+	cache.dp = dp
+	cache.from = from
+	cache.builtTo = target
+	cache.results = make(map[int]ComboResult)
 }
 
 type fromStep struct {
@@ -360,7 +401,7 @@ type fromStep struct {
 	Prev  int
 }
 
-func getOptimalFragment(item data.Item, count int, stageItems []data.Item, itemMap map[int]data.Item, caches *caches) (Path, bool) {
+func getOptimalFragment(item data.Item, count int, caches *caches) (Path, bool) {
 	val := item.ItemValue * count
 	switch item.Type {
 	case "trade":
@@ -369,7 +410,7 @@ func getOptimalFragment(item data.Item, count int, stageItems []data.Item, itemM
 		result := getOptimalGreedyCombo(abs(val), MaterialDenoms, caches.Material)
 		return result.Combo, len(result.Combo) > 0
 	case "3_star", "2_star":
-		result := getOptimalStageCombo(val, stageItems, itemMap, caches.Stage)
+		result := getOptimalStageCombo(val, caches.Stage)
 		return result.Combo, len(result.Combo) > 0
 	default:
 		return Path{{ID: item.ID, Count: count}}, true

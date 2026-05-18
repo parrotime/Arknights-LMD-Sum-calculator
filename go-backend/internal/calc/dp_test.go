@@ -9,7 +9,7 @@ import (
 	"ark-lmd-go-backend/internal/data"
 )
 
-func loadTestItems(t *testing.T) []data.Item {
+func loadTestItems(t testing.TB) []data.Item {
 	t.Helper()
 	file := filepath.Join("..", "..", "..", "data", "gameItems.json")
 	bytes, err := os.ReadFile(file)
