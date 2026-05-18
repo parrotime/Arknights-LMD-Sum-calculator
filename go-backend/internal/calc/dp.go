@@ -46,6 +46,8 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 		return abs(validItems[i].ItemValue) > abs(validItems[j].ItemValue)
 	})
 
+	pruneThreshold := min(max(abs(target), 1000), 3000)
+
 	calcState := &contextState{
 		DP: map[int]*state{
 			0: &state{Paths: []Path{{}}, Keys: map[string]struct{}{"": {}}},
@@ -62,11 +64,10 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 		TradeLimits:   buildTradeLimits(limits),
 		Caches: caches{
 			Material: make(map[int]ComboResult),
-			Stage:    newStageComboCache(stageItems, itemMeta),
+			Stage:    newStageComboCache(stageItems, itemMeta, target, pruneThreshold),
 		},
 	}
 
-	pruneThreshold := min(max(abs(target), 1000), 3000)
 	enoughPaths := false
 
 	for _, item := range validItems {
@@ -377,13 +378,13 @@ type stageComboCache struct {
 	results    map[int]ComboResult
 }
 
-func newStageComboCache(stageItems []data.Item, metas []itemMeta) *stageComboCache {
+func newStageComboCache(stageItems []data.Item, metas []itemMeta, target int, pruneThreshold int) *stageComboCache {
 	return &stageComboCache{
 		items:      stageItems,
 		metas:      metas,
 		dp:         []int{0},
 		from:       []fromStep{{}},
-		prebuildTo: maxStageComboTarget(stageItems, metas),
+		prebuildTo: stagePrebuildTarget(target, pruneThreshold, stageItems, metas),
 		results:    make(map[int]ComboResult),
 	}
 }
@@ -428,6 +429,14 @@ func maxStageComboTarget(stageItems []data.Item, metas []itemMeta) int {
 		}
 	}
 	return maxTarget
+}
+
+func stagePrebuildTarget(target int, pruneThreshold int, stageItems []data.Item, metas []itemMeta) int {
+	maxTarget := maxStageComboTarget(stageItems, metas)
+	if target >= 0 {
+		return maxTarget
+	}
+	return min(maxTarget, pruneThreshold)
 }
 
 func (cache *stageComboCache) ensureBuilt(target int) {
