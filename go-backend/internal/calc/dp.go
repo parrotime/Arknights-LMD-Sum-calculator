@@ -419,35 +419,44 @@ func getOptimalFragment(item data.Item, count int, caches *caches) (Path, bool) 
 
 func normalizePath(path Path, itemMap map[int]data.Item, caches *caches) Path {
 	totalMaterialValue := 0
-	otherSteps := Path{}
+	hasMaterial := false
+	normalized := make(Path, 0, len(path))
 	for _, step := range path {
 		item, ok := itemMap[step.ID]
 		if ok && item.Type == "material" {
+			hasMaterial = true
 			totalMaterialValue += item.ItemValue * step.Count
 		} else {
-			otherSteps = append(otherSteps, step)
+			normalized = append(normalized, step)
 		}
 	}
 
-	optimalMaterial := getOptimalGreedyCombo(abs(totalMaterialValue), MaterialDenoms, caches.Material)
-	pathMap := make(map[int]int)
-	for _, step := range otherSteps {
-		pathMap[step.ID] += step.Count
-	}
-	for _, step := range optimalMaterial.Combo {
-		pathMap[step.ID] += step.Count
+	if hasMaterial {
+		optimalMaterial := getOptimalGreedyCombo(abs(totalMaterialValue), MaterialDenoms, caches.Material)
+		normalized = append(normalized, optimalMaterial.Combo...)
 	}
 
-	result := make(Path, 0, len(pathMap))
-	for id, count := range pathMap {
-		if count > 0 {
-			result = append(result, Step{ID: id, Count: count})
-		}
+	if len(normalized) == 0 {
+		return normalized
 	}
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].ID < result[j].ID
+
+	sort.Slice(normalized, func(i, j int) bool {
+		return normalized[i].ID < normalized[j].ID
 	})
-	return result
+
+	write := 0
+	for _, step := range normalized {
+		if step.Count <= 0 {
+			continue
+		}
+		if write > 0 && normalized[write-1].ID == step.ID {
+			normalized[write-1].Count += step.Count
+			continue
+		}
+		normalized[write] = step
+		write++
+	}
+	return normalized[:write]
 }
 
 func savePath(ctx *contextState, sum int, path Path) bool {
@@ -544,24 +553,30 @@ func isPathValid(path Path, itemMap map[int]data.Item) bool {
 }
 
 func mergeAndSortPath(oldPath Path, newSteps Path) Path {
-	pathMap := make(map[int]int)
-	for _, step := range oldPath {
-		pathMap[step.ID] += step.Count
-	}
-	for _, step := range newSteps {
-		pathMap[step.ID] += step.Count
+	merged := make(Path, 0, len(oldPath)+len(newSteps))
+	merged = append(merged, oldPath...)
+	merged = append(merged, newSteps...)
+	if len(merged) == 0 {
+		return merged
 	}
 
-	result := make(Path, 0, len(pathMap))
-	for id, count := range pathMap {
-		if count > 0 {
-			result = append(result, Step{ID: id, Count: count})
-		}
-	}
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].ID < result[j].ID
+	sort.Slice(merged, func(i, j int) bool {
+		return merged[i].ID < merged[j].ID
 	})
-	return result
+
+	write := 0
+	for _, step := range merged {
+		if step.Count <= 0 {
+			continue
+		}
+		if write > 0 && merged[write-1].ID == step.ID {
+			merged[write-1].Count += step.Count
+			continue
+		}
+		merged[write] = step
+		write++
+	}
+	return merged[:write]
 }
 
 func hasRemovableZeroSumSubset(path Path, itemMap map[int]data.Item) bool {
@@ -733,19 +748,42 @@ func buildTradeLimits(limits Limits) map[int]int {
 }
 
 func isTradePathWithinLimits(path Path, itemMap map[int]data.Item, tradeLimits map[int]int) bool {
-	counts := make(map[int]int)
+	trade2Count, trade3Count, trade4Count, trade5Count := 0, 0, 0, 0
 	for _, step := range path {
 		item, ok := itemMap[step.ID]
 		if !ok || item.Type != "trade" {
 			continue
 		}
-		counts[step.ID] += step.Count
-		limit, ok := tradeLimits[step.ID]
-		if !ok {
-			limit = getMaxCountForID(step.ID, itemMap)
-		}
-		if counts[step.ID] > limit {
-			return false
+
+		switch step.ID {
+		case 117:
+			trade2Count += step.Count
+			if trade2Count > tradeLimits[117] {
+				return false
+			}
+		case 118:
+			trade3Count += step.Count
+			if trade3Count > tradeLimits[118] {
+				return false
+			}
+		case 119:
+			trade4Count += step.Count
+			if trade4Count > tradeLimits[119] {
+				return false
+			}
+		case 222:
+			trade5Count += step.Count
+			if trade5Count > tradeLimits[222] {
+				return false
+			}
+		default:
+			limit, ok := tradeLimits[step.ID]
+			if !ok {
+				limit = getMaxCountForID(step.ID, itemMap)
+			}
+			if step.Count > limit {
+				return false
+			}
 		}
 	}
 	return true
