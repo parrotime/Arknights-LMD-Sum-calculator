@@ -157,6 +157,26 @@ func TestPathKeyKeepsStableFormat(t *testing.T) {
 	}
 }
 
+func TestInsertPathByLengthKeepsAscendingStableOrder(t *testing.T) {
+	paths := []Path{
+		{{ID: 1, Count: 1}},
+		{{ID: 2, Count: 1}, {ID: 3, Count: 1}},
+		{{ID: 4, Count: 1}, {ID: 5, Count: 1}, {ID: 6, Count: 1}},
+	}
+
+	inserted := insertPathByLength(paths, Path{{ID: 7, Count: 1}, {ID: 8, Count: 1}})
+	expected := []Path{
+		{{ID: 1, Count: 1}},
+		{{ID: 2, Count: 1}, {ID: 3, Count: 1}},
+		{{ID: 7, Count: 1}, {ID: 8, Count: 1}},
+		{{ID: 4, Count: 1}, {ID: 5, Count: 1}, {ID: 6, Count: 1}},
+	}
+
+	if !pathSlicesEqual(inserted, expected) {
+		t.Fatalf("unexpected insert order: got %#v, want %#v", inserted, expected)
+	}
+}
+
 func hasPath(paths []Path, expected map[int]int) bool {
 	for _, path := range paths {
 		if pathMatches(path, expected) {
@@ -172,6 +192,18 @@ func pathMatches(path Path, expected map[int]int) bool {
 	}
 	for _, step := range path {
 		if expected[step.ID] != step.Count {
+			return false
+		}
+	}
+	return true
+}
+
+func pathSlicesEqual(a []Path, b []Path) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if !pathsEqual(a[i], b[i]) {
 			return false
 		}
 	}

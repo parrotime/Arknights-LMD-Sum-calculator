@@ -512,9 +512,8 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 
 	added := false
 	if len(st.Paths) < effectiveMaxPaths {
-		st.Paths = append(st.Paths, normalized)
+		st.Paths = insertPathByLength(st.Paths, normalized)
 		st.Keys[normalizedKey] = struct{}{}
-		sortPathsByLength(st.Paths)
 		added = true
 	} else {
 		longest := st.Paths[len(st.Paths)-1]
@@ -522,9 +521,8 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 			(len(normalized) == len(longest) && totalCount(normalized) < totalCount(longest)) {
 			delete(st.Keys, pathKey(longest))
 			st.Paths = st.Paths[:len(st.Paths)-1]
-			st.Paths = append(st.Paths, normalized)
+			st.Paths = insertPathByLength(st.Paths, normalized)
 			st.Keys[normalizedKey] = struct{}{}
-			sortPathsByLength(st.Paths)
 			added = true
 		}
 	}
@@ -818,6 +816,21 @@ func sortPathsByLength(paths []Path) {
 	sort.SliceStable(paths, func(i, j int) bool {
 		return len(paths[i]) < len(paths[j])
 	})
+}
+
+func insertPathByLength(paths []Path, path Path) []Path {
+	insertAt := len(paths)
+	for i, existing := range paths {
+		if len(path) < len(existing) {
+			insertAt = i
+			break
+		}
+	}
+
+	paths = append(paths, nil)
+	copy(paths[insertAt+1:], paths[insertAt:])
+	paths[insertAt] = path
+	return paths
 }
 
 func pathKey(path Path) string {
