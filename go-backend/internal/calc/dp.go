@@ -486,21 +486,15 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 	}
 
 	normalized := normalizePath(path, ctx.ItemMap, &ctx.Caches)
-	if !isTradePathWithinLimits(normalized, ctx.ItemMap, ctx.TradeLimits) {
+	actualSum, valid := validateNormalizedPath(normalized, ctx.ItemMap, ctx.TradeLimits)
+	if !valid {
 		return false
-	}
-	normalizedKey := pathKey(normalized)
-
-	actualSum := 0
-	for _, step := range normalized {
-		if item, ok := ctx.ItemMap[step.ID]; ok {
-			actualSum += item.ItemValue * step.Count
-		}
 	}
 	if actualSum != sum {
 		return false
 	}
 
+	normalizedKey := pathKey(normalized)
 	st, ok := ctx.DP[sum]
 	if !ok {
 		st = &state{Paths: []Path{}, Keys: make(map[string]struct{})}
@@ -748,10 +742,20 @@ func buildTradeLimits(limits Limits) map[int]int {
 }
 
 func isTradePathWithinLimits(path Path, itemMap map[int]data.Item, tradeLimits map[int]int) bool {
+	_, valid := validateNormalizedPath(path, itemMap, tradeLimits)
+	return valid
+}
+
+func validateNormalizedPath(path Path, itemMap map[int]data.Item, tradeLimits map[int]int) (int, bool) {
 	trade2Count, trade3Count, trade4Count, trade5Count := 0, 0, 0, 0
+	actualSum := 0
 	for _, step := range path {
 		item, ok := itemMap[step.ID]
-		if !ok || item.Type != "trade" {
+		if !ok {
+			continue
+		}
+		actualSum += item.ItemValue * step.Count
+		if item.Type != "trade" {
 			continue
 		}
 
@@ -759,22 +763,22 @@ func isTradePathWithinLimits(path Path, itemMap map[int]data.Item, tradeLimits m
 		case 117:
 			trade2Count += step.Count
 			if trade2Count > tradeLimits[117] {
-				return false
+				return actualSum, false
 			}
 		case 118:
 			trade3Count += step.Count
 			if trade3Count > tradeLimits[118] {
-				return false
+				return actualSum, false
 			}
 		case 119:
 			trade4Count += step.Count
 			if trade4Count > tradeLimits[119] {
-				return false
+				return actualSum, false
 			}
 		case 222:
 			trade5Count += step.Count
 			if trade5Count > tradeLimits[222] {
-				return false
+				return actualSum, false
 			}
 		default:
 			limit, ok := tradeLimits[step.ID]
@@ -782,11 +786,11 @@ func isTradePathWithinLimits(path Path, itemMap map[int]data.Item, tradeLimits m
 				limit = getMaxCountForID(step.ID, itemMap)
 			}
 			if step.Count > limit {
-				return false
+				return actualSum, false
 			}
 		}
 	}
-	return true
+	return actualSum, true
 }
 
 type dpEntry struct {
@@ -817,11 +821,21 @@ func sortPathsByLength(paths []Path) {
 }
 
 func pathKey(path Path) string {
-	parts := make([]string, 0, len(path))
-	for _, step := range path {
-		parts = append(parts, strconv.Itoa(step.ID)+"x"+strconv.Itoa(step.Count))
+	if len(path) == 0 {
+		return ""
 	}
-	return strings.Join(parts, "_")
+
+	var builder strings.Builder
+	builder.Grow(len(path) * 8)
+	for i, step := range path {
+		if i > 0 {
+			builder.WriteByte('_')
+		}
+		builder.WriteString(strconv.Itoa(step.ID))
+		builder.WriteByte('x')
+		builder.WriteString(strconv.Itoa(step.Count))
+	}
+	return builder.String()
 }
 
 func totalCount(path Path) int {

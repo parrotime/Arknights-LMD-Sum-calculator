@@ -147,6 +147,16 @@ func TestIsTradePathWithinLimitsChecksEachTradeDenom(t *testing.T) {
 	}
 }
 
+func TestPathKeyKeepsStableFormat(t *testing.T) {
+	if key := pathKey(Path{}); key != "" {
+		t.Fatalf("unexpected empty path key: got %q", key)
+	}
+	key := pathKey(Path{{ID: 117, Count: 2}, {ID: 222, Count: 1}})
+	if key != "117x2_222x1" {
+		t.Fatalf("unexpected path key: got %q", key)
+	}
+}
+
 func hasPath(paths []Path, expected map[int]int) bool {
 	for _, path := range paths {
 		if pathMatches(path, expected) {
