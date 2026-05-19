@@ -94,6 +94,82 @@ func TestMergeAndSortPathCombinesAndOrdersSteps(t *testing.T) {
 	}
 }
 
+func TestMergeAndSortPathHandlesSingleStepFastPath(t *testing.T) {
+	cases := []struct {
+		name     string
+		oldPath  Path
+		newSteps Path
+		expected Path
+	}{
+		{
+			name:     "insert at beginning",
+			oldPath:  Path{{ID: 118, Count: 1}, {ID: 222, Count: 1}},
+			newSteps: Path{{ID: 117, Count: 2}},
+			expected: Path{{ID: 117, Count: 2}, {ID: 118, Count: 1}, {ID: 222, Count: 1}},
+		},
+		{
+			name:     "insert in middle",
+			oldPath:  Path{{ID: 117, Count: 1}, {ID: 222, Count: 1}},
+			newSteps: Path{{ID: 118, Count: 2}},
+			expected: Path{{ID: 117, Count: 1}, {ID: 118, Count: 2}, {ID: 222, Count: 1}},
+		},
+		{
+			name:     "insert at end",
+			oldPath:  Path{{ID: 117, Count: 1}, {ID: 118, Count: 1}},
+			newSteps: Path{{ID: 222, Count: 2}},
+			expected: Path{{ID: 117, Count: 1}, {ID: 118, Count: 1}, {ID: 222, Count: 2}},
+		},
+		{
+			name:     "merge same id",
+			oldPath:  Path{{ID: 117, Count: 1}, {ID: 118, Count: 1}},
+			newSteps: Path{{ID: 118, Count: 3}},
+			expected: Path{{ID: 117, Count: 1}, {ID: 118, Count: 4}},
+		},
+		{
+			name:     "filter non-positive step",
+			oldPath:  Path{{ID: 117, Count: 1}, {ID: 118, Count: 1}},
+			newSteps: Path{{ID: 119, Count: 0}},
+			expected: Path{{ID: 117, Count: 1}, {ID: 118, Count: 1}},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			originalOldPath := clonePath(tc.oldPath)
+			result := mergeAndSortPath(tc.oldPath, tc.newSteps)
+			if !pathsEqual(result, tc.expected) {
+				t.Fatalf("unexpected merged path: got %#v, want %#v", result, tc.expected)
+			}
+			if !pathsEqual(tc.oldPath, originalOldPath) {
+				t.Fatal("old path should not be mutated")
+			}
+		})
+	}
+}
+
+func TestCanMergePathChecksCountsBeforeAllocation(t *testing.T) {
+	metas := make([]itemMeta, 223)
+	metas[117] = itemMeta{MaxCount: 10, Exists: true}
+	metas[118] = itemMeta{MaxCount: 10, Exists: true}
+	metas[222] = itemMeta{MaxCount: 10, Exists: true}
+
+	if !canMergePath(Path{{ID: 117, Count: 7}}, Path{{ID: 117, Count: 3}}, metas) {
+		t.Fatal("expected merge at max count to be allowed")
+	}
+	if canMergePath(Path{{ID: 117, Count: 8}}, Path{{ID: 117, Count: 3}}, metas) {
+		t.Fatal("expected merge over max count to be rejected")
+	}
+	if canMergePath(Path{}, Path{{ID: 118, Count: 6}, {ID: 118, Count: 5}}, metas) {
+		t.Fatal("expected duplicate fragment count over max to be rejected")
+	}
+	if !canMergePath(Path{{ID: 222, Count: 10}}, Path{{ID: 222, Count: 0}}, metas) {
+		t.Fatal("expected non-positive fragment step to be ignored")
+	}
+	if canMergePath(Path{{ID: 300, Count: 8}}, Path{{ID: 300, Count: 3}}, metas) {
+		t.Fatal("expected unknown item to use default max count")
+	}
+}
+
 func TestSortAndCompactPathOrdersCombinesAndFilters(t *testing.T) {
 	result := sortAndCompactPath(Path{
 		{ID: 222, Count: 1},

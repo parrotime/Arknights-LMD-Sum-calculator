@@ -132,19 +132,20 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 					continue
 				}
 				exactMatchTried = true
+				fragment, ok := getOptimalFragment(item, exactCount, &calcState.Caches)
+				if !ok {
+					continue
+				}
 				for _, oldPath := range paths {
-					fragment, ok := getOptimalFragment(item, exactCount, &calcState.Caches)
-					if !ok {
+					if !canMergePath(oldPath, fragment, itemMeta) {
 						continue
 					}
 					potential := mergeAndSortPath(oldPath, fragment)
-					if isPathValid(potential, itemMeta) {
-						if savePath(calcState, target, potential) {
-							enoughPaths = true
-						}
-						if enoughPaths {
-							break
-						}
+					if savePath(calcState, target, potential) {
+						enoughPaths = true
+					}
+					if enoughPaths {
+						break
 					}
 				}
 				if enoughPaths {
@@ -169,19 +170,20 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 					if exactMatchTried && newSum == target {
 						continue
 					}
+					fragment, ok := getOptimalFragment(item, count, &calcState.Caches)
+					if !ok {
+						continue
+					}
 					for _, oldPath := range paths {
-						fragment, ok := getOptimalFragment(item, count, &calcState.Caches)
-						if !ok {
+						if !canMergePath(oldPath, fragment, itemMeta) {
 							continue
 						}
 						potential := mergeAndSortPath(oldPath, fragment)
-						if isPathValid(potential, itemMeta) {
-							if savePath(calcState, newSum, potential) {
-								enoughPaths = true
-							}
-							if enoughPaths {
-								break
-							}
+						if savePath(calcState, newSum, potential) {
+							enoughPaths = true
+						}
+						if enoughPaths {
+							break
 						}
 					}
 					if enoughPaths {
@@ -610,7 +612,51 @@ func isPathValid(path Path, metas []itemMeta) bool {
 	return true
 }
 
+func canMergePath(oldPath Path, fragment Path, metas []itemMeta) bool {
+	for i, step := range fragment {
+		if step.Count <= 0 {
+			continue
+		}
+		seen := false
+		for j := 0; j < i; j++ {
+			if fragment[j].ID == step.ID && fragment[j].Count > 0 {
+				seen = true
+				break
+			}
+		}
+		if seen {
+			continue
+		}
+
+		count := step.Count
+		for j := i + 1; j < len(fragment); j++ {
+			if fragment[j].ID == step.ID && fragment[j].Count > 0 {
+				count += fragment[j].Count
+			}
+		}
+		for _, existing := range oldPath {
+			if existing.ID == step.ID && existing.Count > 0 {
+				count += existing.Count
+			}
+		}
+		if count > getMaxCountFromMeta(step.ID, metas) {
+			return false
+		}
+	}
+	return true
+}
+
 func mergeAndSortPath(oldPath Path, newSteps Path) Path {
+	if len(oldPath) == 0 {
+		if len(newSteps) == 0 {
+			return newSteps
+		}
+		return sortAndCompactPath(newSteps)
+	}
+	if len(newSteps) == 1 {
+		return mergeSingleStep(oldPath, newSteps[0])
+	}
+
 	merged := make(Path, 0, len(oldPath)+len(newSteps))
 	merged = append(merged, oldPath...)
 	merged = append(merged, newSteps...)
@@ -619,6 +665,31 @@ func mergeAndSortPath(oldPath Path, newSteps Path) Path {
 	}
 
 	return sortAndCompactPath(merged)
+}
+
+func mergeSingleStep(oldPath Path, step Step) Path {
+	if step.Count <= 0 {
+		return clonePath(oldPath)
+	}
+
+	insertAt := len(oldPath)
+	for i, existing := range oldPath {
+		if existing.ID == step.ID {
+			merged := clonePath(oldPath)
+			merged[i].Count += step.Count
+			return merged
+		}
+		if existing.ID > step.ID {
+			insertAt = i
+			break
+		}
+	}
+
+	merged := make(Path, len(oldPath)+1)
+	copy(merged, oldPath[:insertAt])
+	merged[insertAt] = step
+	copy(merged[insertAt+1:], oldPath[insertAt:])
+	return merged
 }
 
 func sortAndCompactPath(path Path) Path {
