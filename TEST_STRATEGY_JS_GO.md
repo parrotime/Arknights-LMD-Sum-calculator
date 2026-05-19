@@ -413,3 +413,82 @@ strong 模式：
 ```
 
 如果 Go 版只做等价迁移，预期提升可先按 `2x ~ 5x` 观察。如果同时优化搜索结构和缓存策略，再评估是否达到 `5x ~ 20x`。
+
+## 11. Go fast v1 算法基线记录
+
+当前 Go 后端的 `internal/calc/dp.go` 暂定为 `fast v1` 算法基线，用于承接前端“快速计算模式”。
+
+这个基线的目标不是继续追求极限性能，而是在结果质量、规则正确性、可维护性和响应速度之间取得稳定平衡。后续如果继续大幅优化 DP，不建议在 v1 上零散堆叠复杂微优化，应单独设计 `DP v2`。
+
+fast v1 已确认保留的关键行为：
+
+- `target=2500` 默认配置下，同时保留 `222x1` 和 `117x1+118x1`。
+- `trade2Limit` / `trade3Limit` / `trade4Limit` / `trade5Limit` 生效。
+- 明显可删除的正负抵消路径会被过滤。
+- 正目标与负目标都作为重要场景纳入 benchmark。
+- `fast` 模式优先稳定响应，`strong` 模式后续再单独提高答案质量和搜索上限。
+
+## 12. Go benchmark 记录规范
+
+Go 算法直测从 `go-backend` 目录执行：
+
+```powershell
+go test ./...
+go test ./internal/calc -run ^$ -bench BenchmarkFindPaths -benchmem -benchtime=1s -count=1
+```
+
+重点场景建议单独跑 3 次，减少单次噪声：
+
+```powershell
+go test ./internal/calc -run ^$ -bench "BenchmarkFindPaths/target_spectrum/negative_5000_default" -benchmem -benchtime=3s -count=3
+go test ./internal/calc -run ^$ -bench "BenchmarkFindPaths/limit_pressure/positive_2500_no_trade" -benchmem -benchtime=3s -count=3
+```
+
+每次记录至少包含：
+
+```text
+日期
+Git diff 摘要
+Go 版本
+CPU / 操作系统
+benchmark 命令
+ns/op
+B/op
+allocs/op
+是否通过 go test ./...
+人工结论：保留 / 回退 / 继续观察
+```
+
+建议重点观察：
+
+- 默认正目标：`positive_2500_default`、`positive_5000_default`
+- 默认负目标：`negative_2500_default`、`negative_5000_default`
+- 限制压力：`positive_2500_no_trade`、`positive_8000_no_trade`
+- 综合限制：`positive_8000_tight_all`
+
+## 13. pprof 记录与归档规范
+
+pprof 用于定位热点，不作为日常必须执行项。只有在算法改动后出现明显性能波动，或准备进入新一轮优化时再生成。
+
+生成示例：
+
+```powershell
+New-Item -ItemType Directory -Force profiles
+go test ./internal/calc -run ^$ -bench "BenchmarkFindPaths/target_spectrum/negative_5000_default" -benchmem -benchtime=5s -count=1 -cpuprofile profiles\dp_cpu_negative_5000_v1.out -memprofile profiles\dp_mem_negative_5000_v1.out
+go tool pprof -top profiles\dp_cpu_negative_5000_v1.out
+go tool pprof -top -alloc_space profiles\dp_mem_negative_5000_v1.out
+```
+
+`go-backend/profiles/*.out` 属于本地性能分析产物，不建议提交到仓库。需要保留历史证据时，建议移动到单独归档目录，例如：
+
+```text
+archive/
+  profiles/
+    go-fast-v1-2026-05-19/
+      README.md
+      dp_cpu_negative_5000_v1.out
+      dp_mem_negative_5000_v1.out
+      benchmark-summary.md
+```
+
+当前 `go-backend/profiles` 中的历史文件主要是算法优化过程中的阶段性 pprof。建议只归档最终 v1 基线和少量关键对照，其余文件可以视为临时产物清理。

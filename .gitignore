@@ -31,5 +31,9 @@ yarn-error.log*
 /backend/node_modules
 /backend/.env
 
+# go backend local test/profiling artifacts
+/go-backend/*.test.exe
+/go-backend/profiles/**/*.out
+
 
 JS_TO_TS_MIGRATION_PLAN.md
