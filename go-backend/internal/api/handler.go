@@ -52,6 +52,14 @@ func (h *Handler) Health(w http.ResponseWriter, _ *http.Request) {
 	_, _ = w.Write([]byte("Hello from the Go backend!"))
 }
 
+func (h *Handler) CacheStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	writeJSON(w, http.StatusOK, h.cache.Stats())
+}
+
 func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
 	started := time.Now()
 	if r.Method != http.MethodPost {

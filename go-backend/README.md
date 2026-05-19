@@ -35,6 +35,32 @@ go run ./cmd/server
 
 默认端口是 `3003`。`NODE_ENV=test` 时会关闭接口限流，便于和现有测试脚本对跑。
 
+## 缓存策略
+
+Go 后端使用进程内 `TTL + LRU` 结果缓存。缓存 key 会包含 `target`、计算配置、用户限制、计算模式和数据版本，避免不同输入复用错误结果。
+
+默认配置：
+
+```text
+CACHE_TTL_SECONDS=3600
+CACHE_MAX_ENTRIES=1024
+```
+
+命中缓存时 `/find-paths` 会返回 `cache: "hit"`；未命中并完成计算时返回 `cache: "miss"`。当前只缓存非空结果，空结果暂不缓存。
+
+可通过只读接口查看缓存状态：
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:3003/cache-stats
+```
+
+关注指标：
+
+- `entries`：当前缓存条目数。
+- `hits` / `misses` / `hitRate`：缓存是否有效减轻重复计算。
+- `expired`：TTL 过期清理数量。
+- `evictions`：容量满后 LRU 淘汰数量。
+
 ## 对照测试
 
 ```powershell
