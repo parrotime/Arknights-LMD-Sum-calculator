@@ -41,7 +41,6 @@ type ComboResult struct {
 
 type state struct {
 	Paths []Path
-	Keys  map[string]struct{}
 }
 
 type contextState struct {

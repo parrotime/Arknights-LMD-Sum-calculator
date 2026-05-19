@@ -50,7 +50,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 
 	calcState := &contextState{
 		DP: map[int]*state{
-			0: &state{Paths: []Path{{}}, Keys: map[string]struct{}{"": {}}},
+			0: &state{Paths: []Path{{}}},
 		},
 		Order:         []int{0},
 		MaxPaths:      MaxPathsPerSum,
@@ -495,21 +495,32 @@ func getOptimalFragment(item data.Item, count int, caches *caches) (Path, bool) 
 func normalizePath(path Path, itemMap map[int]data.Item, caches *caches) Path {
 	totalMaterialValue := 0
 	hasMaterial := false
-	normalized := make(Path, 0, len(path))
 	for _, step := range path {
 		item, ok := itemMap[step.ID]
 		if ok && item.Type == "material" {
 			hasMaterial = true
 			totalMaterialValue += item.ItemValue * step.Count
-		} else {
-			normalized = append(normalized, step)
 		}
 	}
 
-	if hasMaterial {
-		optimalMaterial := getOptimalGreedyCombo(abs(totalMaterialValue), MaterialDenoms, caches.Material)
-		normalized = append(normalized, optimalMaterial.Combo...)
+	if !hasMaterial {
+		if len(path) == 0 {
+			return path
+		}
+		return sortAndCompactPath(path)
 	}
+
+	normalized := make(Path, 0, len(path))
+	for _, step := range path {
+		item, ok := itemMap[step.ID]
+		if ok && item.Type == "material" {
+			continue
+		}
+		normalized = append(normalized, step)
+	}
+
+	optimalMaterial := getOptimalGreedyCombo(abs(totalMaterialValue), MaterialDenoms, caches.Material)
+	normalized = append(normalized, optimalMaterial.Combo...)
 
 	if len(normalized) == 0 {
 		return normalized
@@ -553,7 +564,6 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 		return false
 	}
 
-	normalizedKey := pathKey(normalized)
 	effectiveMaxPaths := ctx.MaxPaths
 	if sum == ctx.Target {
 		effectiveMaxPaths = MaxPathsForTarget
@@ -561,27 +571,24 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 
 	st, ok := ctx.DP[sum]
 	if !ok {
-		st = &state{Paths: []Path{}, Keys: make(map[string]struct{})}
+		st = &state{Paths: []Path{}}
 		ctx.DP[sum] = st
 		ctx.Order = append(ctx.Order, sum)
 	}
-	if _, exists := st.Keys[normalizedKey]; exists {
+	if pathExists(st.Paths, normalized) {
 		return false
 	}
 
 	added := false
 	if len(st.Paths) < effectiveMaxPaths {
 		st.Paths = insertPathByLength(st.Paths, normalized)
-		st.Keys[normalizedKey] = struct{}{}
 		added = true
 	} else {
 		longest := st.Paths[len(st.Paths)-1]
 		if len(normalized) < len(longest) ||
 			(len(normalized) == len(longest) && totalCount(normalized) < totalCount(longest)) {
-			delete(st.Keys, pathKey(longest))
 			st.Paths = st.Paths[:len(st.Paths)-1]
 			st.Paths = insertPathByLength(st.Paths, normalized)
-			st.Keys[normalizedKey] = struct{}{}
 			added = true
 		}
 	}
@@ -900,6 +907,27 @@ func insertPathByLength(paths []Path, path Path) []Path {
 	copy(paths[insertAt+1:], paths[insertAt:])
 	paths[insertAt] = path
 	return paths
+}
+
+func pathExists(paths []Path, path Path) bool {
+	for _, existing := range paths {
+		if samePath(existing, path) {
+			return true
+		}
+	}
+	return false
+}
+
+func samePath(a Path, b Path) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func pathKey(path Path) string {

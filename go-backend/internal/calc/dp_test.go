@@ -71,7 +71,6 @@ func TestFinalizeFiltersRemovableZeroSumSubset(t *testing.T) {
 				{{ID: 112, Count: 2}, {ID: 222, Count: 1}, {ID: 2, Count: 4}},
 				{{ID: 222, Count: 1}},
 			},
-			Keys: map[string]struct{}{},
 		},
 	}
 	result := finalizeResult(dp, 2500, TargetPathCount, itemMap)
