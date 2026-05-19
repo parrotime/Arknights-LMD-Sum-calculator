@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"sync/atomic"
 	"time"
 
 	"ark-lmd-go-backend/internal/cache"
@@ -21,6 +22,7 @@ type HandlerOptions struct {
 	Logger         *slog.Logger
 	CalcTimeout    time.Duration
 	MaxConcurrency int
+	MaxQueueSize   int
 }
 
 type Handler struct {
@@ -30,12 +32,22 @@ type Handler struct {
 	logger      *slog.Logger
 	calcTimeout time.Duration
 	sem         chan struct{}
+	queue       chan struct{}
+	running     atomic.Int64
+	queued      atomic.Int64
+	rejected    atomic.Uint64
+	maxConc     int
+	maxQueue    int
 }
 
 func NewHandler(options HandlerOptions) *Handler {
 	maxConcurrency := options.MaxConcurrency
 	if maxConcurrency < 1 {
 		maxConcurrency = 1
+	}
+	maxQueueSize := options.MaxQueueSize
+	if maxQueueSize < 1 {
+		maxQueueSize = maxConcurrency * 2
 	}
 	return &Handler{
 		items:       options.Items,
@@ -44,6 +56,9 @@ func NewHandler(options HandlerOptions) *Handler {
 		logger:      options.Logger,
 		calcTimeout: options.CalcTimeout,
 		sem:         make(chan struct{}, maxConcurrency),
+		queue:       make(chan struct{}, maxQueueSize),
+		maxConc:     maxConcurrency,
+		maxQueue:    maxQueueSize,
 	}
 }
 
@@ -58,6 +73,20 @@ func (h *Handler) CacheStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, h.cache.Stats())
+}
+
+func (h *Handler) ServerStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{
+		"maxConcurrency": h.maxConc,
+		"maxQueueSize":   h.maxQueue,
+		"running":        h.running.Load(),
+		"queued":         h.queued.Load(),
+		"queueRejected":  h.rejected.Load(),
+	})
 }
 
 func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
@@ -107,8 +136,24 @@ func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	select {
+	case h.queue <- struct{}{}:
+		h.queued.Add(1)
+	default:
+		h.rejected.Add(1)
+		h.handleQueueFull(w)
+		return
+	}
+	releaseQueue := func() {
+		<-h.queue
+		h.queued.Add(-1)
+	}
+
+	select {
 	case h.sem <- struct{}{}:
+		releaseQueue()
+		h.running.Add(1)
 	case <-ctx.Done():
+		releaseQueue()
 		h.handleCalcError(w, ctx.Err())
 		return
 	}
@@ -116,7 +161,10 @@ func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
 	resultCh := make(chan []calc.Path, 1)
 	errCh := make(chan error, 1)
 	go func() {
-		defer func() { <-h.sem }()
+		defer func() {
+			<-h.sem
+			h.running.Add(-1)
+		}()
 
 		paths, err := calc.FindPathsWithContext(ctx, target, items, limits)
 		if err != nil {
@@ -153,6 +201,10 @@ func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
 		Duration: duration,
 		Cache:    "miss",
 	})
+}
+
+func (h *Handler) handleQueueFull(w http.ResponseWriter) {
+	writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "服务器当前计算队列已满，请稍后再试。"})
 }
 
 func (h *Handler) handleCalcError(w http.ResponseWriter, err error) {

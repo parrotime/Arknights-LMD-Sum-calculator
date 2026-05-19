@@ -18,6 +18,7 @@ type Config struct {
 	LogLevel           slog.Level
 	CalcTimeout        time.Duration
 	MaxConcurrency     int
+	MaxQueueSize       int
 	CacheTTL           time.Duration
 	CacheMaxEntries    int
 	RateLimitPerMinute int
@@ -29,6 +30,10 @@ func Load() Config {
 	if maxConcurrency < 1 {
 		maxConcurrency = 1
 	}
+	maxQueueSize := envInt("MAX_QUEUE_SIZE", maxConcurrency*2)
+	if maxQueueSize < 1 {
+		maxQueueSize = 1
+	}
 
 	return Config{
 		Port:               firstNonEmpty(os.Getenv("PORT"), "3003"),
@@ -38,6 +43,7 @@ func Load() Config {
 		LogLevel:           parseLevel(firstNonEmpty(os.Getenv("LOG_LEVEL"), "info")),
 		CalcTimeout:        time.Duration(envInt("CALC_TIMEOUT_MS", 15000)) * time.Millisecond,
 		MaxConcurrency:     maxConcurrency,
+		MaxQueueSize:       maxQueueSize,
 		CacheTTL:           time.Duration(envInt("CACHE_TTL_SECONDS", 3600)) * time.Second,
 		CacheMaxEntries:    envInt("CACHE_MAX_ENTRIES", 1024),
 		RateLimitPerMinute: envInt("RATE_LIMIT_PER_MINUTE", 15),

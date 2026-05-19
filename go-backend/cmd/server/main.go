@@ -37,11 +37,13 @@ func main() {
 		Logger:         logger,
 		CalcTimeout:    cfg.CalcTimeout,
 		MaxConcurrency: cfg.MaxConcurrency,
+		MaxQueueSize:   cfg.MaxQueueSize,
 	})
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handler.Health)
 	mux.HandleFunc("/cache-stats", handler.CacheStats)
+	mux.HandleFunc("/server-stats", handler.ServerStats)
 	mux.HandleFunc("/find-paths", handler.FindPaths)
 
 	var wrapped http.Handler = mux

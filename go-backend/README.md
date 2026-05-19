@@ -61,6 +61,38 @@ Invoke-RestMethod http://127.0.0.1:3003/cache-stats
 - `expired`：TTL 过期清理数量。
 - `evictions`：容量满后 LRU 淘汰数量。
 
+## 并发、队列与超时保护
+
+Go 后端在缓存未命中后才进入计算保护流程：
+
+1. 先进入等待队列。
+2. 再等待计算并发名额。
+3. 拿到名额后执行 DP 计算。
+
+默认配置适合 2 vCPU / 2 GiB 的单实例服务器：
+
+```text
+MAX_CONCURRENCY=runtime.GOMAXPROCS(0)
+MAX_QUEUE_SIZE=MAX_CONCURRENCY*2
+CALC_TIMEOUT_MS=15000
+RATE_LIMIT_PER_MINUTE=15
+```
+
+在 2 核服务器上，默认约等于同时 2 个请求正在计算，最多 4 个请求等待计算。队列满时会直接返回繁忙，避免请求无限堆积。
+
+可通过只读接口查看运行状态：
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:3003/server-stats
+```
+
+关注指标：
+
+- `running`：当前正在执行 DP 的请求数。
+- `queued`：当前等待计算名额的请求数。
+- `queueRejected`：因为等待队列已满而拒绝的请求数。
+- `maxConcurrency` / `maxQueueSize`：当前并发与队列上限。
+
 ## 对照测试
 
 ```powershell
