@@ -38,6 +38,7 @@ func main() {
 		CalcTimeout:    cfg.CalcTimeout,
 		MaxConcurrency: cfg.MaxConcurrency,
 		MaxQueueSize:   cfg.MaxQueueSize,
+		AdminToken:     cfg.AdminToken,
 	})
 
 	mux := http.NewServeMux()
@@ -48,13 +49,15 @@ func main() {
 
 	var wrapped http.Handler = mux
 	wrapped = middleware.Recovery(wrapped, logger)
+	wrapped = middleware.SecurityHeaders(wrapped)
 	wrapped = middleware.CORS(wrapped, cfg.CORSOrigin)
 	if cfg.Env != "test" {
 		wrapped = middleware.RateLimit(wrapped, middleware.RateLimitConfig{
-			Window:  time.Minute,
-			Max:     cfg.RateLimitPerMinute,
-			Enabled: true,
-			Logger:  logger,
+			Window:     time.Minute,
+			Max:        cfg.RateLimitPerMinute,
+			Enabled:    true,
+			TrustProxy: cfg.TrustProxy,
+			Logger:     logger,
 		})
 	}
 

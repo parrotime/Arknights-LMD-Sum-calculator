@@ -14,6 +14,8 @@ type Config struct {
 	Port               string
 	Env                string
 	CORSOrigin         string
+	AdminToken         string
+	TrustProxy         bool
 	DataFile           string
 	LogLevel           slog.Level
 	CalcTimeout        time.Duration
@@ -39,6 +41,8 @@ func Load() Config {
 		Port:               firstNonEmpty(os.Getenv("PORT"), "3003"),
 		Env:                env,
 		CORSOrigin:         firstNonEmpty(os.Getenv("CORS_ORIGIN"), "https://ark-lmd.top"),
+		AdminToken:         os.Getenv("ADMIN_TOKEN"),
+		TrustProxy:         envBool("TRUST_PROXY", false),
 		DataFile:           firstNonEmpty(os.Getenv("DATA_FILE"), filepath.Join("..", "data", "gameItems.json")),
 		LogLevel:           parseLevel(firstNonEmpty(os.Getenv("LOG_LEVEL"), "info")),
 		CalcTimeout:        time.Duration(envInt("CALC_TIMEOUT_MS", 15000)) * time.Millisecond,
@@ -69,6 +73,21 @@ func envInt(key string, fallback int) int {
 		return fallback
 	}
 	return value
+}
+
+func envBool(key string, fallback bool) bool {
+	raw := strings.ToLower(strings.TrimSpace(os.Getenv(key)))
+	if raw == "" {
+		return fallback
+	}
+	switch raw {
+	case "1", "true", "yes", "on":
+		return true
+	case "0", "false", "no", "off":
+		return false
+	default:
+		return fallback
+	}
 }
 
 func parseLevel(raw string) slog.Level {

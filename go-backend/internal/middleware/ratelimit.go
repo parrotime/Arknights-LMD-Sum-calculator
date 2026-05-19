@@ -11,10 +11,11 @@ import (
 )
 
 type RateLimitConfig struct {
-	Window  time.Duration
-	Max     int
-	Enabled bool
-	Logger  *slog.Logger
+	Window     time.Duration
+	Max        int
+	Enabled    bool
+	TrustProxy bool
+	Logger     *slog.Logger
 }
 
 type clientWindow struct {
@@ -39,7 +40,7 @@ func RateLimit(next http.Handler, cfg RateLimitConfig) http.Handler {
 			return
 		}
 
-		ip := clientIP(r)
+		ip := clientIP(r, cfg.TrustProxy)
 		now := time.Now()
 		mu.Lock()
 		for client, window := range clients {
@@ -72,11 +73,24 @@ func RateLimit(next http.Handler, cfg RateLimitConfig) http.Handler {
 	})
 }
 
-func clientIP(r *http.Request) string {
+func clientIP(r *http.Request, trustProxy bool) string {
+	if trustProxy {
+		return forwardedClientIP(r)
+	}
+	return remoteClientIP(r)
+}
+
+func forwardedClientIP(r *http.Request) string {
 	if forwarded := r.Header.Get("X-Forwarded-For"); forwarded != "" {
 		parts := strings.Split(forwarded, ",")
-		return strings.TrimSpace(parts[0])
+		if ip := strings.TrimSpace(parts[0]); ip != "" {
+			return ip
+		}
 	}
+	return remoteClientIP(r)
+}
+
+func remoteClientIP(r *http.Request) string {
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return r.RemoteAddr

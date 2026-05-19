@@ -51,7 +51,8 @@ CACHE_MAX_ENTRIES=1024
 可通过只读接口查看缓存状态：
 
 ```powershell
-Invoke-RestMethod http://127.0.0.1:3003/cache-stats
+$headers = @{ "X-Admin-Token" = $env:ADMIN_TOKEN }
+Invoke-RestMethod http://127.0.0.1:3003/cache-stats -Headers $headers
 ```
 
 关注指标：
@@ -83,7 +84,8 @@ RATE_LIMIT_PER_MINUTE=15
 可通过只读接口查看运行状态：
 
 ```powershell
-Invoke-RestMethod http://127.0.0.1:3003/server-stats
+$headers = @{ "X-Admin-Token" = $env:ADMIN_TOKEN }
+Invoke-RestMethod http://127.0.0.1:3003/server-stats -Headers $headers
 ```
 
 关注指标：
@@ -92,6 +94,35 @@ Invoke-RestMethod http://127.0.0.1:3003/server-stats
 - `queued`：当前等待计算名额的请求数。
 - `queueRejected`：因为等待队列已满而拒绝的请求数。
 - `maxConcurrency` / `maxQueueSize`：当前并发与队列上限。
+
+## 安全配置
+
+生产环境建议设置管理员 token：
+
+```text
+ADMIN_TOKEN=<一段足够长的随机字符串>
+```
+
+`/cache-stats` 和 `/server-stats` 只有携带 `X-Admin-Token` 或 `Authorization: Bearer <token>` 时才会返回数据。未设置 `ADMIN_TOKEN` 时，这两个接口默认返回 404。
+
+如果 Go 后端位于 Nginx 等可信反向代理之后，可以开启：
+
+```text
+TRUST_PROXY=true
+```
+
+开启后限流会优先使用 `X-Forwarded-For` 中的真实客户端 IP。若 Go 服务直接暴露公网，不要开启该选项，避免攻击者伪造请求头绕过按 IP 限流。
+
+Go 后端内置轻量安全响应头中间件，覆盖 Express `helmet()` 的基础 API 场景：
+
+```text
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: no-referrer
+Permissions-Policy: camera=(), microphone=(), geolocation=()
+```
+
+如果生产环境由 Nginx 负责 HTTPS，`Strict-Transport-Security` 建议放在 Nginx 配置中统一设置。
 
 ## 对照测试
 

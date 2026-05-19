@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -23,6 +24,7 @@ type HandlerOptions struct {
 	CalcTimeout    time.Duration
 	MaxConcurrency int
 	MaxQueueSize   int
+	AdminToken     string
 }
 
 type Handler struct {
@@ -38,6 +40,7 @@ type Handler struct {
 	rejected    atomic.Uint64
 	maxConc     int
 	maxQueue    int
+	adminToken  string
 }
 
 func NewHandler(options HandlerOptions) *Handler {
@@ -59,6 +62,7 @@ func NewHandler(options HandlerOptions) *Handler {
 		queue:       make(chan struct{}, maxQueueSize),
 		maxConc:     maxConcurrency,
 		maxQueue:    maxQueueSize,
+		adminToken:  options.AdminToken,
 	}
 }
 
@@ -72,12 +76,18 @@ func (h *Handler) CacheStats(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
 		return
 	}
+	if !h.authorizeAdmin(w, r) {
+		return
+	}
 	writeJSON(w, http.StatusOK, h.cache.Stats())
 }
 
 func (h *Handler) ServerStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if !h.authorizeAdmin(w, r) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
@@ -87,6 +97,22 @@ func (h *Handler) ServerStats(w http.ResponseWriter, r *http.Request) {
 		"queued":         h.queued.Load(),
 		"queueRejected":  h.rejected.Load(),
 	})
+}
+
+func (h *Handler) authorizeAdmin(w http.ResponseWriter, r *http.Request) bool {
+	if h.adminToken == "" {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
+		return false
+	}
+	token := r.Header.Get("X-Admin-Token")
+	if token == "" {
+		token = strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	}
+	if token != h.adminToken {
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+		return false
+	}
+	return true
 }
 
 func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
