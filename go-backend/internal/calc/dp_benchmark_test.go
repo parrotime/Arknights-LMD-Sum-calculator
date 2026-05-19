@@ -14,24 +14,84 @@ func BenchmarkFindPaths(b *testing.B) {
 		limits Limits
 	}{
 		{
-			name:   "target_2500_default",
+			name:   "target_spectrum/positive_500_default",
+			target: 500,
+			limits: defaultLimits(),
+		},
+		{
+			name:   "target_spectrum/positive_2500_default",
 			target: 2500,
 			limits: defaultLimits(),
 		},
 		{
-			name:   "target_2500_trade5_zero",
-			target: 2500,
-			limits: limitsWithTrade5Zero(),
-		},
-		{
-			name:   "target_5000_default",
+			name:   "target_spectrum/positive_5000_default",
 			target: 5000,
 			limits: defaultLimits(),
 		},
 		{
-			name:   "target_minus_500_default",
+			name:   "target_spectrum/positive_8000_default",
+			target: 8000,
+			limits: defaultLimits(),
+		},
+		{
+			name:   "target_spectrum/negative_500_default",
 			target: -500,
 			limits: defaultLimits(),
+		},
+		{
+			name:   "target_spectrum/negative_2500_default",
+			target: -2500,
+			limits: defaultLimits(),
+		},
+		{
+			name:   "target_spectrum/negative_5000_default",
+			target: -5000,
+			limits: defaultLimits(),
+		},
+		{
+			name:   "target_spectrum/negative_8000_default",
+			target: -8000,
+			limits: defaultLimits(),
+		},
+		{
+			name:   "limit_pressure/positive_2500_trade5_zero",
+			target: 2500,
+			limits: limitsWithTrade5Zero(),
+		},
+		{
+			name:   "limit_pressure/positive_2500_no_trade",
+			target: 2500,
+			limits: limitsWithoutTrade(),
+		},
+		{
+			name:   "limit_pressure/positive_5000_low_trade",
+			target: 5000,
+			limits: limitsWithLowTrade(),
+		},
+		{
+			name:   "limit_pressure/positive_8000_no_trade",
+			target: 8000,
+			limits: limitsWithoutTrade(),
+		},
+		{
+			name:   "limit_pressure/positive_5000_low_upgrade",
+			target: 5000,
+			limits: limitsWithLowUpgrade(),
+		},
+		{
+			name:   "limit_pressure/negative_2500_low_upgrade",
+			target: -2500,
+			limits: limitsWithLowUpgrade(),
+		},
+		{
+			name:   "limit_pressure/positive_5000_low_sanity",
+			target: 5000,
+			limits: limitsWithLowSanity(),
+		},
+		{
+			name:   "limit_pressure/positive_8000_tight_all",
+			target: 8000,
+			limits: limitsWithTightAll(),
 		},
 	}
 
@@ -54,5 +114,46 @@ func BenchmarkFindPaths(b *testing.B) {
 func limitsWithTrade5Zero() Limits {
 	limits := defaultLimits()
 	limits.Trade5Limit = 0
+	return limits
+}
+
+func limitsWithoutTrade() Limits {
+	limits := defaultLimits()
+	limits.Trade2Limit = 0
+	limits.Trade3Limit = 0
+	limits.Trade4Limit = 0
+	limits.Trade5Limit = 0
+	return limits
+}
+
+func limitsWithLowTrade() Limits {
+	limits := defaultLimits()
+	limits.Trade2Limit = 1
+	limits.Trade3Limit = 1
+	limits.Trade4Limit = 1
+	limits.Trade5Limit = 1
+	return limits
+}
+
+func limitsWithLowUpgrade() Limits {
+	limits := defaultLimits()
+	limits.Upgrade0Limit = 1
+	limits.Upgrade1Limit = 1
+	limits.Upgrade2Limit = 1
+	return limits
+}
+
+func limitsWithLowSanity() Limits {
+	limits := defaultLimits()
+	limits.SanityLimit = 25
+	return limits
+}
+
+func limitsWithTightAll() Limits {
+	limits := limitsWithLowTrade()
+	limits.Upgrade0Limit = 2
+	limits.Upgrade1Limit = 2
+	limits.Upgrade2Limit = 2
+	limits.SanityLimit = 50
 	return limits
 }

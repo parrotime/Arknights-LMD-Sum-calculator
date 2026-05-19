@@ -149,24 +149,56 @@ func TestMergeAndSortPathHandlesSingleStepFastPath(t *testing.T) {
 
 func TestCanMergePathChecksCountsBeforeAllocation(t *testing.T) {
 	metas := make([]itemMeta, 223)
-	metas[117] = itemMeta{MaxCount: 10, Exists: true}
-	metas[118] = itemMeta{MaxCount: 10, Exists: true}
-	metas[222] = itemMeta{MaxCount: 10, Exists: true}
+	metas[117] = itemMeta{MaxCount: 10, IsTrade: true, Exists: true}
+	metas[118] = itemMeta{MaxCount: 10, IsTrade: true, Exists: true}
+	metas[222] = itemMeta{MaxCount: 10, IsTrade: true, Exists: true}
 
-	if !canMergePath(Path{{ID: 117, Count: 7}}, Path{{ID: 117, Count: 3}}, metas) {
+	if !canMergePath(Path{{ID: 117, Count: 7}}, Path{{ID: 117, Count: 3}}, metas, nil) {
 		t.Fatal("expected merge at max count to be allowed")
 	}
-	if canMergePath(Path{{ID: 117, Count: 8}}, Path{{ID: 117, Count: 3}}, metas) {
+	if canMergePath(Path{{ID: 117, Count: 8}}, Path{{ID: 117, Count: 3}}, metas, nil) {
 		t.Fatal("expected merge over max count to be rejected")
 	}
-	if canMergePath(Path{}, Path{{ID: 118, Count: 6}, {ID: 118, Count: 5}}, metas) {
+	if canMergePath(Path{}, Path{{ID: 118, Count: 6}, {ID: 118, Count: 5}}, metas, nil) {
 		t.Fatal("expected duplicate fragment count over max to be rejected")
 	}
-	if !canMergePath(Path{{ID: 222, Count: 10}}, Path{{ID: 222, Count: 0}}, metas) {
+	if !canMergePath(Path{{ID: 222, Count: 10}}, Path{{ID: 222, Count: 0}}, metas, nil) {
 		t.Fatal("expected non-positive fragment step to be ignored")
 	}
-	if canMergePath(Path{{ID: 300, Count: 8}}, Path{{ID: 300, Count: 3}}, metas) {
+	if canMergePath(Path{{ID: 300, Count: 8}}, Path{{ID: 300, Count: 3}}, metas, nil) {
 		t.Fatal("expected unknown item to use default max count")
+	}
+	if canMergePath(Path{{ID: 222, Count: 1}}, Path{{ID: 222, Count: 1}}, metas, map[int]int{222: 1}) {
+		t.Fatal("expected trade user limit to reject merge before allocation")
+	}
+}
+
+func TestSnapshotEntriesKeepsPathListStableAfterInsert(t *testing.T) {
+	ctx := &contextState{
+		DP: map[int]*state{
+			1000: {
+				Paths: []Path{
+					{{ID: 117, Count: 1}},
+					{{ID: 118, Count: 1}},
+				},
+			},
+		},
+		Order: []int{1000},
+	}
+
+	entries := snapshotEntries(ctx)
+	if len(entries) != 1 || len(entries[0].paths) != 2 {
+		t.Fatalf("unexpected snapshot: %#v", entries)
+	}
+
+	ctx.DP[1000].Paths = insertPathByLength(ctx.DP[1000].Paths, Path{{ID: 222, Count: 1}})
+
+	if len(entries[0].paths) != 2 {
+		t.Fatalf("snapshot path list should not grow after source insert, got %#v", entries[0].paths)
+	}
+	if !pathsEqual(entries[0].paths[0], Path{{ID: 117, Count: 1}}) ||
+		!pathsEqual(entries[0].paths[1], Path{{ID: 118, Count: 1}}) {
+		t.Fatalf("snapshot path list changed after source insert: %#v", entries[0].paths)
 	}
 }
 

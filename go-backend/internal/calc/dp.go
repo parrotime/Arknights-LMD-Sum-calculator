@@ -137,7 +137,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 					continue
 				}
 				for _, oldPath := range paths {
-					if !canMergePath(oldPath, fragment, itemMeta) {
+					if !canMergePath(oldPath, fragment, itemMeta, calcState.TradeLimits) {
 						continue
 					}
 					potential := mergeAndSortPath(oldPath, fragment)
@@ -175,7 +175,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 						continue
 					}
 					for _, oldPath := range paths {
-						if !canMergePath(oldPath, fragment, itemMeta) {
+						if !canMergePath(oldPath, fragment, itemMeta, calcState.TradeLimits) {
 							continue
 						}
 						potential := mergeAndSortPath(oldPath, fragment)
@@ -612,7 +612,7 @@ func isPathValid(path Path, metas []itemMeta) bool {
 	return true
 }
 
-func canMergePath(oldPath Path, fragment Path, metas []itemMeta) bool {
+func canMergePath(oldPath Path, fragment Path, metas []itemMeta, tradeLimits map[int]int) bool {
 	for i, step := range fragment {
 		if step.Count <= 0 {
 			continue
@@ -639,11 +639,26 @@ func canMergePath(oldPath Path, fragment Path, metas []itemMeta) bool {
 				count += existing.Count
 			}
 		}
-		if count > getMaxCountFromMeta(step.ID, metas) {
+		if count > effectiveStepLimit(step.ID, metas, tradeLimits) {
 			return false
 		}
 	}
 	return true
+}
+
+func effectiveStepLimit(id int, metas []itemMeta, tradeLimits map[int]int) int {
+	limit := getMaxCountFromMeta(id, metas)
+	if id < 0 || id >= len(metas) || !metas[id].Exists || !metas[id].IsTrade {
+		return limit
+	}
+	if tradeLimits == nil {
+		return limit
+	}
+	tradeLimit, ok := tradeLimits[id]
+	if !ok {
+		return limit
+	}
+	return tradeLimit
 }
 
 func mergeAndSortPath(oldPath Path, newSteps Path) Path {
@@ -951,9 +966,7 @@ func snapshotEntries(ctx *contextState) []dpEntry {
 			continue
 		}
 		paths := make([]Path, len(st.Paths))
-		for i, path := range st.Paths {
-			paths[i] = clonePath(path)
-		}
+		copy(paths, st.Paths)
 		entries = append(entries, dpEntry{sum: sum, paths: paths})
 	}
 	return entries
