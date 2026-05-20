@@ -354,9 +354,9 @@ const checkCache = (cacheKey) => {
 };
 
 // 调用计算 API（带超时，对齐后端 15s + 网络余量）
-const callAPI = (difference, settings, limits, num2Val) =>
+const callAPI = (difference, settings, limits, num2Val, calcMode = "fast") =>
   Promise.race([
-    Transmission(difference, settings, limits, num2Val),
+    Transmission(difference, settings, limits, num2Val, calcMode),
     new Promise((_, reject) =>
       setTimeout(() => reject(new Error("计算超时,请重试")), 18000)
     ),
@@ -533,7 +533,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
 
   // 主体计算逻辑
   const handleCalculate = useCallback(
-    async (event) => {
+    async (event, calcMode = "fast") => {
       // 彩蛋检测
       if (isRomanticNumber(state.num2)) {
         triggerHeart(event);
@@ -586,7 +586,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
       dispatch({ type: "SET_PATHS", paths: [] });
 
       const limits = buildLimits(state);
-      const cacheKey = buildCacheKey(difference, state.settings, limits);
+      const cacheKey = buildCacheKey(difference, state.settings, limits, calcMode);
       const t0 = performance.now();
 
       // 检查缓存
@@ -601,7 +601,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
 
       // 调用 API
       try {
-        const paths = await callAPI(difference, state.settings, limits, num2Val);
+        const paths = await callAPI(difference, state.settings, limits, num2Val, calcMode);
         const elapsed = Math.round(performance.now() - t0);
         if (!paths || paths.length === 0) {
           dispatch({ type: "SET_CALC_ERROR", value: "计算完成，但未找到满足条件的路径方案。" });

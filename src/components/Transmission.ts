@@ -32,6 +32,7 @@ export const Transmission = async (
     trade5Limit,
   }: UserLimits,
   rawGoal: number,
+  calcMode = "fast",
 ) => {
   try {
    const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/find-paths`, {
@@ -51,6 +52,7 @@ export const Transmission = async (
          trade5Limit,
        },
        rawGoal,
+       calcMode,
      }),
    });
 

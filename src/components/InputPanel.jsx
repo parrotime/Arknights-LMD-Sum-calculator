@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { computeDiff } from "../utils/calcLogic";
+import LimitWheelInput from "./LimitWheelInput";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
 import styles from "../assets/styles/InputPanel.module.css";
 
@@ -91,28 +92,28 @@ const InputPanel = ({
           labelCn: "2赤金订单",
           labelEn: "ORDER-2",
           field: "trade2Count",
-          max: 99,
+          max: 10,
           icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_flow_gs.webp",
         },
         {
           labelCn: "3赤金订单",
           labelEn: "ORDER-3",
           field: "trade3Count",
-          max: 99,
+          max: 10,
           icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_wtcost1.webp",
         },
         {
           labelCn: "4赤金订单",
           labelEn: "ORDER-4",
           field: "trade4Count",
-          max: 99,
+          max: 10,
           icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_wtcost2.webp",
         },
         {
           labelCn: "5赤金订单",
           labelEn: "ORDER-5",
           field: "trade5Count",
-          max: 99,
+          max: 10,
           icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_against2.webp",
         },
       ],
@@ -122,7 +123,7 @@ const InputPanel = ({
   // Enter 键触发计算
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !state.isCalculating) {
-      handleCalculate(e);
+      handleCalculate(e, 'fast');
     }
   };
 
@@ -135,7 +136,11 @@ const InputPanel = ({
     e.currentTarget.style.setProperty("--confirm-origin-x", originX);
     setPressedCalculate(null);
     requestAnimationFrame(() => setPressedCalculate(mode));
-    handleCalculate(e);
+    handleCalculate(e, mode);
+  };
+
+  const handleLimitWheelChange = (field, value, max) => {
+    handleUpgradeCountChange({ target: { value } }, field, 0, max);
   };
 
   return (
@@ -272,7 +277,7 @@ const InputPanel = ({
       <div className={styles['limit-section']}>
         <div className={styles['limit-block-title']}>
           <span className={styles['limit-block-title-main']}>数量限制</span>
-          <span className={styles['limit-block-title-note']}>未输入时默认为不设置上限</span>
+          <span className={styles['limit-block-title-note']}>未输入时采用后端默认上限</span>
           <span className={styles['limit-block-title-code']}>LIMIT CONTROL</span>
         </div>
         <div className={styles['limit-category-list']}>
@@ -325,16 +330,27 @@ const InputPanel = ({
                       <span className={styles['limit-card-label-en']}>{labelEn}</span>
                     </span>
                     <span className={styles['limit-input-field']}>
-                      <input
-                        type="number"
-                        className={styles['short-input-box']}
-                        min="0"
-                        max={max}
-                        step="1"
-                        placeholder="不限"
-                        value={state[field] ?? ""}
-                        onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
-                      />
+                      {field === "trade2Count" ? (
+                        <LimitWheelInput
+                          value={state[field] ?? ""}
+                          min={0}
+                          max={max}
+                          placeholder="不限"
+                          ariaLabel={`${labelCn}数量限制`}
+                          onChange={(value) => handleLimitWheelChange(field, value, max)}
+                        />
+                      ) : (
+                        <input
+                          type="number"
+                          className={styles['short-input-box']}
+                          min="0"
+                          max={max}
+                          step="1"
+                          placeholder="不限"
+                          value={state[field] ?? ""}
+                          onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
+                        />
+                      )}
                     </span>
                   </label>
                 ))}

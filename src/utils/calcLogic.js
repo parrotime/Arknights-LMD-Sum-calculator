@@ -63,8 +63,8 @@ const LIMIT_CACHE_KEYS = [
 ];
 
 /** 构建本地缓存键 */
-export const buildCacheKey = (difference, settings, limits) =>
-  `${difference}_${Object.entries(settings)
+export const buildCacheKey = (difference, settings, limits, calcMode = "fast") =>
+  `${calcMode}_${difference}_${Object.entries(settings)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([k, v]) => `${k}:${v}`)
     .join("|")}_${LIMIT_CACHE_KEYS.map((key) => `${key}:${limits[key]}`).join("|")}`;

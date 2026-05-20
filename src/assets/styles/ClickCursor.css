@@ -12,6 +12,7 @@
   body.custom-cursor-active select,
   body.custom-cursor-active [contenteditable="true"],
   body.custom-cursor-active [contenteditable=""],
+  body.custom-cursor-active [data-native-cursor="true"],
   body.custom-cursor-active .back-to-top {
     cursor: auto !important;
   }
@@ -27,7 +28,15 @@
     cursor: grab !important;
   }
 
+  body.custom-cursor-active [data-native-cursor-mode="grab"] {
+    cursor: grab !important;
+  }
+
   body.custom-cursor-active .back-to-top.dragging {
+    cursor: grabbing !important;
+  }
+
+  body.custom-cursor-active [data-native-cursor-mode="grabbing"] {
     cursor: grabbing !important;
   }
 }

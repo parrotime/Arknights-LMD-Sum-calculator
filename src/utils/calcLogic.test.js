@@ -214,6 +214,24 @@ describe("buildCacheKey", () => {
       buildCacheKey(100, s, { ...base, trade5Limit: 1 })
     );
   });
+
+  it("不同计算模式产生不同 key", () => {
+    const s = { a: true };
+    const l = {
+      upgrade0Limit: 0,
+      upgrade1Limit: 0,
+      upgrade2Limit: 0,
+      sanityLimit: 0,
+      trade2Limit: 0,
+      trade3Limit: 0,
+      trade4Limit: 0,
+      trade5Limit: 0,
+    };
+    assert.notEqual(
+      buildCacheKey(100, s, l, "fast"),
+      buildCacheKey(100, s, l, "strong")
+    );
+  });
 });
 
 // ============================================================

@@ -504,6 +504,199 @@
   color: var(--ark-neutral-500);
 }
 
+.limit-wheel {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--ark-input-border);
+  border-radius: 0;
+  overflow: visible;
+  user-select: none;
+  touch-action: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 48%),
+    var(--ark-input-bg);
+  color: var(--ark-neutral-800);
+  cursor: pointer;
+  transition: border-color var(--ark-transition-fast),
+              background-color var(--ark-transition-fast),
+              box-shadow var(--ark-transition-fast);
+}
+
+.limit-wheel:active {
+  cursor: pointer;
+}
+
+.limit-wheel-open {
+  cursor: grab;
+}
+
+.limit-wheel-open:active {
+  cursor: grabbing;
+}
+
+.limit-wheel-hit-area {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: calc(100% + 14px);
+  height: calc(100% + 60px);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  background: transparent;
+}
+
+.limit-wheel:hover {
+  border-color: var(--ark-input-border-hover);
+}
+
+.limit-wheel:focus-visible,
+.limit-wheel-open {
+  border-color: var(--ark-border-focus);
+  background:
+    linear-gradient(180deg, rgba(80, 170, 245, 0.18), transparent 42%, rgba(80, 170, 245, 0.1)),
+    var(--ark-input-bg-focus);
+  box-shadow: 0 0 0 3px rgba(93, 173, 226, 0.12);
+  outline: none;
+}
+
+.limit-wheel::before,
+.limit-wheel::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  z-index: 3;
+  height: 1px;
+  background: rgba(93, 173, 226, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ark-transition-fast);
+}
+
+.limit-wheel::before {
+  top: calc(50% - 9px);
+}
+
+.limit-wheel::after {
+  bottom: calc(50% - 9px);
+}
+
+.limit-wheel-open::before,
+.limit-wheel-open::after {
+  opacity: 1;
+}
+
+.limit-wheel-closed {
+  display: block;
+  width: 100%;
+  padding: 0 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  color: var(--ark-neutral-800);
+}
+
+.limit-wheel-picker {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  animation: limit-wheel-scan 180ms ease-out;
+  pointer-events: none;
+}
+
+.limit-wheel-option {
+  position: absolute;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% + 8px);
+  height: 26px;
+  min-width: 0;
+  transform: translateX(-50%);
+  font-family: var(--ark-font-mono);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.limit-wheel-option-active {
+  top: 50%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  color: var(--ark-primary-600);
+  font-size: 0.9rem;
+  text-shadow: 0 0 10px rgba(93, 173, 226, 0.38);
+  background:
+    linear-gradient(90deg, rgba(70, 150, 230, 0.12), transparent 28%, transparent 72%, rgba(70, 150, 230, 0.12)),
+    var(--ark-input-bg-focus);
+}
+
+.limit-wheel-option-active::before,
+.limit-wheel-option-active::after {
+  color: var(--ark-primary-500);
+  font-family: var(--ark-font-body);
+  font-size: 0.62rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.limit-wheel-option-active::before {
+  content: ">";
+  margin-right: 3px;
+}
+
+.limit-wheel-option-active::after {
+  content: "<";
+  margin-left: 3px;
+}
+
+.limit-wheel-option-muted {
+  left: 50%;
+  z-index: 4;
+  height: 24px;
+  border: 1px solid rgba(93, 173, 226, 0.32);
+  background:
+    linear-gradient(180deg, rgba(120, 205, 255, 0.18), rgba(18, 35, 55, 0.94)),
+    var(--ark-surface-card);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
+  color: var(--ark-neutral-500);
+  font-size: 0.62rem;
+  opacity: 0.72;
+  transform: translateX(-50%) scale(0.92);
+}
+
+.limit-wheel-option-prev {
+  bottom: calc(100% + 4px);
+}
+
+.limit-wheel-option-next {
+  top: calc(100% + 4px);
+}
+
+@keyframes limit-wheel-scan {
+  0% {
+    filter: brightness(1.35);
+    transform: translateY(2px);
+  }
+
+  100% {
+    filter: brightness(1);
+    transform: translateY(0);
+  }
+}
+
 .operation-row {
   display: grid;
   grid-template-columns: minmax(220px, 0.75fr) minmax(420px, 1.25fr);
