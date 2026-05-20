@@ -416,6 +416,7 @@ input[type="number"]::-webkit-outer-spin-button {
   margin: 0;
 }
 input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 
@@ -459,7 +460,7 @@ html, body, #root {
 
 .nav-inner {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1080px;
   display: flex;
   align-items: center;
   justify-content: space-between;

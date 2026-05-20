@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { computeDiff } from "../utils/calcLogic";
 import LimitWheelInput from "./LimitWheelInput";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
@@ -13,6 +13,25 @@ const WHEEL_LIMIT_FIELDS = new Set([
   "trade4Count",
   "trade5Count",
 ]);
+
+const CALC_MODES = {
+  fast: {
+    label: "快速模式",
+    code: "FAST",
+    desc: "响应更快",
+    badgeIcon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq04.webp",
+    badgeLabel: "推荐",
+  },
+  strong: {
+    label: "加强模式",
+    code: "BOOST",
+    desc: "深度搜索",
+    badgeIcon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq09.webp",
+    badgeLabel: "深度",
+  },
+};
+
+const MODE_TOGGLE_ICON = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/exchange.webp";
 
 const RollingNumber = ({ value }) => {
   const text = Math.abs(value).toLocaleString("zh-CN");
@@ -58,9 +77,14 @@ const InputPanel = ({
   onSwap,
   onResetInputs,
   onClearLmdInput,
+  onModeWarning,
 }) => {
   const [pressedCalculate, setPressedCalculate] = useState(null);
   const [limitResetAnimating, setLimitResetAnimating] = useState(null);
+  const [selectedCalcMode, setSelectedCalcMode] = useState("fast");
+  const [modeMenuOpen, setModeMenuOpen] = useState(false);
+  const [hasWarnedStrongMode, setHasWarnedStrongMode] = useState(false);
+  const modeSelectRef = useRef(null);
 
   // 实时计算差值
   const diffInfo = useMemo(() => computeDiff(state.num1, state.num2), [state.num1, state.num2]);
@@ -75,6 +99,27 @@ const InputPanel = ({
           ? { prefix: "需", label: "消耗", amount: Math.abs(diffInfo.value) }
           : { prefix: "", label: "无需变化", amount: null }
       : { prefix: "", label: "—", amount: null };
+  const selectedMode = CALC_MODES[selectedCalcMode];
+
+  useEffect(() => {
+    if (!modeMenuOpen) return undefined;
+
+    const handlePointerDown = (event) => {
+      if (!modeSelectRef.current?.contains(event.target)) {
+        setModeMenuOpen(false);
+      }
+    };
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setModeMenuOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [modeMenuOpen]);
 
   const limitGroups = [
     {
@@ -165,11 +210,11 @@ const InputPanel = ({
   // Enter 键触发计算
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !state.isCalculating) {
-      handleCalculate(e, 'fast');
+      handleCalculate(e, selectedCalcMode);
     }
   };
 
-  const handleCalculateClick = (e, mode) => {
+  const handleCalculateClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const originX = e.clientX
       ? `${e.clientX - rect.left}px`
@@ -177,8 +222,18 @@ const InputPanel = ({
 
     e.currentTarget.style.setProperty("--confirm-origin-x", originX);
     setPressedCalculate(null);
-    requestAnimationFrame(() => setPressedCalculate(mode));
-    handleCalculate(e, mode);
+    requestAnimationFrame(() => setPressedCalculate(selectedCalcMode));
+    handleCalculate(e, selectedCalcMode);
+  };
+
+  const handleModeSelect = (mode) => {
+    setSelectedCalcMode(mode);
+    setModeMenuOpen(false);
+
+    if (mode === "strong" && !hasWarnedStrongMode) {
+      onModeWarning?.("加强模式会消耗更多计算资源，建议在快速模式结果不满足时使用");
+      setHasWarnedStrongMode(true);
+    }
   };
 
   const handleLimitWheelChange = (field, value, max) => {
@@ -467,25 +522,62 @@ const InputPanel = ({
           </div>
 
           <div className={styles['action-buttons']}>
+            <div className={styles['mode-select']} ref={modeSelectRef}>
+              <button
+                type="button"
+                className={`${styles['mode-select-trigger']} ${modeMenuOpen ? styles['mode-select-trigger-open'] : ''}`}
+                onClick={() => setModeMenuOpen(open => !open)}
+                aria-haspopup="listbox"
+                aria-expanded={modeMenuOpen}
+                disabled={state.isCalculating}
+              >
+                <span className={styles['mode-select-code']}>{selectedMode.code}</span>
+                <span className={styles['mode-select-label']}>{selectedMode.label}</span>
+                <span className={styles['mode-select-icon-wrap']} aria-hidden="true">
+                  <img
+                    className={styles['mode-select-icon']}
+                    src={MODE_TOGGLE_ICON}
+                    alt=""
+                    draggable="false"
+                  />
+                </span>
+              </button>
+              {modeMenuOpen && (
+                <div className={styles['mode-menu']} role="listbox" aria-label="计算模式">
+                  {Object.entries(CALC_MODES).map(([mode, item]) => (
+                    <button
+                      type="button"
+                      className={`${styles['mode-menu-item']} ${selectedCalcMode === mode ? styles['mode-menu-item-active'] : ''}`}
+                      role="option"
+                      aria-selected={selectedCalcMode === mode}
+                      onClick={() => handleModeSelect(mode)}
+                      key={mode}
+                    >
+                      <span className={styles['mode-menu-title']}>
+                        <img
+                          className={styles['mode-menu-badge-icon']}
+                          src={item.badgeIcon}
+                          alt={item.badgeLabel}
+                          draggable="false"
+                        />
+                        <span>{item.label}</span>
+                      </span>
+                      <span className={styles['mode-menu-meta']}>
+                        <span className={styles['mode-menu-code']}>{item.code}</span>
+                        <span className={styles['mode-menu-desc']}>{item.desc}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button
-              className={`${styles['calculate-button']} ${styles['calculate-button-fast']} ${
-                pressedCalculate === 'fast' ? styles['calculate-button-confirming'] : ''
-              }`}
-              onClick={(e) => handleCalculateClick(e, 'fast')}
+              className={`${styles['calculate-button']} ${pressedCalculate ? styles['calculate-button-confirming'] : ''}`}
+              onClick={handleCalculateClick}
               onAnimationEnd={() => setPressedCalculate(null)}
               disabled={state.isCalculating}
             >
-              {state.isCalculating ? "计算中..." : "快速计算模式"}
-            </button>
-            <button
-              className={`${styles['calculate-button']} ${styles['calculate-button-strong']} ${
-                pressedCalculate === 'strong' ? styles['calculate-button-confirming'] : ''
-              }`}
-              onClick={(e) => handleCalculateClick(e, 'strong')}
-              onAnimationEnd={() => setPressedCalculate(null)}
-              disabled={state.isCalculating}
-            >
-              {state.isCalculating ? "计算中..." : "计算加强模式"}
+              {state.isCalculating ? "计算中..." : "立即计算"}
             </button>
           </div>
         </div>

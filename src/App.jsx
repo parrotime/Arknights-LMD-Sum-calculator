@@ -652,6 +652,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
               onSwap={handleSwapNums}
               onResetInputs={handleResetInputs}
               onClearLmdInput={handleClearLmdInput}
+              onModeWarning={(message) => showAssistantText(message, "high")}
             />
             <SettingsPanel
               settings={state.settings}

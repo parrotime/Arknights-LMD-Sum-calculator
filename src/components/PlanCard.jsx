@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import styles from "../assets/styles/PlanCard.module.css";
 
 const COPY_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/duplication.webp";
-const COPIED_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq04.webp";
+const COPIED_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq10.webp";
 
 const PlanCard = ({
   identityLabel,
