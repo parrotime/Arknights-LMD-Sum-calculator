@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"ark-lmd-go-backend/internal/logging"
 )
 
 type RateLimitConfig struct {
@@ -59,7 +61,7 @@ func RateLimit(next http.Handler, cfg RateLimitConfig) http.Handler {
 
 		if limited {
 			if cfg.Logger != nil {
-				cfg.Logger.Warn("rate limit exceeded", "ip", ip, "path", r.URL.Path)
+				cfg.Logger.Warn("rate limit exceeded", "event", "rate_limit_exceeded", "request_id", logging.RequestID(r.Context()), "ip", ip, "path", r.URL.Path, "limit", cfg.Max, "window_seconds", int(cfg.Window.Seconds()))
 			}
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(http.StatusTooManyRequests)

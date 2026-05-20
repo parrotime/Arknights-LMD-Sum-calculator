@@ -42,6 +42,21 @@ func (r findPathsRequest) parseTarget() (int, error) {
 	return parseJSONNumberInt(r.Target)
 }
 
+func (r findPathsRequest) parseRawGoal() (int, bool) {
+	switch value := r.RawGoal.(type) {
+	case json.Number:
+		parsed, err := strconv.Atoi(value.String())
+		return parsed, err == nil
+	case float64:
+		return int(value), value == float64(int(value))
+	case string:
+		parsed, err := strconv.Atoi(strings.TrimSpace(value))
+		return parsed, err == nil
+	default:
+		return 0, false
+	}
+}
+
 func filterItems(items []data.Item, s settings) []data.Item {
 	filtered := make([]data.Item, 0, len(items))
 	for _, item := range items {

@@ -13,19 +13,36 @@ import (
 	"ark-lmd-go-backend/internal/cache"
 	"ark-lmd-go-backend/internal/config"
 	"ark-lmd-go-backend/internal/data"
+	"ark-lmd-go-backend/internal/logging"
 	"ark-lmd-go-backend/internal/middleware"
 )
 
 func main() {
 	cfg := config.Load()
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	fallbackLogger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: cfg.LogLevel,
 	}))
+	loggers, err := logging.New(logging.Options{
+		Dir:      cfg.LogDir,
+		Level:    cfg.LogLevel,
+		JSON:     cfg.LogJSON,
+		ToStdout: cfg.LogToStdout,
+	})
+	if err != nil {
+		fallbackLogger.Error("initialize loggers failed", "error", err, "log_dir", cfg.LogDir)
+		os.Exit(1)
+	}
+	defer func() {
+		if err := loggers.Close(); err != nil {
+			fallbackLogger.Error("close log files failed", "error", err)
+		}
+	}()
+	logger := loggers.App
 
 	store, err := data.LoadItems(cfg.DataFile)
 	if err != nil {
-		logger.Error("load game items failed", "error", err)
+		loggers.Error.Error("load game items failed", "error", err, "data_file", cfg.DataFile)
 		os.Exit(1)
 	}
 
@@ -35,10 +52,15 @@ func main() {
 		DataVersion:    store.Version,
 		Cache:          resultCache,
 		Logger:         logger,
+		ErrorLogger:    loggers.Error,
+		CalcLogger:     loggers.Calc,
 		CalcTimeout:    cfg.CalcTimeout,
 		MaxConcurrency: cfg.MaxConcurrency,
 		MaxQueueSize:   cfg.MaxQueueSize,
 		AdminToken:     cfg.AdminToken,
+		TrustProxy:     cfg.TrustProxy,
+		LogIPHash:      cfg.LogIPHash,
+		IPHashSalt:     cfg.LogIPHashSalt,
 	})
 
 	mux := http.NewServeMux()
@@ -48,7 +70,7 @@ func main() {
 	mux.HandleFunc("/find-paths", handler.FindPaths)
 
 	var wrapped http.Handler = mux
-	wrapped = middleware.Recovery(wrapped, logger)
+	wrapped = middleware.Recovery(wrapped, loggers.Error)
 	wrapped = middleware.SecurityHeaders(wrapped)
 	wrapped = middleware.CORS(wrapped, cfg.CORSOrigin)
 	if cfg.Env != "test" {
@@ -57,9 +79,10 @@ func main() {
 			Max:        cfg.RateLimitPerMinute,
 			Enabled:    true,
 			TrustProxy: cfg.TrustProxy,
-			Logger:     logger,
+			Logger:     loggers.Error,
 		})
 	}
+	wrapped = middleware.AccessLog(wrapped, logger, cfg.TrustProxy)
 
 	server := &http.Server{
 		Addr:              ":" + cfg.Port,
@@ -71,9 +94,9 @@ func main() {
 	}
 
 	go func() {
-		logger.Info("Go backend started", "port", cfg.Port, "items", len(store.Items), "data_version", store.Version)
+		logger.Info("Go backend started", "port", cfg.Port, "env", cfg.Env, "items", len(store.Items), "data_version", store.Version, "log_dir", cfg.LogDir, "log_json", cfg.LogJSON)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Error("server failed", "error", err)
+			loggers.Error.Error("server failed", "error", err)
 			os.Exit(1)
 		}
 	}()
@@ -86,6 +109,6 @@ func main() {
 	defer cancel()
 	logger.Info("shutting down")
 	if err := server.Shutdown(ctx); err != nil {
-		logger.Error("shutdown failed", "error", err)
+		loggers.Error.Error("shutdown failed", "error", err)
 	}
 }

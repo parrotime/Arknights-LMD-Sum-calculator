@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+
+	"ark-lmd-go-backend/internal/logging"
 )
 
 func Recovery(next http.Handler, logger *slog.Logger) http.Handler {
@@ -11,7 +13,7 @@ func Recovery(next http.Handler, logger *slog.Logger) http.Handler {
 		defer func() {
 			if recovered := recover(); recovered != nil {
 				if logger != nil {
-					logger.Error("panic recovered", "value", recovered)
+					logger.Error("panic recovered", "event", "panic_recovered", "request_id", logging.RequestID(r.Context()), "method", r.Method, "path", r.URL.Path, "value", recovered)
 				}
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http.StatusInternalServerError)

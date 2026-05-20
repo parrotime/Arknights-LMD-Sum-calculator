@@ -17,7 +17,12 @@ type Config struct {
 	AdminToken         string
 	TrustProxy         bool
 	DataFile           string
+	LogDir             string
 	LogLevel           slog.Level
+	LogJSON            bool
+	LogToStdout        bool
+	LogIPHash          bool
+	LogIPHashSalt      string
 	CalcTimeout        time.Duration
 	MaxConcurrency     int
 	MaxQueueSize       int
@@ -44,7 +49,12 @@ func Load() Config {
 		AdminToken:         os.Getenv("ADMIN_TOKEN"),
 		TrustProxy:         envBool("TRUST_PROXY", false),
 		DataFile:           firstNonEmpty(os.Getenv("DATA_FILE"), filepath.Join("..", "data", "gameItems.json")),
+		LogDir:             firstNonEmpty(os.Getenv("LOG_DIR"), defaultLogDir(env)),
 		LogLevel:           parseLevel(firstNonEmpty(os.Getenv("LOG_LEVEL"), "info")),
+		LogJSON:            envBool("LOG_JSON", env == "production"),
+		LogToStdout:        envBool("LOG_TO_STDOUT", env != "production"),
+		LogIPHash:          envBool("LOG_IP_HASH", false),
+		LogIPHashSalt:      os.Getenv("LOG_IP_HASH_SALT"),
 		CalcTimeout:        time.Duration(envInt("CALC_TIMEOUT_MS", 15000)) * time.Millisecond,
 		MaxConcurrency:     maxConcurrency,
 		MaxQueueSize:       maxQueueSize,
@@ -52,6 +62,13 @@ func Load() Config {
 		CacheMaxEntries:    envInt("CACHE_MAX_ENTRIES", 1024),
 		RateLimitPerMinute: envInt("RATE_LIMIT_PER_MINUTE", 15),
 	}
+}
+
+func defaultLogDir(env string) string {
+	if env == "production" {
+		return "/var/log/ark-lmd"
+	}
+	return "logs"
 }
 
 func firstNonEmpty(values ...string) string {
