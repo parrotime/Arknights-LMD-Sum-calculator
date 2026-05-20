@@ -38,6 +38,8 @@ type settings struct {
 	AllowOrundumsDevice  bool `json:"allowOrundumsDevice"`
 }
 
+const maxSanityLimit = 210
+
 func (r findPathsRequest) parseTarget() (int, error) {
 	return parseJSONNumberInt(r.Target)
 }
@@ -93,7 +95,7 @@ func parseLimits(raw map[string]json.RawMessage) (calc.Limits, error) {
 		"upgrade0Limit": 10,
 		"upgrade1Limit": 10,
 		"upgrade2Limit": 10,
-		"sanityLimit":   200,
+		"sanityLimit":   maxSanityLimit,
 		"trade2Limit":   10,
 		"trade3Limit":   10,
 		"trade4Limit":   10,
@@ -142,7 +144,7 @@ func parseLimitValue(raw map[string]json.RawMessage, key string) (int, bool, err
 
 	maxVal := 10
 	if key == "sanityLimit" {
-		maxVal = 200
+		maxVal = maxSanityLimit
 	}
 	if value < 0 || value > maxVal {
 		return 0, false, errors.New("limit out of range")

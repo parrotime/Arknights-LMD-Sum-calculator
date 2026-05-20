@@ -58,7 +58,7 @@ const InputPanel = ({
           labelCn: "允许使用理智数量",
           labelEn: "PERMITTED SANITY",
           field: "sanityCount",
-          max: 200,
+          max: 210,
           icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/san.webp",
         },
       ],

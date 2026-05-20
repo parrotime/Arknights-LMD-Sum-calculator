@@ -28,7 +28,7 @@ func defaultLimits() Limits {
 		Upgrade0Limit: 10,
 		Upgrade1Limit: 10,
 		Upgrade2Limit: 10,
-		SanityLimit:   200,
+		SanityLimit:   210,
 		Trade2Limit:   10,
 		Trade3Limit:   10,
 		Trade4Limit:   10,
