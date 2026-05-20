@@ -356,7 +356,89 @@
   gap: 8px;
   margin-bottom: 8px;
   padding-left: 10px;
+  padding-right: 42px;
   min-height: 26px;
+}
+
+.limit-reset-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  background: rgba(43, 131, 198, 0.14);
+  border: 1px solid var(--ark-border-default);
+  border-radius: 2px;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: border-color var(--ark-transition-fast),
+              background-color var(--ark-transition-fast),
+              box-shadow var(--ark-transition-fast);
+}
+
+.limit-reset-btn:hover {
+  border-color: var(--ark-primary-500);
+  background: rgba(43, 131, 198, 0.22);
+}
+
+.limit-reset-btn:focus-visible {
+  outline: 2px solid var(--ark-border-focus);
+  outline-offset: 2px;
+}
+
+.limit-reset-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  object-fit: contain;
+  opacity: 0.92;
+  filter: invert(78%) sepia(24%) saturate(876%) hue-rotate(177deg) brightness(105%) contrast(96%);
+  transition: filter var(--ark-transition-fast),
+              opacity var(--ark-transition-fast);
+}
+
+.limit-reset-btn-active {
+  animation: limit-reset-button-flash 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.limit-reset-btn-active .limit-reset-icon {
+  opacity: 1;
+  filter: invert(43%) sepia(60%) saturate(1527%) hue-rotate(321deg) brightness(106%) contrast(94%);
+  animation: limit-reset-icon-spin 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+:global([data-theme="light"]) .limit-reset-icon {
+  filter: invert(21%) sepia(24%) saturate(1751%) hue-rotate(174deg) brightness(90%) contrast(91%);
+}
+
+@keyframes limit-reset-icon-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+@keyframes limit-reset-button-flash {
+  0%,
+  100% {
+    border-color: var(--ark-border-default);
+    background: rgba(43, 131, 198, 0.14);
+  }
+
+  45%,
+  72% {
+    border-color: var(--ark-danger);
+    background: var(--ark-danger-bg);
+  }
 }
 
 .limit-category-title,
@@ -501,7 +583,9 @@
 }
 
 .short-input-box::placeholder {
-  color: var(--ark-neutral-500);
+  color: var(--ark-neutral-800);
+  font-weight: 700;
+  opacity: 1;
 }
 
 .limit-wheel {
@@ -737,7 +821,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .limit-wheel-picker,
-  .limit-wheel-option-active {
+  .limit-wheel-option-active,
+  .limit-reset-btn-active,
+  .limit-reset-btn-active .limit-reset-icon {
     animation: none;
   }
 }

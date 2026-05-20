@@ -24,6 +24,7 @@ const InputPanel = ({
   onClearLmdInput,
 }) => {
   const [pressedCalculate, setPressedCalculate] = useState(null);
+  const [limitResetAnimating, setLimitResetAnimating] = useState(null);
 
   // 实时计算差值
   const diffInfo = useMemo(() => computeDiff(state.num1, state.num2), [state.num1, state.num2]);
@@ -53,6 +54,7 @@ const InputPanel = ({
       code: "SANITY CATEGORY",
       row: "top",
       layout: "sanity",
+      resetLabel: "清空理智限制",
       items: [
         {
           labelCn: "允许使用理智数量",
@@ -68,6 +70,7 @@ const InputPanel = ({
       code: "ALLOWED OPERATOR PROMOTION COUNT",
       row: "top",
       layout: "elite",
+      resetLabel: "清空干员人数限制",
       items: [
         {
           labelCn: "精零人数",
@@ -97,6 +100,7 @@ const InputPanel = ({
       code: "TRADING POST PURE GOLD ORDERS",
       row: "bottom",
       layout: "trade",
+      resetLabel: "清空订单限制",
       items: [
         {
           labelCn: "2赤金订单",
@@ -151,6 +155,13 @@ const InputPanel = ({
 
   const handleLimitWheelChange = (field, value, max) => {
     handleUpgradeCountChange({ target: { value } }, field, 0, max);
+  };
+
+  const handleLimitGroupReset = (group) => {
+    setLimitResetAnimating(group.layout);
+    group.items.forEach(({ field, max }) => {
+      handleUpgradeCountChange({ target: { value: "" } }, field, 0, max);
+    });
   };
 
   const renderLimitInput = ({ labelCn, field, max }) => {
@@ -323,6 +334,21 @@ const InputPanel = ({
             {limitGroups.filter((group) => group.row === "top").map((group) => (
               <div className={`${styles['limit-category']} ${styles[`limit-category-${group.layout}`]}`} key={group.code}>
                 <div className={styles['limit-category-header']}>
+                  <button
+                    type="button"
+                    className={`${styles['limit-reset-btn']} ${limitResetAnimating === group.layout ? styles['limit-reset-btn-active'] : ''}`}
+                    onClick={() => handleLimitGroupReset(group)}
+                    onAnimationEnd={() => setLimitResetAnimating(null)}
+                    title={group.resetLabel}
+                    aria-label={group.resetLabel}
+                  >
+                    <img
+                      className={styles['limit-reset-icon']}
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/reset.webp"
+                      alt=""
+                      aria-hidden="true"
+                    />
+                  </button>
                   <span className={styles['limit-category-title']}>{group.title}</span>
                   <span className={styles['limit-category-code']}>{group.code}</span>
                 </div>
@@ -347,6 +373,21 @@ const InputPanel = ({
           {limitGroups.filter((group) => group.row === "bottom").map((group) => (
             <div className={`${styles['limit-category']} ${styles[`limit-category-${group.layout}`]}`} key={group.code}>
               <div className={styles['limit-category-header']}>
+                <button
+                  type="button"
+                  className={`${styles['limit-reset-btn']} ${limitResetAnimating === group.layout ? styles['limit-reset-btn-active'] : ''}`}
+                  onClick={() => handleLimitGroupReset(group)}
+                  onAnimationEnd={() => setLimitResetAnimating(null)}
+                  title={group.resetLabel}
+                  aria-label={group.resetLabel}
+                >
+                  <img
+                    className={styles['limit-reset-icon']}
+                    src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/reset.webp"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </button>
                 <span className={styles['limit-category-title']}>{group.title}</span>
                 <span className={styles['limit-category-code']}>{group.code}</span>
               </div>
