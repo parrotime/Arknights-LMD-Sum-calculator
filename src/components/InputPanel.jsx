@@ -4,6 +4,16 @@ import LimitWheelInput from "./LimitWheelInput";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
 import styles from "../assets/styles/InputPanel.module.css";
 
+const WHEEL_LIMIT_FIELDS = new Set([
+  "upgrade0Count",
+  "upgrade1Count",
+  "upgrade2Count",
+  "trade2Count",
+  "trade3Count",
+  "trade4Count",
+  "trade5Count",
+]);
+
 const InputPanel = ({
   state,
   handleInputChange,
@@ -141,6 +151,34 @@ const InputPanel = ({
 
   const handleLimitWheelChange = (field, value, max) => {
     handleUpgradeCountChange({ target: { value } }, field, 0, max);
+  };
+
+  const renderLimitInput = ({ labelCn, field, max }) => {
+    if (WHEEL_LIMIT_FIELDS.has(field)) {
+      return (
+        <LimitWheelInput
+          value={state[field] ?? ""}
+          min={0}
+          max={max}
+          placeholder="不限"
+          ariaLabel={`${labelCn}数量限制`}
+          onChange={(value) => handleLimitWheelChange(field, value, max)}
+        />
+      );
+    }
+
+    return (
+      <input
+        type="number"
+        className={styles['short-input-box']}
+        min="0"
+        max={max}
+        step="1"
+        placeholder="不限"
+        value={state[field] ?? ""}
+        onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
+      />
+    );
   };
 
   return (
@@ -297,16 +335,7 @@ const InputPanel = ({
                         <span className={styles['limit-card-label-en']}>{labelEn}</span>
                       </span>
                       <span className={styles['limit-input-field']}>
-                        <input
-                          type="number"
-                          className={styles['short-input-box']}
-                          min="0"
-                          max={max}
-                          step="1"
-                          placeholder="不限"
-                          value={state[field] ?? ""}
-                          onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
-                        />
+                        {renderLimitInput({ labelCn, field, max })}
                       </span>
                     </label>
                   ))}
@@ -330,27 +359,7 @@ const InputPanel = ({
                       <span className={styles['limit-card-label-en']}>{labelEn}</span>
                     </span>
                     <span className={styles['limit-input-field']}>
-                      {field === "trade2Count" ? (
-                        <LimitWheelInput
-                          value={state[field] ?? ""}
-                          min={0}
-                          max={max}
-                          placeholder="不限"
-                          ariaLabel={`${labelCn}数量限制`}
-                          onChange={(value) => handleLimitWheelChange(field, value, max)}
-                        />
-                      ) : (
-                        <input
-                          type="number"
-                          className={styles['short-input-box']}
-                          min="0"
-                          max={max}
-                          step="1"
-                          placeholder="不限"
-                          value={state[field] ?? ""}
-                          onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
-                        />
-                      )}
+                      {renderLimitInput({ labelCn, field, max })}
                     </span>
                   </label>
                 ))}

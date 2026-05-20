@@ -519,9 +519,7 @@
   overflow: visible;
   user-select: none;
   touch-action: none;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 48%),
-    var(--ark-input-bg);
+  background: var(--ark-input-bg);
   color: var(--ark-neutral-800);
   cursor: pointer;
   transition: border-color var(--ark-transition-fast),
@@ -560,9 +558,7 @@
 .limit-wheel:focus-visible,
 .limit-wheel-open {
   border-color: var(--ark-border-focus);
-  background:
-    linear-gradient(180deg, rgba(80, 170, 245, 0.18), transparent 42%, rgba(80, 170, 245, 0.1)),
-    var(--ark-input-bg-focus);
+  background: var(--ark-input-bg-focus);
   box-shadow: 0 0 0 3px rgba(93, 173, 226, 0.12);
   outline: none;
 }
@@ -638,9 +634,8 @@
   color: var(--ark-primary-600);
   font-size: 0.9rem;
   text-shadow: 0 0 10px rgba(93, 173, 226, 0.38);
-  background:
-    linear-gradient(90deg, rgba(70, 150, 230, 0.12), transparent 28%, transparent 72%, rgba(70, 150, 230, 0.12)),
-    var(--ark-input-bg-focus);
+  background: var(--ark-input-bg-focus);
+  animation: limit-wheel-value-step 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .limit-wheel-option-active::before,
@@ -667,14 +662,57 @@
   z-index: 4;
   height: 24px;
   border: 1px solid rgba(93, 173, 226, 0.32);
-  background:
-    linear-gradient(180deg, rgba(120, 205, 255, 0.18), rgba(18, 35, 55, 0.94)),
-    var(--ark-surface-card);
+  background: var(--ark-surface-card);
   box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
   color: var(--ark-neutral-500);
   font-size: 0.62rem;
   opacity: 0.72;
   transform: translateX(-50%) scale(0.92);
+  gap: 5px;
+  cursor: grab;
+  pointer-events: auto;
+  transition: border-color var(--ark-transition-fast),
+              color var(--ark-transition-fast),
+              opacity var(--ark-transition-fast);
+}
+
+.limit-wheel-option-muted:hover {
+  border-color: rgba(93, 173, 226, 0.58);
+  color: var(--ark-neutral-700);
+  opacity: 0.92;
+}
+
+.limit-wheel-direction {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-top: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  opacity: 0.9;
+}
+
+.limit-wheel-direction-up {
+  transform: translateY(2px) rotate(45deg);
+}
+
+.limit-wheel-direction-down {
+  transform: translateY(-2px) rotate(225deg);
+}
+
+@keyframes limit-wheel-value-step {
+  0% {
+    opacity: 0.35;
+    transform: translate(-50%, -34%);
+    filter: brightness(1.45);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    filter: brightness(1);
+  }
 }
 
 .limit-wheel-option-prev {
@@ -694,6 +732,13 @@
   100% {
     filter: brightness(1);
     transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .limit-wheel-picker,
+  .limit-wheel-option-active {
+    animation: none;
   }
 }
 

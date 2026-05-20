@@ -22,6 +22,7 @@ const LimitWheelInput = ({
   const optionsRef = useRef([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [motionKey, setMotionKey] = useState(0);
 
   const options = useMemo(() => ["", ...Array.from({ length: max - min + 1 }, (_, index) => min + index)], [min, max]);
   const normalizedValue = value === undefined || value === null ? "" : value;
@@ -32,6 +33,14 @@ const LimitWheelInput = ({
     optionsRef.current = options;
   }, [currentIndex, options]);
 
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("ark-native-cursor", { detail: { active: isOpen } }));
+
+    return () => {
+      window.dispatchEvent(new CustomEvent("ark-native-cursor", { detail: { active: false } }));
+    };
+  }, [isOpen]);
+
   const setByIndex = useCallback((nextIndex) => {
     const availableOptions = optionsRef.current;
     if (!availableOptions.length) return;
@@ -41,6 +50,7 @@ const LimitWheelInput = ({
 
     currentIndexRef.current = wrappedIndex;
     onChange(nextValue === "" ? "" : String(nextValue));
+    setMotionKey((key) => key + 1);
   }, [onChange]);
 
   const stepBy = useCallback((delta) => {
@@ -104,10 +114,10 @@ const LimitWheelInput = ({
   };
 
   const handlePointerMove = (event) => {
-    event.stopPropagation();
     const drag = dragRef.current;
     if (!drag.active) return;
 
+    event.stopPropagation();
     const deltaY = event.clientY - drag.y + drag.carry;
     const steps = Math.trunc(deltaY / DRAG_STEP_PX);
     if (steps === 0) return;
@@ -127,6 +137,13 @@ const LimitWheelInput = ({
   const handleWheel = (event) => {
     event.preventDefault();
     event.stopPropagation();
+  };
+
+  const handleOptionPointerDown = (event, delta) => {
+    event.preventDefault();
+    event.stopPropagation();
+    stepBy(delta);
+    rootRef.current?.focus();
   };
 
   const handleKeyDown = (event) => {
@@ -178,14 +195,33 @@ const LimitWheelInput = ({
         <span className={styles['limit-wheel-closed']}>{formatClosedValue(normalizedValue, placeholder)}</span>
       ) : (
         <span className={styles['limit-wheel-picker']}>
-          <span className={`${styles['limit-wheel-option']} ${styles['limit-wheel-option-muted']} ${styles['limit-wheel-option-prev']}`}>
-            {formatWheelValue(getRelativeOption(-1))}
+          <span
+            className={`${styles['limit-wheel-option']} ${styles['limit-wheel-option-muted']} ${styles['limit-wheel-option-prev']}`}
+            role="button"
+            aria-label="选择上一个数量"
+            data-native-cursor="true"
+            data-native-cursor-mode={isDragging ? "grabbing" : "grab"}
+            onPointerDown={(event) => handleOptionPointerDown(event, -1)}
+          >
+            <span className={`${styles['limit-wheel-direction']} ${styles['limit-wheel-direction-up']}`} aria-hidden="true" />
+            <span>{formatWheelValue(getRelativeOption(-1))}</span>
           </span>
-          <span className={`${styles['limit-wheel-option']} ${styles['limit-wheel-option-active']}`}>
+          <span
+            key={motionKey}
+            className={`${styles['limit-wheel-option']} ${styles['limit-wheel-option-active']}`}
+          >
             {formatWheelValue(normalizedValue)}
           </span>
-          <span className={`${styles['limit-wheel-option']} ${styles['limit-wheel-option-muted']} ${styles['limit-wheel-option-next']}`}>
-            {formatWheelValue(getRelativeOption(1))}
+          <span
+            className={`${styles['limit-wheel-option']} ${styles['limit-wheel-option-muted']} ${styles['limit-wheel-option-next']}`}
+            role="button"
+            aria-label="选择下一个数量"
+            data-native-cursor="true"
+            data-native-cursor-mode={isDragging ? "grabbing" : "grab"}
+            onPointerDown={(event) => handleOptionPointerDown(event, 1)}
+          >
+            <span className={`${styles['limit-wheel-direction']} ${styles['limit-wheel-direction-down']}`} aria-hidden="true" />
+            <span>{formatWheelValue(getRelativeOption(1))}</span>
           </span>
         </span>
       )}

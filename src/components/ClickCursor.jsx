@@ -160,12 +160,21 @@ const ClickCursor = ({ isCalculating = false }) => {
       updateCursorAffordance(e.target);
     };
 
+    const onNativeCursorRequest = (e) => {
+      if (e.detail?.active) {
+        enterNativeCursor();
+      } else {
+        exitNativeCursor();
+      }
+    };
+
     document.addEventListener("pointermove", onPointerMove, { passive: true });
     document.addEventListener("pointerleave", onLeave);
     document.addEventListener("pointerenter", onEnter);
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("pointerup", onPointerUp);
     document.addEventListener("pointercancel", resetInteraction);
+    window.addEventListener("ark-native-cursor", onNativeCursorRequest);
     window.addEventListener("blur", resetInteraction);
     window.addEventListener("contextmenu", resetInteraction);
     document.body.classList.add("custom-cursor-active");
@@ -177,6 +186,7 @@ const ClickCursor = ({ isCalculating = false }) => {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("pointerup", onPointerUp);
       document.removeEventListener("pointercancel", resetInteraction);
+      window.removeEventListener("ark-native-cursor", onNativeCursorRequest);
       window.removeEventListener("blur", resetInteraction);
       window.removeEventListener("contextmenu", resetInteraction);
       document.body.classList.remove("custom-cursor-active");
