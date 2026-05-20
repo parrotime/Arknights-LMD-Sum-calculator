@@ -14,6 +14,42 @@ const WHEEL_LIMIT_FIELDS = new Set([
   "trade5Count",
 ]);
 
+const RollingNumber = ({ value }) => {
+  const text = Math.abs(value).toLocaleString("zh-CN");
+
+  return (
+    <span className={styles['rolling-number']} aria-label={text}>
+      {Array.from(text).map((char, index) => {
+        if (!/\d/.test(char)) {
+          return (
+            <span className={styles['rolling-separator']} key={`${index}-${char}`}>
+              {char}
+            </span>
+          );
+        }
+
+        return (
+          <span className={styles['rolling-digit-window']} key={`${index}-${char}`}>
+            <span
+              className={styles['rolling-digit-strip']}
+              style={{
+                "--rolling-digit": Number(char),
+                "--rolling-delay": `${Math.max(0, text.length - index - 1) * 18}ms`,
+              }}
+            >
+              {"0123456789".split("").map((digit) => (
+                <span className={styles['rolling-digit']} key={digit}>
+                  {digit}
+                </span>
+              ))}
+            </span>
+          </span>
+        );
+      })}
+    </span>
+  );
+};
+
 const InputPanel = ({
   state,
   handleInputChange,
@@ -28,25 +64,17 @@ const InputPanel = ({
 
   // 实时计算差值
   const diffInfo = useMemo(() => computeDiff(state.num1, state.num2), [state.num1, state.num2]);
-  const diffAmount = diffInfo ? Math.abs(diffInfo.value).toLocaleString("zh-CN") : "";
   const hasInputError = !!(state.error1 || state.error2);
   const isDiffOutOfRange = hasInputError || diffInfo?.outOfRange;
-  const diffText = hasInputError || diffInfo?.outOfRange
-    ? "超出范围"
+  const diffDisplay = hasInputError || diffInfo?.outOfRange
+    ? { prefix: "", label: "超出范围", amount: null }
     : diffInfo
       ? diffInfo.value > 0
-        ? `需获取 ${diffAmount} 龙门币`
+        ? { prefix: "需", label: "获取", amount: Math.abs(diffInfo.value) }
         : diffInfo.value < 0
-          ? `需消耗 ${diffAmount} 龙门币`
-          : "无需变化"
-      : "—";
-  const diffToneClass = diffInfo
-    ? diffInfo.value > 0
-      ? styles['diff-gain']
-      : diffInfo.value < 0
-        ? styles['diff-spend']
-        : styles['diff-zero']
-    : "";
+          ? { prefix: "需", label: "消耗", amount: Math.abs(diffInfo.value) }
+          : { prefix: "", label: "无需变化", amount: null }
+      : { prefix: "", label: "—", amount: null };
 
   const limitGroups = [
     {
@@ -416,10 +444,26 @@ const InputPanel = ({
           <span className={styles['limit-block-title-code']}>OPERATION AREA</span>
         </div>
         <div className={styles['operation-row']}>
-          <div className={`${styles['diff-section']} ${
-            isDiffOutOfRange ? styles['diff-out-of-range'] : diffToneClass
-          }`}>
-            <span className={styles['diff-value']}>{diffText}</span>
+          <div
+            className={`${styles['diff-section']} ${isDiffOutOfRange ? styles['diff-out-of-range'] : ''}`}
+            aria-live="polite"
+          >
+            <span className={styles['diff-value']}>
+              {diffDisplay.prefix && (
+                <span className={styles['diff-prefix']}>{diffDisplay.prefix}</span>
+              )}
+              <span className={styles['diff-status-chip']}>
+                <span className={styles['diff-status-text']} key={diffDisplay.label}>
+                  {diffDisplay.label}
+                </span>
+              </span>
+              {diffDisplay.amount !== null && (
+                <>
+                  <RollingNumber value={diffDisplay.amount} />
+                  <span className={styles['diff-unit']}>龙门币</span>
+                </>
+              )}
+            </span>
           </div>
 
           <div className={styles['action-buttons']}>
