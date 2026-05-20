@@ -18,6 +18,36 @@ import {
 import styles from "./assets/styles/App.module.css";
 import { validateInput, buildLimits, buildCacheKey } from "./utils/calcLogic";
 
+const getBeijingDateParts = (date = new Date()) => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+
+  return Object.fromEntries(parts.map((part) => [part.type, part.value]));
+};
+
+const isCEOpenInBeijing = (date = new Date()) => {
+  const parts = getBeijingDateParts(date);
+  const beijingTime = new Date(
+    Number(parts.year),
+    Number(parts.month) - 1,
+    Number(parts.day),
+    Number(parts.hour),
+    Number(parts.minute),
+    Number(parts.second)
+  );
+  beijingTime.setHours(beijingTime.getHours() - 4);
+
+  return [0, 2, 4, 6].includes(beijingTime.getDay());
+};
+
 const defaultState = {
   num1: "", //当前数量
   num2: "", //目标数量
@@ -75,6 +105,11 @@ const freshDefaults = {
   allowUpgradeOnly2: true,
   allowUpgradeOnlyFor1: true,
 };
+
+const buildFreshDefaultSettings = () => ({
+  ...freshDefaults,
+  allowCE: isCEOpenInBeijing(),
+});
 
 // 迁移旧版 disable/enable 键名到 allow 键名
 const migrateSettings = (settings) => {
@@ -141,6 +176,7 @@ const getInitialState = () => {
       if (key in parsed) restored[key] = parsed[key];
     }
     restored.settings = { ...defaultState.settings, ...migrateSettings(restored.settings) };
+    restored.settings.allowCE = isCEOpenInBeijing();
     const resultSnapshot = parsed.resultSnapshot;
     if (
       resultSnapshot?.signature === buildResultSignature(restored) &&
@@ -155,7 +191,7 @@ const getInitialState = () => {
   }
   return {
     ...defaultState,
-    settings: { ...defaultState.settings, ...freshDefaults },
+    settings: { ...defaultState.settings, ...buildFreshDefaultSettings() },
   };
 };
 
@@ -281,7 +317,7 @@ const reducer = (state, action) => {
     case "RESET_SETTINGS":
       return {
         ...clearResultState(state),
-        settings: { ...defaultState.settings, ...freshDefaults },
+        settings: { ...defaultState.settings, ...buildFreshDefaultSettings() },
         upgrade0Count: "",
         upgrade1Count: "",
         upgrade2Count: "",

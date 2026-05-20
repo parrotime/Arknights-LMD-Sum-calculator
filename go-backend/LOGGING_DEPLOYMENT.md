@@ -60,7 +60,7 @@
 - `has_current_lmd`：是否成功计算出用户当前龙门币值
 - `lmd_diff`：龙门币差值，也就是 `目标龙门币 - 当前龙门币`
 - `target`：兼容旧命名，当前等同于 `lmd_diff`
-- `ip_hash`：可选 IP 哈希值，默认关闭；开启后用于后续匿名聚合分析
+- `ip_hash`：可选 IP 哈希值，生产部署示例默认开启；用于后续匿名聚合分析
 - `calc_mode`：计算模式，默认 `fast`
 - `cache`：`hit` / `miss` / 空字符串
 - `duration_ms`：本次请求在 Go 后端内的耗时
@@ -88,11 +88,11 @@ TRUST_PROXY=true
 可选 IP 哈希：
 
 ```text
-LOG_IP_HASH=false
+LOG_IP_HASH=true
 LOG_IP_HASH_SALT=<一段随机字符串>
 ```
 
-`LOG_IP_HASH=true` 时，日志会额外写入 `ip_hash`，但不会移除原始 `ip` 字段。默认关闭，避免增加不必要字段；即使开启，单次 SHA-256 哈希开销也远小于一次 DP 计算。
+`LOG_IP_HASH=true` 时，日志会额外写入 `ip_hash`，但不会移除原始 `ip` 字段。生产环境建议开启，便于后续在不直接依赖原始 IP 的情况下做聚合分析；单次 SHA-256 哈希开销远小于一次 DP 计算。
 
 本地开发默认写入：
 

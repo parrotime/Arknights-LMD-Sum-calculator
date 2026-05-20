@@ -17,7 +17,7 @@ Environment=LOG_DIR=/var/log/ark-lmd
 Environment=LOG_JSON=true
 Environment=LOG_TO_STDOUT=false
 Environment=LOG_LEVEL=info
-Environment=LOG_IP_HASH=false
+Environment=LOG_IP_HASH=true
 Environment=LOG_IP_HASH_SALT=replace-with-a-random-salt
 Environment=MAX_CONCURRENCY=2
 Environment=MAX_QUEUE_SIZE=4
