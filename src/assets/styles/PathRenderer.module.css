@@ -27,4 +27,10 @@
   .path-renderer-container {
     padding: 4px 0 8px;
   }
+
+  .plan-list {
+    margin-left: -4px;
+    margin-right: -4px;
+    gap: var(--ark-space-md);
+  }
 }

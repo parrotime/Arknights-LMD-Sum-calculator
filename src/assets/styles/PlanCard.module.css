@@ -386,55 +386,160 @@
 }
 
 @media (max-width: 800px) {
+  .plan-card::after {
+    right: 8px;
+    bottom: -7px;
+    font-size: 2.55rem;
+  }
+
   .plan-card-header {
     grid-template-columns: 1fr auto;
+    align-items: stretch;
   }
 
   .plan-identity {
-    min-height: 48px;
-    padding: 8px 10px;
+    min-height: 52px;
+    padding: 8px 10px 7px;
+    border-right: 0;
+  }
+
+  .plan-mark-label {
+    order: 2;
+    margin-top: 5px;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+  }
+
+  .plan-mark-number {
+    order: 1;
+    margin-top: 0;
+    font-size: 1.18rem;
+    letter-spacing: 0.06em;
   }
 
   .summary {
     grid-column: 1 / -1;
     grid-row: 2;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 6px 0;
-    padding: 9px 10px;
-    border-top: 1px solid var(--ark-border-default);
-    font-size: 0.86rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-auto-flow: column;
+    grid-template-rows: repeat(2, minmax(22px, auto));
+    justify-content: stretch;
+    gap: 0;
+    padding: 8px 10px;
+    border-top: 1px solid var(--ark-plan-border);
+    font-size: 0.82rem;
   }
 
   .summary span {
-    padding: 0 10px;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    min-width: 0;
+    min-height: 22px;
+    padding: 0 8px 0 0;
+    border-left: none;
+    white-space: nowrap;
   }
 
   .summary span:first-child {
     padding-left: 0;
   }
 
+  .summary b {
+    font-family: var(--ark-font-title);
+    font-size: 0.8rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  .summary strong {
+    font-size: 1.04rem;
+    line-height: 1;
+  }
+
+  .summary em {
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+
+  .summary span:last-child {
+    grid-row: 1 / 3;
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: 1fr;
+    align-content: center;
+    justify-items: end;
+    gap: 4px;
+    padding: 0 0 0 9px;
+    border-left: 1px solid var(--ark-plan-border);
+    text-align: right;
+  }
+
+  .summary span:last-child b {
+    justify-self: end;
+    font-size: 0.82rem;
+  }
+
+  .summary span:last-child strong,
+  .summary span:last-child em {
+    display: inline;
+  }
+
   .copy-btn,
   .copy-btn-done {
-    min-width: 86px;
-    min-height: 48px;
+    width: 76px;
+    min-width: 76px;
+    min-height: 52px;
+    padding: 0 8px;
+    gap: 5px;
+    border-left: 1px solid var(--ark-plan-border);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+
+  .copy-icon {
+    width: 17px;
+    height: 17px;
   }
 
   .step-list {
-    padding: 8px 10px 10px;
+    padding: 6px 8px 10px;
+  }
+
+  .step-list::before {
+    margin: 0 0 6px;
+    padding: 2px 0 3px;
+    border-top: 1px solid var(--ark-plan-step-line);
+    border-bottom: 1px solid var(--ark-plan-step-line);
+    text-align: center;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
   }
 
   .step-card {
-    grid-template-columns: 52px minmax(0, 1fr);
-    gap: 8px;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 7px;
+    min-height: 38px;
+    padding: 6px 0;
   }
 
   .step-index {
-    width: 50px;
+    width: 42px;
+    height: 26px;
+  }
+
+  .step-index span {
+    font-size: 0.47rem;
+    letter-spacing: 0.08em;
+  }
+
+  .step-index strong {
+    font-size: 0.78rem;
   }
 
   .step-card::before {
-    left: 25px;
+    left: 21px;
   }
 
   .step-right {

@@ -54,7 +54,18 @@ const ResultArea = ({
                 {calcMeta?.fromCache ? "CACHE" : "TIME"}
               </span>
               <span className={styles['result-summary-source-value']}>
-                {calcMeta?.fromCache ? "从缓存读取" : `计算耗时 ${calcMeta?.elapsed ?? 0}ms`}
+                {calcMeta?.fromCache ? (
+                  "从缓存读取"
+                ) : (
+                  <>
+                    <span className={styles['result-summary-source-value-desktop']}>
+                      计算耗时 {calcMeta?.elapsed ?? 0}ms
+                    </span>
+                    <span className={styles['result-summary-source-value-mobile']}>
+                      耗时 {calcMeta?.elapsed ?? 0}ms
+                    </span>
+                  </>
+                )}
               </span>
             </div>
             <div className={styles['result-summary-count']}>
