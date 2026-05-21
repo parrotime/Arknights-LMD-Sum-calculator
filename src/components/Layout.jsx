@@ -19,6 +19,7 @@ const loadTheme = () => {
 const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
   const { isCalculating } = useCursorState();
   const [dark, setDark] = useState(loadTheme);
+  const [themeToggleAnimating, setThemeToggleAnimating] = useState(false);
   const location = useLocation();
   const navLinksRef = useRef(null);
   const navItemRefs = useRef({});
@@ -66,6 +67,12 @@ const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
     return () => window.removeEventListener("resize", onResize);
   }, [updateNavIndicator]);
 
+  const handleThemeToggle = useCallback(() => {
+    setThemeToggleAnimating(false);
+    requestAnimationFrame(() => setThemeToggleAnimating(true));
+    setDark(d => !d);
+  }, []);
+
   return (
     <div className="app-container">
       <ClickCursor isCalculating={isCalculating} />
@@ -102,12 +109,12 @@ const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
           </div>
           <button
             className="theme-toggle"
-            onClick={() => setDark(d => !d)}
+            onClick={handleThemeToggle}
             aria-label={dark ? "切换到浅色模式" : "切换到深色模式"}
             title={dark ? "浅色模式" : "深色模式"}
           >
             <img
-              className="theme-toggle-icon"
+              className={`theme-toggle-icon ${dark ? "theme-toggle-icon-day" : "theme-toggle-icon-night"} ${themeToggleAnimating ? "theme-toggle-icon-active" : ""}`}
               src={
                 dark
                   ? "https://ark-lmd.oss-cn-beijing.aliyuncs.com/day_mod.webp"
@@ -115,6 +122,7 @@ const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
               }
               alt=""
               aria-hidden="true"
+              onAnimationEnd={() => setThemeToggleAnimating(false)}
             />
           </button>
         </div>

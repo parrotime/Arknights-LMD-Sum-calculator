@@ -555,7 +555,7 @@ html, body, #root {
   line-height: 1;
   cursor: pointer;
   transition: background var(--ark-transition-fast),
-              transform var(--ark-transition-fast);
+              border-color var(--ark-transition-fast);
   flex-shrink: 0;
 }
 
@@ -564,15 +564,39 @@ html, body, #root {
   height: 22px;
   object-fit: contain;
   display: block;
+  transition: filter var(--ark-transition-fast),
+              opacity var(--ark-transition-fast);
+}
+
+.theme-toggle-icon-day {
+  filter: brightness(0) invert(1) drop-shadow(0 0 7px rgba(255, 255, 255, 0.32));
+}
+
+.theme-toggle-icon-active {
+  animation: theme-toggle-icon-pop 340ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .theme-toggle:hover {
   background: rgba(255, 255, 255, 0.18);
-  transform: scale(1.08);
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
 .theme-toggle:active {
-  transform: scale(0.95);
+  transform: none;
+}
+
+@keyframes theme-toggle-icon-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  42% {
+    transform: scale(0.72);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .app-container {
@@ -959,5 +983,9 @@ html, body, #root {
   .theme-toggle:hover,
   .theme-toggle:active {
     transform: none;
+  }
+
+  .theme-toggle-icon-active {
+    animation: none;
   }
 }

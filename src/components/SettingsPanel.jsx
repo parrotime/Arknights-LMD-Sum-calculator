@@ -114,7 +114,7 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
         >
           <img
             className={styles['reset-settings-icon']}
-            src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/reset.webp"
+            src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/clean.webp"
             alt=""
             aria-hidden="true"
           />

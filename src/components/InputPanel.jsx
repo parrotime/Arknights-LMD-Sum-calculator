@@ -31,7 +31,7 @@ const CALC_MODES = {
   },
 };
 
-const MODE_TOGGLE_ICON = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/exchange.webp";
+const MODE_TOGGLE_ICON = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/reset.webp";
 
 const RollingNumber = ({ value }) => {
   const text = Math.abs(value).toLocaleString("zh-CN");
@@ -99,6 +99,7 @@ const InputPanel = ({
           ? { prefix: "需", label: "消耗", amount: Math.abs(diffInfo.value) }
           : { prefix: "", label: "无需变化", amount: null }
       : { prefix: "", label: "—", amount: null };
+  const isDiffPlaceholder = !hasInputError && !diffInfo;
   const selectedMode = CALC_MODES[selectedCalcMode];
 
   useEffect(() => {
@@ -427,7 +428,7 @@ const InputPanel = ({
                   >
                     <img
                       className={styles['limit-reset-icon']}
-                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/reset.webp"
+                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/clean.webp"
                       alt=""
                       aria-hidden="true"
                     />
@@ -466,7 +467,7 @@ const InputPanel = ({
                 >
                   <img
                     className={styles['limit-reset-icon']}
-                    src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/reset.webp"
+                    src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/clean.webp"
                     alt=""
                     aria-hidden="true"
                   />
@@ -507,11 +508,15 @@ const InputPanel = ({
               {diffDisplay.prefix && (
                 <span className={styles['diff-prefix']}>{diffDisplay.prefix}</span>
               )}
-              <span className={styles['diff-status-chip']}>
-                <span className={styles['diff-status-text']} key={diffDisplay.label}>
-                  {diffDisplay.label}
+              {isDiffPlaceholder ? (
+                <span className={styles['diff-placeholder']}>{diffDisplay.label}</span>
+              ) : (
+                <span className={styles['diff-status-chip']}>
+                  <span className={styles['diff-status-text']} key={diffDisplay.label}>
+                    {diffDisplay.label}
+                  </span>
                 </span>
-              </span>
+              )}
               {diffDisplay.amount !== null && (
                 <>
                   <RollingNumber value={diffDisplay.amount} />
