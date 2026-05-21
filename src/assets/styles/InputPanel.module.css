@@ -934,10 +934,14 @@
 }
 
 .diff-prefix {
+  display: inline-flex;
+  align-items: flex-end;
   color: var(--ark-primary-700);
   font-size: 1.04rem;
   font-weight: 900;
+  line-height: 1;
   white-space: nowrap;
+  transform: translateY(1px);
 }
 
 .diff-status-text {
@@ -959,7 +963,7 @@
   line-height: 1;
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
-  transform: translateY(2px);
+  transform: translateY(3.4px);
 }
 
 .rolling-digit-window {
@@ -995,10 +999,14 @@
 }
 
 .diff-unit {
+  display: inline-flex;
+  align-items: flex-end;
   color: var(--ark-primary-700);
   font-size: 1.02rem;
   font-weight: 900;
+  line-height: 1;
   white-space: nowrap;
+  transform: translateY(2px);
 }
 
 :global([data-theme="dark"]) .diff-section {
@@ -1053,6 +1061,20 @@
 
   100% {
     transform: translateY(calc(var(--rolling-digit) * -1em));
+    filter: brightness(1);
+  }
+}
+
+@keyframes mode-select-flip {
+  0% {
+    opacity: 0;
+    transform: rotateX(74deg) translateY(-4px);
+    filter: brightness(1.32);
+  }
+
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg) translateY(0);
     filter: brightness(1);
   }
 }
@@ -1131,7 +1153,7 @@
 
 .action-buttons {
   display: grid;
-  grid-template-columns: 286px minmax(0, 1fr);
+  grid-template-columns: 220px minmax(0, 1fr);
   align-items: center;
   justify-content: center;
   gap: var(--operation-gap);
@@ -1141,7 +1163,7 @@
 
 .mode-select {
   position: relative;
-  width: 286px;
+  width:220px;
   min-width: 0;
   z-index: 5;
 }
@@ -1149,7 +1171,7 @@
 .mode-select-trigger {
   position: relative;
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) 42px;
+  grid-template-columns: 58px minmax(0, 1fr) 40px;
   align-items: center;
   gap: 12px;
   width: 100%;
@@ -1186,11 +1208,14 @@
 }
 
 .mode-select-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 0;
   color: var(--ark-neutral-900);
   font-size: 1.12rem;
   font-weight: 900;
-  line-height: 1;
+  line-height: 1.18;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -1201,7 +1226,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 64px;
+  min-width: 58px;
   height: 24px;
   padding: 0 8px;
   box-sizing: border-box;
@@ -1214,11 +1239,19 @@
   letter-spacing: 0.06em;
 }
 
+.mode-select-flip {
+  display: inline-block;
+  padding-block: 1px;
+  animation: mode-select-flip 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center;
+  will-change: transform, opacity, filter;
+}
+
 .mode-select-icon-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
+  width: 32px;
   height: 32px;
   background: rgba(122, 193, 248, 0.2);
   border: 1px solid rgba(122, 193, 248, 0.5);
@@ -1258,7 +1291,7 @@
 
 .mode-menu-item {
   display: grid;
-  grid-template-columns: 128px minmax(0, 1fr);
+  grid-template-columns: 116px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
   width: 100%;
@@ -1292,15 +1325,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 6px;
   height: 36px;
-  padding: 0 8px;
+  padding: 0 7px;
   box-sizing: border-box;
   background: rgba(80, 155, 235, 0.14);
   border: 1px solid rgba(80, 155, 235, 0.34);
   border-radius: 5px;
   color: var(--ark-neutral-900);
-  font-size: 1.06rem;
+  font-size: 1rem;
   font-weight: 900;
   line-height: 1;
   white-space: nowrap;
@@ -1316,8 +1349,8 @@
   justify-content: center;
   width: fit-content;
   height: 18px;
-  min-width: 52px;
-  padding: 0 7px;
+  min-width: 48px;
+  padding: 0 6px;
   box-sizing: border-box;
   border: 1px solid rgba(80, 155, 235, 0.42);
   border-radius: 999px;
@@ -1330,8 +1363,8 @@
 }
 
 .mode-menu-badge-icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   object-fit: contain;
   filter: drop-shadow(0 0 5px rgba(122, 193, 248, 0.2));
   pointer-events: none;
@@ -1419,6 +1452,7 @@
   .calculate-button::after,
   .mode-menu,
   .mode-select-icon,
+  .mode-select-flip,
   .diff-status-text,
   .rolling-digit-strip {
     transition: none;

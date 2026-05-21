@@ -531,8 +531,16 @@ const InputPanel = ({
                 aria-expanded={modeMenuOpen}
                 disabled={state.isCalculating}
               >
-                <span className={styles['mode-select-code']}>{selectedMode.code}</span>
-                <span className={styles['mode-select-label']}>{selectedMode.label}</span>
+                <span className={styles['mode-select-code']}>
+                  <span className={styles['mode-select-flip']} key={`code-${selectedCalcMode}`}>
+                    {selectedMode.code}
+                  </span>
+                </span>
+                <span className={styles['mode-select-label']}>
+                  <span className={styles['mode-select-flip']} key={`label-${selectedCalcMode}`}>
+                    {selectedMode.label}
+                  </span>
+                </span>
                 <span className={styles['mode-select-icon-wrap']} aria-hidden="true">
                   <img
                     className={styles['mode-select-icon']}
