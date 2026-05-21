@@ -771,7 +771,7 @@ html, body, #root {
   }
 
   .nav-brand {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
   }
 
   .nav-links {
@@ -782,7 +782,7 @@ html, body, #root {
   }
 
   .nav-item {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     padding: 6px 14px;
   }
 

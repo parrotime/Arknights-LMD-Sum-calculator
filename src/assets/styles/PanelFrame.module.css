@@ -100,7 +100,7 @@
   .content-panel::after,
   .history-box::after {
     top: -5px;
-    right: -2px;
+    right: -5px;
     width: 28px;
     height: 28px;
   }
@@ -110,8 +110,13 @@
   }
 
   .title-bar h1 {
+    font-size: 1.5rem;
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
+  }
+
+  .title-code {
+    font-size: 0.72rem;
   }
 }

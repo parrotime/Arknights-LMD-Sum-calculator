@@ -365,9 +365,17 @@
 
   .note-page::after {
     top: -5px;
-    right: -2px;
+    right: -5px;
     width: 28px;
     height: 28px;
+  }
+
+  .note-title-bar h1 {
+    font-size: 1.5rem;
+  }
+
+  .note-title-bar p {
+    font-size: 0.72rem;
   }
 
   .note-page {
@@ -404,7 +412,7 @@
   }
 
   .note-title-bar h1 {
-    font-size: 1.68rem;
+    font-size: 1.5rem;
   }
 
   .rule-header {

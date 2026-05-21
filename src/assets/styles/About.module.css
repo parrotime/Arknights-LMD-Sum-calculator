@@ -683,9 +683,17 @@
 
   .about-page::after {
     top: -5px;
-    right: -2px;
+    right: -5px;
     width: 28px;
     height: 28px;
+  }
+
+  .about-title-bar h1 {
+    font-size: 1.5rem;
+  }
+
+  .about-title-bar p {
+    font-size: 0.72rem;
   }
 
   .about-page {
