@@ -671,6 +671,23 @@
     padding: var(--ark-space-md);
   }
 
+  .about-page::before {
+    top: -4px;
+    right: -4px;
+    left: -4px;
+    background:
+      linear-gradient(var(--ark-panel-frame-top), var(--ark-panel-frame-top)) top / 100% 6px no-repeat,
+      linear-gradient(var(--ark-panel-frame-side), var(--ark-panel-frame-side)) left top / 6px 100% no-repeat,
+      linear-gradient(var(--ark-panel-frame-side), var(--ark-panel-frame-side)) right top / 6px 100% no-repeat;
+  }
+
+  .about-page::after {
+    top: -5px;
+    right: -2px;
+    width: 28px;
+    height: 28px;
+  }
+
   .about-page {
     width: 100%;
     padding: 15px;

@@ -185,7 +185,7 @@
   transform: translateY(-50%);
   background: var(--ark-surface-card);
   color: var(--ark-neutral-800);
-  font-size: 0.92rem;
+  font-size: 1.1rem;
   font-weight: 800;
   line-height: 1;
   pointer-events: none;

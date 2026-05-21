@@ -82,8 +82,27 @@
 @media (max-width: 800px) {
   .content-panel,
   .history-box {
-    width: 90%;
+    width: 100%;
     max-width: none;
+  }
+
+  .content-panel::before,
+  .history-box::before {
+    top: -4px;
+    right: -4px;
+    left: -4px;
+    background:
+      linear-gradient(var(--ark-panel-frame-top), var(--ark-panel-frame-top)) top / 100% 6px no-repeat,
+      linear-gradient(var(--ark-panel-frame-side), var(--ark-panel-frame-side)) left top / 6px 100% no-repeat,
+      linear-gradient(var(--ark-panel-frame-side), var(--ark-panel-frame-side)) right top / 6px 100% no-repeat;
+  }
+
+  .content-panel::after,
+  .history-box::after {
+    top: -5px;
+    right: -2px;
+    width: 28px;
+    height: 28px;
   }
 
   .history-box {
