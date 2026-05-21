@@ -1781,6 +1781,14 @@
     height: 36px;
   }
 
+  .limit-wheel {
+    touch-action: pan-y;
+  }
+
+  .limit-wheel-open {
+    touch-action: none;
+  }
+
   .operation-row {
     grid-template-columns: 1fr;
     gap: 8px;

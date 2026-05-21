@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import styles from "../assets/styles/InputPanel.module.css";
 
 const DRAG_STEP_PX = 18;
+const MOBILE_TAP_MOVE_LIMIT_PX = 8;
 
 const formatWheelValue = (value) => (value === "" ? "AUTO" : String(value));
 const formatClosedValue = (value, placeholder) => (value === "" ? placeholder : String(value));
@@ -18,6 +19,7 @@ const LimitWheelInput = ({
 }) => {
   const rootRef = useRef(null);
   const dragRef = useRef({ active: false, y: 0, carry: 0 });
+  const tapIntentRef = useRef({ active: false, pointerId: null, x: 0, y: 0, moved: false });
   const currentIndexRef = useRef(0);
   const optionsRef = useRef([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -99,6 +101,19 @@ const LimitWheelInput = ({
     : {};
 
   const handlePointerDown = (event) => {
+    const isTouchPointer = event.pointerType === "touch";
+
+    if (isTouchPointer && !isOpen) {
+      tapIntentRef.current = {
+        active: true,
+        pointerId: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        moved: false,
+      };
+      return;
+    }
+
     event.preventDefault();
     event.stopPropagation();
 
@@ -114,6 +129,16 @@ const LimitWheelInput = ({
   };
 
   const handlePointerMove = (event) => {
+    const tapIntent = tapIntentRef.current;
+    if (tapIntent.active && tapIntent.pointerId === event.pointerId) {
+      const deltaX = event.clientX - tapIntent.x;
+      const deltaY = event.clientY - tapIntent.y;
+      if (Math.hypot(deltaX, deltaY) > MOBILE_TAP_MOVE_LIMIT_PX) {
+        tapIntentRef.current = { ...tapIntent, moved: true };
+      }
+      return;
+    }
+
     const drag = dragRef.current;
     if (!drag.active) return;
 
@@ -128,6 +153,20 @@ const LimitWheelInput = ({
   };
 
   const handlePointerEnd = (event) => {
+    const tapIntent = tapIntentRef.current;
+    if (tapIntent.active && tapIntent.pointerId === event.pointerId) {
+      tapIntentRef.current = { active: false, pointerId: null, x: 0, y: 0, moved: false };
+
+      if (!tapIntent.moved) {
+        event.preventDefault();
+        event.stopPropagation();
+        setIsOpen(true);
+        event.currentTarget.focus();
+      }
+
+      return;
+    }
+
     event.stopPropagation();
     dragRef.current = { active: false, y: 0, carry: 0 };
     setIsDragging(false);

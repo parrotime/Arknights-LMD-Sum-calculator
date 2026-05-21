@@ -167,6 +167,10 @@
   box-shadow: inset 0 -1px 0 rgba(142, 200, 245, 0.16);
 }
 
+.setting-mobile-summary {
+  display: none;
+}
+
 .advanced-rule-badge {
   display: inline-flex;
   align-items: center;
@@ -251,6 +255,10 @@
   border-bottom: 1px solid var(--ark-primary-300);
   background: var(--ark-surface-card);
   transform: translate(-50%, -5px) rotate(45deg);
+}
+
+.setting-help-popover::before {
+  content: none;
 }
 
 .setting-help-close {
@@ -470,8 +478,24 @@ input:checked + .slider::after {
 }
 
 @media (max-width: 800px) {
+  .right-panel {
+    padding-left: var(--ark-space-lg);
+    padding-right: var(--ark-space-lg);
+  }
+
+  .settings-title-bar {
+    padding-left: 0;
+    padding-right: 44px;
+  }
+
+  .toggle-wrapper {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   .settings-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .settings-card-sanity,
@@ -483,21 +507,201 @@ input:checked + .slider::after {
   }
 
   .toggle-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 50px;
+    column-gap: 8px;
     height: auto;
-    min-height: 36px;
+    min-height: 44px;
     align-items: center;
-    padding: 6px 0;
+    padding: 5px 0;
+  }
+
+  .settings-card {
+    padding: 10px;
+  }
+
+  .settings-card-header {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 8px;
+    margin-bottom: 7px;
+    padding-bottom: 8px;
+  }
+
+  .settings-card-icon {
+    width: 40px;
+    height: 40px;
   }
 
   .toggle-text {
+    display: none;
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
-    padding-right: 8px;
+    padding-right: 0;
+    font-family: "Rajdhani", var(--ark-font-title);
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1.38;
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  .advanced-rule-header {
+    display: flex;
+    align-items: center;
+    min-height: 28px;
+    font-family: "Rajdhani", var(--ark-font-title);
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  .advanced-rule-badge {
+    height: 20px;
+    padding: 0 8px;
+    font-family: "Rajdhani", var(--ark-font-title);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+  }
+
+  .setting-help-trigger {
+    width: 20px;
+    height: 20px;
+    margin-left: 3px;
+    font-family: "Rajdhani", var(--ark-font-title);
+    font-size: 0.82rem;
+  }
+
+  .setting-help-popover {
+    position: fixed;
+    left: 50%;
+    top: 38vh;
+    bottom: auto;
+    visibility: hidden;
+    width: min(352px, calc(100vw - 32px));
+    max-width: none;
+    box-sizing: border-box;
+    padding: 12px 32px 12px 12px;
+    font-family: "Rajdhani", var(--ark-font-title);
+    font-size: 0.78rem;
+    line-height: 1.42;
+    transform: translateX(-50%);
+  }
+
+  .setting-help-popover::before,
+  .setting-help-popover::after {
+    content: "";
+    position: absolute;
+    left: var(--setting-help-arrow-left, 50%);
+    width: 9px;
+    height: 9px;
+    border-right: 1px solid var(--ark-primary-300);
+    border-bottom: 1px solid var(--ark-primary-300);
+    background: var(--ark-surface-card);
+    transform: translate(-50%, -5px) rotate(45deg);
+  }
+
+  .setting-help-popover::before {
+    top: 0;
+    display: none;
+    transform: translate(-50%, -5px) rotate(225deg);
+  }
+
+  .setting-help-popover::after {
+    top: 100%;
+    display: block;
+  }
+
+  .setting-help-popover[style*="--setting-help-arrow-edge: top"]::before {
+    display: block;
+  }
+
+  .setting-help-popover[style*="--setting-help-arrow-edge: top"]::after {
+    display: none;
+  }
+
+  .setting-help-close {
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border-color: rgba(248, 113, 113, 0.72);
+    background: rgba(220, 38, 38, 0.16);
+    color: var(--ark-danger);
+    font-size: 1rem;
+    box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.1);
+  }
+
+  :global(.setting-popover-keyword) {
+    margin: 0 2px;
+    padding: 1px 5px;
+  }
+
+  .setting-mobile-summary {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 4px;
+  }
+
+  .setting-mobile-keyword,
+  .setting-mobile-desc {
+    min-width: 0;
+    font-family: "Rajdhani", var(--ark-font-title);
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  .setting-mobile-keyword {
+    display: flex;
+    align-items: center;
+    line-height: 1;
+  }
+
+  .setting-mobile-desc {
+    color: var(--ark-neutral-700);
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.32;
+  }
+
+  .setting-mobile-summary .setting-text-highlight {
+    margin: 0;
   }
 
   .toggle-switch {
-    width: 44px;
+    justify-self: end;
+    width: 50px;
     height: 24px;
+  }
+
+  .slider:before {
+    width: 18px;
+    height: 16px;
+  }
+
+  .slider::after {
+    padding: 0 6px 0 25px;
+    font-size: 0.56rem;
+    letter-spacing: 0.03em;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(25px);
+  }
+
+  input:checked + .slider::after {
+    padding: 0 25px 0 7px;
   }
 }

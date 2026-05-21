@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
 import styles from "../assets/styles/SettingsPanel.module.css";
 
 const settingsOptions = [
   { text: "允许使用理智三星通关", key: "allow3Star", highlight: "三星通关" },
   { text: "允许使用理智二星通关", key: "allow2Star", highlight: "二星通关" },
-  { text: "允许代理剿灭25理智获取250龙门币", key: "allowExt25", highlight: "代理剿灭" },
-  { text: "允许使用龙门币副本(CE系列关卡)", key: "allowCE", highlight: "龙门币副本" },
-  { text: "允许合成精英材料", key: "allowMaterial", highlight: "精英材料" },
-  { text: "允许使用贸易站售卖赤金", key: "allowTrade", highlight: "售卖赤金" },
+  { text: "允许通过25理智剿灭获取250龙门币", key: "allowExt25", highlight: "剿灭作战" },
+  { text: "允许使用龙门币副本(CE系列关卡)", key: "allowCE", highlight: "CE龙门币副本" },
+  { text: "允许使用加工站合成精英材料", key: "allowMaterial", highlight: "精英材料合成" },
+  { text: "允许使用贸易站售卖赤金", key: "allowTrade", highlight: "赤金售卖" },
   { text: "允许使用绿土搓玉生产源石碎片", key: "allowOrundumsGreen", highlight: "绿土搓玉" },
   { text: "允许使用装置搓玉生产源石碎片", key: "allowOrundumsDevice", highlight: "装置搓玉" },
   { text: "允许使用活动商店1代币换10龙门币", key: "allowStore10", highlight: "1代币换10龙门币" },
@@ -16,18 +16,18 @@ const settingsOptions = [
   { text: "允许使用危机合约1代币换70龙门币", key: "allowStore70", highlight: "1代币换70龙门币" },
   { text: "允许使用活动商店5代币换2000龙门币", key: "allowStore2000", highlight: "5代币换2000龙门币" },
   { text: "允许使用活动商店7代币换5000龙门币", key: "allowStore5000", highlight: "7代币换5000龙门币" },
-  { text: "允许连续多次对精零1级干员进行升级", key: "allowUpgradeOnly0", highlight: "精零1级" },
-  { text: "允许连续多次对精一1级干员进行升级", key: "allowUpgradeOnly1", highlight: "精一1级" },
-  { text: "允许连续多次对精二1级干员进行升级", key: "allowUpgradeOnly2", highlight: "精二1级" },
+  { text: "允许连续多次对精零1级干员进行升级", key: "allowUpgradeOnly0", highlight: "升级精零1级干员" },
+  { text: "允许连续多次对精一1级干员进行升级", key: "allowUpgradeOnly1", highlight: "升级精一1级干员" },
+  { text: "允许连续多次对精二1级干员进行升级", key: "allowUpgradeOnly2", highlight: "升级精二1级干员" },
   {
     text: "只允许连续多次对精零/一/二1级干员进行升级",
     key: "allowUpgradeOnlyFor1",
-    highlight: "1级干员",
+    highlight: "只升级精零/一/二1级干员",
     helpText: [
       "请注意：",
       <>这个设置的目的是<span className="setting-popover-keyword">排除</span>升级<span className="setting-popover-keyword">不是等级为1级</span>的干员，</>,
       "因此当这个按钮开启时，",
-      "请确保其他三个升级开关中，至少有一个为开启状态，",
+      "请确保其他三个升级开关中，至少有一个为开启状态。",
     ],
   },
 ];
@@ -81,18 +81,53 @@ const renderSettingText = (text, highlight, styles) => {
 
 const SettingsPanel = ({ settings, onToggle, onReset }) => {
   const [openHelpKey, setOpenHelpKey] = useState(null);
+  const [helpPopoverStyle, setHelpPopoverStyle] = useState(null);
   const [resetAnimating, setResetAnimating] = useState(false);
+  const helpTriggerRefs = useRef({});
+  const helpPopoverRef = useRef(null);
+
+  const updateHelpPopoverPosition = useCallback(() => {
+    if (!openHelpKey) return;
+
+    const trigger = helpTriggerRefs.current[openHelpKey];
+    const popover = helpPopoverRef.current;
+    if (!trigger || !popover) return;
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const popoverRect = popover.getBoundingClientRect();
+    const popoverWidth = Math.min(352, Math.max(0, window.innerWidth - 32));
+    const popoverLeft = (window.innerWidth - popoverWidth) / 2;
+    const triggerCenter = triggerRect.left + triggerRect.width / 2;
+    const arrowLeft = Math.min(Math.max(triggerCenter - popoverLeft, 16), popoverWidth - 16);
+    const spaceAbove = triggerRect.top;
+    const spaceBelow = window.innerHeight - triggerRect.bottom;
+    const shouldPlaceBelow = spaceAbove < popoverRect.height + 18 && spaceBelow > spaceAbove;
+    const top = shouldPlaceBelow
+      ? Math.max(12, Math.min(window.innerHeight - popoverRect.height - 12, triggerRect.bottom + 10))
+      : Math.max(12, triggerRect.top - popoverRect.height - 10);
+
+    setHelpPopoverStyle({
+      top: `${top}px`,
+      visibility: "visible",
+      "--setting-help-arrow-left": `${arrowLeft}px`,
+      "--setting-help-arrow-edge": shouldPlaceBelow ? "top" : "bottom",
+    });
+  }, [openHelpKey]);
 
   useEffect(() => {
-    const handlePointerDown = (event) => {
-      if (!event.target.closest('[data-setting-help-root="true"]')) {
-        setOpenHelpKey(null);
-      }
-    };
+    setHelpPopoverStyle(null);
+    if (!openHelpKey) return undefined;
 
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, []);
+    const frame = requestAnimationFrame(updateHelpPopoverPosition);
+    window.addEventListener("scroll", updateHelpPopoverPosition, { passive: true });
+    window.addEventListener("resize", updateHelpPopoverPosition);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", updateHelpPopoverPosition);
+      window.removeEventListener("resize", updateHelpPopoverPosition);
+    };
+  }, [openHelpKey, updateHelpPopoverPosition]);
 
   const handleResetClick = () => {
     setResetAnimating(true);
@@ -156,15 +191,26 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
                           <button
                             type="button"
                             className={styles['setting-help-trigger']}
+                            ref={(node) => {
+                              if (node) {
+                                helpTriggerRefs.current[key] = node;
+                              } else {
+                                delete helpTriggerRefs.current[key];
+                              }
+                            }}
                             aria-label="查看设置说明"
                             aria-expanded={openHelpKey === key}
-                            onClick={() => setOpenHelpKey(openHelpKey === key ? null : key)}
+                            onClick={() => setOpenHelpKey(key)}
                             onMouseEnter={() => setOpenHelpKey(key)}
                           >
                             ?
                           </button>
                           {openHelpKey === key && (
-                            <span className={styles['setting-help-popover']}>
+                            <span
+                              className={styles['setting-help-popover']}
+                              ref={helpPopoverRef}
+                              style={helpPopoverStyle || undefined}
+                            >
                               <button
                                 type="button"
                                 className={styles['setting-help-close']}
@@ -192,6 +238,12 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
                               <div className={styles['toggle-text']}>
                                 {renderSettingText(text, highlight, styles)}
                               </div>
+                              <div className={styles['setting-mobile-summary']}>
+                                <span className={styles['setting-mobile-keyword']}>
+                                  <span className={styles['setting-text-highlight']}>{highlight || text}</span>
+                                </span>
+                                <span className={styles['setting-mobile-desc']}>{text}</span>
+                              </div>
                               {switchControl}
                             </div>
                           </React.Fragment>
@@ -202,6 +254,12 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
                         <div className={styles['toggle-container']} key={key}>
                           <div className={styles['toggle-text']}>
                             {renderSettingText(text, highlight, styles)}
+                          </div>
+                          <div className={styles['setting-mobile-summary']}>
+                            <span className={styles['setting-mobile-keyword']}>
+                              <span className={styles['setting-text-highlight']}>{highlight || text}</span>
+                            </span>
+                            <span className={styles['setting-mobile-desc']}>{text}</span>
                           </div>
                           {switchControl}
                         </div>
