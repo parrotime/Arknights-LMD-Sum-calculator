@@ -7,6 +7,7 @@ import { CursorProvider, useCursorState } from "./components/CursorContext";
 const NotePage = lazy(() => import("./pages/Note"));
 const DataPage = lazy(() => import("./pages/Data"));
 const AboutPage = lazy(() => import("./pages/About"));
+const MaintenancePage = lazy(() => import("./pages/Maintenance"));
 import InputPanel from "./components/InputPanel";
 import SettingsPanel from "./components/SettingsPanel";
 import ResultArea from "./components/ResultArea";
@@ -714,6 +715,7 @@ const AppContent = () => {
           <Route path="/note" element={<NotePage />} />
           <Route path="/data" element={<DataPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/maintenance" element={<MaintenancePage />} />
         </Routes>
       </Suspense>
     </Layout>

@@ -6,6 +6,7 @@ const COPY_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/duplication.w
 const COPIED_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq10.webp";
 
 const PlanCard = ({
+  className = "",
   identityLabel,
   identityValue,
   identityValueClassName = "",
@@ -31,7 +32,7 @@ const PlanCard = ({
   };
 
   return (
-    <article className={styles['plan-card']}>
+    <article className={`${styles['plan-card']} ${className}`}>
       <div className={styles['plan-card-header']}>
         <div className={styles['plan-identity']} aria-label={ariaLabel}>
           <span className={styles['plan-mark-label']}>{identityLabel}</span>
@@ -102,6 +103,7 @@ const PlanCard = ({
 };
 
 PlanCard.propTypes = {
+  className: PropTypes.string,
   identityLabel: PropTypes.node.isRequired,
   identityValue: PropTypes.node.isRequired,
   identityValueClassName: PropTypes.string,

@@ -21,6 +21,7 @@ const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
   const [dark, setDark] = useState(loadTheme);
   const [themeToggleAnimating, setThemeToggleAnimating] = useState(false);
   const location = useLocation();
+  const isMaintenancePage = location.pathname.startsWith("/maintenance");
   const navLinksRef = useRef(null);
   const navItemRefs = useRef({});
   const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0, ready: false });
@@ -38,7 +39,10 @@ const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
       to === "/" ? location.pathname === "/" : location.pathname.startsWith(to)
     );
     const activeNode = activeItem ? navItemRefs.current[activeItem.to] : null;
-    if (!activeNode) return;
+    if (!activeNode) {
+      setNavIndicator(prev => prev.ready ? { ...prev, ready: false } : prev);
+      return;
+    }
 
     const containerRect = container.getBoundingClientRect();
     const itemRect = activeNode.getBoundingClientRect();
@@ -128,10 +132,12 @@ const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
         </div>
       </nav>
 
-      <FloatingAssistant
-        assistantEgg={assistantEgg}
-        onAssistantEggClose={onAssistantEggClose}
-      />
+      {!isMaintenancePage && (
+        <FloatingAssistant
+          assistantEgg={assistantEgg}
+          onAssistantEggClose={onAssistantEggClose}
+        />
+      )}
 
       {children}
 
