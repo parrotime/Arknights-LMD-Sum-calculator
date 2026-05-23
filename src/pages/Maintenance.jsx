@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import pathRendererStyles from "../assets/styles/PathRenderer.module.css";
 import styles from "../assets/styles/Maintenance.module.css";
 import {
@@ -7,21 +7,22 @@ import {
   renderSamplePathCards,
 } from "../utils/samplePlans.jsx";
 
-const MAINTENANCE_DURATION_MS = 12 * 60 * 60 * 1000;
-const START_STORAGE_KEY = "maintenanceCountdownStart";
+const DEFAULT_TITLE = "网页维护中...";
+const DEFAULT_SUBTITLE = "计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格";
+const NORMAL_TITLE = "网页维护未启用";
+const NORMAL_SUBTITLE = "当前计算服务未进入维护状态，下方表格可作为离线参考备用";
 
-const getInitialEndTime = () => {
-  const now = Date.now();
-  const savedStart = Number(localStorage.getItem(START_STORAGE_KEY));
-  const validStart = Number.isFinite(savedStart) && savedStart > 0
-    ? savedStart
-    : now;
+const fetchMaintenanceStatus = async () => {
+  const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/maintenance-status`, {
+    method: "GET",
+    headers: { "Accept": "application/json" },
+  });
 
-  if (!Number.isFinite(savedStart) || savedStart <= 0) {
-    localStorage.setItem(START_STORAGE_KEY, String(validStart));
+  if (!response.ok) {
+    throw new Error(`maintenance status request failed: ${response.status}`);
   }
 
-  return validStart + MAINTENANCE_DURATION_MS;
+  return response.json();
 };
 
 const formatTimeParts = (milliseconds) => {
@@ -41,16 +42,75 @@ const FlipUnit = ({ value, label }) => (
 );
 
 const MaintenancePage = () => {
-  const endTime = useMemo(getInitialEndTime, []);
-  const [remainingMs, setRemainingMs] = useState(() => endTime - Date.now());
+  const [status, setStatus] = useState({
+    loading: true,
+    error: false,
+    enabled: false,
+    title: DEFAULT_TITLE,
+    subtitle: DEFAULT_SUBTITLE,
+    endAtMs: null,
+    serverOffsetMs: 0,
+  });
+  const [remainingMs, setRemainingMs] = useState(0);
   const [hours, minutes, seconds] = formatTimeParts(remainingMs);
+  const hasCountdown = status.enabled && status.endAtMs;
 
   useEffect(() => {
-    const tick = () => setRemainingMs(endTime - Date.now());
+    let ignore = false;
+
+    fetchMaintenanceStatus()
+      .then((data) => {
+        if (ignore) return;
+        const serverTimeMs = Date.parse(data.serverTime || "");
+        const endAtMs = Date.parse(data.endAt || "");
+        const enabled = Boolean(data.enabled);
+        const hasValidEndAt = Number.isFinite(endAtMs);
+        const serverOffsetMs = Number.isFinite(serverTimeMs)
+          ? serverTimeMs - Date.now()
+          : 0;
+
+        setStatus({
+          loading: false,
+          error: false,
+          enabled,
+          title: enabled ? (data.title || DEFAULT_TITLE) : NORMAL_TITLE,
+          subtitle: enabled ? (data.subtitle || DEFAULT_SUBTITLE) : NORMAL_SUBTITLE,
+          endAtMs: enabled && hasValidEndAt ? endAtMs : null,
+          serverOffsetMs,
+        });
+      })
+      .catch(() => {
+        if (ignore) return;
+        setStatus({
+          loading: false,
+          error: true,
+          enabled: true,
+          title: DEFAULT_TITLE,
+          subtitle: DEFAULT_SUBTITLE,
+          endAtMs: null,
+          serverOffsetMs: 0,
+        });
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!status.enabled || !status.endAtMs) {
+      setRemainingMs(0);
+      return undefined;
+    }
+
+    const tick = () => {
+      const correctedNow = Date.now() + status.serverOffsetMs;
+      setRemainingMs(status.endAtMs - correctedNow);
+    };
     tick();
     const timer = window.setInterval(tick, 1000);
     return () => window.clearInterval(timer);
-  }, [endTime]);
+  }, [status.enabled, status.endAtMs, status.serverOffsetMs]);
 
   const renderMaintenanceSamples = (data) => renderSamplePathCards({
     data,
@@ -63,25 +123,42 @@ const MaintenancePage = () => {
 
   return (
     <div className={styles['maintenance-content']}>
-      <main className={styles['maintenance-page']}>
+      <main className={`${styles['maintenance-page']} ${!status.enabled ? styles['maintenance-page-normal'] : ""}`}>
         <section className={styles['hero-section']} aria-labelledby="maintenance-title">
-          <span className={styles['status-chip']}>SYSTEM MAINTENANCE</span>
-          <h1 id="maintenance-title">网页维护中...</h1>
-          <p>计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格</p>
+          <span className={styles['status-chip']}>
+            {status.loading ? "STATUS SYNCING" : status.enabled ? "SYSTEM MAINTENANCE" : "SYSTEM ONLINE"}
+          </span>
+          <h1 id="maintenance-title">{status.loading ? "正在同步维护状态..." : status.title}</h1>
+          <p>{status.loading ? "正在从服务器读取当前维护配置，请稍候" : status.subtitle}</p>
         </section>
 
         <section className={styles['timer-panel']} aria-label="预计恢复倒计时">
           <div className={styles['timer-copy']}>
-            <span>预计恢复倒计时</span>
-            <strong>MAINTENANCE TIMER</strong>
+            <span>{status.enabled ? "预计恢复倒计时" : "维护状态"}</span>
+            <strong>{status.enabled ? "MAINTENANCE TIMER" : "MAINTENANCE SWITCH"}</strong>
           </div>
-          <div className={styles['timer-readout']} aria-live="polite">
-            <FlipUnit value={hours} label="HRS" />
-            <span className={styles['timer-separator']}>:</span>
-            <FlipUnit value={minutes} label="MIN" />
-            <span className={styles['timer-separator']}>:</span>
-            <FlipUnit value={seconds} label="SEC" />
-          </div>
+          {hasCountdown ? (
+            <div className={styles['timer-readout']} aria-live="polite">
+              <FlipUnit value={hours} label="HRS" />
+              <span className={styles['timer-separator']}>:</span>
+              <FlipUnit value={minutes} label="MIN" />
+              <span className={styles['timer-separator']}>:</span>
+              <FlipUnit value={seconds} label="SEC" />
+            </div>
+          ) : (
+            <div className={`${styles['timer-readout']} ${styles['status-readout']}`} aria-live="polite">
+              <strong>{status.loading ? "SYNCING" : status.error ? "CONFIG UNREACHABLE" : status.enabled ? "WAITING" : "STANDBY"}</strong>
+              <span>
+                {status.loading
+                  ? "正在读取维护配置"
+                  : status.error
+                    ? "无法连接状态接口，已保留离线参考表格"
+                    : status.enabled
+                      ? "维护已启用，暂未设置恢复时间"
+                      : "维护未启用"}
+              </span>
+            </div>
+          )}
         </section>
 
         <section className={styles['sample-section']}>

@@ -28,9 +28,17 @@ type HandlerOptions struct {
 	MaxConcurrency int
 	MaxQueueSize   int
 	AdminToken     string
+	Maintenance    MaintenanceConfig
 	TrustProxy     bool
 	LogIPHash      bool
 	IPHashSalt     string
+}
+
+type MaintenanceConfig struct {
+	Enabled  bool
+	EndAt    string
+	Title    string
+	Subtitle string
 }
 
 type Handler struct {
@@ -49,6 +57,7 @@ type Handler struct {
 	maxConc     int
 	maxQueue    int
 	adminToken  string
+	maintenance MaintenanceConfig
 	trustProxy  bool
 	logIPHash   bool
 	ipHashSalt  string
@@ -76,6 +85,7 @@ func NewHandler(options HandlerOptions) *Handler {
 		maxConc:     maxConcurrency,
 		maxQueue:    maxQueueSize,
 		adminToken:  options.AdminToken,
+		maintenance: options.Maintenance,
 		trustProxy:  options.TrustProxy,
 		logIPHash:   options.LogIPHash,
 		ipHashSalt:  options.IPHashSalt,
@@ -85,6 +95,21 @@ func NewHandler(options HandlerOptions) *Handler {
 func (h *Handler) Health(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	_, _ = w.Write([]byte("Hello from the Go backend!"))
+}
+
+func (h *Handler) MaintenanceStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"enabled":    h.maintenance.Enabled,
+		"endAt":      h.maintenance.EndAt,
+		"title":      h.maintenance.Title,
+		"subtitle":   h.maintenance.Subtitle,
+		"serverTime": time.Now().Format(time.RFC3339),
+	})
 }
 
 func (h *Handler) CacheStats(w http.ResponseWriter, r *http.Request) {

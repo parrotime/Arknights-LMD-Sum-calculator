@@ -58,15 +58,22 @@ func main() {
 		MaxConcurrency: cfg.MaxConcurrency,
 		MaxQueueSize:   cfg.MaxQueueSize,
 		AdminToken:     cfg.AdminToken,
-		TrustProxy:     cfg.TrustProxy,
-		LogIPHash:      cfg.LogIPHash,
-		IPHashSalt:     cfg.LogIPHashSalt,
+		Maintenance: api.MaintenanceConfig{
+			Enabled:  cfg.MaintenanceEnabled,
+			EndAt:    cfg.MaintenanceEndAt,
+			Title:    cfg.MaintenanceMessage,
+			Subtitle: cfg.MaintenanceSubtitle,
+		},
+		TrustProxy: cfg.TrustProxy,
+		LogIPHash:  cfg.LogIPHash,
+		IPHashSalt: cfg.LogIPHashSalt,
 	})
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handler.Health)
 	mux.HandleFunc("/cache-stats", handler.CacheStats)
 	mux.HandleFunc("/server-stats", handler.ServerStats)
+	mux.HandleFunc("/maintenance-status", handler.MaintenanceStatus)
 	mux.HandleFunc("/find-paths", handler.FindPaths)
 
 	var wrapped http.Handler = mux

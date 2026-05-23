@@ -11,24 +11,28 @@ import (
 )
 
 type Config struct {
-	Port               string
-	Env                string
-	CORSOrigin         string
-	AdminToken         string
-	TrustProxy         bool
-	DataFile           string
-	LogDir             string
-	LogLevel           slog.Level
-	LogJSON            bool
-	LogToStdout        bool
-	LogIPHash          bool
-	LogIPHashSalt      string
-	CalcTimeout        time.Duration
-	MaxConcurrency     int
-	MaxQueueSize       int
-	CacheTTL           time.Duration
-	CacheMaxEntries    int
-	RateLimitPerMinute int
+	Port                string
+	Env                 string
+	CORSOrigin          string
+	AdminToken          string
+	MaintenanceEnabled  bool
+	MaintenanceEndAt    string
+	MaintenanceMessage  string
+	MaintenanceSubtitle string
+	TrustProxy          bool
+	DataFile            string
+	LogDir              string
+	LogLevel            slog.Level
+	LogJSON             bool
+	LogToStdout         bool
+	LogIPHash           bool
+	LogIPHashSalt       string
+	CalcTimeout         time.Duration
+	MaxConcurrency      int
+	MaxQueueSize        int
+	CacheTTL            time.Duration
+	CacheMaxEntries     int
+	RateLimitPerMinute  int
 }
 
 func Load() Config {
@@ -43,24 +47,28 @@ func Load() Config {
 	}
 
 	return Config{
-		Port:               firstNonEmpty(os.Getenv("PORT"), "3003"),
-		Env:                env,
-		CORSOrigin:         firstNonEmpty(os.Getenv("CORS_ORIGIN"), "https://ark-lmd.top"),
-		AdminToken:         os.Getenv("ADMIN_TOKEN"),
-		TrustProxy:         envBool("TRUST_PROXY", false),
-		DataFile:           firstNonEmpty(os.Getenv("DATA_FILE"), filepath.Join("..", "data", "gameItems.json")),
-		LogDir:             firstNonEmpty(os.Getenv("LOG_DIR"), defaultLogDir(env)),
-		LogLevel:           parseLevel(firstNonEmpty(os.Getenv("LOG_LEVEL"), "info")),
-		LogJSON:            envBool("LOG_JSON", env == "production"),
-		LogToStdout:        envBool("LOG_TO_STDOUT", env != "production"),
-		LogIPHash:          envBool("LOG_IP_HASH", false),
-		LogIPHashSalt:      os.Getenv("LOG_IP_HASH_SALT"),
-		CalcTimeout:        time.Duration(envInt("CALC_TIMEOUT_MS", 15000)) * time.Millisecond,
-		MaxConcurrency:     maxConcurrency,
-		MaxQueueSize:       maxQueueSize,
-		CacheTTL:           time.Duration(envInt("CACHE_TTL_SECONDS", 3600)) * time.Second,
-		CacheMaxEntries:    envInt("CACHE_MAX_ENTRIES", 1024),
-		RateLimitPerMinute: envInt("RATE_LIMIT_PER_MINUTE", 15),
+		Port:                firstNonEmpty(os.Getenv("PORT"), "3003"),
+		Env:                 env,
+		CORSOrigin:          firstNonEmpty(os.Getenv("CORS_ORIGIN"), "https://ark-lmd.top"),
+		AdminToken:          os.Getenv("ADMIN_TOKEN"),
+		MaintenanceEnabled:  envBool("MAINTENANCE_ENABLED", false),
+		MaintenanceEndAt:    os.Getenv("MAINTENANCE_END_AT"),
+		MaintenanceMessage:  firstNonEmpty(os.Getenv("MAINTENANCE_MESSAGE"), "网页维护中..."),
+		MaintenanceSubtitle: firstNonEmpty(os.Getenv("MAINTENANCE_SUBTITLE"), "计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格"),
+		TrustProxy:          envBool("TRUST_PROXY", false),
+		DataFile:            firstNonEmpty(os.Getenv("DATA_FILE"), filepath.Join("..", "data", "gameItems.json")),
+		LogDir:              firstNonEmpty(os.Getenv("LOG_DIR"), defaultLogDir(env)),
+		LogLevel:            parseLevel(firstNonEmpty(os.Getenv("LOG_LEVEL"), "info")),
+		LogJSON:             envBool("LOG_JSON", env == "production"),
+		LogToStdout:         envBool("LOG_TO_STDOUT", env != "production"),
+		LogIPHash:           envBool("LOG_IP_HASH", false),
+		LogIPHashSalt:       os.Getenv("LOG_IP_HASH_SALT"),
+		CalcTimeout:         time.Duration(envInt("CALC_TIMEOUT_MS", 15000)) * time.Millisecond,
+		MaxConcurrency:      maxConcurrency,
+		MaxQueueSize:        maxQueueSize,
+		CacheTTL:            time.Duration(envInt("CACHE_TTL_SECONDS", 3600)) * time.Second,
+		CacheMaxEntries:     envInt("CACHE_MAX_ENTRIES", 1024),
+		RateLimitPerMinute:  envInt("RATE_LIMIT_PER_MINUTE", 15),
 	}
 }
 

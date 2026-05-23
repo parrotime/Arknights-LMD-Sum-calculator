@@ -124,6 +124,36 @@ Permissions-Policy: camera=(), microphone=(), geolocation=()
 
 如果生产环境由 Nginx 负责 HTTPS，`Strict-Transport-Security` 建议放在 Nginx 配置中统一设置。
 
+## 维护页状态配置
+
+前端维护页会读取公开接口：
+
+```text
+GET /maintenance-status
+```
+
+默认不启用维护：
+
+```text
+MAINTENANCE_ENABLED=false
+```
+
+需要启用维护页倒计时时，设置：
+
+```text
+MAINTENANCE_ENABLED=true
+MAINTENANCE_END_AT=2026-05-24T08:00:00+08:00
+```
+
+可选自定义文案：
+
+```text
+MAINTENANCE_MESSAGE=网页维护中...
+MAINTENANCE_SUBTITLE=计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格
+```
+
+`MAINTENANCE_END_AT` 建议使用带时区的 RFC3339 时间。接口会同时返回 `serverTime`，前端据此校准倒计时，避免用户本机时间不准导致显示偏差。
+
 ## 对照测试
 
 ```powershell
