@@ -350,7 +350,7 @@
 
 @media (max-width: 900px) {
   .main-note-content {
-    padding: var(--ark-space-md);
+    padding: var(--ark-space-md) 12px var(--ark-space-lg);
   }
 
   .note-page::before {
@@ -380,7 +380,52 @@
 
   .note-page {
     width: 100%;
-    padding: 15px;
+    padding: 14px 12px;
+  }
+
+  .rule-card,
+  .case-intro,
+  .case-card {
+    padding: 13px;
+  }
+
+  .rule-header {
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .rule-header h2,
+  .case-copy h2 {
+    font-family: var(--ark-font-title);
+    font-size: 1.08rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+  }
+
+  .rule-card p,
+  .case-intro p,
+  .case-copy p,
+  .image-caption {
+    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .rule-card p,
+  .case-intro p,
+  .case-copy p {
+    font-size: 0.95rem;
+    line-height: 1.62;
+  }
+
+  .section-title span {
+    font-size: 1.42rem;
+    letter-spacing: 0.06em;
+  }
+
+  .section-title small {
+    font-size: 0.72rem;
   }
 
   .rule-grid,
@@ -416,7 +461,24 @@
   }
 
   .rule-header {
-    align-items: flex-start;
-    flex-wrap: wrap;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .rule-header h2 {
+    width: 100%;
+  }
+
+  .rule-code,
+  .case-code {
+    min-height: 19px;
+    padding: 0 7px;
+    font-size: 0.66rem;
+  }
+
+  .image-caption {
+    min-height: auto;
+    font-size: 0.82rem;
+    line-height: 1.4;
   }
 }
