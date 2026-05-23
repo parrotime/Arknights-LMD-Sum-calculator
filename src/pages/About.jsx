@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from '../assets/styles/About.module.css';
 
 const LAUNCH_TIME = new Date('2025-04-19T00:00:00+08:00').getTime();
@@ -91,7 +91,7 @@ function formatMonth(date) {
   return `${date.getMonth() + 1}月`;
 }
 
-function getChartTicks(range, now) {
+function getChartTicks(range, now, itemCount) {
   if (range === 'day') {
     return Array.from({ length: 24 }, (_, index) => {
       const date = new Date(now);
@@ -116,9 +116,9 @@ function getChartTicks(range, now) {
   }
 
   if (range === 'year') {
-    return Array.from({ length: 12 }, (_, index) => {
+    return Array.from({ length: itemCount }, (_, index) => {
       const date = new Date(now);
-      date.setMonth(date.getMonth() - (11 - index), 1);
+      date.setMonth(date.getMonth() - (itemCount - 1 - index), 1);
 
       return {
         label: formatMonth(date),
@@ -154,12 +154,58 @@ function AboutPage() {
   const [now, setNow] = useState(() => Date.now());
   const [activeRange, setActiveRange] = useState('day');
   const [syncHelpOpen, setSyncHelpOpen] = useState(false);
+  const [syncHelpStyle, setSyncHelpStyle] = useState(null);
+  const [isMobileChart, setIsMobileChart] = useState(() => (
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
+  ));
+  const syncHelpTriggerRef = useRef(null);
+  const syncHelpPopoverRef = useRef(null);
   const runtime = useMemo(() => formatRuntime(now), [now]);
-  const chartValues = chartData[activeRange];
+  const chartValues = useMemo(() => {
+    if (activeRange === 'year' && isMobileChart) {
+      return chartData.year.slice(-6);
+    }
+
+    return chartData[activeRange];
+  }, [activeRange, isMobileChart]);
   const chartPoints = useMemo(() => getChartPoints(chartValues), [chartValues]);
   const chartPath = useMemo(() => getSmoothPath(chartPoints), [chartPoints]);
   const chartAreaPath = useMemo(() => getAreaPath(chartPoints, 104), [chartPoints]);
-  const activeTicks = useMemo(() => getChartTicks(activeRange, now), [activeRange, now]);
+  const activeTicks = useMemo(() => getChartTicks(activeRange, now, chartValues.length), [activeRange, chartValues.length, now]);
+  const isMobileHelpLayout = useCallback(() => (
+    window.matchMedia('(max-width: 900px)').matches || window.matchMedia('(pointer: coarse)').matches
+  ), []);
+
+  const updateSyncHelpPosition = useCallback(() => {
+    if (!syncHelpOpen || !isMobileHelpLayout()) {
+      setSyncHelpStyle(null);
+      return;
+    }
+
+    const trigger = syncHelpTriggerRef.current;
+    const popover = syncHelpPopoverRef.current;
+    if (!trigger || !popover) return;
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const popoverRect = popover.getBoundingClientRect();
+    const popoverWidth = Math.min(324, Math.max(0, window.innerWidth - 32));
+    const popoverLeft = (window.innerWidth - popoverWidth) / 2;
+    const triggerCenter = triggerRect.left + triggerRect.width / 2;
+    const arrowLeft = Math.min(Math.max(triggerCenter - popoverLeft, 16), popoverWidth - 16);
+    const spaceAbove = triggerRect.top;
+    const spaceBelow = window.innerHeight - triggerRect.bottom;
+    const shouldPlaceBelow = spaceAbove < popoverRect.height + 18 && spaceBelow > spaceAbove;
+    const top = shouldPlaceBelow
+      ? Math.max(12, Math.min(window.innerHeight - popoverRect.height - 12, triggerRect.bottom + 10))
+      : Math.max(12, triggerRect.top - popoverRect.height - 10);
+
+    setSyncHelpStyle({
+      top: `${top}px`,
+      visibility: 'visible',
+      '--about-sync-arrow-left': `${arrowLeft}px`,
+      '--about-sync-arrow-edge': shouldPlaceBelow ? 'top' : 'bottom',
+    });
+  }, [isMobileHelpLayout, syncHelpOpen]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -170,7 +216,34 @@ function AboutPage() {
   }, []);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 900px)');
+    const updateMobileChart = () => setIsMobileChart(mediaQuery.matches);
+
+    updateMobileChart();
+    mediaQuery.addEventListener('change', updateMobileChart);
+
+    return () => mediaQuery.removeEventListener('change', updateMobileChart);
+  }, []);
+
+  useEffect(() => {
+    setSyncHelpStyle(null);
+    if (!syncHelpOpen) return undefined;
+
+    const frame = requestAnimationFrame(updateSyncHelpPosition);
+    window.addEventListener('scroll', updateSyncHelpPosition, { passive: true });
+    window.addEventListener('resize', updateSyncHelpPosition);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', updateSyncHelpPosition);
+      window.removeEventListener('resize', updateSyncHelpPosition);
+    };
+  }, [syncHelpOpen, updateSyncHelpPosition]);
+
+  useEffect(() => {
     const handlePointerDown = (event) => {
+      if (isMobileHelpLayout()) return;
+
       if (!event.target.closest('[data-about-sync-help-root="true"]')) {
         setSyncHelpOpen(false);
       }
@@ -178,7 +251,13 @@ function AboutPage() {
 
     document.addEventListener('pointerdown', handlePointerDown);
     return () => document.removeEventListener('pointerdown', handlePointerDown);
-  }, []);
+  }, [isMobileHelpLayout]);
+
+  const handleSyncHelpHover = () => {
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      setSyncHelpOpen(true);
+    }
+  };
 
   return (
     <div className={styles['main-about-content']}>
@@ -212,15 +291,20 @@ function AboutPage() {
                     <button
                       type="button"
                       className={styles['sync-help-trigger']}
+                      ref={syncHelpTriggerRef}
                       aria-label="查看统计同步说明"
                       aria-expanded={syncHelpOpen}
                       onClick={() => setSyncHelpOpen((open) => !open)}
-                      onMouseEnter={() => setSyncHelpOpen(true)}
+                      onMouseEnter={handleSyncHelpHover}
                     >
                       ?
                     </button>
                     {syncHelpOpen && (
-                      <span className={styles['sync-help-popover']}>
+                      <span
+                        className={styles['sync-help-popover']}
+                        ref={syncHelpPopoverRef}
+                        style={syncHelpStyle || undefined}
+                      >
                         <button
                           type="button"
                           className={styles['sync-help-close']}
@@ -265,7 +349,12 @@ function AboutPage() {
 
             <div className={styles['chart-body']}>
               <div className={styles['chart-plot']}>
-                <svg viewBox="0 0 280 128" preserveAspectRatio="none" className={styles['trend-chart']} aria-hidden="true">
+                <svg
+                  viewBox="0 0 280 128"
+                  preserveAspectRatio={isMobileChart ? 'xMidYMid meet' : 'none'}
+                  className={styles['trend-chart']}
+                  aria-hidden="true"
+                >
                   <defs>
                     <linearGradient id="aboutTrendGlow" x1="0" x2="1" y1="0" y2="0">
                       <stop offset="0%" stopColor="rgba(99, 180, 247, 0.25)" />
@@ -301,7 +390,9 @@ function AboutPage() {
                   <path d={chartPath} className={styles['chart-polyline']} />
                   {chartPoints.map((point, index) => {
                     const tick = activeTicks[index];
-                    const isKeyPoint = !!tick?.label || index === chartPoints.length - 1;
+                    const isKeyPoint = isMobileChart
+                      ? !!tick?.label
+                      : !!tick?.label || index === chartPoints.length - 1;
 
                     return (
                       <g key={`point-${index}`} className={styles['chart-node']}>

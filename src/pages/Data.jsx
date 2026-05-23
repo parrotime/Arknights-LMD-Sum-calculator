@@ -5,6 +5,9 @@ import PlanCard from "../components/PlanCard";
 import { classifyData } from "../DataService";
 
 const DATA_SECTION_IDS = ["upgrade-expense", "item-value", "sanity-index", "plan-sample"];
+const EXP_GREEN_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/exp_green.webp";
+const EXP_BLUE_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/exp_blue.webp";
+const LMD_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/lmd_logo.webp";
 const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
 const parseSampleSteps = (way) =>
@@ -40,6 +43,19 @@ const getSampleBounds = (target) => {
 };
 
 const formatPlanNumber = (index) => String(index + 1).padStart(2, "0");
+const formatSampleTargetLabel = (target) => {
+  const value = Math.abs(Number(String(target).replace("+", "")));
+  return Number.isNaN(value)
+    ? target
+    : `${Number(String(target).replace("+", "")) >= 0 ? "获取" : "消耗"}${value}龙门币`;
+};
+
+const TableHeadChip = ({ icon, text, alt = "" }) => (
+  <span className={styles['table-head-chip']}>
+    <img src={icon} alt={alt} className={styles['table-head-icon']} />
+    {text && <span className={styles['table-count-chip']}>{text}</span>}
+  </span>
+);
 
 const buildSamplePathText = ({ target, way, planIndex }) => {
   const steps = parseSampleSteps(way);
@@ -96,9 +112,14 @@ const SamplePathCard = ({ target, way, planIndex, variant }) => {
 
   return (
     <PlanCard
-      identityLabel={`SAMPLE ${variant}`}
-      identityValue={target}
-      identityValueClassName={styles['sample-target-mark']}
+      identityLabel={
+        <span className={styles['sample-identity-label']}>
+          <span>{start < end ? "ACQUIRE" : "CONSUME"}</span>
+          <strong>SAMPLE {variant}</strong>
+        </span>
+      }
+      identityValue={formatSampleTargetLabel(target)}
+      identityValueClassName={`${styles['sample-target-mark']} ${start < end ? styles['sample-target-gain'] : styles['sample-target-spend']}`}
       ariaLabel={`样例方案 ${planIndex + 1}`}
       summaryItems={summaryItems}
       steps={planSteps}
@@ -221,8 +242,8 @@ function DataPage() {
       <thead>
         <tr>
           <th>等级</th>
-          <th>使用1个基础作战记录</th>
-          <th>使用1个初级作战记录</th>
+          <th><TableHeadChip icon={EXP_GREEN_ICON_URL} text="×1" alt="基础作战记录" /></th>
+          <th><TableHeadChip icon={EXP_BLUE_ICON_URL} text="×1" alt="初级作战记录" /></th>
         </tr>
       </thead>
       <tbody>
@@ -242,7 +263,7 @@ function DataPage() {
       <thead>
         <tr>
           <th>使用方式</th>
-          <th>对应的龙门币</th>
+          <th><TableHeadChip icon={LMD_ICON_URL} alt="龙门币" /></th>
         </tr>
       </thead>
       <tbody>
@@ -284,43 +305,20 @@ function DataPage() {
     );
   };
 
-  const generateUpgradeTable4a = (data) => (
+  const generateUpgradeTable4 = (data, startNumber = 1) => (
     <table className={`${styles['material-table']} ${styles['table-d']} ${styles['table-d1']}`}>
       <thead>
         <tr>
-          <th>使用基础作战记录数量</th>
-          <th>精零1级对应龙门币</th>
-          <th>精一1级对应龙门币</th>
-          <th>精二1级对应龙门币</th>
+          <th><TableHeadChip icon={EXP_GREEN_ICON_URL} alt="基础作战记录数量" /></th>
+          <th><TableHeadChip icon={LMD_ICON_URL} text="精零1级" alt="龙门币" /></th>
+          <th><TableHeadChip icon={LMD_ICON_URL} text="精一1级" alt="龙门币" /></th>
+          <th><TableHeadChip icon={LMD_ICON_URL} text="精二1级" alt="龙门币" /></th>
         </tr>
       </thead>
       <tbody>
-        {data.slice(0, 15).map((row, i) => (
+        {data.map((row, i) => (
           <tr key={i}>
-            <td>{i + 1}</td>
-            <td className={getValueClass(row.value1)}>{row.value1}</td>
-            <td className={getValueClass(row.value2)}>{row.value2}</td>
-            <td className={getValueClass(row.value3)}>{row.value3}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-
-  const generateUpgradeTable4b = (data) => (
-    <table className={`${styles['material-table']} ${styles['table-d']} ${styles['table-d2']}`}>
-      <thead>
-        <tr>
-          <th>使用基础作战记录数量</th>
-          <th>精零1级对应龙门币</th>
-          <th>精一1级对应龙门币</th>
-          <th>精二1级对应龙门币</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.slice(15, 30).map((row, i) => (
-          <tr key={i}>
-            <td>{i + 16}</td> 
+            <td><span className={styles['table-count-chip']}>×{startNumber + i}</span></td>
             <td className={getValueClass(row.value1)}>{row.value1}</td>
             <td className={getValueClass(row.value2)}>{row.value2}</td>
             <td className={getValueClass(row.value3)}>{row.value3}</td>
@@ -385,10 +383,14 @@ function DataPage() {
               </p>
             </div>
 
-            <div className={styles['tables-container']}>
+            <div className={`${styles['tables-container']} ${styles['desktop-table-container']}`}>
               {generateStaticTable(upgradeTable1)}
 
               {generateStaticTable(upgradeTable2)}
+            </div>
+
+            <div className={`${styles['tables-container']} ${styles['mobile-table-container']}`}>
+              {generateStaticTable(upgradeRows)}
             </div>
           </div>
         </section>
@@ -415,15 +417,23 @@ function DataPage() {
               </p>
             </div>
 
-            <div className={styles['tables-container']}>
+            <div className={`${styles['tables-container']} ${styles['desktop-table-container']}`}>
               {generateStaticTable2(itemTable1)}
 
               {generateStaticTable2(itemTable2)}
             </div>
 
-            <div className={styles['tables-container']}>
-              {generateUpgradeTable4a(upgradeData)}
-              {generateUpgradeTable4b(upgradeData)}
+            <div className={`${styles['tables-container']} ${styles['mobile-table-container']}`}>
+              {generateStaticTable2([...itemTable1, ...itemTable2])}
+            </div>
+
+            <div className={`${styles['tables-container']} ${styles['desktop-table-container']}`}>
+              {generateUpgradeTable4(upgradeData.slice(0, 15), 1)}
+              {generateUpgradeTable4(upgradeData.slice(15, 30), 16)}
+            </div>
+
+            <div className={`${styles['tables-container']} ${styles['mobile-table-container']}`}>
+              {generateUpgradeTable4(upgradeData)}
             </div>
           </div>
         </section>
@@ -452,7 +462,7 @@ function DataPage() {
           <div className={styles['section-header']}>
             <span className={styles['section-code']}>PLAN 01</span>
             <div>
-              <h2>路径样例：目标龙门币 - 现有龙门币 &gt; 0</h2>
+              <h2>方案样例：需要获取龙门币</h2>
               <p>PLAN SAMPLE / ACQUIRE</p>
             </div>
           </div>
@@ -521,7 +531,7 @@ function DataPage() {
           <div className={styles['section-header']}>
             <span className={styles['section-code']}>PLAN 02</span>
             <div>
-              <h2>路径样例：目标龙门币 - 现有龙门币 &lt; 0</h2>
+              <h2>方案样例：需要消耗龙门币</h2>
               <p>PLAN SAMPLE / CONSUME</p>
             </div>
           </div>

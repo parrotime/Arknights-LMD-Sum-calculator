@@ -666,9 +666,9 @@
   color: var(--ark-primary-800);
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .main-about-content {
-    padding: var(--ark-space-md);
+    padding: var(--ark-space-md) 12px var(--ark-space-lg);
   }
 
   .about-page::before {
@@ -698,7 +698,8 @@
 
   .about-page {
     width: 100%;
-    padding: 15px;
+    max-width: 1024px;
+    padding: 14px 12px;
   }
 
   .archive-grid,
@@ -707,14 +708,74 @@
     grid-template-columns: 1fr;
   }
 
+  .archive-grid {
+    gap: 13px;
+    margin-bottom: 13px;
+  }
+
   .archive-card {
-    padding: var(--ark-space-md);
+    padding: 13px;
   }
 
   .status-card {
-    min-height: 132px;
-    align-items: flex-start;
+    min-height: 92px;
+    align-items: stretch;
     flex-direction: column;
+    gap: 12px;
+    padding: 13px;
+  }
+
+  .status-card-copy {
+    width: 100%;
+  }
+
+  .card-label,
+  .panel-code {
+    min-height: 20px;
+    padding: 0 8px;
+    font-size: 0.66rem;
+  }
+
+  .card-title,
+  .card-title-row .card-title {
+    font-family: var(--ark-font-title);
+    font-size: 1.02rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+  }
+
+  .card-title-row {
+    align-items: center;
+    gap: 6px;
+  }
+
+  .runtime-readout,
+  .count-readout {
+    align-self: flex-end;
+    margin-left: 0;
+    margin-bottom: 0;
+  }
+
+  .runtime-readout {
+    gap: 6px;
+  }
+
+  .runtime-readout span {
+    font-size: 2.06rem;
+    line-height: 0.9;
+  }
+
+  .runtime-readout small {
+    font-family: var(--ark-font-title);
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .count-readout {
+    font-size: 1.86rem;
+    line-height: 1;
   }
 
   .chart-card {
@@ -722,24 +783,289 @@
   }
 
   .chart-body {
-    min-height: 300px;
+    height: auto;
+    min-height: 0;
+    padding: 10px 10px 30px;
+    background-size: 22px 22px;
   }
 
   .action-panel {
     align-items: stretch;
     flex-direction: column;
+    gap: 12px;
+    padding: 13px;
+  }
+
+  .action-panel h2 {
+    font-family: var(--ark-font-title);
+    margin-top: 8px;
+    font-size: 1.08rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
   }
 
   .link-row {
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    gap: 8px;
+  }
+
+  .archive-link {
+    width: 100%;
+    min-width: 0;
+    min-height: 34px;
+    padding: 0 8px;
+    box-sizing: border-box;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
   }
 
   .chart-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
+    margin-bottom: 9px;
   }
 
   .range-tabs {
     width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .range-tab,
+  .range-tab-active {
+    min-height: 36px;
+    padding: 3px 6px;
+  }
+
+  .range-tab span,
+  .range-tab-active span {
+    font-family: var(--ark-font-title);
+    font-size: 0.92rem;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .range-tab small,
+  .range-tab-active small {
+    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-size: 0.64rem;
+    letter-spacing: 0.06em;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .chart-status {
+    font-family: var(--ark-font-title);
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .chart-plot {
+    height: auto;
+    aspect-ratio: 280 / 140;
+  }
+
+  .trend-chart {
+    inset: 0;
+    height: 100%;
+    max-height: none;
+  }
+
+  .chart-axis-labels {
+    bottom: 6px;
+  }
+
+  .chart-axis-html-label {
+    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sync-help-trigger {
+    width: 20px;
+    height: 20px;
+    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-size: 0.82rem;
+  }
+
+  .sync-help-popover {
+    position: fixed;
+    left: 50%;
+    top: 38vh;
+    visibility: hidden;
+    width: min(324px, calc(100vw - 32px));
+    max-width: none;
+    box-sizing: border-box;
+    padding: 13px 39px 13px 14px;
+    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+    transform: translate(-50%, 0);
+  }
+
+  .sync-help-popover::before,
+  .sync-help-popover::after {
+    content: "";
+    position: absolute;
+    left: var(--about-sync-arrow-left, 50%);
+    width: 9px;
+    height: 9px;
+    border-right: 1px solid var(--ark-primary-300);
+    border-bottom: 1px solid var(--ark-primary-300);
+    background: var(--ark-surface-card);
+    transform: translate(-50%, -5px) rotate(45deg);
+  }
+
+  .sync-help-popover::before {
+    top: 0;
+    display: none;
+    transform: translate(-50%, -5px) rotate(225deg);
+  }
+
+  .sync-help-popover::after {
+    top: 100%;
+    bottom: auto;
+    display: block;
+    border-left: 0;
+    border-top: 0;
+  }
+
+  .sync-help-popover[style*="--about-sync-arrow-edge: top"]::before {
+    display: block;
+  }
+
+  .sync-help-popover[style*="--about-sync-arrow-edge: top"]::after {
+    display: none;
+  }
+
+  .sync-help-close {
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border-color: rgba(248, 113, 113, 0.72);
+    background: rgba(220, 38, 38, 0.16);
+    color: var(--ark-danger);
+    font-size: 1rem;
+  }
+
+  .notice-list .notice-item {
+    padding: 13px;
+    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.62;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .notice-title {
+    min-width: 112px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    font-family: var(--ark-font-title);
+    font-size: 1.06rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    border-bottom-width: 3px;
+  }
+
+  .notice-content {
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .hanging-list {
+    gap: 8px;
+  }
+
+  .hanging-item {
+    padding-left: 38px;
+  }
+
+  .hanging-index {
+    top: 0.16em;
+    min-width: 26px;
+    height: 19px;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+  }
+
+  .external-link3 {
+    display: inline;
+    margin-left: 5px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-break: anywhere;
+  }
+
+  .timeline {
+    padding-left: 24px;
+    margin-top: 6px;
+    border-left-width: 2px;
+  }
+
+  .timeline-item {
+    margin-bottom: 18px;
+  }
+
+  .timeline-dot {
+    left: -31px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+  }
+
+  .timeline-version,
+  .timeline-date,
+  .timeline-desc {
+    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .timeline-date {
+    font-size: 0.82rem;
+  }
+
+  .timeline-desc {
+    line-height: 1.62;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-title-bar {
+    margin-bottom: 13px;
+    padding-bottom: 11px;
+  }
+
+  .about-title-bar h1 {
+    font-size: 1.5rem;
+  }
+
+  .main-about-content,
+  .about-page {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .runtime-readout span {
+    font-size: 1.92rem;
+  }
+
+  .runtime-readout small {
+    font-size: 0.86rem;
+  }
+
+  .count-readout {
+    font-size: 1.7rem;
   }
 }
