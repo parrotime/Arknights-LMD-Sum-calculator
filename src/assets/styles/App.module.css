@@ -116,11 +116,12 @@ input:invalid {
   .main-container {
     width: 100%;
     align-items: center;
+    gap: calc(var(--ark-space-md) * 1.35);
   }
 
   .main-content-container {
     flex-direction: column;
     align-items: center;
-    gap: var(--ark-space-md);
+    gap: calc(var(--ark-space-md) * 1.35);
   }
 }
