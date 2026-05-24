@@ -11,6 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"ark-lmd-go-backend/internal/adminstats"
 	"ark-lmd-go-backend/internal/cache"
 	"ark-lmd-go-backend/internal/calc"
 	"ark-lmd-go-backend/internal/data"
@@ -28,6 +29,7 @@ type HandlerOptions struct {
 	MaxConcurrency int
 	MaxQueueSize   int
 	AdminToken     string
+	AdminStats     *adminstats.Service
 	Maintenance    MaintenanceConfig
 	TrustProxy     bool
 	LogIPHash      bool
@@ -57,6 +59,7 @@ type Handler struct {
 	maxConc     int
 	maxQueue    int
 	adminToken  string
+	adminStats  *adminstats.Service
 	maintenance MaintenanceConfig
 	trustProxy  bool
 	logIPHash   bool
@@ -85,6 +88,7 @@ func NewHandler(options HandlerOptions) *Handler {
 		maxConc:     maxConcurrency,
 		maxQueue:    maxQueueSize,
 		adminToken:  options.AdminToken,
+		adminStats:  options.AdminStats,
 		maintenance: options.Maintenance,
 		trustProxy:  options.TrustProxy,
 		logIPHash:   options.LogIPHash,
@@ -138,6 +142,35 @@ func (h *Handler) ServerStats(w http.ResponseWriter, r *http.Request) {
 		"queued":         h.queued.Load(),
 		"queueRejected":  h.rejected.Load(),
 	})
+}
+
+func (h *Handler) AdminOverview(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if !h.authorizeAdmin(w, r) {
+		return
+	}
+	if h.adminStats == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "admin stats unavailable"})
+		return
+	}
+	cacheStats := h.cache.Stats()
+	stats := map[string]any{
+		"admin": h.adminStats.Snapshot(),
+		"cache": cacheStats,
+		"server": map[string]any{
+			"maxConcurrency": h.maxConc,
+			"maxQueueSize":   h.maxQueue,
+			"running":        h.running.Load(),
+			"queued":         h.queued.Load(),
+			"queueRejected":  h.rejected.Load(),
+		},
+		"maintenance": h.maintenance,
+		"serverTime":  time.Now().Format(time.RFC3339),
+	}
+	writeJSON(w, http.StatusOK, stats)
 }
 
 func (h *Handler) authorizeAdmin(w http.ResponseWriter, r *http.Request) bool {

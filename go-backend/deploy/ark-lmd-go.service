@@ -30,7 +30,7 @@ Environment=MAINTENANCE_END_AT=
 Environment=MAINTENANCE_MESSAGE=网页维护中...
 Environment=MAINTENANCE_SUBTITLE=计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格
 Environment=DATA_FILE=/opt/ark-lmd/data/gameItems.json
-Environment=ADMIN_TOKEN=replace-with-a-long-random-token
+Environment=ADMIN_TOKEN=replace-with-your-admin-token
 
 NoNewPrivileges=true
 PrivateTmp=true

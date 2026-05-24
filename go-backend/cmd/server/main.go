@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"ark-lmd-go-backend/internal/adminstats"
 	"ark-lmd-go-backend/internal/api"
 	"ark-lmd-go-backend/internal/cache"
 	"ark-lmd-go-backend/internal/config"
@@ -47,6 +48,17 @@ func main() {
 	}
 
 	resultCache := cache.NewTTLCache(cfg.CacheTTL, cfg.CacheMaxEntries)
+	adminStats, err := adminstats.New(adminstats.Options{
+		LogDir: cfg.LogDir,
+		Logger: logger,
+	})
+	if err != nil {
+		loggers.Error.Error("initialize admin stats failed", "error", err, "log_dir", cfg.LogDir)
+		os.Exit(1)
+	}
+	adminStatsStop := make(chan struct{})
+	adminStats.Start(adminStatsStop)
+
 	handler := api.NewHandler(api.HandlerOptions{
 		Items:          store.Items,
 		DataVersion:    store.Version,
@@ -58,6 +70,7 @@ func main() {
 		MaxConcurrency: cfg.MaxConcurrency,
 		MaxQueueSize:   cfg.MaxQueueSize,
 		AdminToken:     cfg.AdminToken,
+		AdminStats:     adminStats,
 		Maintenance: api.MaintenanceConfig{
 			Enabled:  cfg.MaintenanceEnabled,
 			EndAt:    cfg.MaintenanceEndAt,
@@ -73,6 +86,7 @@ func main() {
 	mux.HandleFunc("/", handler.Health)
 	mux.HandleFunc("/cache-stats", handler.CacheStats)
 	mux.HandleFunc("/server-stats", handler.ServerStats)
+	mux.HandleFunc("/admin/overview", handler.AdminOverview)
 	mux.HandleFunc("/maintenance-status", handler.MaintenanceStatus)
 	mux.HandleFunc("/find-paths", handler.FindPaths)
 
@@ -111,6 +125,8 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	<-stop
+
+	adminStats.Stop(adminStatsStop)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

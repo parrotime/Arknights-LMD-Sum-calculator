@@ -22,6 +22,7 @@ const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
   const [themeToggleAnimating, setThemeToggleAnimating] = useState(false);
   const location = useLocation();
   const isMaintenancePage = location.pathname.startsWith("/maintenance");
+  const isAdminDashboardPage = location.pathname.startsWith("/admin-dashboard");
   const navLinksRef = useRef(null);
   const navItemRefs = useRef({});
   const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0, ready: false });
@@ -132,7 +133,7 @@ const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
         </div>
       </nav>
 
-      {!isMaintenancePage && (
+      {!isMaintenancePage && !isAdminDashboardPage && (
         <FloatingAssistant
           assistantEgg={assistantEgg}
           onAssistantEggClose={onAssistantEggClose}

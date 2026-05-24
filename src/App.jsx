@@ -8,6 +8,7 @@ const NotePage = lazy(() => import("./pages/Note"));
 const DataPage = lazy(() => import("./pages/Data"));
 const AboutPage = lazy(() => import("./pages/About"));
 const MaintenancePage = lazy(() => import("./pages/Maintenance"));
+const AdminDashboardPage = lazy(() => import("./pages/AdminDashboard"));
 import InputPanel from "./components/InputPanel";
 import SettingsPanel from "./components/SettingsPanel";
 import ResultArea from "./components/ResultArea";
@@ -716,6 +717,7 @@ const AppContent = () => {
           <Route path="/data" element={<DataPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
+          <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
         </Routes>
       </Suspense>
     </Layout>
