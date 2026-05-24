@@ -34,6 +34,18 @@ func TestServiceAggregatesIncrementalLog(t *testing.T) {
 	if snapshot.Totals.CacheHit != 1 || snapshot.Totals.CacheMiss != 2 {
 		t.Fatalf("unexpected cache totals: %+v", snapshot.Totals)
 	}
+	hourMetric := snapshot.ByHourDetail["2026-05-24T10"]
+	if hourMetric.Count != 1 || hourMetric.Fast != 1 || hourMetric.CacheMiss != 1 || hourMetric.DurationTotalMs != 42 || hourMetric.DurationCount != 1 {
+		t.Fatalf("unexpected hour metric: %+v", hourMetric)
+	}
+	dayMetric := snapshot.ByDayDetail["2026-05-24"]
+	if dayMetric.Count != 3 || dayMetric.Success != 2 || dayMetric.BadRequest != 1 || dayMetric.Fast != 2 || dayMetric.Boost != 1 || dayMetric.DurationTotalMs != 52 || dayMetric.DurationCount != 3 {
+		t.Fatalf("unexpected day metric: %+v", dayMetric)
+	}
+	monthMetric := snapshot.ByMonthDetail["2026-05"]
+	if monthMetric.Count != 3 || monthMetric.CacheHit != 1 || monthMetric.CacheMiss != 2 {
+		t.Fatalf("unexpected month metric: %+v", monthMetric)
+	}
 	if snapshot.ModeCounts["fast"] != 2 || snapshot.ModeCounts["boost"] != 1 {
 		t.Fatalf("unexpected mode counts: %+v", snapshot.ModeCounts)
 	}

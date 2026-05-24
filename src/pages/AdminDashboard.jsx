@@ -17,6 +17,103 @@ const modeLabels = {
   boost: "加强",
 };
 
+const trendMetrics = [
+  {
+    key: "count",
+    code: "TOTAL",
+    label: "计算次数",
+    unit: "次",
+    value: (point) => point.count || 0,
+    format: (value) => `${formatNumber(value)} 次`,
+  },
+  {
+    key: "cacheHit",
+    code: "CACHE",
+    label: "缓存命中",
+    unit: "次",
+    value: (point) => point.cacheHit || 0,
+    format: (value) => `${formatNumber(value)} 次`,
+  },
+  {
+    key: "cacheRate",
+    code: "RATE",
+    label: "缓存命中率",
+    unit: "%",
+    value: (point) => {
+      const total = (point.cacheHit || 0) + (point.cacheMiss || 0);
+      return total > 0 ? point.cacheHit / total : 0;
+    },
+    format: (value) => formatPercent(value),
+  },
+  {
+    key: "duration",
+    code: "TIME",
+    label: "平均耗时",
+    unit: "ms",
+    value: (point) => point.durationCount > 0 ? point.durationTotalMs / point.durationCount : 0,
+    format: (value) => `${Math.round(value)} ms`,
+  },
+  {
+    key: "success",
+    code: "OK",
+    label: "成功计算",
+    unit: "次",
+    value: (point) => point.success || 0,
+    format: (value) => `${formatNumber(value)} 次`,
+  },
+  {
+    key: "failure",
+    code: "ERR",
+    label: "异常/拒绝",
+    unit: "次",
+    value: (point) => (point.timeout || 0) + (point.queueFull || 0) + (point.badRequest || 0) + (point.error || 0),
+    format: (value) => `${formatNumber(value)} 次`,
+  },
+  {
+    key: "fast",
+    code: "FAST",
+    label: "快速模式",
+    unit: "次",
+    value: (point) => point.fast || 0,
+    format: (value) => `${formatNumber(value)} 次`,
+  },
+  {
+    key: "boost",
+    code: "BOOST",
+    label: "加强模式",
+    unit: "次",
+    value: (point) => point.boost || 0,
+    format: (value) => `${formatNumber(value)} 次`,
+  },
+];
+
+const trendRanges = [
+  {
+    key: "last24Hours",
+    label: "24小时",
+    title: "最近 24 小时",
+    pointLabel: "小时",
+  },
+  {
+    key: "last7Days",
+    label: "7天",
+    title: "最近 7 天",
+    pointLabel: "日期",
+  },
+  {
+    key: "last30Days",
+    label: "30天",
+    title: "最近 30 天",
+    pointLabel: "日期",
+  },
+  {
+    key: "last12Months",
+    label: "12个月",
+    title: "最近 12 个月",
+    pointLabel: "月份",
+  },
+];
+
 function formatNumber(value) {
   return Number(value || 0).toLocaleString("zh-CN");
 }
@@ -48,21 +145,30 @@ function getTodayCount(series = []) {
   return series.length ? series[series.length - 1].count : 0;
 }
 
-function TrendBars({ points = [] }) {
-  const max = Math.max(...points.map((point) => point.count), 1);
-  const visiblePoints = points.slice(-24);
+function TrendBars({ points = [], metric, range }) {
+  const visiblePoints = points;
+  const values = visiblePoints.map((point) => metric.value(point));
+  const max = Math.max(...values, metric.key === "cacheRate" ? 1 : 1);
 
   return (
-    <div className={styles['trend-bars']} aria-label="最近趋势">
-      {visiblePoints.map((point) => (
-        <div className={styles['trend-bar-cell']} key={point.key} title={`${point.label}: ${point.count} 次`}>
-          <span
-            className={styles['trend-bar']}
-            style={{ height: `${Math.max(6, (point.count / max) * 100)}%` }}
-          />
-          <small>{point.label}</small>
-        </div>
-      ))}
+    <div
+      className={styles['trend-bars']}
+      data-range={range.key}
+      aria-label={`${range.title}${metric.label}趋势`}
+    >
+      {visiblePoints.map((point, index) => {
+        const value = values[index] || 0;
+        return (
+          <div className={styles['trend-bar-cell']} key={point.key} title={`${point.label}: ${metric.format(value)}`}>
+            <span
+              className={styles['trend-bar']}
+              style={{ height: `${value > 0 ? Math.max(6, (value / max) * 100) : 6}%` }}
+            />
+            <em>{metric.format(value)}</em>
+            <small>{point.label}</small>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -86,6 +192,8 @@ function AdminDashboard() {
   const [overview, setOverview] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [trendMetricKey, setTrendMetricKey] = useState("count");
+  const [trendRangeKey, setTrendRangeKey] = useState("last24Hours");
 
   const fetchOverview = useCallback(async (nextToken = token) => {
     if (!nextToken) return;
@@ -147,6 +255,15 @@ function AdminDashboard() {
   const hitRate = totals.cacheHit + totals.cacheMiss > 0
     ? totals.cacheHit / (totals.cacheHit + totals.cacheMiss)
     : cache.hitRate || 0;
+  const activeTrendMetric = useMemo(
+    () => trendMetrics.find((metric) => metric.key === trendMetricKey) || trendMetrics[0],
+    [trendMetricKey],
+  );
+  const activeTrendRange = useMemo(
+    () => trendRanges.find((range) => range.key === trendRangeKey) || trendRanges[0],
+    [trendRangeKey],
+  );
+  const activeTrendPoints = admin?.series?.[activeTrendRange.key] || [];
 
   return (
     <div className={styles['admin-content']}>
@@ -212,10 +329,42 @@ function AdminDashboard() {
             <section className={styles['dashboard-grid']}>
               <div className={`${styles['archive-card']} ${styles['trend-card']}`}>
                 <div className={styles['section-heading']}>
-                  <span className={styles['panel-code']}>24H TREND</span>
-                  <h2>最近 24 小时计算趋势</h2>
+                  <div>
+                    <span className={styles['panel-code']}>TREND ANALYSIS</span>
+                    <h2>{activeTrendRange.title}{activeTrendMetric.label}趋势</h2>
+                  </div>
+                  <div className={styles['trend-controls']}>
+                    <div className={styles['trend-range-switch']} role="tablist" aria-label="趋势范围">
+                      {trendRanges.map((range) => (
+                        <button
+                          type="button"
+                          key={range.key}
+                          className={range.key === trendRangeKey ? styles['trend-range-active'] : ""}
+                          onClick={() => setTrendRangeKey(range.key)}
+                          role="tab"
+                          aria-selected={range.key === trendRangeKey}
+                        >
+                          {range.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className={styles['trend-metric-switch']} role="tablist" aria-label="趋势指标">
+                      {trendMetrics.map((metric) => (
+                        <button
+                          type="button"
+                          key={metric.key}
+                          className={metric.key === trendMetricKey ? styles['trend-metric-active'] : ""}
+                          onClick={() => setTrendMetricKey(metric.key)}
+                          role="tab"
+                          aria-selected={metric.key === trendMetricKey}
+                        >
+                          {metric.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <TrendBars points={admin?.series?.last24Hours || []} />
+                <TrendBars points={activeTrendPoints} metric={activeTrendMetric} range={activeTrendRange} />
               </div>
 
               <div className={`${styles['archive-card']} ${styles['split-card']}`}>

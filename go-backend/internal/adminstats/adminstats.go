@@ -39,17 +39,20 @@ type Service struct {
 }
 
 type Snapshot struct {
-	Version      int            `json:"version"`
-	UpdatedAt    string         `json:"updatedAt"`
-	Source       SourceSnapshot `json:"source"`
-	Totals       TotalsSnapshot `json:"totals"`
-	ByHour       map[string]int `json:"byHour"`
-	ByDay        map[string]int `json:"byDay"`
-	ByMonth      map[string]int `json:"byMonth"`
-	ModeCounts   map[string]int `json:"modeCounts"`
-	StatusCounts map[string]int `json:"statusCounts"`
-	RecentEvents []RecentEvent  `json:"recentEvents"`
-	Series       SeriesSnapshot `json:"series"`
+	Version       int                       `json:"version"`
+	UpdatedAt     string                    `json:"updatedAt"`
+	Source        SourceSnapshot            `json:"source"`
+	Totals        TotalsSnapshot            `json:"totals"`
+	ByHour        map[string]int            `json:"byHour"`
+	ByHourDetail  map[string]MetricSnapshot `json:"byHourDetail"`
+	ByDay         map[string]int            `json:"byDay"`
+	ByDayDetail   map[string]MetricSnapshot `json:"byDayDetail"`
+	ByMonth       map[string]int            `json:"byMonth"`
+	ByMonthDetail map[string]MetricSnapshot `json:"byMonthDetail"`
+	ModeCounts    map[string]int            `json:"modeCounts"`
+	StatusCounts  map[string]int            `json:"statusCounts"`
+	RecentEvents  []RecentEvent             `json:"recentEvents"`
+	Series        SeriesSnapshot            `json:"series"`
 }
 
 type SourceSnapshot struct {
@@ -70,6 +73,21 @@ type TotalsSnapshot struct {
 	DurationTotalMs int64 `json:"durationTotalMs"`
 }
 
+type MetricSnapshot struct {
+	Count           int   `json:"count"`
+	Success         int   `json:"success"`
+	Timeout         int   `json:"timeout"`
+	QueueFull       int   `json:"queueFull"`
+	BadRequest      int   `json:"badRequest"`
+	Error           int   `json:"error"`
+	CacheHit        int   `json:"cacheHit"`
+	CacheMiss       int   `json:"cacheMiss"`
+	DurationTotalMs int64 `json:"durationTotalMs"`
+	DurationCount   int   `json:"durationCount"`
+	Fast            int   `json:"fast"`
+	Boost           int   `json:"boost"`
+}
+
 type SeriesSnapshot struct {
 	Last24Hours  []SeriesPoint `json:"last24Hours"`
 	Last7Days    []SeriesPoint `json:"last7Days"`
@@ -78,9 +96,20 @@ type SeriesSnapshot struct {
 }
 
 type SeriesPoint struct {
-	Key   string `json:"key"`
-	Label string `json:"label"`
-	Count int    `json:"count"`
+	Key             string `json:"key"`
+	Label           string `json:"label"`
+	Count           int    `json:"count"`
+	Success         int    `json:"success"`
+	Timeout         int    `json:"timeout"`
+	QueueFull       int    `json:"queueFull"`
+	BadRequest      int    `json:"badRequest"`
+	Error           int    `json:"error"`
+	CacheHit        int    `json:"cacheHit"`
+	CacheMiss       int    `json:"cacheMiss"`
+	DurationTotalMs int64  `json:"durationTotalMs"`
+	DurationCount   int    `json:"durationCount"`
+	Fast            int    `json:"fast"`
+	Boost           int    `json:"boost"`
 }
 
 type RecentEvent struct {
@@ -179,8 +208,11 @@ func (s *Service) Snapshot() Snapshot {
 	defer s.mu.RUnlock()
 	snapshot := s.stats
 	snapshot.ByHour = cloneMap(s.stats.ByHour)
+	snapshot.ByHourDetail = cloneMetricMap(s.stats.ByHourDetail)
 	snapshot.ByDay = cloneMap(s.stats.ByDay)
+	snapshot.ByDayDetail = cloneMetricMap(s.stats.ByDayDetail)
 	snapshot.ByMonth = cloneMap(s.stats.ByMonth)
+	snapshot.ByMonthDetail = cloneMetricMap(s.stats.ByMonthDetail)
 	snapshot.ModeCounts = cloneMap(s.stats.ModeCounts)
 	snapshot.StatusCounts = cloneMap(s.stats.StatusCounts)
 	snapshot.RecentEvents = append([]RecentEvent(nil), s.stats.RecentEvents...)
@@ -262,8 +294,11 @@ func (s *Service) Flush() error {
 	s.mu.RLock()
 	payload := s.stats
 	payload.ByHour = cloneMap(s.stats.ByHour)
+	payload.ByHourDetail = cloneMetricMap(s.stats.ByHourDetail)
 	payload.ByDay = cloneMap(s.stats.ByDay)
+	payload.ByDayDetail = cloneMetricMap(s.stats.ByDayDetail)
 	payload.ByMonth = cloneMap(s.stats.ByMonth)
+	payload.ByMonthDetail = cloneMetricMap(s.stats.ByMonthDetail)
 	payload.ModeCounts = cloneMap(s.stats.ModeCounts)
 	payload.StatusCounts = cloneMap(s.stats.StatusCounts)
 	payload.RecentEvents = append([]RecentEvent(nil), s.stats.RecentEvents...)
@@ -301,14 +336,17 @@ func (s *Service) load() error {
 func newSnapshot(logFileName string) Snapshot {
 	now := time.Now().Format(time.RFC3339)
 	snapshot := Snapshot{
-		Version:      1,
-		UpdatedAt:    now,
-		Source:       SourceSnapshot{File: logFileName},
-		ByHour:       map[string]int{},
-		ByDay:        map[string]int{},
-		ByMonth:      map[string]int{},
-		ModeCounts:   map[string]int{},
-		StatusCounts: map[string]int{},
+		Version:       1,
+		UpdatedAt:     now,
+		Source:        SourceSnapshot{File: logFileName},
+		ByHour:        map[string]int{},
+		ByHourDetail:  map[string]MetricSnapshot{},
+		ByDay:         map[string]int{},
+		ByDayDetail:   map[string]MetricSnapshot{},
+		ByMonth:       map[string]int{},
+		ByMonthDetail: map[string]MetricSnapshot{},
+		ModeCounts:    map[string]int{},
+		StatusCounts:  map[string]int{},
 	}
 	return snapshot
 }
@@ -326,11 +364,41 @@ func normalizeSnapshot(snapshot *Snapshot, logFileName string) {
 	if snapshot.ByHour == nil {
 		snapshot.ByHour = map[string]int{}
 	}
+	if snapshot.ByHourDetail == nil {
+		snapshot.ByHourDetail = map[string]MetricSnapshot{}
+	}
+	for key, count := range snapshot.ByHour {
+		metric := snapshot.ByHourDetail[key]
+		if metric.Count == 0 && count > 0 {
+			metric.Count = count
+			snapshot.ByHourDetail[key] = metric
+		}
+	}
 	if snapshot.ByDay == nil {
 		snapshot.ByDay = map[string]int{}
 	}
+	if snapshot.ByDayDetail == nil {
+		snapshot.ByDayDetail = map[string]MetricSnapshot{}
+	}
+	for key, count := range snapshot.ByDay {
+		metric := snapshot.ByDayDetail[key]
+		if metric.Count == 0 && count > 0 {
+			metric.Count = count
+			snapshot.ByDayDetail[key] = metric
+		}
+	}
 	if snapshot.ByMonth == nil {
 		snapshot.ByMonth = map[string]int{}
+	}
+	if snapshot.ByMonthDetail == nil {
+		snapshot.ByMonthDetail = map[string]MetricSnapshot{}
+	}
+	for key, count := range snapshot.ByMonth {
+		metric := snapshot.ByMonthDetail[key]
+		if metric.Count == 0 && count > 0 {
+			metric.Count = count
+			snapshot.ByMonthDetail[key] = metric
+		}
 	}
 	if snapshot.ModeCounts == nil {
 		snapshot.ModeCounts = map[string]int{}
@@ -352,8 +420,11 @@ func applyEvent(snapshot *Snapshot, event calcLogEvent, recentLimit int) bool {
 
 	snapshot.Totals.Calculations++
 	snapshot.ByHour[hourKey]++
+	applyMetric(snapshot.ByHourDetail, hourKey, event)
 	snapshot.ByDay[dayKey]++
+	applyMetric(snapshot.ByDayDetail, dayKey, event)
 	snapshot.ByMonth[monthKey]++
+	applyMetric(snapshot.ByMonthDetail, monthKey, event)
 
 	mode := event.CalcMode
 	if mode == "" {
@@ -404,6 +475,44 @@ func applyEvent(snapshot *Snapshot, event calcLogEvent, recentLimit int) bool {
 	return true
 }
 
+func applyMetric(values map[string]MetricSnapshot, key string, event calcLogEvent) {
+	metric := values[key]
+	metric.Count++
+	switch event.Status {
+	case "success":
+		metric.Success++
+	case "timeout":
+		metric.Timeout++
+	case "queue_full":
+		metric.QueueFull++
+	case "bad_request":
+		metric.BadRequest++
+	default:
+		metric.Error++
+	}
+	switch event.Cache {
+	case "hit":
+		metric.CacheHit++
+	case "miss":
+		metric.CacheMiss++
+	}
+	if event.DurationMs > 0 {
+		metric.DurationTotalMs += event.DurationMs
+		metric.DurationCount++
+	}
+	mode := event.CalcMode
+	if mode == "" {
+		mode = "fast"
+	}
+	switch mode {
+	case "boost":
+		metric.Boost++
+	default:
+		metric.Fast++
+	}
+	values[key] = metric
+}
+
 func parseEventTime(raw string) time.Time {
 	if raw == "" {
 		return time.Now()
@@ -420,56 +529,75 @@ func parseEventTime(raw string) time.Time {
 func buildSeries(snapshot Snapshot) SeriesSnapshot {
 	now := time.Now()
 	return SeriesSnapshot{
-		Last24Hours:  buildHourSeries(snapshot.ByHour, now, 24),
-		Last7Days:    buildDaySeries(snapshot.ByDay, now, 7),
-		Last30Days:   buildDaySeries(snapshot.ByDay, now, 30),
-		Last12Months: buildMonthSeries(snapshot.ByMonth, now, 12),
+		Last24Hours:  buildHourSeries(snapshot.ByHour, snapshot.ByHourDetail, now, 24),
+		Last7Days:    buildDaySeries(snapshot.ByDay, snapshot.ByDayDetail, now, 7),
+		Last30Days:   buildDaySeries(snapshot.ByDay, snapshot.ByDayDetail, now, 30),
+		Last12Months: buildMonthSeries(snapshot.ByMonth, snapshot.ByMonthDetail, now, 12),
 	}
 }
 
-func buildHourSeries(values map[string]int, now time.Time, count int) []SeriesPoint {
+func buildHourSeries(values map[string]int, detailValues map[string]MetricSnapshot, now time.Time, count int) []SeriesPoint {
 	points := make([]SeriesPoint, 0, count)
 	start := now.Add(-time.Duration(count-1) * time.Hour)
 	for i := 0; i < count; i++ {
 		current := start.Add(time.Duration(i) * time.Hour)
 		key := current.Format("2006-01-02T15")
-		points = append(points, SeriesPoint{
-			Key:   key,
-			Label: current.Format("15:00"),
-			Count: values[key],
-		})
+		metric := detailValues[key]
+		if metric.Count == 0 && values[key] > 0 {
+			metric.Count = values[key]
+		}
+		points = append(points, metricToSeriesPoint(key, current.Format("15:00"), metric))
 	}
 	return points
 }
 
-func buildDaySeries(values map[string]int, now time.Time, count int) []SeriesPoint {
+func buildDaySeries(values map[string]int, detailValues map[string]MetricSnapshot, now time.Time, count int) []SeriesPoint {
 	points := make([]SeriesPoint, 0, count)
 	start := now.AddDate(0, 0, -(count - 1))
 	for i := 0; i < count; i++ {
 		current := start.AddDate(0, 0, i)
 		key := current.Format("2006-01-02")
-		points = append(points, SeriesPoint{
-			Key:   key,
-			Label: current.Format("01-02"),
-			Count: values[key],
-		})
+		metric := detailValues[key]
+		if metric.Count == 0 && values[key] > 0 {
+			metric.Count = values[key]
+		}
+		points = append(points, metricToSeriesPoint(key, current.Format("01-02"), metric))
 	}
 	return points
 }
 
-func buildMonthSeries(values map[string]int, now time.Time, count int) []SeriesPoint {
+func buildMonthSeries(values map[string]int, detailValues map[string]MetricSnapshot, now time.Time, count int) []SeriesPoint {
 	points := make([]SeriesPoint, 0, count)
 	start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location()).AddDate(0, -(count - 1), 0)
 	for i := 0; i < count; i++ {
 		current := start.AddDate(0, i, 0)
 		key := current.Format("2006-01")
-		points = append(points, SeriesPoint{
-			Key:   key,
-			Label: current.Format("2006-01"),
-			Count: values[key],
-		})
+		metric := detailValues[key]
+		if metric.Count == 0 && values[key] > 0 {
+			metric.Count = values[key]
+		}
+		points = append(points, metricToSeriesPoint(key, current.Format("2006-01"), metric))
 	}
 	return points
+}
+
+func metricToSeriesPoint(key string, label string, metric MetricSnapshot) SeriesPoint {
+	return SeriesPoint{
+		Key:             key,
+		Label:           label,
+		Count:           metric.Count,
+		Success:         metric.Success,
+		Timeout:         metric.Timeout,
+		QueueFull:       metric.QueueFull,
+		BadRequest:      metric.BadRequest,
+		Error:           metric.Error,
+		CacheHit:        metric.CacheHit,
+		CacheMiss:       metric.CacheMiss,
+		DurationTotalMs: metric.DurationTotalMs,
+		DurationCount:   metric.DurationCount,
+		Fast:            metric.Fast,
+		Boost:           metric.Boost,
+	}
 }
 
 func cloneMap(source map[string]int) map[string]int {
@@ -482,6 +610,22 @@ func cloneMap(source map[string]int) map[string]int {
 	}
 	sort.Strings(keys)
 	cloned := make(map[string]int, len(source))
+	for _, key := range keys {
+		cloned[key] = source[key]
+	}
+	return cloned
+}
+
+func cloneMetricMap(source map[string]MetricSnapshot) map[string]MetricSnapshot {
+	if source == nil {
+		return map[string]MetricSnapshot{}
+	}
+	keys := make([]string, 0, len(source))
+	for key := range source {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	cloned := make(map[string]MetricSnapshot, len(source))
 	for _, key := range keys {
 		cloned[key] = source[key]
 	}
