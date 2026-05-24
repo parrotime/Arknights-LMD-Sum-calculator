@@ -42,6 +42,140 @@ node server.js
 ```
 后端在 `http://localhost:3002` 运行
 
+## 维护页状态开关
+
+维护页入口：
+
+```text
+/#/maintenance
+```
+
+前端维护页会请求 Go 后端公开接口：
+
+```text
+GET /maintenance-status
+```
+
+对应后端代码位置：
+
+```text
+go-backend/internal/api/handler.go
+go-backend/internal/config/config.go
+go-backend/cmd/server/main.go
+```
+
+前端页面代码位置：
+
+```text
+src/pages/Maintenance.jsx
+src/assets/styles/Maintenance.module.css
+```
+
+### 本地开发时开启维护状态
+
+在启动 Go 后端前设置环境变量：
+
+```powershell
+cd go-backend
+$env:PORT="3003"
+$env:NODE_ENV="test"
+$env:MAINTENANCE_ENABLED="true"
+$env:MAINTENANCE_END_AT="2026-05-24T08:00:00+08:00"
+$env:MAINTENANCE_MESSAGE="网页维护中..."
+$env:MAINTENANCE_SUBTITLE="计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格"
+go run ./cmd/server
+```
+
+前端开发环境使用 `.env.development` 中的：
+
+```text
+VITE_API_URL=http://localhost:3003
+```
+
+所以访问 `http://localhost:3000/#/maintenance` 时会读取本地 Go 后端状态。
+
+### 本地开发时关闭维护状态
+
+关闭维护只需要不设置或改为：
+
+```powershell
+$env:MAINTENANCE_ENABLED="false"
+```
+
+然后重启 Go 后端。
+
+### 生产环境开启维护状态
+
+生产环境推荐修改 systemd 配置：
+
+```text
+go-backend/deploy/ark-lmd-go.service
+```
+
+把维护相关环境变量改成：
+
+```ini
+Environment=MAINTENANCE_ENABLED=true
+Environment=MAINTENANCE_END_AT=2026-05-24T08:00:00+08:00
+Environment=MAINTENANCE_MESSAGE=网页维护中...
+Environment=MAINTENANCE_SUBTITLE=计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格
+```
+
+上传/修改服务器上的 service 文件后执行：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart ark-lmd-go
+sudo systemctl status ark-lmd-go
+```
+
+验证接口：
+
+```bash
+curl https://ark-lmd.top/maintenance-status
+```
+
+如果返回中包含：
+
+```json
+{"enabled":true}
+```
+
+则维护页会显示倒计时。倒计时使用后端返回的 `serverTime` 和 `endAt` 计算，用户本机时间不准也不会影响显示。
+
+### 生产环境关闭维护状态
+
+把 service 文件改回：
+
+```ini
+Environment=MAINTENANCE_ENABLED=false
+```
+
+然后重启：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart ark-lmd-go
+```
+
+再次验证：
+
+```bash
+curl https://ark-lmd.top/maintenance-status
+```
+
+返回中 `enabled` 为 `false` 时，维护页会显示 `STANDBY / 维护未启用`。
+
+### 注意
+
+`MAINTENANCE_END_AT` 建议使用带时区的 RFC3339 时间，例如：
+
+```text
+2026-05-24T08:00:00+08:00
+```
+
+如果 `MAINTENANCE_ENABLED=true` 但没有设置 `MAINTENANCE_END_AT`，页面会显示“维护已启用，暂未设置恢复时间”，不会显示倒计时。
+
 
 ## 声明
 

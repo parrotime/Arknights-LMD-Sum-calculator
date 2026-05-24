@@ -132,6 +132,20 @@ const MaintenancePage = () => {
           <p>{status.loading ? "正在从服务器读取当前维护配置，请稍候" : status.subtitle}</p>
         </section>
 
+        <section className={styles['contact-panel']} aria-label="维护反馈联系方式">
+          <span className={styles['contact-code']}>CONTACT</span>
+          <p>
+            如有问题需要反馈，请点击
+            <a
+              href="https://space.bilibili.com/32772539"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              B站链接私信
+            </a>
+          </p>
+        </section>
+
         <section className={styles['timer-panel']} aria-label="预计恢复倒计时">
           <div className={styles['timer-copy']}>
             <span>{status.enabled ? "预计恢复倒计时" : "维护状态"}</span>
