@@ -13,8 +13,9 @@ import InputPanel from "./components/InputPanel";
 import SettingsPanel from "./components/SettingsPanel";
 import ResultArea from "./components/ResultArea";
 import {
-  romanticImageUrls, funnyImageUrl, zc325ImageUrl, sami325ImageUrl,
-  isRomanticNumber, isFunnyNumber, isZc325Number, isSami325Number, useHeartEffect,
+  funnyImageUrl, memory350234ImageUrl, zc325ImageUrl, sami325ImageUrl, typhoon799ImageUrls,
+  TYPHOON_799_PEEK,
+  isRomanticNumber, isFunnyNumber, isMemory350234Number, isZc325Number, isSami325Number, isTyphoon799Number, useHeartEffect,
   SettingsWarningModal,
 } from "./components/EasterEggs";
 import styles from "./assets/styles/App.module.css";
@@ -414,6 +415,21 @@ const MainCalculator = ({ onAssistantEgg }) => {
     return "当前龙门币数量已经和目标一致";
   }, []);
 
+  const triggerTyphoon799Egg = useCallback(() => {
+    const variants = [...typhoon799ImageUrls, TYPHOON_799_PEEK];
+    const selected = variants[Math.floor(Math.random() * variants.length)];
+    if (selected === TYPHOON_799_PEEK) {
+      onAssistantEgg?.({
+        type: "typhoon799-peek",
+      });
+      return;
+    }
+    onAssistantEgg?.({
+      imageUrl: selected,
+      type: "typhoon799",
+    });
+  }, [onAssistantEgg]);
+
   useEffect(() => {
     const toSave = {};
     for (const key of PERSISTED_KEYS) toSave[key] = state[key];
@@ -540,7 +556,6 @@ const MainCalculator = ({ onAssistantEgg }) => {
       if (isRomanticNumber(state.num2)) {
         triggerHeart(event);
         onAssistantEgg?.({
-          imageUrl: romanticImageUrls[Math.floor(Math.random() * romanticImageUrls.length)],
           type: "romantic",
         });
       } else if (isFunnyNumber(state.num2)) {
@@ -548,11 +563,18 @@ const MainCalculator = ({ onAssistantEgg }) => {
           imageUrl: funnyImageUrl,
           type: "funny",
         });
+      } else if (isMemory350234Number(state.num2)) {
+        onAssistantEgg?.({
+          imageUrl: memory350234ImageUrl,
+          type: "memory350234",
+        });
       } else if (isSami325Number(state.num2)) {
         onAssistantEgg?.({
           imageUrl: sami325ImageUrl,
           type: "sami325",
         });
+      } else if (isTyphoon799Number(state.num2)) {
+        triggerTyphoon799Egg();
       } else if (isZc325Number(state.num2)) {
         onAssistantEgg?.({
           imageUrl: zc325ImageUrl,
@@ -575,7 +597,9 @@ const MainCalculator = ({ onAssistantEgg }) => {
       const hasAssistantEasterEgg =
         isRomanticNumber(state.num2) ||
         isFunnyNumber(state.num2) ||
+        isMemory350234Number(state.num2) ||
         isSami325Number(state.num2) ||
+        isTyphoon799Number(state.num2) ||
         isZc325Number(state.num2);
       if (!hasAssistantEasterEgg) {
         showAssistantText(getDifferenceAssistantMessage(difference));
@@ -638,6 +662,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
       onAssistantEgg,
       showAssistantText,
       getDifferenceAssistantMessage,
+      triggerTyphoon799Egg,
     ]
   );
 
@@ -684,12 +709,22 @@ const MainCalculator = ({ onAssistantEgg }) => {
 
 const AppContent = () => {
   const [assistantEgg, setAssistantEgg] = useState(null);
+  const [typhoonPeekKey, setTyphoonPeekKey] = useState(0);
   const assistantEggRef = React.useRef(null);
 
   const handleAssistantEgg = useCallback((payload) => {
     if (!payload || (!payload.imageUrl && !payload.type && !payload.message)) {
       setAssistantEgg(null);
       assistantEggRef.current = null;
+      return;
+    }
+    if (payload.type === "typhoon799-peek") {
+      if (assistantEggRef.current?.priority === "high" && payload.priority !== "high") {
+        return;
+      }
+      assistantEggRef.current = null;
+      setAssistantEgg(null);
+      setTyphoonPeekKey((current) => current + 1);
       return;
     }
     setAssistantEgg((current) => {
@@ -705,6 +740,7 @@ const AppContent = () => {
   return (
     <Layout
       assistantEgg={assistantEgg}
+      typhoonPeekKey={typhoonPeekKey}
       onAssistantEggClose={() => {
         assistantEggRef.current = null;
         setAssistantEgg(null);

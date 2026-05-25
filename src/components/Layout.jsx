@@ -3,6 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import ClickCursor from "./ClickCursor";
 import { useCursorState } from "./CursorContext";
 import FloatingAssistant from "./FloatingAssistant";
+import TyphoonPeek from "./TyphoonPeek";
 
 const navItems = [
   { to: "/", text: "计算主页" },
@@ -16,7 +17,7 @@ const loadTheme = () => {
   return saved ? saved === "dark" : true;
 };
 
-const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
+const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }) => {
   const { isCalculating } = useCursorState();
   const [dark, setDark] = useState(loadTheme);
   const [themeToggleAnimating, setThemeToggleAnimating] = useState(false);
@@ -134,10 +135,13 @@ const Layout = ({ children, assistantEgg, onAssistantEggClose }) => {
       </nav>
 
       {!isMaintenancePage && !isAdminDashboardPage && (
-        <FloatingAssistant
-          assistantEgg={assistantEgg}
-          onAssistantEggClose={onAssistantEggClose}
-        />
+        <>
+          <FloatingAssistant
+            assistantEgg={assistantEgg}
+            onAssistantEggClose={onAssistantEggClose}
+          />
+          <TyphoonPeek triggerKey={typhoonPeekKey} />
+        </>
       )}
 
       {children}

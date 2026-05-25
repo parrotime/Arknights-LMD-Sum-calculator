@@ -8,8 +8,14 @@ export const romanticImageUrls = [
   "https://ark-lmd.oss-cn-beijing.aliyuncs.com/rosmontis4.webp",
 ];
 export const funnyImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/114514.webp";
+export const memory350234ImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/350234.webp";
 export const zc325ImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/zc325.webp";
 export const sami325ImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/799is325.webp";
+export const typhoon799ImageUrls = [
+  "https://ark-lmd.oss-cn-beijing.aliyuncs.com/typhoon_shock.webp",
+  "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bloodwolf799.webp",
+];
+export const TYPHOON_799_PEEK = "typhoon799-peek";
 
 const romanticClickEffects = [
   { type: "text", value: "" },
@@ -44,12 +50,23 @@ export const isFunnyNumber = (numStr) => {
   return false;
 };
 
+export const isMemory350234Number = (numStr) => {
+  if (!numStr || typeof numStr !== "string") return false;
+  const num = parseInt(numStr, 10);
+  if (isNaN(num) || num === 0) return false;
+  return num >= 350234 && num % 350234 === 0 && isPowerOfTen(num / 350234);
+};
+
 export const isZc325Number = (numStr) => (
   typeof numStr === "string" && numStr.includes("325")
 );
 
 export const isSami325Number = (numStr) => (
   typeof numStr === "string" && numStr.includes("799") && numStr.includes("325")
+);
+
+export const isTyphoon799Number = (numStr) => (
+  typeof numStr === "string" && numStr.includes("799")
 );
 
 // 爱心特效 hook

@@ -704,6 +704,65 @@ html, body, #root {
   }
 }
 
+/* 799 彩蛋：提丰从屏幕左侧探头 */
+.typhoon-peek {
+  position: fixed;
+  left: 0;
+  bottom: -18px;
+  z-index: 9998;
+  width: clamp(126px, 13vw, 188px);
+  pointer-events: none;
+  transform-origin: 16% 100%;
+  animation: typhoon-peek 5.1s cubic-bezier(0.2, 0.75, 0.22, 1) both;
+  will-change: transform, opacity;
+}
+
+.typhoon-peek-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.32));
+}
+
+@keyframes typhoon-peek {
+  0% {
+    opacity: 0;
+    transform: translate(-58%, 68%) rotate(-34deg);
+  }
+  16% {
+    opacity: 1;
+    transform: translate(-20%, 22%) rotate(9deg);
+  }
+  24% {
+    transform: translate(-18%, 20%) rotate(5deg);
+  }
+  62% {
+    opacity: 1;
+    transform: translate(-17%, 20%) rotate(6deg);
+  }
+  74% {
+    opacity: 1;
+    transform: translate(-20%, 24%) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-62%, 72%) rotate(-35deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .typhoon-peek {
+    width: clamp(96px, 30vw, 136px);
+    bottom: -12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typhoon-peek {
+    animation-duration: 1ms;
+  }
+}
+
 /* === 页脚 === */
 .footer {
   box-sizing: border-box;
@@ -884,6 +943,7 @@ html, body, #root {
   line-height: 1.45;
   letter-spacing: 0.02em;
   text-wrap: pretty;
+  white-space: pre-line;
   word-break: auto-phrase;
   overflow-wrap: anywhere;
 }
@@ -897,7 +957,7 @@ html, body, #root {
 .assistant-bubble-image-wrap {
   display: grid;
   place-items: center;
-  min-height: 126px;
+  min-height: 108px;
   padding: 9px;
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(122, 193, 248, 0.18);
@@ -906,8 +966,8 @@ html, body, #root {
 
 .assistant-bubble-image {
   display: block;
-  max-width: 100%;
-  max-height: 176px;
+  max-width: 92%;
+  max-height: 144px;
   object-fit: contain;
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.24));
 }

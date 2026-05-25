@@ -42,7 +42,7 @@ const getAssistantMessage = (type) => {
   if (type === "dizzy") {
     return {
       text: "博士快停下，我要晕掉了",
-      kaomoji: "(⊙︿⊙)",
+      kaomoji: "(@︿@)",
     };
   }
   if (type === "funny") {
@@ -51,9 +51,14 @@ const getAssistantMessage = (type) => {
       kaomoji: "ヽ(#`Д´)ﾉ",
     };
   }
-  if (type === "sami325") return "萨米萨米";
+  if (type === "sami325") return "呼呼呼！";
+  if (type === "typhoon799") return "检测到799信号，萨米地区气压异常";
   if (type === "zc325") return "苦也，这也言周";
-  return "博士，我好像发现了一点小惊喜。";
+  if (type === "memory350234") return "博士，往日种种，你还记得吗...";
+  if (type === "romantic") {
+    return "计算器终端已收到一份特殊心意。\n祝博士和喜欢的干员都能迎来好天气。";
+  }
+  return "给心心";
 };
 
 const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
