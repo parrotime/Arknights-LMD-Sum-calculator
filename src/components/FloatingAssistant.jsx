@@ -10,6 +10,14 @@ const FAST_DRAG_SPEED_THRESHOLD = 1.5;
 const FAST_DRAG_MIN_DISTANCE_RATIO = 1.5;
 const FAST_DRAG_COOLDOWN = 8000;
 const TITLE_ANCHOR_SELECTOR = '[data-assistant-anchor="main-title"]';
+const ROBOT_ICONS = {
+  cute: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/r_cute.webp",
+  default: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/r_default.webp",
+  dizzy: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/r_dizzy.webp",
+  down: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/r_down.webp",
+  up: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/r_up.webp",
+  smile: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/r_smile.webp",
+};
 const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
 const getDefaultPos = () => ({
@@ -69,16 +77,34 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   const [dragEggClosing, setDragEggClosing] = useState(false);
   const [assistantVisible, setAssistantVisible] = useState(false);
   const [assistantClosing, setAssistantClosing] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isPointerActive, setIsPointerActive] = useState(false);
+  const [scrollTravelMood, setScrollTravelMood] = useState(null);
+  const [clickPulseId, setClickPulseId] = useState(0);
   const welcomeClosingRef = useRef(false);
   const dragEggClosingRef = useRef(false);
   const lastFastDragAtRef = useRef(0);
   const assistantClosingRef = useRef(false);
+  const scrollTravelTargetRef = useRef(null);
+  const scrollTravelTimerRef = useRef(null);
 
   const btnRef = useRef(null);
   const dragState = useRef(null);
   const [btnPos, setBtnPos] = useState(() => getTitleAnchorPos());
   const [isDragging, setIsDragging] = useState(false);
+  const [dragLean, setDragLean] = useState("center");
   const isDraggingRef = useRef(false);
+
+  const triggerRobotClickPulse = useCallback(() => {
+    setClickPulseId((current) => current + 1);
+  }, []);
+
+  useEffect(() => {
+    Object.values(ROBOT_ICONS).forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
@@ -98,10 +124,33 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
     const onScroll = () => {
       const threshold = window.innerHeight * 0.5;
       setScrollDir(window.scrollY < threshold ? "down" : "up");
+      if (!scrollTravelTargetRef.current) return;
+      const maxScroll = Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight
+      ) - window.innerHeight;
+      const target = scrollTravelTargetRef.current === "down" ? maxScroll : 0;
+      const reachedTarget = Math.abs(window.scrollY - target) <= 4;
+      if (reachedTarget) {
+        scrollTravelTargetRef.current = null;
+        window.clearTimeout(scrollTravelTimerRef.current);
+        scrollTravelTimerRef.current = window.setTimeout(() => {
+          setScrollTravelMood(null);
+        }, 260);
+        return;
+      }
+      window.clearTimeout(scrollTravelTimerRef.current);
+      scrollTravelTimerRef.current = window.setTimeout(() => {
+        scrollTravelTargetRef.current = null;
+        setScrollTravelMood(null);
+      }, 260);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(scrollTravelTimerRef.current);
+    };
   }, []);
 
   const closeWelcomeBubble = useCallback(() => {
@@ -185,12 +234,20 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
 
   const handleScrollBtn = useCallback(() => {
     const behavior = prefersReducedMotion() ? "auto" : "smooth";
+    triggerRobotClickPulse();
+    setScrollTravelMood(scrollDir);
+    scrollTravelTargetRef.current = scrollDir;
+    window.clearTimeout(scrollTravelTimerRef.current);
+    scrollTravelTimerRef.current = window.setTimeout(() => {
+      scrollTravelTargetRef.current = null;
+      setScrollTravelMood(null);
+    }, behavior === "auto" ? 320 : 2200);
     if (scrollDir === "down") {
       window.scrollTo({ top: document.body.scrollHeight, behavior });
     } else {
       window.scrollTo({ top: 0, behavior });
     }
-  }, [scrollDir]);
+  }, [scrollDir, triggerRobotClickPulse]);
 
   useEffect(() => {
     const onResize = () => {
@@ -211,6 +268,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
     e.preventDefault();
     const btn = btnRef.current;
     if (!btn) return;
+    setIsPointerActive(true);
     dragState.current = {
       startX: e.clientX,
       startY: e.clientY,
@@ -236,6 +294,10 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
       setIsDragging(true);
     }
     if (!isDraggingRef.current) return;
+    const horizontalMove = e.clientX - dragState.current.lastX;
+    if (Math.abs(horizontalMove) >= 1.5) {
+      setDragLean(horizontalMove < 0 ? "left" : "right");
+    }
     const now = performance.now();
     const moveDistance = Math.hypot(
       e.clientX - dragState.current.lastX,
@@ -285,6 +347,8 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
     }
     isDraggingRef.current = false;
     setIsDragging(false);
+    setDragLean("center");
+    setIsPointerActive(false);
   }, [handleScrollBtn, showDragEggBubble]);
 
   const onPointerUp = useCallback((e) => {
@@ -300,6 +364,17 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   const showAssistantBubble = assistantVisible && !!assistantEgg;
   const showDragBubble = dragEggVisible && !showAssistantBubble;
   const showWelcomeBubble = welcomeVisible && !showAssistantBubble && !showDragBubble;
+  const isEasterEggBubble = showAssistantBubble && assistantEgg?.type !== "recalculate";
+  const robotMood = (() => {
+    if (showDragBubble) return "dizzy";
+    if (isDragging) return "cute";
+    if (scrollTravelMood) return scrollTravelMood;
+    if (isEasterEggBubble) return "cute";
+    if (showWelcomeBubble || showAssistantBubble) return "smile";
+    if (isPointerActive || isHovering) return scrollDir;
+    return "smile";
+  })();
+  const robotIcon = ROBOT_ICONS[robotMood] ?? ROBOT_ICONS.smile;
   const activeMessage = showDragBubble ? dragEggMessage : assistantMessage;
   const bubblePlacement = btnPos.x + BUTTON_SIZE + BUBBLE_GAP + BUBBLE_WIDTH > window.innerWidth
     ? "left"
@@ -330,12 +405,14 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
       <button
         type="button"
         ref={btnRef}
-        className={`back-to-top${isDragging ? " dragging" : ""}`}
+        className={`back-to-top${isDragging ? " dragging" : ""} drag-${dragLean}`}
         style={{ left: btnPos.x, top: btnPos.y }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
+        onPointerEnter={() => setIsHovering(true)}
+        onPointerLeave={() => setIsHovering(false)}
         onKeyDown={(e) => {
           if (e.key !== "Enter" && e.key !== " ") return;
           e.preventDefault();
@@ -345,9 +422,19 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
         aria-describedby={(showWelcomeBubble || showDragBubble || showAssistantBubble) ? "assistant-bubble-message" : undefined}
         title="可拖动"
       >
-        {scrollDir === "down"
-          ? <><span>前往</span><span>底部</span></>
-          : <><span>返回</span><span>顶部</span></>}
+        <span className="assistant-robot-idle" aria-hidden="true">
+          <span
+            key={clickPulseId}
+            className={`assistant-robot-press${clickPulseId > 0 ? " clicked" : ""}`}
+          >
+            <img
+              src={robotIcon}
+              alt=""
+              className="assistant-robot-icon"
+              draggable="false"
+            />
+          </span>
+        </span>
       </button>
 
       {(showWelcomeBubble || showDragBubble || showAssistantBubble) && (
