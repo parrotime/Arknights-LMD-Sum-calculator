@@ -85,9 +85,15 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
   const [resetAnimating, setResetAnimating] = useState(false);
   const helpTriggerRefs = useRef({});
   const helpPopoverRef = useRef(null);
+  const isMobileHelpLayout = useCallback(() => (
+    window.matchMedia("(max-width: 900px)").matches || window.matchMedia("(pointer: coarse)").matches
+  ), []);
 
   const updateHelpPopoverPosition = useCallback(() => {
-    if (!openHelpKey) return;
+    if (!openHelpKey || !isMobileHelpLayout()) {
+      setHelpPopoverStyle(null);
+      return;
+    }
 
     const trigger = helpTriggerRefs.current[openHelpKey];
     const popover = helpPopoverRef.current;
@@ -112,7 +118,7 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
       "--setting-help-arrow-left": `${arrowLeft}px`,
       "--setting-help-arrow-edge": shouldPlaceBelow ? "top" : "bottom",
     });
-  }, [openHelpKey]);
+  }, [isMobileHelpLayout, openHelpKey]);
 
   useEffect(() => {
     setHelpPopoverStyle(null);
@@ -128,6 +134,19 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
       window.removeEventListener("resize", updateHelpPopoverPosition);
     };
   }, [openHelpKey, updateHelpPopoverPosition]);
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (isMobileHelpLayout()) return;
+
+      if (!event.target.closest('[data-setting-help-root="true"]')) {
+        setOpenHelpKey(null);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [isMobileHelpLayout]);
 
   const handleResetClick = () => {
     setResetAnimating(true);
@@ -200,7 +219,7 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
                             }}
                             aria-label="查看设置说明"
                             aria-expanded={openHelpKey === key}
-                            onClick={() => setOpenHelpKey(key)}
+                            onClick={() => setOpenHelpKey((currentKey) => (currentKey === key ? null : key))}
                             onMouseEnter={() => setOpenHelpKey(key)}
                           >
                             ?

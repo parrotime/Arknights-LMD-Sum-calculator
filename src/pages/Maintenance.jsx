@@ -142,6 +142,20 @@ const MaintenancePage = () => {
               rel="noopener noreferrer"
             >
               B站链接私信
+            </a>或直接提交表单
+            <a
+              href="https://v.wjx.cn/vm/wJwEJn8.aspx#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              提交反馈
+            </a>查看
+            <a
+              href="https://docs.qq.com/sheet/DT2hmVUhLbHVxYUtC?tab=BB08J2"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              反馈详情
             </a>
           </p>
         </section>
