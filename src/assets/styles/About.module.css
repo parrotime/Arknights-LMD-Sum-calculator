@@ -350,13 +350,7 @@
 .chart-hit-point {
   fill: transparent;
   stroke: transparent;
-  cursor: help;
-  pointer-events: all;
-}
-
-.chart-node:hover .chart-point {
-  fill: var(--ark-chart-point-hover);
-  stroke: var(--ark-primary-500);
+  pointer-events: none;
 }
 
 .chart-axis-labels {
@@ -366,6 +360,135 @@
   bottom: 7px;
   height: 20px;
   pointer-events: none;
+}
+
+.chart-point-layer {
+  position: absolute;
+  inset: 10px 0 0;
+  pointer-events: none;
+}
+
+.chart-html-point {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ark-neutral-900);
+  cursor: help;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+.chart-html-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border: 2px solid var(--ark-surface-inset);
+  border-radius: 50%;
+  background: var(--ark-chart-point);
+  box-shadow: 0 0 0 1px rgba(99, 180, 247, 0.4);
+  transform: translate(-50%, -50%);
+  transition: background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+
+.chart-value-label {
+  position: absolute;
+  left: 50%;
+  min-width: 22px;
+  padding: 1px 5px;
+  border: 1px solid rgba(99, 180, 247, 0.5);
+  border-radius: 2px;
+  background: rgba(11, 22, 33, 0.82);
+  color: var(--ark-primary-300);
+  font-family: "Rajdhani", "JetBrains Mono", "Fira Code", "Source Code Pro", monospace;
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  text-align: center;
+  white-space: nowrap;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  transform: translateX(-50%);
+}
+
+.chart-value-above .chart-value-label {
+  bottom: calc(50% + 8px);
+}
+
+.chart-value-below .chart-value-label {
+  top: calc(50% + 8px);
+}
+
+.chart-value-edge-start .chart-value-label {
+  left: 0;
+  transform: translateX(0);
+}
+
+.chart-value-edge-end .chart-value-label {
+  left: auto;
+  right: 0;
+  transform: translateX(0);
+}
+
+.chart-html-point-dense .chart-value-label {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.16s ease, visibility 0.16s ease;
+}
+
+.chart-html-point-extreme .chart-value-label {
+  opacity: 1;
+  visibility: visible;
+  border-color: var(--ark-primary-300);
+  background: rgba(11, 22, 33, 0.94);
+  color: var(--ark-primary-300);
+  box-shadow: 0 0 0 1px rgba(99, 180, 247, 0.16);
+}
+
+.chart-html-point-extreme .chart-html-dot {
+  width: 8px;
+  height: 8px;
+  border-color: var(--ark-primary-300);
+  box-shadow: 0 0 0 2px rgba(99, 180, 247, 0.2);
+}
+
+.chart-html-point-min .chart-value-label {
+  border-color: var(--ark-primary-300);
+  color: var(--ark-primary-300);
+  box-shadow: 0 0 0 1px rgba(99, 180, 247, 0.16);
+}
+
+.chart-html-point-min .chart-html-dot {
+  border-color: var(--ark-primary-300);
+  background: var(--ark-chart-point);
+  box-shadow: 0 0 0 2px rgba(99, 180, 247, 0.2);
+}
+
+.chart-html-point:hover,
+.chart-html-point:focus,
+.chart-html-point:focus-visible {
+  z-index: 5;
+  outline: none;
+}
+
+.chart-html-point:hover .chart-html-dot,
+.chart-html-point:focus .chart-html-dot,
+.chart-html-point:focus-visible .chart-html-dot {
+  background: var(--ark-chart-point-hover);
+  box-shadow: 0 0 0 2px var(--ark-primary-500);
+  transform: translate(-50%, -50%) scale(1.18);
+}
+
+.chart-html-point:hover .chart-value-label,
+.chart-html-point:focus .chart-value-label,
+.chart-html-point:focus-visible .chart-value-label {
+  opacity: 1;
+  visibility: visible;
 }
 
 .chart-axis-html-label {
@@ -874,6 +997,10 @@
     inset: 0;
     height: 100%;
     max-height: none;
+  }
+
+  .chart-point-layer {
+    inset: 0;
   }
 
   .chart-axis-labels {

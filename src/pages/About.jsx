@@ -181,6 +181,19 @@ function AboutPage() {
   const chartPoints = useMemo(() => getChartPoints(chartValues), [chartValues]);
   const chartPath = useMemo(() => getSmoothPath(chartPoints), [chartPoints]);
   const chartAreaPath = useMemo(() => getAreaPath(chartPoints, 104), [chartPoints]);
+  const isDenseChart = chartPoints.length > 12;
+  const chartExtremes = useMemo(() => {
+    if (!chartValues.length) return { maxIndex: -1, minIndex: -1 };
+
+    const maxValue = Math.max(...chartValues);
+    const minValue = Math.min(...chartValues);
+    const maxIndex = chartValues.findIndex((value) => value === maxValue);
+    const minIndex = maxValue === minValue
+      ? -1
+      : chartValues.findIndex((value) => value === minValue);
+
+    return { maxIndex, minIndex };
+  }, [chartValues]);
   const activeTicks = useMemo(() => {
     if (chartSeries.length) {
       return chartSeries.map((point, index) => ({
@@ -356,7 +369,7 @@ function AboutPage() {
                         >
                           ×
                         </button>
-                        <span>累计次数 = 旧版日志基线 + Go 后端新增统计；页面每 2 分钟刷新一次。</span>
+                        <span>页面每 2 分钟刷新一次。</span>
                       </span>
                     )}
                   </span>
@@ -435,13 +448,9 @@ function AboutPage() {
                   <path d={chartPath} className={styles['chart-polyline']} />
                   {chartPoints.map((point, index) => {
                     const tick = activeTicks[index];
-                    const isKeyPoint = isMobileChart
-                      ? !!tick?.label
-                      : !!tick?.label || index === chartPoints.length - 1;
 
                     return (
                       <g key={`point-${index}`} className={styles['chart-node']}>
-                        {isKeyPoint && <circle cx={point.x} cy={point.y} r="3.2" className={styles['chart-point']} />}
                         <circle cx={point.x} cy={point.y} r="7" className={styles['chart-hit-point']}>
                           <title>{`${tick?.title ?? ''}：${formatStatNumber(chartValues[index])} 次`}</title>
                         </circle>
@@ -449,6 +458,36 @@ function AboutPage() {
                     );
                   })}
                 </svg>
+
+                <div className={styles['chart-point-layer']}>
+                  {chartPoints.map((point, index) => {
+                    const tick = activeTicks[index];
+                    const value = formatStatNumber(chartValues[index]);
+                    const labelClass = point.y < 25 ? styles['chart-value-below'] : styles['chart-value-above'];
+                    const isMaxPoint = index === chartExtremes.maxIndex;
+                    const isMinPoint = index === chartExtremes.minIndex;
+                    const extremeClass = isMaxPoint
+                      ? styles['chart-html-point-max']
+                      : (isMinPoint ? styles['chart-html-point-min'] : '');
+
+                    return (
+                      <button
+                        type="button"
+                        key={`html-point-${index}`}
+                        className={`${styles['chart-html-point']} ${labelClass} ${index === 0 ? styles['chart-value-edge-start'] : ''} ${index === chartPoints.length - 1 ? styles['chart-value-edge-end'] : ''} ${isMaxPoint || isMinPoint ? styles['chart-html-point-extreme'] : ''} ${extremeClass} ${isDenseChart ? styles['chart-html-point-dense'] : ''}`}
+                        style={{
+                          left: `${(point.x / 280) * 100}%`,
+                          top: `${(point.y / 128) * 100}%`,
+                        }}
+                        aria-label={`${tick?.title ?? '统计点'}：${value} 次${isMaxPoint ? '，最高点' : ''}${isMinPoint ? '，最低点' : ''}`}
+                        title={`${tick?.title ?? ''}：${value} 次`}
+                      >
+                        <span className={styles['chart-html-dot']} />
+                        <span className={styles['chart-value-label']}>{value}</span>
+                      </button>
+                    );
+                  })}
+                </div>
 
                 <div className={styles['chart-axis-labels']} aria-hidden="true">
                   {chartPoints.map((point, index) => {
@@ -478,8 +517,22 @@ function AboutPage() {
               <h2>反馈通道</h2>
             </div>
             <div className={styles['link-row']}>
-              <a className={styles['archive-link']} href="#" aria-disabled="true">提交反馈</a>
-              <a className={styles['archive-link']} href="#" aria-disabled="true">反馈详情</a>
+              <a
+                className={styles['archive-link']}
+                href="https://v.wjx.cn/vm/wJwEJn8.aspx#"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                提交反馈
+              </a>
+              <a
+                className={styles['archive-link']}
+                href="https://docs.qq.com/sheet/DT2hmVUhLbHVxYUtC?tab=BB08J2"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                反馈详情
+              </a>
             </div>
           </div>
 
