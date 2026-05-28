@@ -261,9 +261,10 @@ func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
 
 	items := filterItems(h.items, *req.Settings)
 	mode := normalizeCalcMode(req.CalcMode)
+	options := calc.OptionsForMode(mode)
 	currentLMD, hasCurrentLMD := calcCurrentLMD(targetLMD, hasTargetLMD, target)
 	h.logger.Info("calculation request", "event", "calculation_request", "request_id", requestID, "ip", ip, "ip_hash", ipHash, "target_lmd", targetLMD, "has_target_lmd", hasTargetLMD, "current_lmd", currentLMD, "has_current_lmd", hasCurrentLMD, "lmd_diff", target, "target", target, "calc_mode", mode, "item_count", len(items), "limits", limits)
-	cacheKey := buildCacheKey(target, *req.Settings, limits, req.CalcMode, h.dataVersion)
+	cacheKey := buildCacheKey(target, *req.Settings, limits, mode, h.dataVersion)
 	if cached, ok := h.cache.Get(cacheKey); ok {
 		duration := time.Since(started).Milliseconds()
 		h.logCalcEvent("calc_finished", requestID, ip, ipHash, targetLMD, hasTargetLMD, target, mode, "hit", duration, len(cached), "success", "")
@@ -313,7 +314,7 @@ func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
 			h.running.Add(-1)
 		}()
 
-		paths, err := calc.FindPathsWithContext(ctx, target, items, limits)
+		paths, err := calc.FindPathsWithOptions(ctx, target, items, limits, options)
 		if err != nil {
 			errCh <- err
 			return
@@ -420,10 +421,7 @@ func calcCurrentLMD(targetLMD int, hasTargetLMD bool, lmdDiff int) (int, bool) {
 }
 
 func normalizeCalcMode(mode string) string {
-	if mode == "" {
-		return "fast"
-	}
-	return mode
+	return calc.NormalizeSearchMode(mode)
 }
 
 func firstLogger(primary, fallback *slog.Logger) *slog.Logger {

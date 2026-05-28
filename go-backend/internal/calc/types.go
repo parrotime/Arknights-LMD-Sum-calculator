@@ -44,18 +44,19 @@ type state struct {
 }
 
 type contextState struct {
-	DP            map[int]*state
-	Order         []int
-	MaxPaths      int
-	Target        int
-	ItemMap       map[int]data.Item
-	ItemMeta      []itemMeta
-	Upgrade0Limit int
-	Upgrade1Limit int
-	Upgrade2Limit int
-	SanityLimit   int
-	TradeLimits   map[int]int
-	Caches        caches
+	DP             map[int]*state
+	Order          []int
+	MaxPaths       int
+	MaxTargetPaths int
+	Target         int
+	ItemMap        map[int]data.Item
+	ItemMeta       []itemMeta
+	Upgrade0Limit  int
+	Upgrade1Limit  int
+	Upgrade2Limit  int
+	SanityLimit    int
+	TradeLimits    map[int]int
+	Caches         caches
 }
 
 type itemMeta struct {

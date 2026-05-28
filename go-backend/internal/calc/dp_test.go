@@ -82,6 +82,34 @@ func TestFinalizeFiltersRemovableZeroSumSubset(t *testing.T) {
 	}
 }
 
+func TestFinalizeKeepsDisplayOrderAfterDiversityOverflow(t *testing.T) {
+	items := loadTestItems(t)
+	itemMap := make(map[int]data.Item, len(items))
+	for _, item := range items {
+		itemMap[item.ID] = item
+	}
+
+	dp := map[int]*state{
+		2500: {
+			Paths: []Path{
+				{{ID: 117, Count: 1}, {ID: 118, Count: 1}},
+				{{ID: 117, Count: 1}, {ID: 101, Count: 5}, {ID: 103, Count: 1}},
+				{{ID: 117, Count: 1}, {ID: 101, Count: 4}, {ID: 102, Count: 1}},
+				{{ID: 117, Count: 1}, {ID: 101, Count: 3}, {ID: 102, Count: 1}, {ID: 103, Count: 1}},
+				{{ID: 117, Count: 1}, {ID: 101, Count: 2}, {ID: 102, Count: 3}},
+				{{ID: 222, Count: 1}},
+				{{ID: 118, Count: 1}, {ID: 101, Count: 5}},
+				{{ID: 119, Count: 1}, {ID: 101, Count: 2}, {ID: 100, Count: 1}},
+				{{ID: 118, Count: 1}, {ID: 102, Count: 3}, {ID: 100, Count: 1}},
+				{{ID: 117, Count: 2}, {ID: 101, Count: 2}, {ID: 100, Count: 1}},
+			},
+		},
+	}
+
+	result := finalizeResult(dp, 2500, TargetPathCount, itemMap)
+	assertPathsSortedByDisplayOrder(t, result)
+}
+
 func TestMergeAndSortPathCombinesAndOrdersSteps(t *testing.T) {
 	result := mergeAndSortPath(
 		Path{{ID: 118, Count: 1}, {ID: 222, Count: 1}},
@@ -331,6 +359,20 @@ func pathSlicesEqual(a []Path, b []Path) bool {
 		}
 	}
 	return true
+}
+
+func assertPathsSortedByDisplayOrder(t *testing.T, paths []Path) {
+	t.Helper()
+	for i := 1; i < len(paths); i++ {
+		prev := paths[i-1]
+		current := paths[i]
+		if len(prev) > len(current) {
+			t.Fatalf("paths are not sorted by step count at index %d: previous=%#v current=%#v all=%#v", i, prev, current, paths)
+		}
+		if len(prev) == len(current) && totalCount(prev) > totalCount(current) {
+			t.Fatalf("paths are not sorted by total count at index %d: previous=%#v current=%#v all=%#v", i, prev, current, paths)
+		}
+	}
 }
 
 func pathsEqual(a Path, b Path) bool {

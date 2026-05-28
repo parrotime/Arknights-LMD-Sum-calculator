@@ -3,6 +3,8 @@ package calc
 import (
 	"context"
 	"testing"
+
+	"ark-lmd-go-backend/internal/data"
 )
 
 func BenchmarkFindPaths(b *testing.B) {
@@ -96,18 +98,26 @@ func BenchmarkFindPaths(b *testing.B) {
 	}
 
 	for _, tc := range cases {
-		b.Run(tc.name, func(b *testing.B) {
-			b.ReportAllocs()
-			for i := 0; i < b.N; i++ {
-				paths, err := FindPathsWithContext(context.Background(), tc.target, items, tc.limits)
-				if err != nil {
-					b.Fatalf("FindPathsWithContext returned error: %v", err)
-				}
-				if len(paths) == 0 {
-					b.Fatalf("expected at least one path")
-				}
-			}
+		b.Run("fast/"+tc.name, func(b *testing.B) {
+			benchmarkFindPathsWithOptions(b, tc.target, items, tc.limits, FastOptions())
 		})
+		b.Run("strong/"+tc.name, func(b *testing.B) {
+			benchmarkFindPathsWithOptions(b, tc.target, items, tc.limits, StrongOptions())
+		})
+	}
+}
+
+func benchmarkFindPathsWithOptions(b *testing.B, target int, items []data.Item, limits Limits, options SearchOptions) {
+	b.Helper()
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		paths, err := FindPathsWithOptions(context.Background(), target, items, limits, options)
+		if err != nil {
+			b.Fatalf("FindPathsWithOptions returned error: %v", err)
+		}
+		if len(paths) == 0 {
+			b.Fatalf("expected at least one path")
+		}
 	}
 }
 

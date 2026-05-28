@@ -19,6 +19,11 @@ func FindPaths(target int, items []data.Item, limits Limits) []Path {
 }
 
 func FindPathsWithContext(ctx context.Context, target int, items []data.Item, limits Limits) ([]Path, error) {
+	return FindPathsWithOptions(ctx, target, items, limits, FastOptions())
+}
+
+func FindPathsWithOptions(ctx context.Context, target int, items []data.Item, limits Limits, options SearchOptions) ([]Path, error) {
+	options = normalizeSearchOptions(options)
 	if items == nil {
 		return []Path{}, nil
 	}
@@ -46,22 +51,23 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 		return abs(validItems[i].ItemValue) > abs(validItems[j].ItemValue)
 	})
 
-	pruneThreshold := min(max(abs(target), 1000), 3000)
+	pruneThreshold := min(max(abs(target), options.PruneMin), options.PruneMax)
 
 	calcState := &contextState{
 		DP: map[int]*state{
 			0: &state{Paths: []Path{{}}},
 		},
-		Order:         []int{0},
-		MaxPaths:      MaxPathsPerSum,
-		Target:        target,
-		ItemMap:       itemMap,
-		ItemMeta:      itemMeta,
-		Upgrade0Limit: limits.Upgrade0Limit,
-		Upgrade1Limit: limits.Upgrade1Limit,
-		Upgrade2Limit: limits.Upgrade2Limit,
-		SanityLimit:   limits.SanityLimit,
-		TradeLimits:   buildTradeLimits(limits),
+		Order:          []int{0},
+		MaxPaths:       options.MaxPathsPerSum,
+		MaxTargetPaths: options.MaxPathsForTarget,
+		Target:         target,
+		ItemMap:        itemMap,
+		ItemMeta:       itemMeta,
+		Upgrade0Limit:  limits.Upgrade0Limit,
+		Upgrade1Limit:  limits.Upgrade1Limit,
+		Upgrade2Limit:  limits.Upgrade2Limit,
+		SanityLimit:    limits.SanityLimit,
+		TradeLimits:    buildTradeLimits(limits),
 		Caches: caches{
 			Material: make(map[int]ComboResult),
 			Stage:    newStageComboCache(stageItems, itemMeta, target, pruneThreshold),
@@ -90,21 +96,21 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 	}
 
 	if target > 0 {
-		for _, combo := range getLimitedCombos(target, TradeDenoms, calcState.TradeLimits, MaxPathsForTarget) {
+		for _, combo := range getLimitedCombos(target, TradeDenoms, calcState.TradeLimits, options.MaxPathsForTarget) {
 			savePath(calcState, target, combo)
 		}
 	}
 
-	if targetState := calcState.DP[target]; targetState != nil && len(targetState.Paths) >= MaxPathsForTarget {
+	if targetState := calcState.DP[target]; targetState != nil && len(targetState.Paths) >= options.MaxPathsForTarget {
 		enoughPaths = true
 	}
 
-	for step := 2; step <= MaxSteps && !enoughPaths; step++ {
+	for step := 2; step <= options.MaxSteps && !enoughPaths; step++ {
 		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
-		remainingBudget := MaxSteps - step + 1
-		dynamicThreshold := int(math.Ceil(float64(pruneThreshold*remainingBudget) / float64(MaxSteps)))
+		remainingBudget := options.MaxSteps - step + 1
+		dynamicThreshold := int(math.Ceil(float64(pruneThreshold*remainingBudget) / float64(options.MaxSteps)))
 
 		entries := snapshotEntries(calcState)
 		for _, entry := range entries {
@@ -200,7 +206,7 @@ func FindPathsWithContext(ctx context.Context, target int, items []data.Item, li
 		}
 	}
 
-	return finalizeResult(calcState.DP, target, TargetPathCount, itemMap), nil
+	return finalizeResult(calcState.DP, target, options.TargetPathCount, itemMap), nil
 }
 
 func getMaxCountForID(id int, itemMap map[int]data.Item) int {
@@ -568,7 +574,7 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 
 	effectiveMaxPaths := ctx.MaxPaths
 	if sum == ctx.Target {
-		effectiveMaxPaths = MaxPathsForTarget
+		effectiveMaxPaths = ctx.MaxTargetPaths
 	}
 
 	st, ok := ctx.DP[sum]
@@ -596,7 +602,7 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 	}
 
 	if added && sum == ctx.Target {
-		return len(ctx.DP[ctx.Target].Paths) >= MaxPathsForTarget
+		return len(ctx.DP[ctx.Target].Paths) >= ctx.MaxTargetPaths
 	}
 	return false
 }
@@ -874,6 +880,7 @@ func finalizeResult(dp map[int]*state, target int, maxPaths int, itemMap map[int
 		}
 		diverse = append(diverse, overflow[:need]...)
 	}
+	sortPathsByDisplayOrder(diverse)
 
 	reordered := make([]Path, 0, len(diverse))
 	for _, path := range diverse {
@@ -975,6 +982,26 @@ func snapshotEntries(ctx *contextState) []dpEntry {
 func sortPathsByLength(paths []Path) {
 	sort.SliceStable(paths, func(i, j int) bool {
 		return len(paths[i]) < len(paths[j])
+	})
+}
+
+func sortPathsByDisplayOrder(paths []Path) {
+	sort.SliceStable(paths, func(i, j int) bool {
+		if len(paths[i]) != len(paths[j]) {
+			return len(paths[i]) < len(paths[j])
+		}
+		countA, countB := totalCount(paths[i]), totalCount(paths[j])
+		if countA != countB {
+			return countA < countB
+		}
+		idA, idB := 0, 0
+		if len(paths[i]) > 0 {
+			idA = paths[i][0].ID
+		}
+		if len(paths[j]) > 0 {
+			idB = paths[j][0].ID
+		}
+		return idA < idB
 	})
 }
 
