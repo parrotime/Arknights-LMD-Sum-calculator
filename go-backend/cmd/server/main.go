@@ -87,6 +87,7 @@ func main() {
 	mux.HandleFunc("/cache-stats", handler.CacheStats)
 	mux.HandleFunc("/server-stats", handler.ServerStats)
 	mux.HandleFunc("/admin/overview", handler.AdminOverview)
+	mux.HandleFunc("/public-stats", handler.PublicStats)
 	mux.HandleFunc("/maintenance-status", handler.MaintenanceStatus)
 	mux.HandleFunc("/find-paths", handler.FindPaths)
 

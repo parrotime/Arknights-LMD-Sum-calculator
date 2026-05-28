@@ -173,6 +173,37 @@ func (h *Handler) AdminOverview(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, stats)
 }
 
+func (h *Handler) PublicStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
+		return
+	}
+	if h.adminStats == nil {
+		writeJSON(w, http.StatusOK, map[string]any{
+			"admin": map[string]any{
+				"totals": map[string]int{
+					"calculations": 0,
+				},
+				"series": map[string]any{},
+			},
+			"serverTime": time.Now().Format(time.RFC3339),
+		})
+		return
+	}
+
+	snapshot := h.adminStats.Snapshot()
+	writeJSON(w, http.StatusOK, map[string]any{
+		"admin": map[string]any{
+			"updatedAt": snapshot.UpdatedAt,
+			"totals": map[string]any{
+				"calculations": snapshot.Totals.Calculations,
+			},
+			"series": snapshot.Series,
+		},
+		"serverTime": time.Now().Format(time.RFC3339),
+	})
+}
+
 func (h *Handler) authorizeAdmin(w http.ResponseWriter, r *http.Request) bool {
 	if h.adminToken == "" {
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})

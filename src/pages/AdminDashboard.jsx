@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from '../assets/styles/AdminDashboard.module.css';
+import legacyLogStats from '../data/legacyLogStats.json';
+import {
+  formatStatNumber,
+  legacyDataNotice,
+  mergeStats,
+} from '../utils/statsMerge';
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 const TOKEN_KEY = "ark_lmd_admin_token";
@@ -115,7 +121,7 @@ const trendRanges = [
 ];
 
 function formatNumber(value) {
-  return Number(value || 0).toLocaleString("zh-CN");
+  return formatStatNumber(value);
 }
 
 function formatPercent(value) {
@@ -251,7 +257,8 @@ function AdminDashboard() {
   const totals = admin?.totals || {};
   const server = overview?.server || {};
   const cache = overview?.cache || {};
-  const todayCount = useMemo(() => getTodayCount(admin?.series?.last7Days), [admin]);
+  const combinedStats = useMemo(() => mergeStats(legacyLogStats, overview), [overview]);
+  const todayCount = useMemo(() => getTodayCount(combinedStats.live.series.last7Days), [combinedStats]);
   const hitRate = totals.cacheHit + totals.cacheMiss > 0
     ? totals.cacheHit / (totals.cacheHit + totals.cacheMiss)
     : cache.hitRate || 0;
@@ -263,7 +270,12 @@ function AdminDashboard() {
     () => trendRanges.find((range) => range.key === trendRangeKey) || trendRanges[0],
     [trendRangeKey],
   );
-  const activeTrendPoints = admin?.series?.[activeTrendRange.key] || [];
+  const activeTrendPoints = useMemo(() => {
+    if (activeTrendMetric.key !== "count") return admin?.series?.[activeTrendRange.key] || [];
+    if (activeTrendRange.key === "last30Days") return combinedStats.merged.series.byDay.slice(-30);
+    if (activeTrendRange.key === "last12Months") return combinedStats.merged.series.byMonth.slice(-12);
+    return admin?.series?.[activeTrendRange.key] || [];
+  }, [activeTrendMetric.key, activeTrendRange.key, admin, combinedStats]);
 
   return (
     <div className={styles['admin-content']}>
@@ -320,10 +332,15 @@ function AdminDashboard() {
             </section>
 
             <section className={styles['stat-grid']} aria-label="核心指标">
-              <StatCard code="TOTAL" title="累计计算" value={formatNumber(totals.calculations)} detail={`今日 ${formatNumber(todayCount)} 次`} />
+              <StatCard
+                code="TOTAL"
+                title="累计计算"
+                value={formatNumber(combinedStats.merged.summary.totalRequests)}
+                detail={`旧版 ${formatNumber(combinedStats.baseline.summary.totalRequests)} / 新增 ${formatNumber(combinedStats.live.summary.totalRequests)}`}
+              />
               <StatCard code="CACHE" title="缓存命中率" value={formatPercent(hitRate)} detail={`命中 ${formatNumber(totals.cacheHit)} / 未命中 ${formatNumber(totals.cacheMiss)}`} />
               <StatCard code="DURATION" title="平均耗时" value={formatDuration(totals.durationTotalMs, totals.calculations)} detail="按聚合日志估算" />
-              <StatCard code="QUEUE" title="当前队列" value={`${formatNumber(server.running)} / ${formatNumber(server.queued)}`} detail={`拒绝 ${formatNumber(server.queueRejected)} 次`} />
+              <StatCard code="QUEUE" title="当前队列" value={`${formatNumber(server.running)} / ${formatNumber(server.queued)}`} detail={`今日新增 ${formatNumber(todayCount)} 次 / 拒绝 ${formatNumber(server.queueRejected)} 次`} />
             </section>
 
             <section className={styles['dashboard-grid']}>
@@ -332,6 +349,11 @@ function AdminDashboard() {
                   <div>
                     <span className={styles['panel-code']}>TREND ANALYSIS</span>
                     <h2>{activeTrendRange.title}{activeTrendMetric.label}趋势</h2>
+                    {activeTrendMetric.key === "count" && (
+                      <p className={styles['section-note']}>
+                        {legacyDataNotice(combinedStats.baseline)}；30天与12个月口径已叠加旧版基线。
+                      </p>
+                    )}
                   </div>
                   <div className={styles['trend-controls']}>
                     <div className={styles['trend-range-switch']} role="tablist" aria-label="趋势范围">

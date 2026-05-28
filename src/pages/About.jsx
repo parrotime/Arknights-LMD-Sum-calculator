@@ -1,7 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from '../assets/styles/About.module.css';
+import legacyLogStats from '../data/legacyLogStats.json';
+import {
+  buildHourSeries,
+  buildRecentDaySeries,
+  buildRecentMonthSeries,
+  formatStatNumber,
+  legacyDataNotice,
+  mergeStats,
+} from '../utils/statsMerge';
 
 const LAUNCH_TIME = new Date('2025-04-19T00:00:00+08:00').getTime();
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
 const timelineItems = [
   { version: "v2.0.0", date: "2026年4月", desc: "根据各个社交平台的反馈进行大更新。项目架构重做，页面排版优化，计算结果展示优化，新增交换输入值、清空输入值、重置设置、复制方案结果等功能，新增搓玉消耗龙门币相关数据。完善移动端体验，优化计算性能。" },
@@ -19,28 +29,19 @@ const chartRanges = [
   { key: 'year', label: '年', code: 'YEARLY' },
 ];
 
-const chartData = {
-  day: [6, 5, 4, 4, 5, 8, 13, 18, 22, 24, 21, 19, 25, 31, 29, 34, 38, 41, 37, 33, 29, 24, 18, 12],
-  week: [132, 148, 176, 169, 204, 231, 218],
-  month: [
-    96, 104, 112, 108, 121, 128, 136, 142, 139, 151,
-    163, 158, 171, 184, 179, 191, 205, 214, 208, 221,
-    236, 229, 244, 252, 247, 263, 276, 282, 291, 304,
-  ],
-  year: [2180, 2360, 2510, 2430, 2675, 2860, 3020, 3190, 3375, 3520, 3680, 3890],
-};
-
 function getChartPoints(values) {
   const width = 280;
   const paddingX = 14;
   const paddingTop = 12;
   const axisY = 104;
-  const maxValue = Math.max(...values);
-  const minValue = Math.min(...values);
+  const normalizedValues = values.length ? values : [0];
+  const maxValue = Math.max(...normalizedValues);
+  const minValue = Math.min(...normalizedValues);
   const range = Math.max(maxValue - minValue, 1);
 
-  return values.map((value, index) => {
-    const x = paddingX + (index * (width - paddingX * 2)) / (values.length - 1);
+  return normalizedValues.map((value, index) => {
+    const denominator = Math.max(normalizedValues.length - 1, 1);
+    const x = paddingX + (index * (width - paddingX * 2)) / denominator;
     const y = axisY - ((value - minValue) / range) * (axisY - paddingTop);
 
     return {
@@ -153,6 +154,7 @@ function formatRuntime(now) {
 function AboutPage() {
   const [now, setNow] = useState(() => Date.now());
   const [activeRange, setActiveRange] = useState('day');
+  const [liveStats, setLiveStats] = useState(null);
   const [syncHelpOpen, setSyncHelpOpen] = useState(false);
   const [syncHelpStyle, setSyncHelpStyle] = useState(null);
   const [isMobileChart, setIsMobileChart] = useState(() => (
@@ -161,17 +163,35 @@ function AboutPage() {
   const syncHelpTriggerRef = useRef(null);
   const syncHelpPopoverRef = useRef(null);
   const runtime = useMemo(() => formatRuntime(now), [now]);
-  const chartValues = useMemo(() => {
-    if (activeRange === 'year' && isMobileChart) {
-      return chartData.year.slice(-6);
+  const combinedStats = useMemo(() => mergeStats(legacyLogStats, liveStats), [liveStats]);
+  const chartSeries = useMemo(() => {
+    const currentDate = new Date(now);
+    if (activeRange === 'day') {
+      const liveHours = buildHourSeries(combinedStats.live.series.last24Hours);
+      const hasLiveHours = liveHours.some((point) => point.count > 0);
+      return hasLiveHours ? liveHours : combinedStats.baseline.series.byHourOfDay;
     }
-
-    return chartData[activeRange];
-  }, [activeRange, isMobileChart]);
+    if (activeRange === 'week') return buildRecentDaySeries(combinedStats.merged.series.byDay, 7, currentDate);
+    if (activeRange === 'month') return buildRecentDaySeries(combinedStats.merged.series.byDay, 30, currentDate);
+    return buildRecentMonthSeries(combinedStats.merged.series.byMonth, isMobileChart ? 6 : 12, currentDate);
+  }, [activeRange, combinedStats, isMobileChart, now]);
+  const chartValues = useMemo(() => {
+    return chartSeries.map((point) => point.count);
+  }, [chartSeries]);
   const chartPoints = useMemo(() => getChartPoints(chartValues), [chartValues]);
   const chartPath = useMemo(() => getSmoothPath(chartPoints), [chartPoints]);
   const chartAreaPath = useMemo(() => getAreaPath(chartPoints, 104), [chartPoints]);
-  const activeTicks = useMemo(() => getChartTicks(activeRange, now, chartValues.length), [activeRange, chartValues.length, now]);
+  const activeTicks = useMemo(() => {
+    if (chartSeries.length) {
+      return chartSeries.map((point, index) => ({
+        label: activeRange === 'day'
+          ? (index % 6 === 0 || index === chartSeries.length - 1 ? point.label : "")
+          : (activeRange === 'month' ? (index % 6 === 0 || index === chartSeries.length - 1 ? point.label : "") : point.label),
+        title: point.key,
+      }));
+    }
+    return getChartTicks(activeRange, now, chartValues.length);
+  }, [activeRange, chartSeries, chartValues.length, now]);
   const isMobileHelpLayout = useCallback(() => (
     window.matchMedia('(max-width: 900px)').matches || window.matchMedia('(pointer: coarse)').matches
   ), []);
@@ -213,6 +233,29 @@ function AboutPage() {
     }, 60000);
 
     return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchPublicStats = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/public-stats`);
+        if (!response.ok) return;
+        const payload = await response.json();
+        if (!cancelled) setLiveStats(payload);
+      } catch {
+        if (!cancelled) setLiveStats(null);
+      }
+    };
+
+    fetchPublicStats();
+    const timer = window.setInterval(fetchPublicStats, 120000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
   }, []);
 
   useEffect(() => {
@@ -313,13 +356,13 @@ function AboutPage() {
                         >
                           ×
                         </button>
-                        <span>每 2 小时同步一次统计数据</span>
+                        <span>累计次数 = 旧版日志基线 + Go 后端新增统计；页面每 2 分钟刷新一次。</span>
                       </span>
                     )}
                   </span>
                 </div>
               </div>
-              <div className={styles['count-readout']}>待接入</div>
+              <div className={styles['count-readout']}>{formatStatNumber(combinedStats.merged.summary.totalRequests)}</div>
             </div>
           </div>
 
@@ -328,7 +371,9 @@ function AboutPage() {
               <div>
                 <div className={styles['card-label']}>TREND REPORT</div>
                 <div className={styles['card-title']}>计算次数趋势</div>
-                <div className={styles['chart-status']}>待接入真实数据</div>
+                <div className={styles['chart-status']}>
+                  {legacyDataNotice(combinedStats.baseline)} / 新增 {formatStatNumber(combinedStats.live.summary.totalRequests)} 次
+                </div>
               </div>
               <div className={styles['range-tabs']} role="tablist" aria-label="统计周期">
                 {chartRanges.map((item) => (
@@ -398,7 +443,7 @@ function AboutPage() {
                       <g key={`point-${index}`} className={styles['chart-node']}>
                         {isKeyPoint && <circle cx={point.x} cy={point.y} r="3.2" className={styles['chart-point']} />}
                         <circle cx={point.x} cy={point.y} r="7" className={styles['chart-hit-point']}>
-                          <title>{`${tick?.title ?? ''}：${chartValues[index]} 次`}</title>
+                          <title>{`${tick?.title ?? ''}：${formatStatNumber(chartValues[index])} 次`}</title>
                         </circle>
                       </g>
                     );
