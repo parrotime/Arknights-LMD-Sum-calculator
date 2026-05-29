@@ -125,7 +125,7 @@ const InputPanel = ({
   const limitGroups = [
     {
       title: "理智类",
-      code: "SANITY CATEGORY",
+      code: "SANITY USAGE",
       row: "top",
       layout: "sanity",
       resetLabel: "清空理智限制",
@@ -410,7 +410,7 @@ const InputPanel = ({
       <div className={styles['limit-section']}>
         <div className={styles['limit-block-title']}>
           <span className={styles['limit-block-title-main']}>数量限制</span>
-          <span className={styles['limit-block-title-note']}>未输入时采用后端默认上限</span>
+          <span className={styles['limit-block-title-note']}>未输入时采用默认上限</span>
           <span className={styles['limit-block-title-code']}>LIMIT CONTROL</span>
         </div>
         <div className={styles['limit-category-list']}>
