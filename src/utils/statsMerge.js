@@ -148,7 +148,7 @@ function normalizeSeries(points = []) {
       durationTotalMs: Number(point.durationTotalMs || 0),
       durationCount: Number(point.durationCount || 0),
       fast: Number(point.fast || 0),
-      boost: Number(point.boost || 0),
+      boost: Number(point.boost || 0) + Number(point.strong || 0),
     }));
 }
 

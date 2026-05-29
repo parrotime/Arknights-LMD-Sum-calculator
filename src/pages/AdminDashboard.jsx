@@ -19,8 +19,9 @@ const statusLabels = {
 };
 
 const modeLabels = {
-  fast: "快速",
-  boost: "加强",
+  fast: "快速模式",
+  strong: "加强模式",
+  boost: "加强模式",
 };
 
 const trendMetrics = [
@@ -271,11 +272,11 @@ function AdminDashboard() {
     [trendRangeKey],
   );
   const activeTrendPoints = useMemo(() => {
-    if (activeTrendMetric.key !== "count") return admin?.series?.[activeTrendRange.key] || [];
+    if (activeTrendMetric.key !== "count") return combinedStats.live.series[activeTrendRange.key] || [];
     if (activeTrendRange.key === "last30Days") return combinedStats.merged.series.byDay.slice(-30);
     if (activeTrendRange.key === "last12Months") return combinedStats.merged.series.byMonth.slice(-12);
-    return admin?.series?.[activeTrendRange.key] || [];
-  }, [activeTrendMetric.key, activeTrendRange.key, admin, combinedStats]);
+    return combinedStats.live.series[activeTrendRange.key] || [];
+  }, [activeTrendMetric.key, activeTrendRange.key, combinedStats]);
 
   return (
     <div className={styles['admin-content']}>

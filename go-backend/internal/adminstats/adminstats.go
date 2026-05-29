@@ -17,6 +17,7 @@ const (
 	defaultStatsFileName = "admin-stats.json"
 	defaultInterval      = 2 * time.Minute
 	defaultRecentLimit   = 50
+	currentStatsVersion  = 2
 )
 
 type Options struct {
@@ -167,7 +168,13 @@ func New(options Options) (*Service, error) {
 	if err := service.load(); err != nil && !errors.Is(err, os.ErrNotExist) {
 		service.logWarn("load admin stats snapshot failed", "error", err)
 	}
-	if changed := service.Update(); changed {
+	changed := false
+	if service.shouldRebuildSnapshot() {
+		changed = service.Rebuild()
+	} else {
+		changed = service.Update()
+	}
+	if changed {
 		if err := service.Flush(); err != nil {
 			service.logWarn("flush admin stats snapshot failed", "error", err)
 		}
@@ -287,6 +294,60 @@ func (s *Service) Update() bool {
 	return true
 }
 
+func (s *Service) Rebuild() bool {
+	logPath := filepath.Join(s.options.LogDir, s.options.LogFileName)
+	info, err := os.Stat(logPath)
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			s.logWarn("stat calc log failed", "error", err, "path", logPath)
+		}
+		return false
+	}
+
+	file, err := os.Open(logPath)
+	if err != nil {
+		s.logWarn("open calc log failed", "error", err, "path", logPath)
+		return false
+	}
+	defer file.Close()
+
+	next := newSnapshot(s.options.LogFileName)
+	reader := bufio.NewReader(file)
+	scanner := bufio.NewScanner(reader)
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	readOffset := int64(0)
+	changed := false
+	for scanner.Scan() {
+		line := scanner.Bytes()
+		readOffset += int64(len(line)) + 1
+		var event calcLogEvent
+		if err := json.Unmarshal(line, &event); err != nil {
+			continue
+		}
+		if applyEvent(&next, event, s.options.RecentLimit) {
+			changed = true
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		s.logWarn("scan calc log failed", "error", err, "path", logPath)
+		return false
+	}
+	if readOffset > info.Size() {
+		readOffset = info.Size()
+	}
+	next.Source = SourceSnapshot{
+		File:   s.options.LogFileName,
+		Offset: readOffset,
+		Size:   info.Size(),
+	}
+	next.UpdatedAt = time.Now().Format(time.RFC3339)
+
+	s.mu.Lock()
+	s.stats = next
+	s.mu.Unlock()
+	return changed
+}
+
 func (s *Service) Flush() error {
 	s.flushMu.Lock()
 	defer s.flushMu.Unlock()
@@ -336,7 +397,7 @@ func (s *Service) load() error {
 func newSnapshot(logFileName string) Snapshot {
 	now := time.Now().Format(time.RFC3339)
 	snapshot := Snapshot{
-		Version:       1,
+		Version:       currentStatsVersion,
 		UpdatedAt:     now,
 		Source:        SourceSnapshot{File: logFileName},
 		ByHour:        map[string]int{},
@@ -406,6 +467,12 @@ func normalizeSnapshot(snapshot *Snapshot, logFileName string) {
 	if snapshot.StatusCounts == nil {
 		snapshot.StatusCounts = map[string]int{}
 	}
+}
+
+func (s *Service) shouldRebuildSnapshot() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.stats.Version < currentStatsVersion
 }
 
 func applyEvent(snapshot *Snapshot, event calcLogEvent, recentLimit int) bool {
@@ -505,7 +572,7 @@ func applyMetric(values map[string]MetricSnapshot, key string, event calcLogEven
 		mode = "fast"
 	}
 	switch mode {
-	case "boost":
+	case "boost", "strong":
 		metric.Boost++
 	default:
 		metric.Fast++
