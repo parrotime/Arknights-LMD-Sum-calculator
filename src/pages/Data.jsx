@@ -83,8 +83,12 @@ function DataPage() {
         name: `${eliteNames[elite]}${level}级`,
         value1: String(item.item_value),
         value2: pair ? String(pair.item_value) : "",
+        eliteOrder: Number(elite),
+        levelOrder: Number(level),
       };
-    });
+    })
+    .sort((a, b) => a.eliteOrder - b.eliteOrder || a.levelOrder - b.levelOrder)
+    .map(({ eliteOrder, levelOrder, ...row }) => row);
   const upgradeTable1 = upgradeRows.slice(0, 22);
   const upgradeTable2 = upgradeRows.slice(22);
 
@@ -110,9 +114,9 @@ function DataPage() {
 
   const sanityRows = useMemo(() => [
     { consume: "6理智", level: "1-7" },
-    { consume: "9理智", level: "活动关前三分之一关" },
+    { consume: "9理智", level: "活动前三分之一关" },
     { consume: "10理智", level: "作战记录LS-1，技巧概要CA-1，" },
-    { consume: "12理智", level: "活动关中间三分之一关" },
+    { consume: "12理智", level: "活动中间三分之一关，2次1-7" },
     { consume: "15理智", level: "作战记录LS-2，技巧概要CA-2，" },
     { consume: "18理智", level: "3次1-7，芯片本1，" },
     { consume: "20理智", level: "作战记录LS-3，技巧概要CA-3，" },
@@ -235,7 +239,7 @@ function DataPage() {
           <button type="button" className={activeSection === "upgrade-expense" ? styles.active : ""} aria-current={activeSection === "upgrade-expense" ? "location" : undefined} onClick={() => scrollToSection("upgrade-expense")}>升级消耗</button>
           <button type="button" className={activeSection === "item-value" ? styles.active : ""} aria-current={activeSection === "item-value" ? "location" : undefined} onClick={() => scrollToSection("item-value")}>物品价值</button>
           <button type="button" className={activeSection === "sanity-index" ? styles.active : ""} aria-current={activeSection === "sanity-index" ? "location" : undefined} onClick={() => scrollToSection("sanity-index")}>理智速查</button>
-          <button type="button" className={activeSection === "plan-sample" ? styles.active : ""} aria-current={activeSection === "plan-sample" ? "location" : undefined} onClick={() => scrollToSection("plan-sample")}>路径样例</button>
+          <button type="button" className={activeSection === "plan-sample" ? styles.active : ""} aria-current={activeSection === "plan-sample" ? "location" : undefined} onClick={() => scrollToSection("plan-sample")}>方案样例</button>
         </nav>
 
         <section id="upgrade-expense" className={styles['data-section']}>
@@ -249,11 +253,11 @@ function DataPage() {
           <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
-                下面是计算过程中使用到的数据，负数表示使用龙门币，正数表示获得龙门币，数据仅供参考
+                下面是计算过程中使用到的数据，负数表示使用龙门币，正数表示获得龙门币。
                 <br />
-                基础作战记录和初级作战记录相对而言更容易获得，并且对应消耗的龙门币较少，易于计算，因此只用到这两种作战记录
+                基础作战记录和初级作战记录相对而言更容易获得，且对应消耗的龙门币较少，易于计算，因此只用到这两种作战记录。
                 <br />
-                为了减少计算量，只使用了相对常见等级对应的数据（例如5的倍数，10的倍数）
+                为减少计算量，相关数据只使用到常见等级对应的数据（例如5的倍数，10的倍数）。
               </p>
             </div>
 
@@ -280,14 +284,11 @@ function DataPage() {
           <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
-                三星通关获得龙门币数量 = 使用理智数量 * 12
+                三星通关获得龙门币数量 = 使用理智数量 × 12
                 <br />
-                二星通关获得龙门币数量 = 使用理智数量 * 10
+                二星通关获得龙门币数量 = 使用理智数量 × 10
                 <br />
-                请在使用前检查并区分当期活动是故事集类型还是sidestory类型，
-                此外最好还要检查当期活动商店对应的兑换龙门币数量，本网页使用到的数据是活动商店最后一档的龙门币兑换
-                <br />
-                由于每日信用商店刷新龙门币数量具有随机性，所以在计算中不考虑这个部分
+                由于每日信用商店刷新龙门币数量具有随机性，每日任务/每周任务获取龙门币具有时效性，比较复杂，因此在计算中不考虑此部分
               </p>
             </div>
 
@@ -323,9 +324,9 @@ function DataPage() {
           <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
-                理智消耗与对应关卡速查表，这里仅为推荐关卡
+                理智消耗与对应关卡速查表
                 <br />
-                这里不包含龙门币副本CE系列相关数据，因为CE系列关卡掉落数量是特定的
+                这里不包含龙门币副本CE系列相关数据，因为CE系列关卡掉落数量是特定的，与理智消耗数量无关
               </p>
               {generateSanityList(sanityRows)}
             </div>
@@ -343,7 +344,7 @@ function DataPage() {
           <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
-                以下路径用于快速查找，不一定是最适合、最简单的路径方案，仅供参考。（默认初始龙门币为0，目标龙门币为对应值）
+                以下方案用于快速查阅，不一定是最适合、最简单的方案，仅供参考。（默认初始龙门币为0，目标龙门币为对应值）
               </p>
             </div>
             <div>
@@ -363,7 +364,7 @@ function DataPage() {
           <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
-                以下路径用于快速查找，不一定是最适合的、最简单的路径方案，仅供参考。（默认初始龙门币为对应值，目标龙门币为0）
+                以下方案用于快速查阅，不一定是最适合、最简单的方案，仅供参考。（默认初始龙门币为对应值，目标龙门币为0）
               </p>
             </div>
             <div>

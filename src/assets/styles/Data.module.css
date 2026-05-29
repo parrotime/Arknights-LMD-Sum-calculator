@@ -80,76 +80,77 @@
 }
 
 .data-floating-index {
-  position: fixed;
-  top: 50%;
-  right: max(18px, calc((100vw - 1080px) / 2 - 178px));
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  width: 118px;
-  padding: 8px;
+  position: sticky;
+  top: calc(var(--ark-nav-height) + 8px);
+  right: auto;
+  bottom: auto;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 13px;
+  padding: 6px;
   background:
     linear-gradient(135deg, var(--ark-accent-soft), transparent 44%),
     var(--ark-surface-card);
   border: 1px solid var(--ark-border-default);
-  border-top: 4px solid var(--ark-accent-line);
+  border-top: 3px solid var(--ark-accent-line);
   box-shadow: var(--ark-shadow-md);
-  transform: translateY(-50%);
+  transform: none;
+  backdrop-filter: blur(12px);
 }
 
 .floating-index-label {
-  display: flex;
-  align-items: center;
-  min-height: 22px;
-  padding: 0 7px 6px;
-  color: var(--ark-neutral-500);
-  font-family: "Rajdhani", "JetBrains Mono", "Fira Code", "Source Code Pro", monospace;
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.16em;
+  display: none;
 }
 
 .data-floating-index button {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  min-height: 34px;
-  padding: 0 8px 0 13px;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 8px;
   color: var(--ark-text-body);
   background: transparent;
   border: 0;
-  border-left: 2px solid var(--ark-border-default);
-  font-family: inherit;
-  font-size: 0.86rem;
+  border-top: 2px solid var(--ark-border-default);
+  font-family: var(--ark-font-title);
+  font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.04em;
   cursor: pointer;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
   transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, padding-left 0.18s ease;
 }
 
 .data-floating-index button::before {
   content: "";
   position: absolute;
-  left: -2px;
-  top: 50%;
-  width: 2px;
-  height: 0;
+  left: 50%;
+  top: -2px;
+  width: 0;
+  height: 2px;
   background: var(--ark-primary-500);
-  transform: translateY(-50%);
+  transform: translateX(-50%);
 }
 
 .data-floating-index button:hover,
 .data-floating-index button.active {
   color: var(--ark-neutral-900);
   background: linear-gradient(90deg, var(--ark-tag-bg), transparent 72%);
-  border-left-color: var(--ark-primary-500);
-  padding-left: 16px;
+  border-top-color: var(--ark-primary-500);
+  border-left-color: transparent;
+  padding-left: 8px;
 }
 
 .data-floating-index button.active::before {
-  height: 62%;
-  transition: height 0.18s ease;
+  width: 52%;
+  height: 2px;
+  transition: width 0.18s ease;
 }
 
 .data-floating-index button:focus-visible {
@@ -161,7 +162,7 @@
 
 .data-floating-index button[aria-current="location"] {
   color: var(--ark-neutral-900);
-  border-left-color: var(--ark-primary-500);
+  border-top-color: var(--ark-primary-500);
 }
 
 .data-section {
