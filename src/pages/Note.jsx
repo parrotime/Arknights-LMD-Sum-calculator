@@ -1,18 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "../assets/styles/Note.module.css";
 
 
 function NotePage() {
-  const [zoomedImage, setZoomedImage] = useState(null);
-
-  const handleImageClick = (imageSrc) => {
-    setZoomedImage(imageSrc);
-  };
-
-  const handleOverlayClick = () => {
-    setZoomedImage(null);
-  };
-
   return (
     <>
       <div className={styles['main-note-content']}>

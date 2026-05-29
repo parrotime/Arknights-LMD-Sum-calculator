@@ -170,32 +170,59 @@ const buildResultSignature = (state) => JSON.stringify({
   settings: state.settings,
 });
 
-const getInitialState = () => {
-  const saved = localStorage.getItem("calculatorState");
-  if (saved) {
+const getDefaultInitialState = () => ({
+  ...defaultState,
+  settings: { ...defaultState.settings, ...buildFreshDefaultSettings() },
+});
+
+const parseStoredObject = (key, fallback = null) => {
+  const saved = localStorage.getItem(key);
+  if (!saved) return fallback;
+
+  try {
     const parsed = JSON.parse(saved);
-    const restored = { ...defaultState };
-    for (const key of PERSISTED_KEYS) {
-      if (key in parsed) restored[key] = parsed[key];
-    }
-    restored.settings = { ...defaultState.settings, ...migrateSettings(restored.settings) };
-    restored.settings.allowCE = isCEOpenInBeijing();
-    const resultSnapshot = parsed.resultSnapshot;
-    if (
-      resultSnapshot?.signature === buildResultSignature(restored) &&
-      (Array.isArray(resultSnapshot.pathCache) || resultSnapshot.calcError)
-    ) {
-      restored.result = resultSnapshot.result || "";
-      restored.calcError = resultSnapshot.calcError || "";
-      restored.calcMeta = resultSnapshot.calcMeta || null;
-      restored.pathCache = Array.isArray(resultSnapshot.pathCache) ? resultSnapshot.pathCache : [];
-    }
-    return restored;
+    return parsed && typeof parsed === "object" ? parsed : fallback;
+  } catch {
+    localStorage.removeItem(key);
+    return fallback;
   }
-  return {
-    ...defaultState,
-    settings: { ...defaultState.settings, ...buildFreshDefaultSettings() },
-  };
+};
+
+const getInitialState = () => {
+  const parsed = parseStoredObject("calculatorState");
+  if (!parsed) {
+    return getDefaultInitialState();
+  }
+
+  const restored = { ...defaultState };
+  for (const key of PERSISTED_KEYS) {
+    if (key in parsed) restored[key] = parsed[key];
+  }
+  restored.settings = { ...defaultState.settings, ...migrateSettings(restored.settings) };
+  restored.settings.allowCE = isCEOpenInBeijing();
+  const resultSnapshot = parsed.resultSnapshot;
+  if (
+    resultSnapshot?.signature === buildResultSignature(restored) &&
+    (Array.isArray(resultSnapshot.pathCache) || resultSnapshot.calcError)
+  ) {
+    restored.result = resultSnapshot.result || "";
+    restored.calcError = resultSnapshot.calcError || "";
+    restored.calcMeta = resultSnapshot.calcMeta || null;
+    restored.pathCache = Array.isArray(resultSnapshot.pathCache) ? resultSnapshot.pathCache : [];
+  }
+  return restored;
+};
+
+const parseStoredArray = (key) => {
+  const parsed = parseStoredObject(key, []);
+  return Array.isArray(parsed) ? parsed : [];
+};
+
+const getPathCacheQueue = () => {
+  const parsed = parseStoredObject("pathCacheQueue", []);
+  if (Array.isArray(parsed)) return parsed;
+  localStorage.removeItem("pathCacheQueue");
+  return [];
 };
 
 const clearResultState = (state) => ({
@@ -344,15 +371,10 @@ const reducer = (state, action) => {
 
 // 检查本地缓存
 const checkCache = (cacheKey) => {
-  const cached = localStorage.getItem(`pathCache_${cacheKey}`);
-  if (!cached) return null;
-  try {
-    const paths = JSON.parse(cached);
-    if (paths && paths.length > 0) return paths;
-    localStorage.removeItem(`pathCache_${cacheKey}`);
-  } catch {
-    localStorage.removeItem(`pathCache_${cacheKey}`);
-  }
+  const key = `pathCache_${cacheKey}`;
+  const paths = parseStoredArray(key);
+  if (paths.length > 0) return paths;
+  localStorage.removeItem(key);
   return null;
 };
 
@@ -383,7 +405,7 @@ const formatError = (error) => {
 
 // 管理路径缓存（最多5条）
 const managePathCache = (newKey) => {
-  const cacheQueue = JSON.parse(localStorage.getItem("pathCacheQueue") || "[]");
+  const cacheQueue = getPathCacheQueue();
   if (!cacheQueue.includes(newKey)) {
     cacheQueue.push(newKey);
     if (cacheQueue.length > 5) {

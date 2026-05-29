@@ -4,7 +4,6 @@ const DRAG_THRESHOLD = 5;
 const BUTTON_SIZE = 64;
 const BUBBLE_WIDTH = 300;
 const BUBBLE_GAP = 14;
-const BUBBLE_POINTER_SIZE = 18;
 const WELCOME_MESSAGE = "博士你好，点击我可以快速到达网页底部或者回到顶部哦";
 const FAST_DRAG_SPEED_THRESHOLD = 1.5;
 const FAST_DRAG_MIN_DISTANCE_RATIO = 1.5;
@@ -80,13 +79,14 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [isPointerActive, setIsPointerActive] = useState(false);
   const [scrollTravelMood, setScrollTravelMood] = useState(null);
-  const [clickPulseId, setClickPulseId] = useState(0);
   const welcomeClosingRef = useRef(false);
   const dragEggClosingRef = useRef(false);
   const lastFastDragAtRef = useRef(0);
   const assistantClosingRef = useRef(false);
   const scrollTravelTargetRef = useRef(null);
   const scrollTravelTimerRef = useRef(null);
+  const robotPressRef = useRef(null);
+  const robotClickAnimationRef = useRef(null);
 
   const btnRef = useRef(null);
   const dragState = useRef(null);
@@ -96,7 +96,35 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   const isDraggingRef = useRef(false);
 
   const triggerRobotClickPulse = useCallback(() => {
-    setClickPulseId((current) => current + 1);
+    const robotPress = robotPressRef.current;
+    if (!robotPress?.animate || prefersReducedMotion()) return;
+
+    robotClickAnimationRef.current?.cancel();
+    const animation = robotPress.animate(
+      [
+        { transform: "scale(1)", offset: 0 },
+        { transform: "scale(0.9)", offset: 0.42 },
+        { transform: "scale(1.04)", offset: 0.74 },
+        { transform: "scale(1)", offset: 1 },
+      ],
+      {
+        duration: 360,
+        easing: "cubic-bezier(0.2, 0.9, 0.18, 1.08)",
+      }
+    );
+
+    robotClickAnimationRef.current = animation;
+    const clearAnimation = () => {
+      if (robotClickAnimationRef.current === animation) {
+        robotClickAnimationRef.current = null;
+      }
+    };
+    animation.addEventListener("finish", clearAnimation, { once: true });
+    animation.addEventListener("cancel", clearAnimation, { once: true });
+  }, []);
+
+  useEffect(() => () => {
+    robotClickAnimationRef.current?.cancel();
   }, []);
 
   useEffect(() => {
@@ -424,8 +452,8 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
       >
         <span className="assistant-robot-idle" aria-hidden="true">
           <span
-            key={clickPulseId}
-            className={`assistant-robot-press${clickPulseId > 0 ? " clicked" : ""}`}
+            ref={robotPressRef}
+            className="assistant-robot-press"
           >
             <img
               src={robotIcon}

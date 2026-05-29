@@ -88,7 +88,11 @@ function DataPage() {
       };
     })
     .sort((a, b) => a.eliteOrder - b.eliteOrder || a.levelOrder - b.levelOrder)
-    .map(({ eliteOrder, levelOrder, ...row }) => row);
+    .map((row) => ({
+      name: row.name,
+      value1: row.value1,
+      value2: row.value2,
+    }));
   const upgradeTable1 = upgradeRows.slice(0, 22);
   const upgradeTable2 = upgradeRows.slice(22);
 

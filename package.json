@@ -13,9 +13,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint ./src/**/*.js",
+    "test": "node --test src/utils/calcLogic.test.js",
+    "lint": "eslint \"./src/**/*.js\" \"./src/**/*.jsx\"",
     "analyze:legacy-logs": "node _log_analysis/analyze-legacy-logs.mjs",
-    "predeploy": "rm -rf build && npm run build",
+    "predeploy": "rimraf build && npm run build",
     "deploy": "gh-pages -d build -m \"Deploy: Update V1.0 For Test\""
   },
   "devDependencies": {
