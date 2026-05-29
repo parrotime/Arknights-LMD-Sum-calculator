@@ -20,7 +20,7 @@ const timelineItems = [
       <br />
       项目架构重做，页面排版重新设计，计算结果展示优化。
       <br />
-      新增交换、清空输入值、重置设置、复制方案结果等功能，新增搓玉消耗龙门币相关数据。
+      新增交换、清空输入值，新增重置设置、复制方案结果等功能，新增搓玉消耗龙门币相关数据。
       <br />
       完善移动端体验，优化计算性能。
     </>
@@ -408,7 +408,7 @@ function AboutPage() {
                         >
                           ×
                         </button>
-                        <span>页面每 2 分钟刷新一次。</span>
+                        <span>页面刷新可能存在延迟。</span>
                       </span>
                     )}
                   </span>
@@ -562,7 +562,7 @@ function AboutPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                提交反馈
+                填写反馈问卷
               </a>
               <a
                 className={styles['archive-link']}
@@ -570,15 +570,15 @@ function AboutPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                反馈详情
+                查看反馈详情
               </a>
             </div>
           </div>
 
           <div className={styles['action-panel']}>
             <div>
-              <span className={styles['panel-code']}>EXTERNAL FILE</span>
-              <h2>外部档案</h2>
+              <span className={styles['panel-code']}>EXTERNAL LINK</span>
+              <h2>外部链接</h2>
             </div>
             <div className={styles['link-row']}>
               <a
@@ -587,7 +587,7 @@ function AboutPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                BILIBILI
+                Bilibili
               </a>
               <a
                 className={styles['archive-link']}
@@ -603,16 +603,16 @@ function AboutPage() {
 
         <div className={styles['notice-list']}>
           <div className={styles['notice-item']}>
-            <div className={styles['notice-title']}>当前版本v2.0</div>
+            <div className={styles['notice-title']}>当前版本v2.0.0</div>
             <div className={styles['notice-content']}>
               <div className={styles['hanging-list']}>
                 <p className={styles['hanging-item']}>
                   <span className={styles['hanging-index']}>1</span>
-                  本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎提出改进意见orz
+                  本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎通过反馈渠道提出改进意见
                 </p>
                 <p className={styles['hanging-item']}>
                   <span className={styles['hanging-index']}>2</span>
-                  如果遇到问题，请通过B站私信反馈
+                  如果遇到问题，请通过B站私信反馈或直接填写反馈问卷
                   <a
                     href="https://space.bilibili.com/32772539"
                     target="_blank"
@@ -645,17 +645,7 @@ function AboutPage() {
                   >
                     PRTS wiki
                   </a>
-                  官网，所有迷迭香表情包均出自NGA
-                  <a
-                    href="https://ngabbs.com/read.php?tid=26714373"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles['external-link3']}
-                  >
-                    [嵌字烤肉][授权]好猫咪！！！(By
-                    coconattsu_corn)(大量迷迭香/博士表情包)(更新了十多张)
-                  </a>
-                  。如有侵权，请联系删除。
+                  官网以及游戏社区图片。如有侵权，请联系删除。
                 </p>
               </div>
             </div>
@@ -671,12 +661,13 @@ function AboutPage() {
                     rel="noopener noreferrer"
                     className={styles['external-link3']}
                   >
-                    公招需要花费龙门币时代的另一位作者的凑数计算器NGA帖子
+                    在公招需要花费龙门币时代，另一位作者的凑数计算器NGA帖子
                   </a>
                   ，也就是熟知的 https://cedric341561.gitee.io/777/（似乎已经失效）
                 </p>
                 <p className={styles['hanging-item']}>
                   <span className={styles['hanging-index']}>2</span>
+                  龙门币消耗与各级所需经验值之间的数学关系研究：
                   <a
                     href="https://ngabbs.com/read.php?tid=16847042"
                     target="_blank"
