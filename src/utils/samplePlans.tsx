@@ -1,9 +1,50 @@
 import React from "react";
+import type { ReactElement } from "react";
 import PlanCard from "../components/PlanCard";
+import type { PlanStepItem, PlanSummaryItem } from "../components/PlanCard";
 
 const CIRCLED_NUMS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
 
-export const acquireSamplePlans = [
+export interface SamplePlan {
+  num: string;
+  way: string;
+}
+
+interface SampleStepPart {
+  count: string;
+  itemName: string;
+  actionType: "获得" | "花费" | "";
+  actionValue: number;
+  runningTotal: number;
+  stepValue: number;
+  text: string;
+}
+
+interface SampleBounds {
+  start: number;
+  end: number;
+}
+
+interface SamplePathCardProps {
+  target: string;
+  way: string;
+  planIndex: number;
+  variant: string;
+  className?: string;
+  identityValueClassName?: string;
+  itemClassName?: string;
+}
+
+interface RenderSamplePathCardsOptions {
+  data: SamplePlan[];
+  pathRendererClassName?: string;
+  planListClassName?: string;
+  cardClassName?: string;
+  identityValueClassName?: string;
+  itemClassName?: string;
+}
+
+export const acquireSamplePlans: SamplePlan[] = [
   {
     num: "+1",
     way: "步骤 1：通过【1】次使用【贸易站售卖2条赤金】，【获得】 【1000】个龙门币， 当前龙门币数量为【1000】。步骤 2：通过【3】次使用【对1名精零1级干员使用5次基础作战记录】，【花费】 【999】个龙门币， 当前龙门币数量为【1】",
@@ -54,7 +95,7 @@ export const acquireSamplePlans = [
   },
 ];
 
-export const consumeSamplePlans = [
+export const consumeSamplePlans: SamplePlan[] = [
   {
     num: "-1",
     way: "步骤 1：通过【1】次使用【精零1级基础作战记录】，【花费】 【61】个龙门币， 当前龙门币数量为【-60】。步骤 2：通过【1】次使用【二星通关6理智关卡】，【获得】 【60】个龙门币， 当前龙门币数量为【0】",
@@ -105,10 +146,10 @@ export const consumeSamplePlans = [
   },
 ];
 
-const parseSampleSteps = (way) =>
+const parseSampleSteps = (way: string): string[] =>
   way.split("。").map(s => s.trim()).filter(Boolean);
 
-const parseSampleStepParts = (step, previousValue) => {
+const parseSampleStepParts = (step: string, previousValue: number): SampleStepPart => {
   const usage = step.match(/通过【(\d+)】次使用【([^】]+)】/);
   const action = step.match(/【(获得|花费)】\s*【?(-?\d+)】?/);
   const current = step.match(/当前龙门币数量为【(-?\d+)】/);
@@ -119,7 +160,7 @@ const parseSampleStepParts = (step, previousValue) => {
   return {
     count: usage?.[1] || "1",
     itemName: usage?.[2] || step,
-    actionType: action?.[1] || "",
+    actionType: action?.[1] === "获得" || action?.[1] === "花费" ? action[1] : "",
     actionValue: action ? Math.abs(Number(action[2])) : 0,
     runningTotal: current ? Number(current[1]) : previousValue + stepValue,
     stepValue,
@@ -127,7 +168,7 @@ const parseSampleStepParts = (step, previousValue) => {
   };
 };
 
-const getSampleBounds = (target) => {
+const getSampleBounds = (target: string): SampleBounds => {
   const targetValue = Number(String(target).replace("+", ""));
   if (Number.isNaN(targetValue)) {
     return { start: 0, end: 0 };
@@ -137,16 +178,16 @@ const getSampleBounds = (target) => {
     : { start: Math.abs(targetValue), end: 0 };
 };
 
-const formatPlanNumber = (index) => String(index + 1).padStart(2, "0");
+const formatPlanNumber = (index: number) => String(index + 1).padStart(2, "0");
 
-const formatSampleTargetLabel = (target) => {
+const formatSampleTargetLabel = (target: string): string => {
   const value = Math.abs(Number(String(target).replace("+", "")));
   return Number.isNaN(value)
     ? target
     : `${Number(String(target).replace("+", "")) >= 0 ? "获取" : "消耗"}${value}龙门币`;
 };
 
-const buildSamplePathText = ({ target, way, planIndex }) => {
+const buildSamplePathText = ({ target, way, planIndex }: Pick<SamplePathCardProps, "target" | "way" | "planIndex">): string => {
   const steps = parseSampleSteps(way);
   const { start, end } = getSampleBounds(target);
   const header = `【龙门币凑数计算器 ark-lmd.top | DATA SAMPLE PLAN ${formatPlanNumber(planIndex)}】`;
@@ -163,12 +204,12 @@ export const SamplePathCard = ({
   className = "",
   identityValueClassName = "",
   itemClassName = "",
-}) => {
+}: SamplePathCardProps): ReactElement => {
   const steps = parseSampleSteps(way);
   const { start, end } = getSampleBounds(target);
   let previousValue = start;
 
-  const summaryItems = [
+  const summaryItems: PlanSummaryItem[] = [
     {
       label: "目标差值",
       values: [{ text: target }],
@@ -188,7 +229,7 @@ export const SamplePathCard = ({
     },
   ];
 
-  const planSteps = steps.map((step, i) => {
+  const planSteps: PlanStepItem[] = steps.map((step, i) => {
     const part = parseSampleStepParts(step, previousValue);
     previousValue = part.runningTotal;
     const isGain = part.actionType === "获得";
@@ -235,9 +276,9 @@ export const renderSamplePathCards = ({
   cardClassName = "",
   identityValueClassName = "",
   itemClassName = "",
-}) => {
+}: RenderSamplePathCardsOptions): ReactElement => {
   let activeTarget = "";
-  const targetCounts = {};
+  const targetCounts: Record<string, number> = {};
 
   return (
     <div className={pathRendererClassName}>
@@ -266,5 +307,5 @@ export const renderSamplePathCards = ({
   );
 };
 
-export const formatSampleCopyIndex = (index) =>
+export const formatSampleCopyIndex = (index: number): string =>
   index < CIRCLED_NUMS.length ? CIRCLED_NUMS[index] : `${index + 1}.`;

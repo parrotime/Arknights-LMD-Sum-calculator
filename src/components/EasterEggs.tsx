@@ -1,4 +1,6 @@
 import React, { useState, useCallback } from "react";
+import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
+import type { CalculatorSettings } from "../types/calculator";
 
 // 彩蛋图片
 export const romanticImageUrls = [
@@ -17,7 +19,32 @@ export const typhoon799ImageUrls = [
 ];
 export const TYPHOON_799_PEEK = "typhoon799-peek";
 
-const romanticClickEffects = [
+type RomanticClickEffect =
+  | { type: "text"; value: string }
+  | { type: "image"; value: string };
+
+interface HeartInstance {
+  id: number;
+  x: number;
+  y: number;
+  effect: RomanticClickEffect;
+}
+
+type AppModuleStyles = Record<string, string>;
+
+interface SettingsWarningModalProps {
+  settings: CalculatorSettings;
+  onClose: () => void;
+  styles: AppModuleStyles;
+}
+
+interface BonusModalProps {
+  show: boolean;
+  onClose: () => void;
+  styles: AppModuleStyles;
+}
+
+const romanticClickEffects: RomanticClickEffect[] = [
   { type: "text", value: "" },
   { type: "image", value: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq06.webp" },
   { type: "image", value: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq17.webp" },
@@ -25,13 +52,13 @@ const romanticClickEffects = [
 ];
 
 // 检测函数
-const isPowerOfTen = (n) => {
+const isPowerOfTen = (n: number): boolean => {
   if (n <= 0) return false;
   const log = Math.log10(n);
   return Math.abs(log - Math.round(log)) < 1e-10;
 };
 
-export const isRomanticNumber = (numStr) => {
+export const isRomanticNumber = (numStr: unknown): boolean => {
   if (!numStr || typeof numStr !== "string") return false;
   if (/^(520|1314)+$/.test(numStr)) return true;
   const num = parseInt(numStr, 10);
@@ -41,7 +68,7 @@ export const isRomanticNumber = (numStr) => {
   return false;
 };
 
-export const isFunnyNumber = (numStr) => {
+export const isFunnyNumber = (numStr: unknown): boolean => {
   if (!numStr || typeof numStr !== "string") return false;
   const num = parseInt(numStr, 10);
   if (isNaN(num) || num === 0) return false;
@@ -50,34 +77,34 @@ export const isFunnyNumber = (numStr) => {
   return false;
 };
 
-export const isMemory350234Number = (numStr) => {
+export const isMemory350234Number = (numStr: unknown): boolean => {
   if (!numStr || typeof numStr !== "string") return false;
   const num = parseInt(numStr, 10);
   if (isNaN(num) || num === 0) return false;
   return num >= 350234 && num % 350234 === 0 && isPowerOfTen(num / 350234);
 };
 
-export const isZc325Number = (numStr) => (
+export const isZc325Number = (numStr: unknown): boolean => (
   typeof numStr === "string" && numStr.includes("325")
 );
 
-export const isSami325Number = (numStr) => (
+export const isSami325Number = (numStr: unknown): boolean => (
   typeof numStr === "string" && numStr.includes("799") && numStr.includes("325")
 );
 
-export const isTyphoon799Number = (numStr) => (
+export const isTyphoon799Number = (numStr: unknown): boolean => (
   typeof numStr === "string" && numStr.includes("799")
 );
 
 // 爱心特效 hook
 let heartId = 0;
-export const useHeartEffect = () => {
-  const [hearts, setHearts] = useState([]);
-  const triggerHeart = useCallback((event) => {
+export const useHeartEffect = (): [ReactNode, (event?: MouseEvent<HTMLElement> | KeyboardEvent<HTMLInputElement> | Event) => void] => {
+  const [hearts, setHearts] = useState<HeartInstance[]>([]);
+  const triggerHeart = useCallback((event?: MouseEvent<HTMLElement> | KeyboardEvent<HTMLInputElement> | Event) => {
     const id = ++heartId;
     const effect = romanticClickEffects[Math.floor(Math.random() * romanticClickEffects.length)];
-    const x = typeof event?.clientX === "number" ? event.clientX : window.innerWidth / 2;
-    const y = typeof event?.clientY === "number" ? event.clientY : window.innerHeight / 2;
+    const x = event && "clientX" in event && typeof event.clientX === "number" ? event.clientX : window.innerWidth / 2;
+    const y = event && "clientY" in event && typeof event.clientY === "number" ? event.clientY : window.innerHeight / 2;
     setHearts((prev) => [...prev, { id, x, y, effect }]);
   }, []);
   const heartsElement = hearts.map(({ id, x, y, effect }) => (
@@ -103,7 +130,7 @@ export const useHeartEffect = () => {
 };
 
 // 设置警告弹窗
-export const SettingsWarningModal = ({ settings, onClose, styles }) => (
+export const SettingsWarningModal = ({ settings, onClose, styles }: SettingsWarningModalProps) => (
   <div className={styles["modal-overlay"]}>
     <div className={styles["modal-content"]}>
       <h3>提醒</h3>
@@ -121,7 +148,7 @@ export const SettingsWarningModal = ({ settings, onClose, styles }) => (
 );
 
 // 彩蛋弹窗
-export const BonusModal = ({ show, onClose, styles }) => (
+export const BonusModal = ({ show, onClose, styles }: BonusModalProps) => (
   <div className={`${styles["modal-overlay"]} ${show ? styles.show : ""}`}>
     {show && (
       <div className={`${styles["modal-content"]} ${styles["bonus-modal"]}`}>

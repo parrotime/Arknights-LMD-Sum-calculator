@@ -32,13 +32,21 @@ const DISABLED_SELECTOR = [
   '[aria-disabled="true"]',
 ].join(",");
 
-const getElementTarget = (target) => (target instanceof Element ? target : null);
+interface ClickCursorProps {
+  isCalculating?: boolean;
+}
 
-const ClickCursor = ({ isCalculating = false }) => {
-  const cursorRef = useRef(null);
-  const innerRef = useRef(null);
+type NativeCursorEvent = CustomEvent<{ active?: boolean }>;
+
+const getElementTarget = (target: EventTarget | null): Element | null => (
+  target instanceof Element ? target : null
+);
+
+const ClickCursor = ({ isCalculating = false }: ClickCursorProps) => {
+  const cursorRef = useRef<HTMLDivElement | null>(null);
+  const innerRef = useRef<HTMLDivElement | null>(null);
   const posRef = useRef({ x: -100, y: -100 });
-  const rafRef = useRef(null);
+  const rafRef = useRef<number | null>(null);
   const visibleRef = useRef(false);
   const nativeCursorRef = useRef(false);
   const mouseDownRef = useRef(false);
@@ -52,7 +60,7 @@ const ClickCursor = ({ isCalculating = false }) => {
       cursorRef.current.style.transform =
         `translate3d(${posRef.current.x - HOTSPOT_X}px, ${posRef.current.y - HOTSPOT_Y}px, 0)`;
     }
-    rafRef.current = null;
+      rafRef.current = null;
   }, []);
 
   const showCursor = useCallback(() => {
@@ -85,7 +93,7 @@ const ClickCursor = ({ isCalculating = false }) => {
     }
   }, [showCursor]);
 
-  const updateCursorAffordance = useCallback((target) => {
+  const updateCursorAffordance = useCallback((target: EventTarget | null) => {
     const cursor = cursorRef.current;
     if (!cursor) return;
 
@@ -109,7 +117,7 @@ const ClickCursor = ({ isCalculating = false }) => {
   useEffect(() => {
     if (window.matchMedia(FINE_POINTER_QUERY).matches === false) return;
 
-    const onPointerMove = (e) => {
+    const onPointerMove = (e: PointerEvent) => {
       posRef.current.x = e.clientX;
       posRef.current.y = e.clientY;
       updateCursorAffordance(e.target);
@@ -139,12 +147,12 @@ const ClickCursor = ({ isCalculating = false }) => {
     };
 
     const onLeave = () => hideCursor();
-    const onEnter = (e) => {
+    const onEnter = (e: PointerEvent) => {
       updateCursorAffordance(e.target);
       if (!nativeCursorRef.current) showCursor();
     };
 
-    const onPointerDown = (e) => {
+    const onPointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return;
       mouseDownRef.current = true;
       updateCursorAffordance(e.target);
@@ -153,15 +161,16 @@ const ClickCursor = ({ isCalculating = false }) => {
       }
     };
 
-    const onPointerUp = (e) => {
+    const onPointerUp = (e: PointerEvent) => {
       mouseDownRef.current = false;
       if (innerRef.current) innerRef.current.classList.remove("pressing");
       document.body.classList.remove("custom-cursor-dragging");
       updateCursorAffordance(e.target);
     };
 
-    const onNativeCursorRequest = (e) => {
-      if (e.detail?.active) {
+    const onNativeCursorRequest = (e: Event) => {
+      const event = e as NativeCursorEvent;
+      if (event.detail?.active) {
         enterNativeCursor();
       } else {
         exitNativeCursor();

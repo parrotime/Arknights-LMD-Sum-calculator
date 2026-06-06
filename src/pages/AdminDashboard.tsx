@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import styles from '../assets/styles/AdminDashboard.module.css';
 import legacyLogStats from '../data/legacyLogStats.json';
 import {
@@ -6,11 +7,88 @@ import {
   legacyDataNotice,
   mergeStats,
 } from '../utils/statsMerge';
+import type { LiveStatsOverview, StatPoint } from '../utils/statsMerge';
 
 const API_BASE = import.meta.env.VITE_API_URL || "";
 const TOKEN_KEY = "ark_lmd_admin_token";
 
-const statusLabels = {
+type TrendMetricKey = "count" | "cacheHit" | "cacheRate" | "duration" | "success" | "failure" | "fast" | "boost";
+type TrendRangeKey = "last24Hours" | "last7Days" | "last30Days" | "last12Months";
+
+interface AdminTotals {
+  calculations: number;
+  success: number;
+  timeout: number;
+  queueFull: number;
+  badRequest: number;
+  error: number;
+  cacheHit: number;
+  cacheMiss: number;
+  durationTotalMs: number;
+  [key: string]: number;
+}
+
+interface AdminRecentEvent {
+  time?: string;
+  lmdDiff?: number | string;
+  calcMode?: string;
+  cache?: string;
+  durationMs?: number;
+  pathsCount?: number;
+  status?: string;
+}
+
+interface AdminOverview extends LiveStatsOverview {
+  admin?: LiveStatsOverview["admin"] & {
+    updatedAt?: string;
+    totals?: Partial<AdminTotals>;
+    modeCounts?: Record<string, number>;
+    statusCounts?: Record<string, number>;
+    recentEvents?: AdminRecentEvent[];
+  };
+  server?: {
+    running?: number;
+    queued?: number;
+    queueRejected?: number;
+  };
+  cache?: {
+    hitRate?: number;
+  };
+  maintenance?: {
+    enabled?: boolean;
+  };
+}
+
+interface TrendMetric {
+  key: TrendMetricKey;
+  code: string;
+  label: string;
+  unit: string;
+  value: (point: StatPoint) => number;
+  format: (value: number) => string;
+}
+
+interface TrendRange {
+  key: TrendRangeKey;
+  label: string;
+  title: string;
+  pointLabel: string;
+}
+
+interface TrendBarsProps {
+  points: StatPoint[];
+  metric: TrendMetric;
+  range: TrendRange;
+}
+
+interface StatCardProps {
+  code: string;
+  title: string;
+  value: ReactNode;
+  detail?: ReactNode;
+}
+
+const statusLabels: Record<string, string> = {
   success: "成功",
   timeout: "超时",
   queue_full: "队列满",
@@ -18,13 +96,25 @@ const statusLabels = {
   error: "异常",
 };
 
-const modeLabels = {
+const modeLabels: Record<string, string> = {
   fast: "快速模式",
   strong: "加强模式",
   boost: "加强模式",
 };
 
-const trendMetrics = [
+const defaultTotals: AdminTotals = {
+  calculations: 0,
+  success: 0,
+  timeout: 0,
+  queueFull: 0,
+  badRequest: 0,
+  error: 0,
+  cacheHit: 0,
+  cacheMiss: 0,
+  durationTotalMs: 0,
+};
+
+const trendMetrics: TrendMetric[] = [
   {
     key: "count",
     code: "TOTAL",
@@ -94,7 +184,7 @@ const trendMetrics = [
   },
 ];
 
-const trendRanges = [
+const trendRanges: TrendRange[] = [
   {
     key: "last24Hours",
     label: "24小时",
@@ -121,21 +211,21 @@ const trendRanges = [
   },
 ];
 
-function formatNumber(value) {
+function formatNumber(value: number): string {
   return formatStatNumber(value);
 }
 
-function formatPercent(value) {
+function formatPercent(value: number): string {
   if (!Number.isFinite(value)) return "0.0%";
   return `${(value * 100).toFixed(1)}%`;
 }
 
-function formatDuration(totalMs, count) {
+function formatDuration(totalMs: number, count: number): string {
   if (!count) return "0 ms";
   return `${Math.round(totalMs / count)} ms`;
 }
 
-function formatTime(raw) {
+function formatTime(raw?: string): string {
   if (!raw) return "--";
   const date = new Date(raw);
   if (Number.isNaN(date.getTime())) return raw;
@@ -148,11 +238,11 @@ function formatTime(raw) {
   });
 }
 
-function getTodayCount(series = []) {
+function getTodayCount(series: StatPoint[] = []): number {
   return series.length ? series[series.length - 1].count : 0;
 }
 
-function TrendBars({ points = [], metric, range }) {
+function TrendBars({ points = [], metric, range }: TrendBarsProps) {
   const visiblePoints = points;
   const values = visiblePoints.map((point) => metric.value(point));
   const max = Math.max(...values, metric.key === "cacheRate" ? 1 : 1);
@@ -180,7 +270,7 @@ function TrendBars({ points = [], metric, range }) {
   );
 }
 
-function StatCard({ code, title, value, detail }) {
+function StatCard({ code, title, value, detail }: StatCardProps) {
   return (
     <div className={styles['stat-card']}>
       <div>
@@ -196,11 +286,11 @@ function StatCard({ code, title, value, detail }) {
 function AdminDashboard() {
   const [token, setToken] = useState(() => sessionStorage.getItem(TOKEN_KEY) || "");
   const [draftToken, setDraftToken] = useState(() => sessionStorage.getItem(TOKEN_KEY) || "");
-  const [overview, setOverview] = useState(null);
+  const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [trendMetricKey, setTrendMetricKey] = useState("count");
-  const [trendRangeKey, setTrendRangeKey] = useState("last24Hours");
+  const [trendMetricKey, setTrendMetricKey] = useState<TrendMetricKey>("count");
+  const [trendRangeKey, setTrendRangeKey] = useState<TrendRangeKey>("last24Hours");
 
   const fetchOverview = useCallback(async (nextToken = token) => {
     if (!nextToken) return;
@@ -221,11 +311,11 @@ function AdminDashboard() {
       if (!response.ok) {
         throw new Error(`读取失败：${response.status}`);
       }
-      const payload = await response.json();
+      const payload = await response.json() as AdminOverview;
       setOverview(payload);
     } catch (err) {
       setOverview(null);
-      setError(err.message || "读取管理员数据失败");
+      setError(err instanceof Error ? err.message : "读取管理员数据失败");
     } finally {
       setLoading(false);
     }
@@ -238,7 +328,7 @@ function AdminDashboard() {
     return () => window.clearInterval(timer);
   }, [fetchOverview, token]);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const nextToken = draftToken.trim();
     sessionStorage.setItem(TOKEN_KEY, nextToken);
@@ -255,7 +345,7 @@ function AdminDashboard() {
   };
 
   const admin = overview?.admin;
-  const totals = admin?.totals || {};
+  const totals = { ...defaultTotals, ...admin?.totals };
   const server = overview?.server || {};
   const cache = overview?.cache || {};
   const combinedStats = useMemo(() => mergeStats(legacyLogStats, overview), [overview]);
@@ -271,7 +361,7 @@ function AdminDashboard() {
     () => trendRanges.find((range) => range.key === trendRangeKey) || trendRanges[0],
     [trendRangeKey],
   );
-  const activeTrendPoints = useMemo(() => {
+  const activeTrendPoints = useMemo<StatPoint[]>(() => {
     if (activeTrendMetric.key !== "count") return combinedStats.live.series[activeTrendRange.key] || [];
     if (activeTrendRange.key === "last30Days") return combinedStats.merged.series.byDay.slice(-30);
     if (activeTrendRange.key === "last12Months") return combinedStats.merged.series.byMonth.slice(-12);
@@ -341,7 +431,7 @@ function AdminDashboard() {
               />
               <StatCard code="CACHE" title="缓存命中率" value={formatPercent(hitRate)} detail={`命中 ${formatNumber(totals.cacheHit)} / 未命中 ${formatNumber(totals.cacheMiss)}`} />
               <StatCard code="DURATION" title="平均耗时" value={formatDuration(totals.durationTotalMs, totals.calculations)} detail="按聚合日志估算" />
-              <StatCard code="QUEUE" title="当前队列" value={`${formatNumber(server.running)} / ${formatNumber(server.queued)}`} detail={`今日新增 ${formatNumber(todayCount)} 次 / 拒绝 ${formatNumber(server.queueRejected)} 次`} />
+              <StatCard code="QUEUE" title="当前队列" value={`${formatNumber(server.running || 0)} / ${formatNumber(server.queued || 0)}`} detail={`今日新增 ${formatNumber(todayCount)} 次 / 拒绝 ${formatNumber(server.queueRejected || 0)} 次`} />
             </section>
 
             <section className={styles['dashboard-grid']}>
@@ -435,11 +525,11 @@ function AdminDashboard() {
                       <tr key={`${event.time}-${index}`}>
                         <td>{formatTime(event.time)}</td>
                         <td>{event.lmdDiff}</td>
-                        <td>{modeLabels[event.calcMode] || event.calcMode}</td>
+                        <td>{modeLabels[event.calcMode || ""] || event.calcMode || "--"}</td>
                         <td>{event.cache || "--"}</td>
                         <td>{event.durationMs} ms</td>
                         <td>{event.pathsCount}</td>
-                        <td>{statusLabels[event.status] || event.status}</td>
+                        <td>{statusLabels[event.status || ""] || event.status || "--"}</td>
                       </tr>
                     ))}
                   </tbody>

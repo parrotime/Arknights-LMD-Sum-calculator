@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import styles from '../assets/styles/About.module.css';
 import legacyLogStats from '../data/legacyLogStats.json';
 import {
@@ -9,11 +10,46 @@ import {
   legacyDataNotice,
   mergeStats,
 } from '../utils/statsMerge';
+import type { LiveStatsOverview, StatPoint } from '../utils/statsMerge';
 
 const LAUNCH_TIME = new Date('2025-04-19T00:00:00+08:00').getTime();
 const API_BASE = import.meta.env.VITE_API_URL || "";
 
-const timelineItems = [
+type ChartRangeKey = 'day' | 'week' | 'month' | 'year';
+
+interface TimelineItem {
+  version: string;
+  date: string;
+  desc: ReactNode;
+}
+
+interface ChartRange {
+  key: ChartRangeKey;
+  label: string;
+  code: string;
+}
+
+interface ChartPoint {
+  x: number;
+  y: number;
+}
+
+interface ChartTick {
+  label: string;
+  title: string;
+}
+
+interface RuntimeParts {
+  days: number;
+  hours: number;
+}
+
+type SyncHelpStyle = CSSProperties & {
+  '--about-sync-arrow-left'?: string;
+  '--about-sync-arrow-edge'?: 'top' | 'bottom';
+};
+
+const timelineItems: TimelineItem[] = [
   { version: "v2.0.0", date: "2026年6月", desc: (
     <>
       根据各个社交平台的反馈进行2.0版本大更新。
@@ -61,14 +97,14 @@ const timelineItems = [
   { version: "v1.0.0", date: "2025年4月19日", desc: "1.0版本上线。" },
 ];
 
-const chartRanges = [
+const chartRanges: ChartRange[] = [
   { key: 'day', label: '日', code: 'DAILY' },
   { key: 'week', label: '周', code: 'WEEKLY' },
   { key: 'month', label: '月', code: 'MONTHLY' },
   { key: 'year', label: '年', code: 'YEARLY' },
 ];
 
-function getChartPoints(values) {
+function getChartPoints(values: number[]): ChartPoint[] {
   const width = 280;
   const paddingX = 14;
   const paddingTop = 12;
@@ -90,7 +126,7 @@ function getChartPoints(values) {
   });
 }
 
-function getSmoothPath(points) {
+function getSmoothPath(points: ChartPoint[]): string {
   if (points.length < 2) return "";
 
   return points.reduce((path, point, index) => {
@@ -109,7 +145,7 @@ function getSmoothPath(points) {
   }, "");
 }
 
-function getAreaPath(points, baselineY) {
+function getAreaPath(points: ChartPoint[], baselineY: number): string {
   if (points.length < 2) return "";
 
   const linePath = getSmoothPath(points);
@@ -119,19 +155,19 @@ function getAreaPath(points, baselineY) {
   return `${linePath} L ${last.x} ${baselineY} L ${first.x} ${baselineY} Z`;
 }
 
-function formatMonthDay(date) {
+function formatMonthDay(date: Date): string {
   return `${date.getMonth() + 1}/${date.getDate()}`;
 }
 
-function formatHour(date) {
+function formatHour(date: Date): string {
   return `${String(date.getHours()).padStart(2, '0')}:00`;
 }
 
-function formatMonth(date) {
+function formatMonth(date: Date): string {
   return `${date.getMonth() + 1}月`;
 }
 
-function getChartTicks(range, now, itemCount) {
+function getChartTicks(range: ChartRangeKey, now: number, itemCount: number): ChartTick[] {
   if (range === 'day') {
     return Array.from({ length: 24 }, (_, index) => {
       const date = new Date(now);
@@ -178,7 +214,7 @@ function getChartTicks(range, now, itemCount) {
   });
 }
 
-function formatRuntime(now) {
+function formatRuntime(now: number): RuntimeParts {
   const diff = Math.max(0, now - LAUNCH_TIME);
   const totalSeconds = Math.floor(diff / 1000);
   const days = Math.floor(totalSeconds / 86400);
@@ -192,18 +228,18 @@ function formatRuntime(now) {
 
 function AboutPage() {
   const [now, setNow] = useState(() => Date.now());
-  const [activeRange, setActiveRange] = useState('day');
-  const [liveStats, setLiveStats] = useState(null);
+  const [activeRange, setActiveRange] = useState<ChartRangeKey>('day');
+  const [liveStats, setLiveStats] = useState<LiveStatsOverview | null>(null);
   const [syncHelpOpen, setSyncHelpOpen] = useState(false);
-  const [syncHelpStyle, setSyncHelpStyle] = useState(null);
+  const [syncHelpStyle, setSyncHelpStyle] = useState<SyncHelpStyle | null>(null);
   const [isMobileChart, setIsMobileChart] = useState(() => (
     typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
   ));
-  const syncHelpTriggerRef = useRef(null);
-  const syncHelpPopoverRef = useRef(null);
+  const syncHelpTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const syncHelpPopoverRef = useRef<HTMLSpanElement | null>(null);
   const runtime = useMemo(() => formatRuntime(now), [now]);
   const combinedStats = useMemo(() => mergeStats(legacyLogStats, liveStats), [liveStats]);
-  const chartSeries = useMemo(() => {
+  const chartSeries = useMemo<StatPoint[]>(() => {
     const currentDate = new Date(now);
     if (activeRange === 'day') {
       const liveHours = buildHourSeries(combinedStats.live.series.last24Hours);
@@ -336,10 +372,10 @@ function AboutPage() {
   }, [syncHelpOpen, updateSyncHelpPosition]);
 
   useEffect(() => {
-    const handlePointerDown = (event) => {
+    const handlePointerDown = (event: PointerEvent) => {
       if (isMobileHelpLayout()) return;
 
-      if (!event.target.closest('[data-about-sync-help-root="true"]')) {
+      if (!(event.target instanceof Element) || !event.target.closest('[data-about-sync-help-root="true"]')) {
         setSyncHelpOpen(false);
       }
     };

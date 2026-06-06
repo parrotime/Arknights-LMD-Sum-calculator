@@ -1,9 +1,47 @@
 import { useState } from "react";
-import PropTypes from "prop-types";
+import type { CSSProperties, ReactNode } from "react";
 import styles from "../assets/styles/PlanCard.module.css";
 
 const COPY_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/duplication.webp";
 const COPIED_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq10.webp";
+
+export interface PlanSummaryValue {
+  text: ReactNode;
+  type?: "value" | "separator";
+}
+
+export interface PlanSummaryItem {
+  label: string;
+  values: PlanSummaryValue[];
+  suffix?: string;
+}
+
+export interface PlanStepItem {
+  key?: string | number;
+  title?: string;
+  itemName: ReactNode;
+  itemClassName?: string;
+  itemStyle?: CSSProperties;
+  count: string | number;
+  deltaText?: ReactNode;
+  deltaType?: "gain" | "spend";
+  totalLabel: string;
+  runningTotal: string | number;
+  isFinal?: boolean;
+}
+
+interface PlanCardProps {
+  className?: string;
+  identityLabel: ReactNode;
+  identityValue: ReactNode;
+  identityValueClassName?: string;
+  ariaLabel: string;
+  summaryItems: PlanSummaryItem[];
+  steps: PlanStepItem[];
+  copyText: string;
+  copyLabel?: string;
+  copiedLabel?: string;
+}
 
 const PlanCard = ({
   className = "",
@@ -16,7 +54,7 @@ const PlanCard = ({
   copyText,
   copyLabel = "复制当前方案",
   copiedLabel = "已复制当前方案",
-}) => {
+}: PlanCardProps) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -102,44 +140,6 @@ const PlanCard = ({
       </div>
     </article>
   );
-};
-
-PlanCard.propTypes = {
-  className: PropTypes.string,
-  identityLabel: PropTypes.node.isRequired,
-  identityValue: PropTypes.node.isRequired,
-  identityValueClassName: PropTypes.string,
-  ariaLabel: PropTypes.string.isRequired,
-  summaryItems: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string.isRequired,
-      values: PropTypes.arrayOf(
-        PropTypes.shape({
-          text: PropTypes.node.isRequired,
-          type: PropTypes.oneOf(["value", "separator"]),
-        })
-      ).isRequired,
-      suffix: PropTypes.string,
-    })
-  ).isRequired,
-  steps: PropTypes.arrayOf(
-    PropTypes.shape({
-      key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      title: PropTypes.string,
-      itemName: PropTypes.node.isRequired,
-      itemClassName: PropTypes.string,
-      itemStyle: PropTypes.object,
-      count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      deltaText: PropTypes.node,
-      deltaType: PropTypes.oneOf(["gain", "spend"]),
-      totalLabel: PropTypes.string.isRequired,
-      runningTotal: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      isFinal: PropTypes.bool,
-    })
-  ).isRequired,
-  copyText: PropTypes.string.isRequired,
-  copyLabel: PropTypes.string,
-  copiedLabel: PropTypes.string,
 };
 
 export default PlanCard;

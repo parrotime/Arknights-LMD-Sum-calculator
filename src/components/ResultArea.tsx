@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import PathRenderer from "./PathRenderer";
+import type { CalcMeta, CalculatorState } from "../types/calculator";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
 import styles from "../assets/styles/ResultArea.module.css";
 
+type ResultAreaStyles = typeof styles;
+
+interface LoadingTimerProps {
+  styles: ResultAreaStyles;
+}
+
 // 加载计时器子组件
-const LoadingTimer = ({ styles }) => {
+const LoadingTimer = ({ styles }: LoadingTimerProps) => {
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -27,11 +34,17 @@ const LoadingTimer = ({ styles }) => {
   );
 };
 
+interface ResultAreaProps {
+  state: CalculatorState;
+  calcError: string;
+  calcMeta: CalcMeta | null;
+}
+
 const ResultArea = ({
   state,
   calcError,
   calcMeta,
-}) => {
+}: ResultAreaProps) => {
   return (
     <div className={panelStyles['history-box']}>
       <div className={`${panelStyles['title-bar']} ${styles['result-title-bar']}`}>

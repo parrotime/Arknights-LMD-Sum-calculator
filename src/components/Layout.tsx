@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import ClickCursor from "./ClickCursor";
 import { useCursorState } from "./CursorContext";
 import FloatingAssistant from "./FloatingAssistant";
 import TyphoonPeek from "./TyphoonPeek";
+import type { AssistantEggPayload } from "../types/calculator";
 
 const navItems = [
   { to: "/", text: "计算主页" },
@@ -12,20 +14,29 @@ const navItems = [
   { to: "/about", text: "关于" },
 ];
 
-const loadTheme = () => {
+type NavPath = typeof navItems[number]["to"];
+
+interface LayoutProps {
+  children: ReactNode;
+  assistantEgg: AssistantEggPayload | null;
+  typhoonPeekKey: number;
+  onAssistantEggClose: () => void;
+}
+
+const loadTheme = (): boolean => {
   const saved = localStorage.getItem("theme");
   return saved ? saved === "dark" : true;
 };
 
-const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }) => {
+const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }: LayoutProps) => {
   const { isCalculating } = useCursorState();
   const [dark, setDark] = useState(loadTheme);
   const [themeToggleAnimating, setThemeToggleAnimating] = useState(false);
   const location = useLocation();
   const isMaintenancePage = location.pathname.startsWith("/maintenance");
   const isAdminDashboardPage = location.pathname.startsWith("/admin-dashboard");
-  const navLinksRef = useRef(null);
-  const navItemRefs = useRef({});
+  const navLinksRef = useRef<HTMLDivElement | null>(null);
+  const navItemRefs = useRef<Partial<Record<NavPath, HTMLAnchorElement>>>({});
   const [navIndicator, setNavIndicator] = useState({ left: 0, width: 0, ready: false });
 
   useEffect(() => {

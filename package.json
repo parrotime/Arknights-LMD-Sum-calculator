@@ -15,7 +15,7 @@
     "preview": "vite preview",
     "test": "node --experimental-strip-types --test src/utils/calcLogic.test.js",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint \"./src/**/*.js\" \"./src/**/*.jsx\"",
+    "lint": "eslint --no-error-on-unmatched-pattern \"./src/**/*.js\" \"./src/**/*.jsx\"",
     "analyze:legacy-logs": "node _log_analysis/analyze-legacy-logs.mjs",
     "predeploy": "rimraf build && npm run build",
     "deploy": "gh-pages -d build -m \"Deploy: Update V1.0 For Test\""

@@ -1,4 +1,5 @@
 import React, { useReducer, useState, useCallback, useEffect, Suspense, lazy } from "react";
+import type { ChangeEvent, KeyboardEvent, MouseEvent, ReactNode } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import { Transmission } from "./components/Transmission";
@@ -20,8 +21,89 @@ import {
 } from "./components/EasterEggs";
 import styles from "./assets/styles/App.module.css";
 import { validateInput, buildLimits, buildCacheKey } from "./utils/calcLogic";
+import type {
+  ApiError,
+  AssistantEggPayload,
+  AssistantEggPriority,
+  CalcMeta,
+  CalcMode,
+  CalculationPath,
+  CalculatorHistoryEntry,
+  CalculatorSettings,
+  CalculatorState,
+  LimitInputField,
+  LmdInputField,
+  UserLimits,
+} from "./types/calculator";
 
-const getBeijingDateParts = (date = new Date()) => {
+type DateParts = Partial<Record<Intl.DateTimeFormatPartTypes, string>>;
+
+type SettingKey = keyof CalculatorSettings;
+type PersistedKey = "settings" | LmdInputField | LimitInputField;
+type SignatureKey = LmdInputField | LimitInputField;
+type ErrorField = "error1" | "error2" | "differenceError";
+
+interface LegacySettings {
+  disable3Star?: boolean;
+  disable2Star?: boolean;
+  disableMaterial?: boolean;
+  disableStore20?: boolean;
+  disableStore10?: boolean;
+  disableStore70?: boolean;
+  disableStore2000?: boolean;
+  disableStore5000?: boolean;
+  disableCE?: boolean;
+  disableExt25?: boolean;
+  disableTrade?: boolean;
+  enableUpgradeOnly0?: boolean;
+  enableUpgradeOnly1?: boolean;
+  enableUpgradeOnly2?: boolean;
+  enableUpgradeOnlyFor1?: boolean;
+}
+
+interface ResultSnapshot {
+  signature: string;
+  result?: string;
+  calcError?: string;
+  calcMeta?: CalcMeta | null;
+  pathCache?: CalculationPath[];
+}
+
+type PersistedCalculatorState = Partial<Pick<CalculatorState, PersistedKey>> & {
+  resultSnapshot?: ResultSnapshot;
+};
+
+type CalculatorAction =
+  | { type: "SET_NUM"; field: LmdInputField; value: string }
+  | { type: "CLEAR_LMD_INPUT"; field: LmdInputField }
+  | { type: "SET_ERROR"; field: ErrorField; value: string }
+  | { type: "SET_RESULT"; value: string }
+  | { type: "SET_CALC_ERROR"; value: string }
+  | { type: "SET_CALC_META"; value: CalcMeta | null }
+  | { type: "SET_PATHS"; paths: CalculationPath[] }
+  | { type: "APPEND_HISTORY"; entry: CalculatorHistoryEntry }
+  | { type: "SET_CALCULATING"; value: boolean }
+  | { type: "TOGGLE_SETTING"; key: SettingKey }
+  | { type: "CHANGE_PATH"; delta: number }
+  | { type: "SET_UPGRADE_COUNT"; field: LimitInputField; value: string }
+  | { type: "SWAP_NUMS" }
+  | { type: "RESET_INPUTS" }
+  | { type: "RESET_SETTINGS" }
+  | { type: "ACK_RESULT_INVALIDATED" };
+
+interface MainCalculatorProps {
+  onAssistantEgg?: (payload: AssistantEggPayload | null) => void;
+}
+
+type CalculateTriggerEvent = MouseEvent<HTMLElement> | KeyboardEvent<HTMLInputElement>;
+type HeartEffectTrigger = (event?: CalculateTriggerEvent | Event) => void;
+
+const hasValidCalculation = (
+  validation: ReturnType<typeof validateInput>
+): validation is Extract<ReturnType<typeof validateInput>, { error: null }> =>
+  validation.error === null;
+
+const getBeijingDateParts = (date = new Date()): DateParts => {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Shanghai",
     year: "numeric",
@@ -36,7 +118,7 @@ const getBeijingDateParts = (date = new Date()) => {
   return Object.fromEntries(parts.map((part) => [part.type, part.value]));
 };
 
-const isCEOpenInBeijing = (date = new Date()) => {
+const isCEOpenInBeijing = (date = new Date()): boolean => {
   const parts = getBeijingDateParts(date);
   const beijingTime = new Date(
     Number(parts.year),
@@ -51,7 +133,7 @@ const isCEOpenInBeijing = (date = new Date()) => {
   return [0, 2, 4, 6].includes(beijingTime.getDay());
 };
 
-const defaultState = {
+const defaultState: CalculatorState = {
   num1: "", //当前数量
   num2: "", //目标数量
   result: "", //两者相差
@@ -109,30 +191,32 @@ const freshDefaults = {
   allowUpgradeOnlyFor1: true,
 };
 
-const buildFreshDefaultSettings = () => ({
+const buildFreshDefaultSettings = (): Partial<CalculatorSettings> => ({
   ...freshDefaults,
   allowCE: isCEOpenInBeijing(),
 });
 
 // 迁移旧版 disable/enable 键名到 allow 键名
-const migrateSettings = (settings) => {
-  if (!settings || !("disable3Star" in settings)) return settings;
+const migrateSettings = (settings: unknown): Partial<CalculatorSettings> => {
+  if (!settings || typeof settings !== "object") return {};
+  if (!("disable3Star" in settings)) return settings as Partial<CalculatorSettings>;
+  const legacy = settings as LegacySettings;
   return {
-    allow3Star: !settings.disable3Star,
-    allow2Star: !settings.disable2Star,
-    allowMaterial: !settings.disableMaterial,
-    allowStore20: !settings.disableStore20,
-    allowStore10: !settings.disableStore10,
-    allowStore70: !settings.disableStore70,
-    allowStore2000: !settings.disableStore2000,
-    allowStore5000: !settings.disableStore5000,
-    allowCE: !settings.disableCE,
-    allowExt25: !settings.disableExt25,
-    allowTrade: !settings.disableTrade,
-    allowUpgradeOnly0: !!settings.enableUpgradeOnly0,
-    allowUpgradeOnly1: !!settings.enableUpgradeOnly1,
-    allowUpgradeOnly2: !!settings.enableUpgradeOnly2,
-    allowUpgradeOnlyFor1: !!settings.enableUpgradeOnlyFor1,
+    allow3Star: !legacy.disable3Star,
+    allow2Star: !legacy.disable2Star,
+    allowMaterial: !legacy.disableMaterial,
+    allowStore20: !legacy.disableStore20,
+    allowStore10: !legacy.disableStore10,
+    allowStore70: !legacy.disableStore70,
+    allowStore2000: !legacy.disableStore2000,
+    allowStore5000: !legacy.disableStore5000,
+    allowCE: !legacy.disableCE,
+    allowExt25: !legacy.disableExt25,
+    allowTrade: !legacy.disableTrade,
+    allowUpgradeOnly0: !!legacy.enableUpgradeOnly0,
+    allowUpgradeOnly1: !!legacy.enableUpgradeOnly1,
+    allowUpgradeOnly2: !!legacy.enableUpgradeOnly2,
+    allowUpgradeOnlyFor1: !!legacy.enableUpgradeOnlyFor1,
     allowOrundumsGreen: false,
     allowOrundumsDevice: false,
   };
@@ -150,7 +234,7 @@ const PERSISTED_KEYS = [
   "trade3Count",
   "trade4Count",
   "trade5Count",
-];
+] satisfies PersistedKey[];
 
 const SIGNATURE_KEYS = [
   "num1",
@@ -163,42 +247,48 @@ const SIGNATURE_KEYS = [
   "trade3Count",
   "trade4Count",
   "trade5Count",
-];
+] satisfies SignatureKey[];
 
 const LIMIT_INPUT_WARNING_COOLDOWN = 1800;
 
-const buildResultSignature = (state) => JSON.stringify({
+const buildResultSignature = (state: CalculatorState): string => JSON.stringify({
   inputs: Object.fromEntries(SIGNATURE_KEYS.map((key) => [key, state[key] ?? ""])),
   settings: state.settings,
 });
 
-const getDefaultInitialState = () => ({
+const getDefaultInitialState = (): CalculatorState => ({
   ...defaultState,
   settings: { ...defaultState.settings, ...buildFreshDefaultSettings() },
 });
 
-const parseStoredObject = (key, fallback = null) => {
+const parseStoredObject = <T,>(key: string, fallback: T | null = null): T | null => {
   const saved = localStorage.getItem(key);
   if (!saved) return fallback;
 
   try {
     const parsed = JSON.parse(saved);
-    return parsed && typeof parsed === "object" ? parsed : fallback;
+    return parsed && typeof parsed === "object" ? parsed as T : fallback;
   } catch {
     localStorage.removeItem(key);
     return fallback;
   }
 };
 
-const getInitialState = () => {
-  const parsed = parseStoredObject("calculatorState");
+const getInitialState = (): CalculatorState => {
+  const parsed = parseStoredObject<PersistedCalculatorState>("calculatorState");
   if (!parsed) {
     return getDefaultInitialState();
   }
 
-  const restored = { ...defaultState };
+  const restored: CalculatorState = { ...defaultState, settings: { ...defaultState.settings } };
   for (const key of PERSISTED_KEYS) {
-    if (key in parsed) restored[key] = parsed[key];
+    if (key in parsed) {
+      if (key === "settings") {
+        restored.settings = { ...defaultState.settings, ...migrateSettings(parsed.settings) };
+      } else {
+        restored[key] = parsed[key] ?? "";
+      }
+    }
   }
   restored.settings = { ...defaultState.settings, ...migrateSettings(restored.settings) };
   restored.settings.allowCE = isCEOpenInBeijing();
@@ -215,19 +305,19 @@ const getInitialState = () => {
   return restored;
 };
 
-const parseStoredArray = (key) => {
-  const parsed = parseStoredObject(key, []);
+const parseStoredArray = <T,>(key: string): T[] => {
+  const parsed = parseStoredObject<T[]>(key, []);
   return Array.isArray(parsed) ? parsed : [];
 };
 
-const getPathCacheQueue = () => {
-  const parsed = parseStoredObject("pathCacheQueue", []);
+const getPathCacheQueue = (): string[] => {
+  const parsed = parseStoredObject<string[]>("pathCacheQueue", []);
   if (Array.isArray(parsed)) return parsed;
   localStorage.removeItem("pathCacheQueue");
   return [];
 };
 
-const clearResultState = (state) => ({
+const clearResultState = (state: CalculatorState): CalculatorState => ({
   ...state,
   result: "",
   calcError: "",
@@ -237,23 +327,23 @@ const clearResultState = (state) => ({
   clickCount: 0,
 });
 
-const shouldNotifyResultInvalidated = (state) => (
+const shouldNotifyResultInvalidated = (state: CalculatorState): boolean => (
   state.pathCache.length > 0 || !!state.calcError || !!state.result
 );
 
-const reducer = (state, action) => {
+const reducer = (state: CalculatorState, action: CalculatorAction): CalculatorState => {
   switch (action.type) {
     case "SET_NUM":
       return {
         ...clearResultState(state),
         [action.field]: action.value,
-        [`error${action.field.slice(-1)}`]: "",
+        [action.field === "num1" ? "error1" : "error2"]: "",
       };
     case "CLEAR_LMD_INPUT":
       return {
         ...clearResultState(state),
         [action.field]: "",
-        [`error${action.field.slice(-1)}`]: "",
+        [action.field === "num1" ? "error1" : "error2"]: "",
         differenceError: "",
       };
     case "SET_ERROR":
@@ -372,41 +462,48 @@ const reducer = (state, action) => {
 };
 
 // 检查本地缓存
-const checkCache = (cacheKey) => {
+const checkCache = (cacheKey: string): CalculationPath[] | null => {
   const key = `pathCache_${cacheKey}`;
-  const paths = parseStoredArray(key);
+  const paths = parseStoredArray<CalculationPath>(key);
   if (paths.length > 0) return paths;
   localStorage.removeItem(key);
   return null;
 };
 
 // 调用计算 API（带超时，对齐后端 15s + 网络余量）
-const callAPI = (difference, settings, limits, num2Val, calcMode = "fast") =>
+const callAPI = (
+  difference: number,
+  settings: CalculatorSettings,
+  limits: UserLimits,
+  num2Val: number,
+  calcMode: CalcMode = "fast",
+): Promise<CalculationPath[]> =>
   Promise.race([
     Transmission(difference, settings, limits, num2Val, calcMode),
-    new Promise((_, reject) =>
+    new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error("计算超时,请重试")), 18000)
     ),
   ]);
 
 // 格式化错误信息
-const formatError = (error) => {
-  if (error.isNetworkError) return error.message;
-  if (error.status) {
+const formatError = (error: unknown): string => {
+  const apiError = error as ApiError;
+  if (apiError.isNetworkError) return apiError.message;
+  if (apiError.status) {
     const map = {
-      400: `输入错误: ${error.message}`,
-      429: `请求过于频繁: ${error.message}`,
+      400: `输入错误: ${apiError.message}`,
+      429: `请求过于频繁: ${apiError.message}`,
       503: `服务器繁忙，请稍后再试`,
-      504: `计算超时: ${error.message}`,
-      500: `服务器内部错误: ${error.message}. 如果问题持续，请联系管理员。`,
+      504: `计算超时: ${apiError.message}`,
+      500: `服务器内部错误: ${apiError.message}. 如果问题持续，请联系管理员。`,
     };
-    return map[error.status] || `请求失败: ${error.message} (代码: ${error.status})`;
+    return map[apiError.status as keyof typeof map] || `请求失败: ${apiError.message} (代码: ${apiError.status})`;
   }
-  return error.message ? `发生错误: ${error.message}` : "发生未知错误，请稍后再试。";
+  return apiError.message ? `发生错误: ${apiError.message}` : "发生未知错误，请稍后再试。";
 };
 
 // 管理路径缓存（最多5条）
-const managePathCache = (newKey) => {
+const managePathCache = (newKey: string): void => {
   const cacheQueue = getPathCacheQueue();
   if (!cacheQueue.includes(newKey)) {
     cacheQueue.push(newKey);
@@ -418,14 +515,14 @@ const managePathCache = (newKey) => {
 };
 
 // 主计算组件
-const MainCalculator = ({ onAssistantEgg }) => {
+const MainCalculator = ({ onAssistantEgg }: MainCalculatorProps) => {
   const [state, dispatch] = useReducer(reducer, getInitialState());
   const [showModal, setShowModal] = useState(false);
-  const [heartsElement, triggerHeart] = useHeartEffect();
+  const [heartsElement, triggerHeart] = useHeartEffect() as [ReactNode, HeartEffectTrigger];
   const { setCalculating } = useCursorState();
-  const limitInputWarningRef = React.useRef({});
+  const limitInputWarningRef = React.useRef<Partial<Record<LimitInputField, number>>>({});
 
-  const showAssistantText = useCallback((message, priority = "normal", duration) => {
+  const showAssistantText = useCallback((message: string, priority: AssistantEggPriority = "normal", duration?: number) => {
     onAssistantEgg?.({
       type: "message",
       message,
@@ -434,7 +531,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
     });
   }, [onAssistantEgg]);
 
-  const getDifferenceAssistantMessage = useCallback((difference) => {
+  const getDifferenceAssistantMessage = useCallback((difference: number) => {
     const amount = Math.abs(difference).toLocaleString("zh-CN");
     if (difference > 0) return `还需要获得 ${amount} 龙门币`;
     if (difference < 0) return `还需要消耗 ${amount} 龙门币`;
@@ -457,8 +554,14 @@ const MainCalculator = ({ onAssistantEgg }) => {
   }, [onAssistantEgg]);
 
   useEffect(() => {
-    const toSave = {};
-    for (const key of PERSISTED_KEYS) toSave[key] = state[key];
+    const toSave: PersistedCalculatorState = {};
+    for (const key of PERSISTED_KEYS) {
+      if (key === "settings") {
+        toSave.settings = state.settings;
+      } else {
+        toSave[key] = state[key];
+      }
+    }
     if (state.pathCache.length > 0 || state.calcError) {
       toSave.resultSnapshot = {
         signature: buildResultSignature(state),
@@ -518,7 +621,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
   ]);
 
   const handleToggleChange = useCallback(
-    (key) => {
+    (key: SettingKey) => {
       dispatch({ type: "TOGGLE_SETTING", key });
     },
     []
@@ -536,12 +639,12 @@ const MainCalculator = ({ onAssistantEgg }) => {
     dispatch({ type: "RESET_INPUTS" });
   }, []);
 
-  const handleClearLmdInput = useCallback((field) => {
+  const handleClearLmdInput = useCallback((field: LmdInputField) => {
     dispatch({ type: "CLEAR_LMD_INPUT", field });
   }, []);
 
   // 优化后的输入验证
-  const handleInputChange = useCallback((e, field) => {
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>, field: LmdInputField) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
     if (value === "") {
       dispatch({ type: "SET_NUM", field, value: "" });
@@ -552,7 +655,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
     if (numValue > 999999999) {
       dispatch({
         type: "SET_ERROR",
-        field: `error${field.slice(-1)}`,
+        field: field === "num1" ? "error1" : "error2",
         value: "这么多龙门币可以分我一点吗？",
       });
       return;
@@ -560,7 +663,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
     dispatch({ type: "SET_NUM", field, value: numValue.toString() });
   }, []);
 
-  const notifyLimitInputWarning = useCallback((field, message) => {
+  const notifyLimitInputWarning = useCallback((field: LimitInputField, message: string) => {
     const now = Date.now();
     if (now - (limitInputWarningRef.current[field] ?? 0) < LIMIT_INPUT_WARNING_COOLDOWN) {
       return;
@@ -570,7 +673,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
   }, [showAssistantText]);
 
   // 处理左边限制类数量输入
-  const handleUpgradeCountChange = useCallback((e, field, min, max, label = "这个输入框") => {
+  const handleUpgradeCountChange = useCallback((e: ChangeEvent<HTMLInputElement> | { target: { value: string } }, field: LimitInputField, min: number, max: number, label = "这个输入框") => {
     const rawValue = String(e.target.value ?? "");
     const value = rawValue.replace(/[^\d]/g, "");
     if (value === "") {
@@ -592,7 +695,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
 
   // 主体计算逻辑
   const handleCalculate = useCallback(
-    async (event, calcMode = "fast") => {
+    async (event?: CalculateTriggerEvent, calcMode: CalcMode = "fast") => {
       // 彩蛋检测
       if (isRomanticNumber(state.num2)) {
         triggerHeart(event);
@@ -627,7 +730,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
 
       // 输入验证
       const validation = validateInput(state.num1, state.num2);
-      if (validation.error) {
+      if (!hasValidCalculation(validation)) {
         dispatch({ type: "SET_ERROR", field: "differenceError", value: validation.error });
         showAssistantText(validation.error, "high");
         if (state.num1 && state.num2) dispatch({ type: "SET_RESULT", value: "" });
@@ -720,7 +823,7 @@ const MainCalculator = ({ onAssistantEgg }) => {
               onSwap={handleSwapNums}
               onResetInputs={handleResetInputs}
               onClearLmdInput={handleClearLmdInput}
-              onModeWarning={(message) => showAssistantText(message, "high")}
+        onModeWarning={(message: string) => showAssistantText(message, "high")}
             />
             <SettingsPanel
               settings={state.settings}
@@ -749,11 +852,11 @@ const MainCalculator = ({ onAssistantEgg }) => {
 };
 
 const AppContent = () => {
-  const [assistantEgg, setAssistantEgg] = useState(null);
+  const [assistantEgg, setAssistantEgg] = useState<AssistantEggPayload | null>(null);
   const [typhoonPeekKey, setTyphoonPeekKey] = useState(0);
-  const assistantEggRef = React.useRef(null);
+  const assistantEggRef = React.useRef<AssistantEggPayload | null>(null);
 
-  const handleAssistantEgg = useCallback((payload) => {
+  const handleAssistantEgg = useCallback((payload: AssistantEggPayload | null) => {
     if (!payload || (!payload.imageUrl && !payload.type && !payload.message)) {
       setAssistantEgg(null);
       assistantEggRef.current = null;

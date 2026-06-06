@@ -10,7 +10,7 @@ import type {
 } from "../types/calculator";
 import type { GameItem } from "../DataService";
 
-// 纯计算逻辑 — 从 App.jsx / PathRenderer.jsx / InputPanel.jsx 提取
+// 纯计算逻辑，从主界面、路径渲染和输入面板中提取
 // 无 React/JSX 依赖，可直接用 Node.js 测试
 
 // ============================================================

@@ -1,8 +1,40 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import type { CalculatorSettings } from "../types/calculator";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
 import styles from "../assets/styles/SettingsPanel.module.css";
 
-const settingsOptions = [
+type SettingKey = keyof CalculatorSettings;
+type SettingsLayout = "sanity" | "base" | "token" | "operator";
+type SettingsPanelStyles = typeof styles;
+
+interface SettingOption {
+  text: string;
+  key: SettingKey;
+  highlight: string;
+  helpText?: ReactNode[];
+}
+
+interface SettingGroup {
+  title: string;
+  code: string;
+  icon: string;
+  layout: SettingsLayout;
+  items: SettingOption[];
+}
+
+interface HelpPopoverStyle extends CSSProperties {
+  "--setting-help-arrow-left": string;
+  "--setting-help-arrow-edge": "top" | "bottom";
+}
+
+interface SettingsPanelProps {
+  settings: CalculatorSettings;
+  onToggle: (key: SettingKey) => void;
+  onReset: () => void;
+}
+
+const settingsOptions: SettingOption[] = [
   { text: "允许使用理智三星通关", key: "allow3Star", highlight: "三星通关" },
   { text: "允许使用理智二星通关", key: "allow2Star", highlight: "二星通关" },
   { text: "允许通过25理智剿灭获取250龙门币", key: "allowExt25", highlight: "剿灭作战" },
@@ -32,7 +64,7 @@ const settingsOptions = [
   },
 ];
 
-const groups = [
+const groups: SettingGroup[] = [
   {
     title: "理智使用设置",
     code: "SANITY USAGE SETTINGS",
@@ -63,7 +95,7 @@ const groups = [
   },
 ];
 
-const renderSettingText = (text, highlight, styles) => {
+const renderSettingText = (text: string, highlight: string | undefined, styles: SettingsPanelStyles): ReactNode => {
   if (!highlight || !text.includes(highlight)) {
     return text;
   }
@@ -79,12 +111,12 @@ const renderSettingText = (text, highlight, styles) => {
   );
 };
 
-const SettingsPanel = ({ settings, onToggle, onReset }) => {
-  const [openHelpKey, setOpenHelpKey] = useState(null);
-  const [helpPopoverStyle, setHelpPopoverStyle] = useState(null);
+const SettingsPanel = ({ settings, onToggle, onReset }: SettingsPanelProps) => {
+  const [openHelpKey, setOpenHelpKey] = useState<SettingKey | null>(null);
+  const [helpPopoverStyle, setHelpPopoverStyle] = useState<HelpPopoverStyle | null>(null);
   const [resetAnimating, setResetAnimating] = useState(false);
-  const helpTriggerRefs = useRef({});
-  const helpPopoverRef = useRef(null);
+  const helpTriggerRefs = useRef<Partial<Record<SettingKey, HTMLButtonElement>>>({});
+  const helpPopoverRef = useRef<HTMLSpanElement | null>(null);
   const isMobileHelpLayout = useCallback(() => (
     window.matchMedia("(max-width: 900px)").matches || window.matchMedia("(pointer: coarse)").matches
   ), []);
@@ -136,10 +168,11 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
   }, [openHelpKey, updateHelpPopoverPosition]);
 
   useEffect(() => {
-    const handlePointerDown = (event) => {
+    const handlePointerDown = (event: PointerEvent) => {
       if (isMobileHelpLayout()) return;
 
-      if (!event.target.closest('[data-setting-help-root="true"]')) {
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target?.closest('[data-setting-help-root="true"]')) {
         setOpenHelpKey(null);
       }
     };

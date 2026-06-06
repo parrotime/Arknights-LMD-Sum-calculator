@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 
 const TYPHOON_799_IMAGE_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/typhoon799.webp";
 
-const TyphoonPeek = ({ triggerKey }) => {
+interface TyphoonPeekProps {
+  triggerKey: number;
+}
+
+const TyphoonPeek = ({ triggerKey }: TyphoonPeekProps) => {
   const [visible, setVisible] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
 

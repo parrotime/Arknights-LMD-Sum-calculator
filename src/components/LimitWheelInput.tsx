@@ -1,13 +1,39 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { KeyboardEvent, PointerEvent, WheelEvent } from "react";
 import styles from "../assets/styles/InputPanel.module.css";
 
 const DRAG_STEP_PX = 18;
 const MOBILE_TAP_MOVE_LIMIT_PX = 8;
 
-const formatWheelValue = (value) => (value === "" ? "AUTO" : String(value));
-const formatClosedValue = (value, placeholder) => (value === "" ? placeholder : String(value));
+type WheelValue = string | number;
 
-const wrapIndex = (value, length) => ((value % length) + length) % length;
+interface LimitWheelInputProps {
+  value?: string | number | null;
+  min?: number;
+  max?: number;
+  placeholder?: string;
+  ariaLabel?: string;
+  onChange: (value: string) => void;
+}
+
+interface DragState {
+  active: boolean;
+  y: number;
+  carry: number;
+}
+
+interface TapIntentState {
+  active: boolean;
+  pointerId: number | null;
+  x: number;
+  y: number;
+  moved: boolean;
+}
+
+const formatWheelValue = (value: WheelValue) => (value === "" ? "AUTO" : String(value));
+const formatClosedValue = (value: WheelValue, placeholder: string) => (value === "" ? placeholder : String(value));
+
+const wrapIndex = (value: number, length: number) => ((value % length) + length) % length;
 
 const LimitWheelInput = ({
   value,
@@ -16,12 +42,12 @@ const LimitWheelInput = ({
   placeholder = "不限",
   ariaLabel,
   onChange,
-}) => {
-  const rootRef = useRef(null);
-  const dragRef = useRef({ active: false, y: 0, carry: 0 });
-  const tapIntentRef = useRef({ active: false, pointerId: null, x: 0, y: 0, moved: false });
+}: LimitWheelInputProps) => {
+  const rootRef = useRef<HTMLSpanElement | null>(null);
+  const dragRef = useRef<DragState>({ active: false, y: 0, carry: 0 });
+  const tapIntentRef = useRef<TapIntentState>({ active: false, pointerId: null, x: 0, y: 0, moved: false });
   const currentIndexRef = useRef(0);
-  const optionsRef = useRef([]);
+  const optionsRef = useRef<WheelValue[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [motionKey, setMotionKey] = useState(0);
@@ -43,7 +69,7 @@ const LimitWheelInput = ({
     };
   }, [isOpen]);
 
-  const setByIndex = useCallback((nextIndex) => {
+  const setByIndex = useCallback((nextIndex: number) => {
     const availableOptions = optionsRef.current;
     if (!availableOptions.length) return;
 
@@ -55,7 +81,7 @@ const LimitWheelInput = ({
     setMotionKey((key) => key + 1);
   }, [onChange]);
 
-  const stepBy = useCallback((delta) => {
+  const stepBy = useCallback((delta: number) => {
     if (!delta) return;
     setByIndex(currentIndexRef.current + delta);
   }, [setByIndex]);
@@ -63,8 +89,8 @@ const LimitWheelInput = ({
   useEffect(() => {
     if (!isOpen) return undefined;
 
-    const handlePointerDown = (event) => {
-      if (!rootRef.current?.contains(event.target)) {
+    const handlePointerDown = (event: globalThis.PointerEvent) => {
+      if (!(event.target instanceof Node) || !rootRef.current?.contains(event.target)) {
         setIsOpen(false);
       }
     };
@@ -77,7 +103,7 @@ const LimitWheelInput = ({
     const wheelTarget = rootRef.current;
     if (!wheelTarget) return undefined;
 
-    const handleNativeWheel = (event) => {
+    const handleNativeWheel = (event: globalThis.WheelEvent) => {
       if (!isOpen) return;
       event.preventDefault();
       event.stopPropagation();
@@ -88,7 +114,7 @@ const LimitWheelInput = ({
     return () => wheelTarget.removeEventListener("wheel", handleNativeWheel);
   }, [isOpen, stepBy]);
 
-  const getRelativeOption = (offset) => {
+  const getRelativeOption = (offset: number) => {
     const nextIndex = wrapIndex(currentIndex + offset, options.length);
     return options[nextIndex];
   };
@@ -100,7 +126,7 @@ const LimitWheelInput = ({
       }
     : {};
 
-  const handlePointerDown = (event) => {
+  const handlePointerDown = (event: PointerEvent<HTMLSpanElement>) => {
     const isTouchPointer = event.pointerType === "touch";
 
     if (isTouchPointer && !isOpen) {
@@ -128,7 +154,7 @@ const LimitWheelInput = ({
     event.currentTarget.setPointerCapture?.(event.pointerId);
   };
 
-  const handlePointerMove = (event) => {
+  const handlePointerMove = (event: PointerEvent<HTMLSpanElement>) => {
     const tapIntent = tapIntentRef.current;
     if (tapIntent.active && tapIntent.pointerId === event.pointerId) {
       const deltaX = event.clientX - tapIntent.x;
@@ -152,7 +178,7 @@ const LimitWheelInput = ({
     drag.carry = deltaY - steps * DRAG_STEP_PX;
   };
 
-  const handlePointerEnd = (event) => {
+  const handlePointerEnd = (event: PointerEvent<HTMLSpanElement>) => {
     const tapIntent = tapIntentRef.current;
     if (tapIntent.active && tapIntent.pointerId === event.pointerId) {
       tapIntentRef.current = { active: false, pointerId: null, x: 0, y: 0, moved: false };
@@ -173,19 +199,19 @@ const LimitWheelInput = ({
     event.currentTarget.releasePointerCapture?.(event.pointerId);
   };
 
-  const handleWheel = (event) => {
+  const handleWheel = (event: WheelEvent<HTMLSpanElement>) => {
     event.preventDefault();
     event.stopPropagation();
   };
 
-  const handleOptionPointerDown = (event, delta) => {
+  const handleOptionPointerDown = (event: PointerEvent<HTMLSpanElement>, delta: number) => {
     event.preventDefault();
     event.stopPropagation();
     stepBy(delta);
     rootRef.current?.focus();
   };
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       setIsOpen((open) => !open);

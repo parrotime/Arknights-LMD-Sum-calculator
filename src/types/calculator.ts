@@ -2,6 +2,8 @@ import type { GameItem } from "../DataService";
 
 export type CalcMode = "fast" | "strong";
 
+export type LmdInputField = "num1" | "num2";
+
 export interface CalculatorSettings {
   allow3Star: boolean;
   allow2Star: boolean;
@@ -53,6 +55,14 @@ export interface PathStep {
 
 export type CalculationPath = PathStep[];
 
+export interface CalculationHistoryEntry {
+  path: CalculationPath;
+  timestamp: string;
+  initialLMD: number;
+}
+
+export type CalculatorHistoryEntry = CalculationHistoryEntry | string;
+
 export interface CalcMeta {
   fromCache: boolean;
   elapsed: number;
@@ -64,7 +74,7 @@ export interface CalculatorState extends LimitInputState {
   result: string;
   error1: string;
   error2: string;
-  history: unknown[];
+  history: CalculatorHistoryEntry[];
   differenceError: string;
   calcError: string;
   calcMeta: CalcMeta | null;
@@ -112,4 +122,26 @@ export interface CalculateResponse {
 export interface ApiError extends Error {
   status?: number;
   isNetworkError?: boolean;
+}
+
+export type AssistantEggPriority = "normal" | "high";
+
+export type AssistantEggType =
+  | "message"
+  | "recalculate"
+  | "romantic"
+  | "funny"
+  | "memory350234"
+  | "sami325"
+  | "typhoon799"
+  | "typhoon799-peek"
+  | "zc325";
+
+export interface AssistantEggPayload {
+  id?: number;
+  imageUrl?: string;
+  type?: AssistantEggType;
+  message?: string;
+  priority?: AssistantEggPriority;
+  duration?: number;
 }

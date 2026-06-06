@@ -2,11 +2,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import styles from "../assets/styles/Data.module.css";
 import pathRendererStyles from "../assets/styles/PathRenderer.module.css";
 import { classifyData } from "../DataService";
+import type { ReactElement } from "react";
+import type { SamplePlan } from "../utils/samplePlans";
 import {
   acquireSamplePlans,
   consumeSamplePlans,
   renderSamplePathCards,
-} from "../utils/samplePlans.jsx";
+} from "../utils/samplePlans";
 
 const DATA_SECTION_IDS = ["upgrade-expense", "item-value", "sanity-index", "plan-sample"];
 const EXP_GREEN_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/exp_green.webp";
@@ -14,7 +16,35 @@ const EXP_BLUE_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/exp_blue.
 const LMD_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/lmd_logo.webp";
 const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
-const TableHeadChip = ({ icon, text, alt = "" }) => (
+interface TableHeadChipProps {
+  icon: string;
+  text?: string;
+  alt?: string;
+}
+
+interface TwoColumnRow {
+  name: string;
+  value1: string;
+  value2: string;
+}
+
+interface ItemValueRow {
+  name: string;
+  value: string;
+}
+
+interface UpgradeOnlyRow {
+  value1: string;
+  value2: string;
+  value3: string;
+}
+
+interface SanityRow {
+  consume: string;
+  level: string;
+}
+
+const TableHeadChip = ({ icon, text, alt = "" }: TableHeadChipProps) => (
   <span className={styles['table-head-chip']}>
     <img
       src={icon}
@@ -30,7 +60,7 @@ const TableHeadChip = ({ icon, text, alt = "" }) => (
 function DataPage() {
   const [activeSection, setActiveSection] = useState("upgrade-expense");
 
-  const scrollToSection = (sectionId) => {
+  const scrollToSection = (sectionId: string) => {
     document.getElementById(sectionId)?.scrollIntoView({
       behavior: prefersReducedMotion() ? "auto" : "smooth",
       block: "start",
@@ -48,7 +78,7 @@ function DataPage() {
           if (!target) return null;
           return { id, top: target.getBoundingClientRect().top };
         })
-        .filter(Boolean);
+        .filter((section): section is { id: string; top: number } => section !== null);
 
       const currentSection = sectionPositions.reduce((current, section) => {
         if (section.top <= anchorLine) return section;
@@ -79,7 +109,7 @@ function DataPage() {
   }, []);
 
   // 从 classifyData 动态生成升级表格数据（Table A）
-  const eliteNames = { "0": "精零", "1": "精一", "2": "精二" };
+  const eliteNames: Record<string, string> = { "0": "精零", "1": "精一", "2": "精二" };
   const upgradeRows = classifyData
     .filter(item => item.type === "upgrade" && item.item_id.endsWith("-1"))
     .map(item => {
@@ -103,7 +133,7 @@ function DataPage() {
   const upgradeTable2 = upgradeRows.slice(22);
 
   // 从 classifyData 动态生成物品价值表格数据（Table B）
-  const fmt = (id) => {
+  const fmt = (id: number): ItemValueRow => {
     const item = classifyData.find(i => i.id === id);
     if (!item) return { name: "", value: "" };
     const v = item.item_value;
@@ -115,7 +145,7 @@ function DataPage() {
   // 从 classifyData 动态生成累计升级表格数据（Table D）
   const upgradeData = Array.from({ length: 30 }, (_, i) => {
     const n = i + 1;
-    const v = (type, prefix) => {
+    const v = (type: string, prefix: string) => {
       const item = classifyData.find(it => it.type === type && it.item_id === `${prefix}-${n}`);
       return item ? String(item.item_value) : "";
     };
@@ -136,13 +166,13 @@ function DataPage() {
     { consume: "36理智", level: "6次1-7，作战记录LS-6，芯片本2，" },
   ], []);
 
-  const getValueClass = (value) => {
+  const getValueClass = (value: string | number) => {
     const numericValue = Number(String(value).replace(/[+,]/g, ""));
     if (Number.isNaN(numericValue) || numericValue === 0) return styles['value-neutral'];
     return numericValue > 0 ? styles['value-gain'] : styles['value-cost'];
   };
 
-  const generateStaticTable = (data) => (
+  const generateStaticTable = (data: TwoColumnRow[]): ReactElement => (
     <table className={`${styles['material-table']} ${styles['table-a']}`}>
       <thead>
         <tr>
@@ -163,7 +193,7 @@ function DataPage() {
     </table>
   );
 
-  const generateStaticTable2 = (data) => (
+  const generateStaticTable2 = (data: ItemValueRow[]): ReactElement => (
     <table className={`${styles['material-table']} ${styles['table-b']}`}>
       <thead>
         <tr>
@@ -182,7 +212,7 @@ function DataPage() {
     </table>
   );
 
-  const generatePathCards = (data) => {
+  const generatePathCards = (data: SamplePlan[]) => {
     return renderSamplePathCards({
       data,
       pathRendererClassName: `${pathRendererStyles['path-renderer-container']} ${styles['sample-path-container']}`,
@@ -193,7 +223,7 @@ function DataPage() {
     });
   };
 
-  const generateUpgradeTable4 = (data, startNumber = 1) => (
+  const generateUpgradeTable4 = (data: UpgradeOnlyRow[], startNumber = 1): ReactElement => (
     <table className={`${styles['material-table']} ${styles['table-d']} ${styles['table-d1']}`}>
       <thead>
         <tr>
@@ -216,7 +246,7 @@ function DataPage() {
     </table>
   );
 
-  const generateSanityList = (data) => (
+  const generateSanityList = (data: SanityRow[]): ReactElement => (
     <div className={styles['sanity-list']}>
       {[data.slice(0, 6), data.slice(6)].map((column, columnIndex) => (
         <div className={styles['sanity-column']} key={`sanity-column-${columnIndex}`}>

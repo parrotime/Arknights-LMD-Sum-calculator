@@ -1,18 +1,42 @@
 import React, { useEffect, useState } from "react";
 import pathRendererStyles from "../assets/styles/PathRenderer.module.css";
 import styles from "../assets/styles/Maintenance.module.css";
+import type { SamplePlan } from "../utils/samplePlans";
 import {
   acquireSamplePlans,
   consumeSamplePlans,
   renderSamplePathCards,
-} from "../utils/samplePlans.jsx";
+} from "../utils/samplePlans";
 
 const DEFAULT_TITLE = "网页维护中...";
 const DEFAULT_SUBTITLE = "计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格";
 const NORMAL_TITLE = "网页维护未启用";
 const NORMAL_SUBTITLE = "当前计算服务未进入维护状态，下方表格可作为离线参考备用";
 
-const fetchMaintenanceStatus = async () => {
+interface MaintenanceStatusResponse {
+  enabled?: boolean;
+  title?: string;
+  subtitle?: string;
+  endAt?: string;
+  serverTime?: string;
+}
+
+interface MaintenanceStatusState {
+  loading: boolean;
+  error: boolean;
+  enabled: boolean;
+  title: string;
+  subtitle: string;
+  endAtMs: number | null;
+  serverOffsetMs: number;
+}
+
+interface FlipUnitProps {
+  value: string;
+  label: string;
+}
+
+const fetchMaintenanceStatus = async (): Promise<MaintenanceStatusResponse> => {
   const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/maintenance-status`, {
     method: "GET",
     headers: { "Accept": "application/json" },
@@ -25,7 +49,7 @@ const fetchMaintenanceStatus = async () => {
   return response.json();
 };
 
-const formatTimeParts = (milliseconds) => {
+const formatTimeParts = (milliseconds: number): string[] => {
   const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -34,7 +58,7 @@ const formatTimeParts = (milliseconds) => {
   return [hours, minutes, seconds].map((value) => String(value).padStart(2, "0"));
 };
 
-const FlipUnit = ({ value, label }) => (
+const FlipUnit = ({ value, label }: FlipUnitProps) => (
   <span className={styles['timer-unit']} aria-label={`${value} ${label}`}>
     <span key={value} className={styles['timer-number']}>{value}</span>
     <span className={styles['timer-label']}>{label}</span>
@@ -42,7 +66,7 @@ const FlipUnit = ({ value, label }) => (
 );
 
 const MaintenancePage = () => {
-  const [status, setStatus] = useState({
+  const [status, setStatus] = useState<MaintenanceStatusState>({
     loading: true,
     error: false,
     enabled: false,
@@ -53,7 +77,7 @@ const MaintenancePage = () => {
   });
   const [remainingMs, setRemainingMs] = useState(0);
   const [hours, minutes, seconds] = formatTimeParts(remainingMs);
-  const hasCountdown = status.enabled && status.endAtMs;
+  const hasCountdown = status.enabled && status.endAtMs !== null;
 
   useEffect(() => {
     let ignore = false;
@@ -98,21 +122,22 @@ const MaintenancePage = () => {
   }, []);
 
   useEffect(() => {
-    if (!status.enabled || !status.endAtMs) {
+    if (!status.enabled || status.endAtMs === null) {
       setRemainingMs(0);
       return undefined;
     }
 
+    const endAtMs = status.endAtMs;
     const tick = () => {
       const correctedNow = Date.now() + status.serverOffsetMs;
-      setRemainingMs(status.endAtMs - correctedNow);
+      setRemainingMs(endAtMs - correctedNow);
     };
     tick();
     const timer = window.setInterval(tick, 1000);
     return () => window.clearInterval(timer);
   }, [status.enabled, status.endAtMs, status.serverOffsetMs]);
 
-  const renderMaintenanceSamples = (data) => renderSamplePathCards({
+  const renderMaintenanceSamples = (data: SamplePlan[]) => renderSamplePathCards({
     data,
     pathRendererClassName: `${pathRendererStyles['path-renderer-container']} ${styles['maintenance-sample-path-container']}`,
     planListClassName: pathRendererStyles['plan-list'],

@@ -1,5 +1,12 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
+import type { ChangeEvent, CSSProperties, KeyboardEvent, MouseEvent } from "react";
 import { computeDiff } from "../utils/calcLogic";
+import type {
+  CalcMode,
+  CalculatorState,
+  LimitInputField,
+  LmdInputField,
+} from "../types/calculator";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
 import styles from "../assets/styles/InputPanel.module.css";
 
@@ -18,11 +25,63 @@ const CALC_MODES = {
     badgeIcon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq09.webp",
     badgeLabel: "深度",
   },
-};
+} satisfies Record<CalcMode, {
+  label: string;
+  code: string;
+  desc: string;
+  badgeIcon: string;
+  badgeLabel: string;
+}>;
 
 const MODE_TOGGLE_ICON = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/reset.webp";
 
-const RollingNumber = ({ value }) => {
+interface RollingNumberProps {
+  value: number;
+}
+
+interface RollingDigitStyle extends CSSProperties {
+  "--rolling-digit": number;
+  "--rolling-delay": string;
+}
+
+type LimitGroupLayout = "sanity" | "elite" | "trade";
+type LimitGroupRow = "top" | "bottom";
+
+interface LimitItem {
+  labelCn: string;
+  labelEn: string;
+  field: LimitInputField;
+  max: number;
+  icon: string;
+}
+
+interface LimitGroup {
+  title: string;
+  code: string;
+  row: LimitGroupRow;
+  layout: LimitGroupLayout;
+  resetLabel: string;
+  items: LimitItem[];
+}
+
+interface InputPanelProps {
+  state: CalculatorState;
+  handleInputChange: (event: ChangeEvent<HTMLInputElement>, field: LmdInputField) => void;
+  handleUpgradeCountChange: (
+    event: ChangeEvent<HTMLInputElement> | { target: { value: string } },
+    field: LimitInputField,
+    min: number,
+    max: number,
+    label?: string,
+  ) => void;
+  handleCalculate: (event?: MouseEvent<HTMLElement> | KeyboardEvent<HTMLInputElement>, calcMode?: CalcMode) => void;
+  onSwap: () => void;
+  onResetInputs: () => void;
+  onClearLmdInput: (field: LmdInputField) => void;
+  onModeWarning?: (message: string) => void;
+}
+
+const RollingNumber = ({ value }: RollingNumberProps) => {
   const text = Math.abs(value).toLocaleString("zh-CN");
 
   return (
@@ -43,7 +102,7 @@ const RollingNumber = ({ value }) => {
               style={{
                 "--rolling-digit": Number(char),
                 "--rolling-delay": `${Math.max(0, text.length - index - 1) * 18}ms`,
-              }}
+              } as RollingDigitStyle}
             >
               {"0123456789".split("").map((digit) => (
                 <span className={styles['rolling-digit']} key={digit}>
@@ -67,13 +126,13 @@ const InputPanel = ({
   onResetInputs,
   onClearLmdInput,
   onModeWarning,
-}) => {
-  const [pressedCalculate, setPressedCalculate] = useState(null);
-  const [limitResetAnimating, setLimitResetAnimating] = useState(null);
-  const [selectedCalcMode, setSelectedCalcMode] = useState("fast");
+}: InputPanelProps) => {
+  const [pressedCalculate, setPressedCalculate] = useState<CalcMode | null>(null);
+  const [limitResetAnimating, setLimitResetAnimating] = useState<LimitGroupLayout | null>(null);
+  const [selectedCalcMode, setSelectedCalcMode] = useState<CalcMode>("fast");
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const [hasWarnedStrongMode, setHasWarnedStrongMode] = useState(false);
-  const modeSelectRef = useRef(null);
+  const modeSelectRef = useRef<HTMLDivElement | null>(null);
 
   // 实时计算差值
   const diffInfo = useMemo(() => computeDiff(state.num1, state.num2), [state.num1, state.num2]);
@@ -94,12 +153,12 @@ const InputPanel = ({
   useEffect(() => {
     if (!modeMenuOpen) return undefined;
 
-    const handlePointerDown = (event) => {
-      if (!modeSelectRef.current?.contains(event.target)) {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!modeSelectRef.current?.contains(event.target as Node)) {
         setModeMenuOpen(false);
       }
     };
-    const handleEscape = (event) => {
+    const handleEscape = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") setModeMenuOpen(false);
     };
 
@@ -111,7 +170,7 @@ const InputPanel = ({
     };
   }, [modeMenuOpen]);
 
-  const limitGroups = [
+  const limitGroups: LimitGroup[] = [
     {
       title: "理智类",
       code: "SANITY USAGE",
@@ -198,13 +257,13 @@ const InputPanel = ({
   ];
 
   // Enter 键触发计算
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !state.isCalculating) {
       handleCalculate(e, selectedCalcMode);
     }
   };
 
-  const handleCalculateClick = (e) => {
+  const handleCalculateClick = (e: MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const originX = e.clientX
       ? `${e.clientX - rect.left}px`
@@ -216,7 +275,7 @@ const InputPanel = ({
     handleCalculate(e, selectedCalcMode);
   };
 
-  const handleModeSelect = (mode) => {
+  const handleModeSelect = (mode: CalcMode) => {
     setSelectedCalcMode(mode);
     setModeMenuOpen(false);
 
@@ -226,14 +285,14 @@ const InputPanel = ({
     }
   };
 
-  const handleLimitGroupReset = (group) => {
+  const handleLimitGroupReset = (group: LimitGroup) => {
     setLimitResetAnimating(group.layout);
     group.items.forEach(({ field, max }) => {
       handleUpgradeCountChange({ target: { value: "" } }, field, 0, max);
     });
   };
 
-  const renderLimitInput = ({ labelCn, field, max }) => {
+  const renderLimitInput = ({ labelCn, field, max }: Pick<LimitItem, "labelCn" | "field" | "max">) => {
     return (
       <input
         type="text"
@@ -551,7 +610,7 @@ const InputPanel = ({
               </button>
               {modeMenuOpen && (
                 <div className={styles['mode-menu']} role="listbox" aria-label="计算模式">
-                  {Object.entries(CALC_MODES).map(([mode, item]) => (
+                  {(Object.entries(CALC_MODES) as Array<[CalcMode, typeof CALC_MODES[CalcMode]]>).map(([mode, item]) => (
                     <button
                       type="button"
                       className={`${styles['mode-menu-item']} ${selectedCalcMode === mode ? styles['mode-menu-item-active'] : ''}`}

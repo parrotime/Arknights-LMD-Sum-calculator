@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import type { AssistantEggPayload, AssistantEggType } from "../types/calculator";
 
 const DRAG_THRESHOLD = 5;
 const BUTTON_SIZE = 64;
@@ -17,14 +19,54 @@ const ROBOT_ICONS = {
   up: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/r_up.webp",
   smile: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/r_smile.webp",
 };
-const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-const requestIdle = (callback) => {
+
+type RobotMood = keyof typeof ROBOT_ICONS;
+type ScrollDirection = Extract<RobotMood, "down" | "up">;
+type DragLean = "left" | "right" | "center";
+type BubblePlacement = "left" | "right";
+
+interface Position {
+  x: number;
+  y: number;
+}
+
+interface DragState {
+  startX: number;
+  startY: number;
+  lastX: number;
+  lastY: number;
+  lastTime: number;
+  traveledDistance: number;
+  fastDragDetected: boolean;
+  pointerId: number;
+  originX: number;
+  originY: number;
+}
+
+interface AssistantMessageObject {
+  text: string;
+  kaomoji: string;
+}
+
+type AssistantMessage = string | AssistantMessageObject;
+
+interface AssistantBubbleStyle extends CSSProperties {
+  "--assistant-pointer-top": string;
+}
+
+interface FloatingAssistantProps {
+  assistantEgg: AssistantEggPayload | null;
+  onAssistantEggClose?: () => void;
+}
+
+const prefersReducedMotion = (): boolean => window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+const requestIdle = (callback: IdleRequestCallback): number => {
   if (typeof window.requestIdleCallback === "function") {
     return window.requestIdleCallback(callback, { timeout: 2500 });
   }
   return window.setTimeout(callback, 1200);
 };
-const cancelIdle = (id) => {
+const cancelIdle = (id: number): void => {
   if (typeof window.cancelIdleCallback === "function") {
     window.cancelIdleCallback(id);
     return;
@@ -32,17 +74,17 @@ const cancelIdle = (id) => {
   window.clearTimeout(id);
 };
 
-const getDefaultPos = () => ({
+const getDefaultPos = (): Position => ({
   x: window.innerWidth - 24 - BUTTON_SIZE,
   y: window.innerHeight - 24 - BUTTON_SIZE,
 });
 
-const clampPosition = (pos) => ({
+const clampPosition = (pos: Position): Position => ({
   x: Math.min(Math.max(pos.x, 0), window.innerWidth - BUTTON_SIZE),
   y: Math.min(Math.max(pos.y, 0), window.innerHeight - BUTTON_SIZE),
 });
 
-const getTitleAnchorPos = () => {
+const getTitleAnchorPos = (): Position => {
   const anchor = document.querySelector(TITLE_ANCHOR_SELECTOR);
   if (!anchor) return getDefaultPos();
   const rect = anchor.getBoundingClientRect();
@@ -57,7 +99,7 @@ const getTitleAnchorPos = () => {
   });
 };
 
-const getAssistantMessage = (type) => {
+const getAssistantMessage = (type?: AssistantEggType | "dizzy"): AssistantMessage => {
   if (type === "recalculate") return "计算设置发生变化，请注意重新计算";
   if (type === "dizzy") {
     return {
@@ -81,8 +123,8 @@ const getAssistantMessage = (type) => {
   return "给心心";
 };
 
-const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
-  const [scrollDir, setScrollDir] = useState("down");
+const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssistantProps) => {
+  const [scrollDir, setScrollDir] = useState<ScrollDirection>("down");
   const [welcomeVisible, setWelcomeVisible] = useState(true);
   const [welcomeClosing, setWelcomeClosing] = useState(false);
   const [dragEggVisible, setDragEggVisible] = useState(false);
@@ -91,21 +133,21 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   const [assistantClosing, setAssistantClosing] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [isPointerActive, setIsPointerActive] = useState(false);
-  const [scrollTravelMood, setScrollTravelMood] = useState(null);
+  const [scrollTravelMood, setScrollTravelMood] = useState<ScrollDirection | null>(null);
   const welcomeClosingRef = useRef(false);
   const dragEggClosingRef = useRef(false);
   const lastFastDragAtRef = useRef(0);
   const assistantClosingRef = useRef(false);
-  const scrollTravelTargetRef = useRef(null);
-  const scrollTravelTimerRef = useRef(null);
-  const robotPressRef = useRef(null);
-  const robotClickAnimationRef = useRef(null);
+  const scrollTravelTargetRef = useRef<ScrollDirection | null>(null);
+  const scrollTravelTimerRef = useRef<number | undefined>(undefined);
+  const robotPressRef = useRef<HTMLSpanElement | null>(null);
+  const robotClickAnimationRef = useRef<Animation | null>(null);
 
-  const btnRef = useRef(null);
-  const dragState = useRef(null);
+  const btnRef = useRef<HTMLButtonElement | null>(null);
+  const dragState = useRef<DragState | null>(null);
   const [btnPos, setBtnPos] = useState(() => getTitleAnchorPos());
   const [isDragging, setIsDragging] = useState(false);
-  const [dragLean, setDragLean] = useState("center");
+  const [dragLean, setDragLean] = useState<DragLean>("center");
   const isDraggingRef = useRef(false);
 
   const triggerRobotClickPulse = useCallback(() => {
@@ -323,7 +365,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const onPointerDown = useCallback((e) => {
+  const onPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const btn = btnRef.current;
     if (!btn) return;
@@ -344,7 +386,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
     btn.setPointerCapture(e.pointerId);
   }, [btnPos]);
 
-  const onPointerMove = useCallback((e) => {
+  const onPointerMove = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
     if (!dragState.current) return;
     const dx = e.clientX - dragState.current.startX;
     const dy = e.clientY - dragState.current.startY;
@@ -381,7 +423,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
     setBtnPos({ x, y });
   }, []);
 
-  const resetPointerDrag = useCallback((e, shouldClick = false) => {
+  const resetPointerDrag = useCallback((e: React.PointerEvent<HTMLButtonElement>, shouldClick = false) => {
     if (!dragState.current) return;
     const dx = e.clientX - dragState.current.startX;
     const dy = e.clientY - dragState.current.startY;
@@ -410,11 +452,11 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
     setIsPointerActive(false);
   }, [handleScrollBtn, showDragEggBubble]);
 
-  const onPointerUp = useCallback((e) => {
+  const onPointerUp = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
     resetPointerDrag(e, true);
   }, [resetPointerDrag]);
 
-  const onPointerCancel = useCallback((e) => {
+  const onPointerCancel = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
     resetPointerDrag(e, false);
   }, [resetPointerDrag]);
 
@@ -424,7 +466,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   const showDragBubble = dragEggVisible && !showAssistantBubble;
   const showWelcomeBubble = welcomeVisible && !showAssistantBubble && !showDragBubble;
   const isEasterEggBubble = showAssistantBubble && assistantEgg?.type !== "recalculate";
-  const robotMood = (() => {
+  const robotMood = ((): RobotMood => {
     if (showDragBubble) return "dizzy";
     if (isDragging) return "cute";
     if (scrollTravelMood) return scrollTravelMood;
@@ -443,24 +485,26 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   }, [robotIcon]);
 
   const activeMessage = showDragBubble ? dragEggMessage : assistantMessage;
-  const bubblePlacement = btnPos.x + BUTTON_SIZE + BUBBLE_GAP + BUBBLE_WIDTH > window.innerWidth
+  const bubblePlacement: BubblePlacement = btnPos.x + BUTTON_SIZE + BUBBLE_GAP + BUBBLE_WIDTH > window.innerWidth
     ? "left"
     : "right";
   const bubbleHasImage = showAssistantBubble && assistantEgg?.imageUrl;
   const estimatedBubbleHeight = bubbleHasImage ? 252 : 86;
   const assistantCenterY = btnPos.y + BUTTON_SIZE / 2;
-  const assistantBubbleStyle = {
-    top: Math.min(
-      Math.max(assistantCenterY - estimatedBubbleHeight / 2, 72),
-      Math.max(window.innerHeight - estimatedBubbleHeight - 16, 72)
-    ),
+  const assistantBubbleTop = Math.min(
+    Math.max(assistantCenterY - estimatedBubbleHeight / 2, 72),
+    Math.max(window.innerHeight - estimatedBubbleHeight - 16, 72)
+  );
+  const assistantBubbleStyle: AssistantBubbleStyle = {
+    top: assistantBubbleTop,
     left: bubblePlacement === "right"
       ? btnPos.x + BUTTON_SIZE + BUBBLE_GAP
       : Math.max(btnPos.x - BUBBLE_WIDTH - BUBBLE_GAP, 8),
+    "--assistant-pointer-top": "22px",
   };
   const bubblePointerTop = Math.min(
     Math.max(
-      btnPos.y + BUTTON_SIZE / 2 - assistantBubbleStyle.top,
+      btnPos.y + BUTTON_SIZE / 2 - assistantBubbleTop,
       22
     ),
     bubbleHasImage ? 158 : estimatedBubbleHeight - 22

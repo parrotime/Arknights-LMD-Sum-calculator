@@ -1,15 +1,32 @@
-import PropTypes from "prop-types";
 import { getItemById } from "../DataService";
 import { getRarityColor, computeStepData, computeRunningTotals } from "../utils/calcLogic";
 import PlanCard from "./PlanCard";
+import type { PlanStepItem, PlanSummaryItem } from "./PlanCard";
+import type { CalculationPath, StepData } from "../types/calculator";
 import styles from "../assets/styles/PathRenderer.module.css";
 
 const CIRCLED_NUMS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
 
-const formatPlanNumber = (index) => String(index + 1).padStart(2, "0");
+const formatPlanNumber = (index: number): string => String(index + 1).padStart(2, "0");
 
-const buildPathText = ({ safePath, stepData, runningTotals, startLMD, totalSanity, planIndex }) => {
-  const endLMD = runningTotals[runningTotals.length - 1];
+interface BuildPathTextParams {
+  safePath: CalculationPath;
+  stepData: Array<StepData | null>;
+  runningTotals: number[];
+  startLMD: number;
+  totalSanity: number;
+  planIndex: number;
+}
+
+const buildPathText = ({
+  safePath,
+  stepData,
+  runningTotals,
+  startLMD,
+  totalSanity,
+  planIndex,
+}: BuildPathTextParams): string => {
+  const endLMD = runningTotals[runningTotals.length - 1] ?? startLMD;
   const header = `【龙门币凑数计算器 ark-lmd.top | PLAN ${formatPlanNumber(planIndex)}】`;
   const sanityPart = totalSanity > 0 ? ` | 消耗理智 ${totalSanity}` : "";
   const summaryLine = `龙门币 ${startLMD} → ${endLMD} | 共 ${safePath.length} 步${sanityPart}`;
@@ -28,7 +45,13 @@ const buildPathText = ({ safePath, stepData, runningTotals, startLMD, totalSanit
   return `${header}\n${summaryLine}\n\n${lines.join("\n")}`;
 };
 
-const PathPlanCard = ({ path, initialLMD, planIndex }) => {
+interface PathPlanCardProps {
+  path: CalculationPath;
+  initialLMD: number;
+  planIndex: number;
+}
+
+const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
   const safePath = Array.isArray(path) ? path : [];
 
   if (safePath.length === 0) {
@@ -38,9 +61,9 @@ const PathPlanCard = ({ path, initialLMD, planIndex }) => {
   const startLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
   const { steps: stepData, totalSanity } = computeStepData(safePath, getItemById);
   const runningTotals = computeRunningTotals(stepData, startLMD);
-  const endLMD = runningTotals[runningTotals.length - 1];
+  const endLMD = runningTotals[runningTotals.length - 1] ?? startLMD;
 
-  const summaryItems = [
+  const summaryItems: PlanSummaryItem[] = [
     {
       label: "步骤共",
       values: [{ text: safePath.length }],
@@ -62,7 +85,7 @@ const PathPlanCard = ({ path, initialLMD, planIndex }) => {
     },
   ];
 
-  const steps = safePath.map((step, i) => {
+  const steps: PlanStepItem[] = safePath.map((step, i) => {
     const sd = stepData[i];
 
     if (!sd) {
@@ -85,9 +108,9 @@ const PathPlanCard = ({ path, initialLMD, planIndex }) => {
       itemStyle: { color: getRarityColor(item.rarity) },
       count: step.count,
       deltaText: `${isGain ? "+" : "-"}${step.count > 1 ? `(${Math.abs(item.item_value)}×${step.count}=)` : ""}${Math.abs(stepValue)} 龙门币`,
-      deltaType: isGain ? "gain" : "spend",
+      deltaType: isGain ? "gain" as const : "spend" as const,
       totalLabel: i === safePath.length - 1 ? "结果" : "当前",
-      runningTotal: runningTotals[i],
+      runningTotal: runningTotals[i] ?? startLMD,
       isFinal: i === safePath.length - 1,
     };
   });
@@ -104,7 +127,12 @@ const PathPlanCard = ({ path, initialLMD, planIndex }) => {
   );
 };
 
-const PathRenderer = ({ paths, initialLMD }) => {
+interface PathRendererProps {
+  paths: CalculationPath[];
+  initialLMD: number;
+}
+
+const PathRenderer = ({ paths, initialLMD }: PathRendererProps) => {
   const safePaths = Array.isArray(paths) ? paths : [];
 
   if (safePaths.length === 0) {
@@ -126,24 +154,6 @@ const PathRenderer = ({ paths, initialLMD }) => {
 
     </div>
   );
-};
-
-const pathPropType = PropTypes.arrayOf(
-  PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    count: PropTypes.number.isRequired,
-  })
-);
-
-PathPlanCard.propTypes = {
-  path: pathPropType.isRequired,
-  initialLMD: PropTypes.number.isRequired,
-  planIndex: PropTypes.number.isRequired,
-};
-
-PathRenderer.propTypes = {
-  paths: PropTypes.arrayOf(pathPropType).isRequired,
-  initialLMD: PropTypes.number.isRequired,
 };
 
 export default PathRenderer;
