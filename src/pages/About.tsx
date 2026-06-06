@@ -49,6 +49,26 @@ type SyncHelpStyle = CSSProperties & {
   '--about-sync-arrow-edge'?: 'top' | 'bottom';
 };
 
+const actionIconUrls = {
+  survey: 'https://ark-lmd.oss-cn-beijing.aliyuncs.com/survey.svg',
+  feedback: 'https://ark-lmd.oss-cn-beijing.aliyuncs.com/document.svg',
+  bilibili: 'https://ark-lmd.oss-cn-beijing.aliyuncs.com/bilibili.svg',
+  github: 'https://ark-lmd.oss-cn-beijing.aliyuncs.com/github.svg',
+} as const;
+
+type ActionIconName = keyof typeof actionIconUrls;
+
+function ActionLinkIcon({ name }: { name: ActionIconName }) {
+  return (
+    <img
+      src={actionIconUrls[name]}
+      alt=""
+      decoding="async"
+      loading="lazy"
+    />
+  );
+}
+
 const timelineItems: TimelineItem[] = [
   { version: "v2.0.0", date: "2026年6月", desc: (
     <>
@@ -588,7 +608,7 @@ function AboutPage() {
         <section className={styles['action-grid']} aria-label="反馈与外部链接">
           <div className={styles['action-panel']}>
             <div>
-              <span className={styles['panel-code']}>FEEDBACK CHANNEL</span>
+              <span className={styles['panel-code']}>FEEDBACK</span>
               <h2>反馈通道</h2>
             </div>
             <div className={styles['link-row']}>
@@ -598,7 +618,10 @@ function AboutPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                填写反馈问卷
+                <span className={styles['archive-link-icon']} aria-hidden="true">
+                  <ActionLinkIcon name="survey" />
+                </span>
+                <span>填写反馈问卷</span>
               </a>
               <a
                 className={styles['archive-link']}
@@ -606,7 +629,10 @@ function AboutPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                查看反馈详情
+                <span className={styles['archive-link-icon']} aria-hidden="true">
+                  <ActionLinkIcon name="feedback" />
+                </span>
+                <span>查看反馈详情</span>
               </a>
             </div>
           </div>
@@ -623,7 +649,10 @@ function AboutPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Bilibili
+                <span className={styles['archive-link-icon']} aria-hidden="true">
+                  <ActionLinkIcon name="bilibili" />
+                </span>
+                <span>Bilibili</span>
               </a>
               <a
                 className={styles['archive-link']}
@@ -631,7 +660,10 @@ function AboutPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                GITHUB
+                <span className={styles['archive-link-icon']} aria-hidden="true">
+                  <ActionLinkIcon name="github" />
+                </span>
+                <span>GITHUB</span>
               </a>
             </div>
           </div>
