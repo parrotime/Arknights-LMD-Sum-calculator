@@ -46,7 +46,7 @@ export const Transmission = async (
    });
 
     if (!response.ok) {
-      let errorData = {
+      const errorData = {
         message: `服务器响应错误: ${response.status} ${response.statusText}`,
       };
       try {
@@ -54,7 +54,7 @@ export const Transmission = async (
         if (data && data.error) {
           errorData.message = data.error;
         }
-      } catch (jsonError) {
+      } catch {
         // 解析错误响应失败，使用默认错误信息
       }
       const error: ApiError = new Error(errorData.message);

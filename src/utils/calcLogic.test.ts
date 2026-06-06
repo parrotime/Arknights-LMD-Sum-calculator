@@ -9,6 +9,7 @@ import {
   computeStepData,
   computeRunningTotals,
 } from "./calcLogic.ts";
+import type { GameItem } from "../DataService";
 
 // ============================================================
 // 1. validateInput
@@ -83,23 +84,27 @@ describe("computeDiff", () => {
 
   it("正常差值", () => {
     const r = computeDiff("1000", "3000");
+    assert.ok(r);
     assert.equal(r.value, 2000);
     assert.equal(r.outOfRange, false);
   });
 
   it("超出范围标记 outOfRange=true", () => {
     const r = computeDiff("0", "6000");
+    assert.ok(r);
     assert.equal(r.value, 6000);
     assert.equal(r.outOfRange, true);
   });
 
   it("边界值 5000 不超范围", () => {
     const r = computeDiff("0", "5000");
+    assert.ok(r);
     assert.equal(r.outOfRange, false);
   });
 
   it("边界值 5001 超范围", () => {
     const r = computeDiff("0", "5001");
+    assert.ok(r);
     assert.equal(r.outOfRange, true);
   });
 });
@@ -265,12 +270,45 @@ describe("getRarityColor", () => {
 // ============================================================
 
 // mock 物品查找函数
-const mockItems = new Map([
-  [1, { id: 1, item_name: "升级A", item_value: -61, rarity: 1, consume: 0 }],
-  [2, { id: 2, item_name: "关卡B", item_value: 72, rarity: 3, consume: 6 }],
-  [3, { id: 3, item_name: "贸易C", item_value: 1000, rarity: 5, consume: 0 }],
+const mockItems = new Map<number, GameItem>([
+  [
+    1,
+    {
+      id: 1,
+      item_id: "upgrade-a",
+      item_name: "升级A",
+      item_value: -61,
+      rarity: 1,
+      type: "upgrade",
+      consume: 0,
+    },
+  ],
+  [
+    2,
+    {
+      id: 2,
+      item_id: "stage-b",
+      item_name: "关卡B",
+      item_value: 72,
+      rarity: 3,
+      type: "stage",
+      consume: 6,
+    },
+  ],
+  [
+    3,
+    {
+      id: 3,
+      item_id: "trade-c",
+      item_name: "贸易C",
+      item_value: 1000,
+      rarity: 5,
+      type: "trade",
+      consume: 0,
+    },
+  ],
 ]);
-const mockGetItem = (id) => mockItems.get(id) || null;
+const mockGetItem = (id: number): GameItem | null => mockItems.get(id) || null;
 
 describe("computeStepData", () => {
   it("空路径 → 空 steps, totalSanity=0", () => {
@@ -282,6 +320,7 @@ describe("computeStepData", () => {
   it("正确计算 stepValue 和 totalSanity", () => {
     const path = [{ id: 2, count: 3 }];
     const r = computeStepData(path, mockGetItem);
+    assert.ok(r.steps[0]);
     assert.equal(r.steps[0].stepValue, 72 * 3);
     assert.equal(r.totalSanity, 6 * 3);
   });
