@@ -229,6 +229,14 @@ func (h *Handler) FindPaths(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
 		return
 	}
+	if h.maintenance.Enabled {
+		h.logCalcEvent("calc_rejected", requestID, ip, ipHash, 0, false, 0, "", "", time.Since(started).Milliseconds(), 0, "maintenance", "maintenance")
+		writeJSON(w, http.StatusServiceUnavailable, map[string]any{
+			"error":       "网页维护中，请稍后再试。",
+			"maintenance": h.maintenance,
+		})
+		return
+	}
 
 	var req findPathsRequest
 	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 100*1024))

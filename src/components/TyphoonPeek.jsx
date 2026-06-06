@@ -27,7 +27,13 @@ const TyphoonPeek = ({ triggerKey }) => {
       aria-hidden="true"
       onAnimationEnd={() => setVisible(false)}
     >
-      <img src={TYPHOON_799_IMAGE_URL} alt="" className="typhoon-peek-image" />
+      <img
+        src={TYPHOON_799_IMAGE_URL}
+        alt=""
+        className="typhoon-peek-image"
+        loading="lazy"
+        decoding="async"
+      />
     </div>
   );
 };

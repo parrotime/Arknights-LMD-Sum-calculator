@@ -165,6 +165,8 @@ const SIGNATURE_KEYS = [
   "trade5Count",
 ];
 
+const LIMIT_INPUT_WARNING_COOLDOWN = 1800;
+
 const buildResultSignature = (state) => JSON.stringify({
   inputs: Object.fromEntries(SIGNATURE_KEYS.map((key) => [key, state[key] ?? ""])),
   settings: state.settings,
@@ -421,12 +423,14 @@ const MainCalculator = ({ onAssistantEgg }) => {
   const [showModal, setShowModal] = useState(false);
   const [heartsElement, triggerHeart] = useHeartEffect();
   const { setCalculating } = useCursorState();
+  const limitInputWarningRef = React.useRef({});
 
-  const showAssistantText = useCallback((message, priority = "normal") => {
+  const showAssistantText = useCallback((message, priority = "normal", duration) => {
     onAssistantEgg?.({
       type: "message",
       message,
       priority,
+      duration,
     });
   }, [onAssistantEgg]);
 
@@ -556,20 +560,35 @@ const MainCalculator = ({ onAssistantEgg }) => {
     dispatch({ type: "SET_NUM", field, value: numValue.toString() });
   }, []);
 
+  const notifyLimitInputWarning = useCallback((field, message) => {
+    const now = Date.now();
+    if (now - (limitInputWarningRef.current[field] ?? 0) < LIMIT_INPUT_WARNING_COOLDOWN) {
+      return;
+    }
+    limitInputWarningRef.current[field] = now;
+    showAssistantText(message, "high", 5000);
+  }, [showAssistantText]);
+
   // 处理左边限制类数量输入
-  const handleUpgradeCountChange = useCallback((e, field, min, max) => {
-    const value = e.target.value;
+  const handleUpgradeCountChange = useCallback((e, field, min, max, label = "这个输入框") => {
+    const rawValue = String(e.target.value ?? "");
+    const value = rawValue.replace(/[^\d]/g, "");
     if (value === "") {
       dispatch({ type: "SET_UPGRADE_COUNT", field, value: "" });
       return;
     }
 
-    const numValue = parseInt(value, 10);
-    if (isNaN(numValue) || numValue < min || numValue > max) {
+    const trimmedValue = value.slice(0, 6);
+    let numValue = parseInt(trimmedValue, 10);
+    if (Number.isNaN(numValue) || numValue < min) {
       return;
     }
+    if (numValue > max) {
+      numValue = max;
+      notifyLimitInputWarning(field, `${label}的上限是 ${max}，已按上限处理`);
+    }
     dispatch({ type: "SET_UPGRADE_COUNT", field, value: numValue.toString() });
-  }, []);
+  }, [notifyLimitInputWarning]);
 
   // 主体计算逻辑
   const handleCalculate = useCallback(

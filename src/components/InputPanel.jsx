@@ -1,18 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { computeDiff } from "../utils/calcLogic";
-import LimitWheelInput from "./LimitWheelInput";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
 import styles from "../assets/styles/InputPanel.module.css";
-
-const WHEEL_LIMIT_FIELDS = new Set([
-  "upgrade0Count",
-  "upgrade1Count",
-  "upgrade2Count",
-  "trade2Count",
-  "trade3Count",
-  "trade4Count",
-  "trade5Count",
-]);
 
 const CALC_MODES = {
   fast: {
@@ -237,10 +226,6 @@ const InputPanel = ({
     }
   };
 
-  const handleLimitWheelChange = (field, value, max) => {
-    handleUpgradeCountChange({ target: { value } }, field, 0, max);
-  };
-
   const handleLimitGroupReset = (group) => {
     setLimitResetAnimating(group.layout);
     group.items.forEach(({ field, max }) => {
@@ -249,29 +234,18 @@ const InputPanel = ({
   };
 
   const renderLimitInput = ({ labelCn, field, max }) => {
-    if (WHEEL_LIMIT_FIELDS.has(field)) {
-      return (
-        <LimitWheelInput
-          value={state[field] ?? ""}
-          min={0}
-          max={max}
-          placeholder="不限"
-          ariaLabel={`${labelCn}数量限制`}
-          onChange={(value) => handleLimitWheelChange(field, value, max)}
-        />
-      );
-    }
-
     return (
       <input
-        type="number"
+        type="text"
         className={styles['short-input-box']}
         min="0"
         max={max}
-        step="1"
+        inputMode="numeric"
+        pattern="[0-9]*"
         placeholder="不限"
+        aria-label={`${labelCn}数量限制`}
         value={state[field] ?? ""}
-        onChange={(e) => handleUpgradeCountChange(e, field, 0, max)}
+        onChange={(e) => handleUpgradeCountChange(e, field, 0, max, labelCn)}
       />
     );
   };
@@ -299,12 +273,14 @@ const InputPanel = ({
                 src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/42.webp"
                 alt=""
                 aria-hidden="true"
+                decoding="async"
               />
               <img
                 className={styles['lmd-inventory-icon']}
                 src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/lmd_logo.webp"
                 alt=""
                 aria-hidden="true"
+                decoding="async"
               />
               <div className={styles['input-row']}>
                 <div className={styles['input-field']} data-native-cursor="true">
@@ -341,6 +317,7 @@ const InputPanel = ({
               src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/turn_right.webp"
               alt=""
               aria-hidden="true"
+              decoding="async"
             />
 
             <div className={`${styles['lmd-input-side']} ${styles['lmd-input-side-right']}`}>
@@ -385,6 +362,7 @@ const InputPanel = ({
                   src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/exchange.webp"
                   alt=""
                   aria-hidden="true"
+                  decoding="async"
                 />
               </button>
 
@@ -400,6 +378,7 @@ const InputPanel = ({
                   src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/clean.webp"
                   alt=""
                   aria-hidden="true"
+                  decoding="async"
                 />
               </button>
             </div>
@@ -431,6 +410,7 @@ const InputPanel = ({
                       src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/clean.webp"
                       alt=""
                       aria-hidden="true"
+                      decoding="async"
                     />
                   </button>
                   <span className={styles['limit-category-title']}>{group.title}</span>
@@ -439,7 +419,13 @@ const InputPanel = ({
                 <div className={`${styles['limit-card-grid']} ${styles[`limit-card-grid-${group.layout}`]}`}>
                   {group.items.map(({ labelCn, labelEn, field, max, icon }) => (
                     <label className={styles['limit-card']} key={field}>
-                      <img className={styles['limit-card-icon']} src={icon} alt="" aria-hidden="true" />
+                      <img
+                        className={styles['limit-card-icon']}
+                        src={icon}
+                        alt=""
+                        aria-hidden="true"
+                        decoding="async"
+                      />
                       <span className={styles['limit-card-text']}>
                         <span className={styles['limit-card-label-cn']}>{labelCn}</span>
                         <span className={styles['limit-card-label-en']}>{labelEn}</span>
@@ -470,6 +456,7 @@ const InputPanel = ({
                     src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/clean.webp"
                     alt=""
                     aria-hidden="true"
+                    decoding="async"
                   />
                 </button>
                 <span className={styles['limit-category-title']}>{group.title}</span>
@@ -478,7 +465,13 @@ const InputPanel = ({
               <div className={`${styles['limit-card-grid']} ${styles[`limit-card-grid-${group.layout}`]}`}>
                 {group.items.map(({ labelCn, labelEn, field, max, icon }) => (
                   <label className={styles['limit-card']} key={field}>
-                    <img className={styles['limit-card-icon']} src={icon} alt="" aria-hidden="true" />
+                    <img
+                      className={styles['limit-card-icon']}
+                      src={icon}
+                      alt=""
+                      aria-hidden="true"
+                      decoding="async"
+                    />
                     <span className={styles['limit-card-text']}>
                       <span className={styles['limit-card-label-cn']}>{labelCn}</span>
                       <span className={styles['limit-card-label-en']}>{labelEn}</span>
@@ -552,6 +545,7 @@ const InputPanel = ({
                     src={MODE_TOGGLE_ICON}
                     alt=""
                     draggable="false"
+                    decoding="async"
                   />
                 </span>
               </button>
@@ -572,6 +566,8 @@ const InputPanel = ({
                           src={item.badgeIcon}
                           alt={item.badgeLabel}
                           draggable="false"
+                          loading="lazy"
+                          decoding="async"
                         />
                         <span>{item.label}</span>
                       </span>

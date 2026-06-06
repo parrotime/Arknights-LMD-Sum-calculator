@@ -171,6 +171,7 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
             src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/clean.webp"
             alt=""
             aria-hidden="true"
+            decoding="async"
           />
         </button>
       </div>
@@ -185,6 +186,7 @@ const SettingsPanel = ({ settings, onToggle, onReset }) => {
                       src={icon}
                       alt=""
                       aria-hidden="true"
+                      decoding="async"
                     />
                     <div className={styles['settings-card-title']}>
                       <span className={styles['settings-card-title-main']}>{title}</span>

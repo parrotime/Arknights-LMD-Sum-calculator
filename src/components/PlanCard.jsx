@@ -64,6 +64,8 @@ const PlanCard = ({
             src={copied ? COPIED_ICON_URL : COPY_ICON_URL}
             alt=""
             className={`${styles['copy-icon']} ${copied ? styles['copy-icon-done'] : styles['copy-icon-copy']}`}
+            loading="lazy"
+            decoding="async"
           />
           <span>{copied ? "COPIED" : "COPY"}</span>
         </button>

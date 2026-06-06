@@ -85,7 +85,7 @@ const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose })
       <nav className="top-nav">
         <div className="nav-inner">
           <div className="nav-brand">
-            <img src="/LMD.webp" alt="龙门币" className="nav-brand-icon" />
+            <img src="/LMD.webp" alt="龙门币" className="nav-brand-icon" decoding="async" />
             龙门币凑数计算器
           </div>
           <div className="nav-links" ref={navLinksRef}>
@@ -128,6 +128,7 @@ const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose })
               }
               alt=""
               aria-hidden="true"
+              decoding="async"
               onAnimationEnd={() => setThemeToggleAnimating(false)}
             />
           </button>

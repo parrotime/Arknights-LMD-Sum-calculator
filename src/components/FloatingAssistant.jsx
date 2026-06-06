@@ -18,6 +18,19 @@ const ROBOT_ICONS = {
   smile: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/r_smile.webp",
 };
 const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+const requestIdle = (callback) => {
+  if (typeof window.requestIdleCallback === "function") {
+    return window.requestIdleCallback(callback, { timeout: 2500 });
+  }
+  return window.setTimeout(callback, 1200);
+};
+const cancelIdle = (id) => {
+  if (typeof window.cancelIdleCallback === "function") {
+    window.cancelIdleCallback(id);
+    return;
+  }
+  window.clearTimeout(id);
+};
 
 const getDefaultPos = () => ({
   x: window.innerWidth - 24 - BUTTON_SIZE,
@@ -128,11 +141,29 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
   }, []);
 
   useEffect(() => {
-    Object.values(ROBOT_ICONS).forEach((src) => {
-      const img = new Image();
-      img.src = src;
+    const immediateIcon = new Image();
+    immediateIcon.decoding = "async";
+    immediateIcon.src = ROBOT_ICONS.smile;
+
+    const idleId = requestIdle(() => {
+      Object.entries(ROBOT_ICONS)
+        .filter(([mood]) => mood !== "smile")
+        .forEach(([, src]) => {
+          const img = new Image();
+          img.decoding = "async";
+          img.src = src;
+        });
     });
+
+    return () => cancelIdle(idleId);
   }, []);
+
+  useEffect(() => {
+    if (!assistantEgg?.imageUrl) return;
+      const img = new Image();
+      img.decoding = "async";
+      img.src = assistantEgg.imageUrl;
+  }, [assistantEgg?.imageUrl]);
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
@@ -256,7 +287,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
     assistantClosingRef.current = false;
     const timer = window.setTimeout(() => {
       closeAssistantBubble();
-    }, 5000);
+    }, assistantEgg.duration ?? 5000);
     return () => window.clearTimeout(timer);
   }, [assistantEgg, closeAssistantBubble]);
 
@@ -403,6 +434,14 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
     return "smile";
   })();
   const robotIcon = ROBOT_ICONS[robotMood] ?? ROBOT_ICONS.smile;
+
+  useEffect(() => {
+    if (!robotIcon || robotIcon === ROBOT_ICONS.smile) return;
+    const img = new Image();
+    img.decoding = "async";
+    img.src = robotIcon;
+  }, [robotIcon]);
+
   const activeMessage = showDragBubble ? dragEggMessage : assistantMessage;
   const bubblePlacement = btnPos.x + BUTTON_SIZE + BUBBLE_GAP + BUBBLE_WIDTH > window.innerWidth
     ? "left"
@@ -460,6 +499,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
               alt=""
               className="assistant-robot-icon"
               draggable="false"
+              decoding="async"
             />
           </span>
         </span>
@@ -499,6 +539,8 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }) => {
                 src={assistantEgg.imageUrl}
                 alt="彩蛋"
                 className="assistant-bubble-image"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           )}

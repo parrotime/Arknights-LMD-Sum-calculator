@@ -8,7 +8,7 @@ import {
   getRarityColor,
   computeStepData,
   computeRunningTotals,
-} from "./calcLogic.js";
+} from "./calcLogic.ts";
 
 // ============================================================
 // 1. validateInput

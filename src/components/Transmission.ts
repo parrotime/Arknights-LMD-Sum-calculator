@@ -1,26 +1,15 @@
-interface Settings {
-  [key: string]: boolean;
-}
-
-interface UserLimits {
-  upgrade0Limit: number | string;
-  upgrade1Limit: number | string;
-  upgrade2Limit: number | string;
-  sanityLimit: number | string;
-  trade2Limit: number | string;
-  trade3Limit: number | string;
-  trade4Limit: number | string;
-  trade5Limit: number | string;
-}
-
-interface ApiError extends Error {
-  status?: number;
-  isNetworkError?: boolean;
-}
+import type {
+  ApiError,
+  CalculatorSettings,
+  CalculationPath,
+  CalcMode,
+  CalculateResponse,
+  UserLimits,
+} from "../types/calculator";
 
 export const Transmission = async (
   target: number,
-  settings: Settings,
+  settings: CalculatorSettings,
   {
     upgrade0Limit,
     upgrade1Limit,
@@ -32,8 +21,8 @@ export const Transmission = async (
     trade5Limit,
   }: UserLimits,
   rawGoal: number,
-  calcMode = "fast",
-) => {
+  calcMode: CalcMode = "fast",
+): Promise<CalculationPath[]> => {
   try {
    const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/find-paths`, {
      method: "POST",
@@ -61,7 +50,7 @@ export const Transmission = async (
         message: `服务器响应错误: ${response.status} ${response.statusText}`,
       };
       try {
-        const data = await response.json();
+        const data = await response.json() as Partial<CalculateResponse>;
         if (data && data.error) {
           errorData.message = data.error;
         }
@@ -73,7 +62,7 @@ export const Transmission = async (
       throw error;
     }
 
-    const data = await response.json();
+    const data = await response.json() as CalculateResponse;
 
     if (!data.success) {
       const error: ApiError = new Error(

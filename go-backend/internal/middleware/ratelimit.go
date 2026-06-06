@@ -12,6 +12,8 @@ import (
 	"ark-lmd-go-backend/internal/logging"
 )
 
+const defaultMaxTrackedClients = 4096
+
 type RateLimitConfig struct {
 	Window     time.Duration
 	Max        int
@@ -35,9 +37,10 @@ func RateLimit(next http.Handler, cfg RateLimitConfig) http.Handler {
 
 	var mu sync.Mutex
 	clients := make(map[string]clientWindow)
+	lastCleanup := time.Now()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/find-paths" {
+		if !shouldRateLimitPath(r.URL.Path) {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -45,18 +48,25 @@ func RateLimit(next http.Handler, cfg RateLimitConfig) http.Handler {
 		ip := clientIP(r, cfg.TrustProxy)
 		now := time.Now()
 		mu.Lock()
-		for client, window := range clients {
-			if now.After(window.resetAt) {
-				delete(clients, client)
+		if now.Sub(lastCleanup) >= cfg.Window {
+			for client, window := range clients {
+				if now.After(window.resetAt) {
+					delete(clients, client)
+				}
 			}
+			lastCleanup = now
 		}
-		window := clients[ip]
+		window, tracked := clients[ip]
 		if window.resetAt.IsZero() || now.After(window.resetAt) {
 			window = clientWindow{count: 0, resetAt: now.Add(cfg.Window)}
 		}
 		window.count++
-		clients[ip] = window
 		limited := window.count > cfg.Max
+		if !tracked && len(clients) >= defaultMaxTrackedClients {
+			limited = true
+		} else {
+			clients[ip] = window
+		}
 		mu.Unlock()
 
 		if limited {
@@ -73,6 +83,13 @@ func RateLimit(next http.Handler, cfg RateLimitConfig) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func shouldRateLimitPath(path string) bool {
+	if path == "/find-paths" || path == "/cache-stats" || path == "/server-stats" {
+		return true
+	}
+	return strings.HasPrefix(path, "/admin/")
 }
 
 func clientIP(r *http.Request, trustProxy bool) string {

@@ -20,6 +20,8 @@ const (
 	currentStatsVersion  = 2
 )
 
+var beijingLocation = time.FixedZone("Asia/Shanghai", 8*60*60)
+
 type Options struct {
 	LogDir        string
 	LogFileName   string
@@ -290,7 +292,7 @@ func (s *Service) Update() bool {
 		Offset: readOffset,
 		Size:   info.Size(),
 	}
-	s.stats.UpdatedAt = time.Now().Format(time.RFC3339)
+	s.stats.UpdatedAt = nowBeijing().Format(time.RFC3339)
 	return true
 }
 
@@ -340,7 +342,7 @@ func (s *Service) Rebuild() bool {
 		Offset: readOffset,
 		Size:   info.Size(),
 	}
-	next.UpdatedAt = time.Now().Format(time.RFC3339)
+	next.UpdatedAt = nowBeijing().Format(time.RFC3339)
 
 	s.mu.Lock()
 	s.stats = next
@@ -395,7 +397,7 @@ func (s *Service) load() error {
 }
 
 func newSnapshot(logFileName string) Snapshot {
-	now := time.Now().Format(time.RFC3339)
+	now := nowBeijing().Format(time.RFC3339)
 	snapshot := Snapshot{
 		Version:       currentStatsVersion,
 		UpdatedAt:     now,
@@ -417,7 +419,7 @@ func normalizeSnapshot(snapshot *Snapshot, logFileName string) {
 		snapshot.Version = 1
 	}
 	if snapshot.UpdatedAt == "" {
-		snapshot.UpdatedAt = time.Now().Format(time.RFC3339)
+		snapshot.UpdatedAt = nowBeijing().Format(time.RFC3339)
 	}
 	if snapshot.Source.File == "" {
 		snapshot.Source.File = logFileName
@@ -480,7 +482,7 @@ func applyEvent(snapshot *Snapshot, event calcLogEvent, recentLimit int) bool {
 		return false
 	}
 
-	eventTime := parseEventTime(event.Time)
+	eventTime := parseEventTime(event.Time).In(beijingLocation)
 	hourKey := eventTime.Format("2006-01-02T15")
 	dayKey := eventTime.Format("2006-01-02")
 	monthKey := eventTime.Format("2006-01")
@@ -582,25 +584,29 @@ func applyMetric(values map[string]MetricSnapshot, key string, event calcLogEven
 
 func parseEventTime(raw string) time.Time {
 	if raw == "" {
-		return time.Now()
+		return nowBeijing()
 	}
 	if value, err := time.Parse(time.RFC3339Nano, raw); err == nil {
-		return value
+		return value.In(beijingLocation)
 	}
 	if value, err := time.Parse(time.RFC3339, raw); err == nil {
-		return value
+		return value.In(beijingLocation)
 	}
-	return time.Now()
+	return nowBeijing()
 }
 
 func buildSeries(snapshot Snapshot) SeriesSnapshot {
-	now := time.Now()
+	now := nowBeijing()
 	return SeriesSnapshot{
 		Last24Hours:  buildHourSeries(snapshot.ByHour, snapshot.ByHourDetail, now, 24),
 		Last7Days:    buildDaySeries(snapshot.ByDay, snapshot.ByDayDetail, now, 7),
 		Last30Days:   buildDaySeries(snapshot.ByDay, snapshot.ByDayDetail, now, 30),
 		Last12Months: buildMonthSeries(snapshot.ByMonth, snapshot.ByMonthDetail, now, 12),
 	}
+}
+
+func nowBeijing() time.Time {
+	return time.Now().In(beijingLocation)
 }
 
 func buildHourSeries(values map[string]int, detailValues map[string]MetricSnapshot, now time.Time, count int) []SeriesPoint {

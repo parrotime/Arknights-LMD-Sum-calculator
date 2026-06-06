@@ -2,6 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"ark-lmd-go-backend/internal/calc"
@@ -62,5 +64,30 @@ func TestBuildCacheKeyNormalizesCalcMode(t *testing.T) {
 	}
 	if fastKey == strongKey {
 		t.Fatal("expected strong mode to use a distinct cache key")
+	}
+}
+
+func TestFindPathsRejectsDuringMaintenance(t *testing.T) {
+	handler := NewHandler(HandlerOptions{
+		Maintenance: MaintenanceConfig{
+			Enabled:  true,
+			Title:    "维护中",
+			Subtitle: "请稍后再试",
+		},
+	})
+	req := httptest.NewRequest(http.MethodPost, "/find-paths", nil)
+	recorder := httptest.NewRecorder()
+
+	handler.FindPaths(recorder, req)
+
+	if recorder.Code != http.StatusServiceUnavailable {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusServiceUnavailable)
+	}
+	var body map[string]any
+	if err := json.Unmarshal(recorder.Body.Bytes(), &body); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := body["maintenance"]; !ok {
+		t.Fatalf("expected maintenance payload, got %v", body)
 	}
 }

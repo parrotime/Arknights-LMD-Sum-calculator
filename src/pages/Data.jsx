@@ -16,7 +16,13 @@ const prefersReducedMotion = () => window.matchMedia?.("(prefers-reduced-motion:
 
 const TableHeadChip = ({ icon, text, alt = "" }) => (
   <span className={styles['table-head-chip']}>
-    <img src={icon} alt={alt} className={styles['table-head-icon']} />
+    <img
+      src={icon}
+      alt={alt}
+      className={styles['table-head-icon']}
+      loading="lazy"
+      decoding="async"
+    />
     {text && <span className={styles['table-count-chip']}>{text}</span>}
   </span>
 );

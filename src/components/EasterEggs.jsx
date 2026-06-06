@@ -87,7 +87,15 @@ export const useHeartEffect = () => {
       style={{ left: `${x}px`, top: `${y}px` }}
       onAnimationEnd={() => setHearts((prev) => prev.filter((h) => h.id !== id))}
     >
-      {effect.type === "image" && <img className="love-heart-icon" src={effect.value} alt="" />}
+      {effect.type === "image" && (
+        <img
+          className="love-heart-icon"
+          src={effect.value}
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+      )}
       ❤️
     </div>
   ));
@@ -121,6 +129,8 @@ export const BonusModal = ({ show, onClose, styles }) => (
           src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/rosmontis5.webp"
           alt="Bonus"
           className={styles["bonus-image"]}
+          loading="lazy"
+          decoding="async"
         />
         <p className={styles["bonus-text"]}>
           迷迭香发现你点了好多次按钮，她提醒你记得休息一下
