@@ -10,6 +10,7 @@ const DEFAULT_INPUT = resolve(PROJECT_ROOT, "backend-out (5).log");
 const DEFAULT_OUT_DIR = __dirname;
 const DEFAULT_REPORT = "legacy_analysis_report.txt";
 const DEFAULT_DATA = "legacy_analysis_data.json";
+const DEFAULT_MONTHLY_TOP_GOALS = "legacy_monthly_top_goals.txt";
 const DEFAULT_FRONTEND_DATA = resolve(PROJECT_ROOT, "src", "data", "legacyLogStats.json");
 
 const REQUEST_PATTERNS = {
@@ -57,6 +58,7 @@ const stats = {
   exactTargetDistribution: {},
   goalDistribution: {},
   exactGoalDistribution: {},
+  monthlyGoalDistribution: {},
   limitCombinations: {},
   itemsLengthDistribution: {},
   timeDistribution: {},
@@ -88,6 +90,7 @@ function parseArgs(argv) {
     outDir: DEFAULT_OUT_DIR,
     reportName: DEFAULT_REPORT,
     dataName: DEFAULT_DATA,
+    monthlyTopGoalsName: DEFAULT_MONTHLY_TOP_GOALS,
     frontendData: DEFAULT_FRONTEND_DATA,
   };
 
@@ -105,6 +108,9 @@ function parseArgs(argv) {
       index++;
     } else if (arg === "--data") {
       args.dataName = next || DEFAULT_DATA;
+      index++;
+    } else if (arg === "--monthly-top-goals") {
+      args.monthlyTopGoalsName = next || DEFAULT_MONTHLY_TOP_GOALS;
       index++;
     } else if (arg === "--frontend-data") {
       args.frontendData = resolve(PROJECT_ROOT, next || "");
@@ -130,6 +136,7 @@ function printHelp() {
 输出:
   legacy_analysis_report.txt
   legacy_analysis_data.json
+  legacy_monthly_top_goals.txt
   src/data/legacyLogStats.json
 `);
 }
@@ -137,6 +144,13 @@ function printHelp() {
 function increment(map, key, amount = 1) {
   const normalizedKey = String(key);
   map[normalizedKey] = (map[normalizedKey] || 0) + amount;
+}
+
+function incrementMonthlyGoal(month, goal) {
+  if (!stats.monthlyGoalDistribution[month]) {
+    stats.monthlyGoalDistribution[month] = {};
+  }
+  increment(stats.monthlyGoalDistribution[month], goal);
 }
 
 function parseRequestLine(line) {
@@ -238,6 +252,7 @@ function parseLimitValue(line, field) {
 function recordRequest(request) {
   stats.summary.totalRequests++;
   stats.requestFormats[request.format]++;
+  let requestMonth = "";
 
   if (request.timestampRaw) {
     const date = parseLegacyTimestamp(request.timestampRaw);
@@ -245,6 +260,7 @@ function recordRequest(request) {
       stats.summary.timestampedRequests++;
       timestamps.push(date);
       const { day, hour, month } = formatDateParts(date);
+      requestMonth = month;
       increment(stats.timeDistribution, hour);
       increment(stats.dayDistribution, day);
       increment(stats.weekDistribution, getWeekKey(date));
@@ -262,6 +278,9 @@ function recordRequest(request) {
     const goalBucket = Math.floor(request.goal / 1000) * 1000;
     increment(stats.goalDistribution, goalBucket);
     increment(stats.exactGoalDistribution, request.goal);
+    if (requestMonth) {
+      incrementMonthlyGoal(requestMonth, request.goal);
+    }
     recordSpecialNumberHits(request.goal);
   }
 
@@ -410,6 +429,47 @@ function appendTopSection(lines, title, map, limit, total = stats.summary.totalR
   }
 }
 
+function buildMonthlyTopGoals(limit = 10) {
+  return sortedEntries(stats.monthlyGoalDistribution).map(([month, distribution]) => {
+    const total = Object.values(distribution).reduce((sum, count) => sum + count, 0);
+    return {
+      month,
+      total,
+      goals: topEntries(distribution, limit).map(([goal, count]) => ({
+        goal,
+        count,
+        percent: total ? Number(((count / total) * 100).toFixed(2)) : 0,
+      })),
+    };
+  });
+}
+
+function generateMonthlyTopGoalsReport() {
+  const monthlyTopGoals = buildMonthlyTopGoals(10);
+  const lines = [
+    "旧版日志月度目标龙门币 Top 10",
+    "==============================",
+    `分析时间: ${new Date().toLocaleString("zh-CN", { hour12: false })}`,
+    `日志文件: ${stats.source.input}`,
+    "",
+    "说明: 本文件只统计带时间戳的 Goal(用户想凑) 请求；无时间戳旧记录无法归属月份，因此不进入月度榜单。",
+  ];
+
+  if (monthlyTopGoals.length === 0) {
+    lines.push("", "没有可统计的月度 Goal 数据。");
+    return `${lines.join("\n")}\n`;
+  }
+
+  for (const monthData of monthlyTopGoals) {
+    lines.push("", `${monthData.month}（样本 ${formatNumber(monthData.total)} 条）`, "-".repeat(50));
+    monthData.goals.forEach((entry, index) => {
+      lines.push(`${String(index + 1).padStart(2, "0")}. ${entry.goal}: ${formatNumber(entry.count)} (${entry.percent.toFixed(2)}%)`);
+    });
+  }
+
+  return `${lines.join("\n")}\n`;
+}
+
 function defaultLabelFormatter(key) {
   return key;
 }
@@ -494,6 +554,7 @@ function buildOutputData() {
       exactTargetDistribution: topEntries(stats.exactTargetDistribution, 50),
       limitCombinations: topEntries(stats.limitCombinations, 50),
       exactGoalDistribution: topEntries(stats.exactGoalDistribution, 50),
+      monthlyGoalTop10: buildMonthlyTopGoals(10),
       itemsLengthDistribution: topEntries(stats.itemsLengthDistribution, 50),
       dayDistribution: topEntries(stats.dayDistribution, 60),
       weekDistribution: topEntries(stats.weekDistribution, 60),
@@ -555,15 +616,18 @@ async function main() {
 
   const reportPath = resolve(args.outDir, args.reportName);
   const dataPath = resolve(args.outDir, args.dataName);
+  const monthlyTopGoalsPath = resolve(args.outDir, args.monthlyTopGoalsName);
   const frontendDataPath = args.frontendData;
   writeFileSync(reportPath, generateReport(), "utf8");
   writeFileSync(dataPath, `${JSON.stringify(buildOutputData(), null, 2)}\n`, "utf8");
+  writeFileSync(monthlyTopGoalsPath, generateMonthlyTopGoalsReport(), "utf8");
   mkdirSync(dirname(frontendDataPath), { recursive: true });
   writeFileSync(frontendDataPath, `${JSON.stringify(buildFrontendStats(), null, 2)}\n`, "utf8");
 
   console.log(`\n分析完成`);
   console.log(`报告: ${reportPath}`);
   console.log(`数据: ${dataPath}`);
+  console.log(`月度目标Top10: ${monthlyTopGoalsPath}`);
   console.log(`前端基线数据: ${frontendDataPath}`);
 }
 

@@ -3,7 +3,7 @@
   "source": {
     "kind": "legacy-node-log",
     "inputName": "backend-out (5).log",
-    "generatedAt": "2026-05-27T16:47:55.430Z",
+    "generatedAt": "2026-06-06T12:50:31.960Z",
     "firstTimestamp": "2026-01-10T13:02:43+08:00",
     "lastTimestamp": "2026-05-20T13:24:41+08:00",
     "note": "趋势序列只包含旧日志中带时间戳的请求；总量包含早期无时间戳请求。"
