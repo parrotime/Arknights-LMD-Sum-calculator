@@ -3,9 +3,16 @@ import type { CSSProperties } from "react";
 import type { AssistantEggPayload, AssistantEggType } from "../types/calculator";
 
 const DRAG_THRESHOLD = 5;
-const BUTTON_SIZE = 64;
-const BUBBLE_WIDTH = 300;
-const BUBBLE_GAP = 14;
+const DESKTOP_BUTTON_SIZE = 64;
+const MOBILE_BUTTON_SIZE = 52;
+const DESKTOP_BUBBLE_WIDTH = 300;
+const MOBILE_BUBBLE_WIDTH = 260;
+const MOBILE_MIN_SIDE_BUBBLE_WIDTH = 212;
+const DESKTOP_BUBBLE_GAP = 14;
+const MOBILE_BUBBLE_GAP = 10;
+const MOBILE_EDGE_THRESHOLD = 28;
+const BUBBLE_SCREEN_MARGIN = 8;
+const MOBILE_VIEWPORT_QUERY = "(max-width: 800px)";
 const WELCOME_MESSAGE = "博士你好，点击我可以快速到达网页底部或者回到顶部哦";
 const FAST_DRAG_SPEED_THRESHOLD = 1.5;
 const FAST_DRAG_MIN_DISTANCE_RATIO = 1.5;
@@ -23,7 +30,7 @@ const ROBOT_ICONS = {
 type RobotMood = keyof typeof ROBOT_ICONS;
 type ScrollDirection = Extract<RobotMood, "down" | "up">;
 type DragLean = "left" | "right" | "center";
-type BubblePlacement = "left" | "right";
+type BubblePlacement = "left" | "right" | "top" | "bottom";
 
 interface Position {
   x: number;
@@ -51,7 +58,8 @@ interface AssistantMessageObject {
 type AssistantMessage = string | AssistantMessageObject;
 
 interface AssistantBubbleStyle extends CSSProperties {
-  "--assistant-pointer-top": string;
+  "--assistant-pointer-left"?: string;
+  "--assistant-pointer-top"?: string;
 }
 
 interface FloatingAssistantProps {
@@ -74,14 +82,23 @@ const cancelIdle = (id: number): void => {
   window.clearTimeout(id);
 };
 
+const isMobileViewport = (): boolean =>
+  window.matchMedia?.(MOBILE_VIEWPORT_QUERY)?.matches ?? window.innerWidth <= 800;
+
+const getButtonSize = (): number => isMobileViewport() ? MOBILE_BUTTON_SIZE : DESKTOP_BUTTON_SIZE;
+
+const getBubbleWidth = (): number => isMobileViewport() ? MOBILE_BUBBLE_WIDTH : DESKTOP_BUBBLE_WIDTH;
+
+const getBubbleGap = (): number => isMobileViewport() ? MOBILE_BUBBLE_GAP : DESKTOP_BUBBLE_GAP;
+
 const getDefaultPos = (): Position => ({
-  x: window.innerWidth - 24 - BUTTON_SIZE,
-  y: window.innerHeight - 24 - BUTTON_SIZE,
+  x: window.innerWidth - (isMobileViewport() ? 16 : 24) - getButtonSize(),
+  y: window.innerHeight - (isMobileViewport() ? 18 : 24) - getButtonSize(),
 });
 
-const clampPosition = (pos: Position): Position => ({
-  x: Math.min(Math.max(pos.x, 0), window.innerWidth - BUTTON_SIZE),
-  y: Math.min(Math.max(pos.y, 0), window.innerHeight - BUTTON_SIZE),
+const clampPosition = (pos: Position, buttonSize = getButtonSize()): Position => ({
+  x: Math.min(Math.max(pos.x, 0), window.innerWidth - buttonSize),
+  y: Math.min(Math.max(pos.y, 0), window.innerHeight - buttonSize),
 });
 
 const getTitleAnchorPos = (): Position => {
@@ -93,11 +110,14 @@ const getTitleAnchorPos = (): Position => {
   const titleCodeRect = titleCode?.getBoundingClientRect();
   const groupTop = rect.top;
   const groupBottom = titleCodeRect ? titleCodeRect.bottom : rect.bottom;
+  const buttonSize = getButtonSize();
   return clampPosition({
     x: rect.right + 14,
-    y: groupTop + (groupBottom - groupTop) / 2 - BUTTON_SIZE / 2,
-  });
+    y: groupTop + (groupBottom - groupTop) / 2 - buttonSize / 2,
+  }, buttonSize);
 };
+
+const getInitialAssistantPos = (): Position => isMobileViewport() ? getDefaultPos() : getTitleAnchorPos();
 
 const getAssistantMessage = (type?: AssistantEggType | "dizzy"): AssistantMessage => {
   if (type === "recalculate") return "计算设置发生变化，请注意重新计算";
@@ -145,7 +165,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
 
   const btnRef = useRef<HTMLButtonElement | null>(null);
   const dragState = useRef<DragState | null>(null);
-  const [btnPos, setBtnPos] = useState(() => getTitleAnchorPos());
+  const [btnPos, setBtnPos] = useState(() => getInitialAssistantPos());
   const [isDragging, setIsDragging] = useState(false);
   const [dragLean, setDragLean] = useState<DragLean>("center");
   const isDraggingRef = useRef(false);
@@ -216,7 +236,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
 
   useEffect(() => {
     const timer = window.requestAnimationFrame(() => {
-      setBtnPos(getTitleAnchorPos());
+      setBtnPos(getInitialAssistantPos());
     });
     return () => window.cancelAnimationFrame(timer);
   }, []);
@@ -354,8 +374,9 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
     const onResize = () => {
       setBtnPos(prev => {
         const btn = btnRef.current;
-        const w = btn ? btn.offsetWidth : BUTTON_SIZE;
-        const h = btn ? btn.offsetHeight : BUTTON_SIZE;
+        const buttonSize = getButtonSize();
+        const w = btn ? btn.offsetWidth : buttonSize;
+        const h = btn ? btn.offsetHeight : buttonSize;
         const x = Math.min(Math.max(prev.x, 0), window.innerWidth - w);
         const y = Math.min(Math.max(prev.y, 0), window.innerHeight - h);
         return { x, y };
@@ -416,8 +437,9 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
     dragState.current.lastY = e.clientY;
     dragState.current.lastTime = now;
     const btn = btnRef.current;
-    const w = btn ? btn.offsetWidth : BUTTON_SIZE;
-    const h = btn ? btn.offsetHeight : BUTTON_SIZE;
+    const buttonSize = getButtonSize();
+    const w = btn ? btn.offsetWidth : buttonSize;
+    const h = btn ? btn.offsetHeight : buttonSize;
     const x = Math.min(Math.max(dragState.current.originX + dx, 0), window.innerWidth - w);
     const y = Math.min(Math.max(dragState.current.originY + dy, 0), window.innerHeight - h);
     setBtnPos({ x, y });
@@ -485,31 +507,71 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
   }, [robotIcon]);
 
   const activeMessage = showDragBubble ? dragEggMessage : assistantMessage;
-  const bubblePlacement: BubblePlacement = btnPos.x + BUTTON_SIZE + BUBBLE_GAP + BUBBLE_WIDTH > window.innerWidth
-    ? "left"
-    : "right";
+  const buttonSize = getButtonSize();
+  const bubbleWidth = getBubbleWidth();
+  const bubbleGap = getBubbleGap();
   const bubbleHasImage = showAssistantBubble && assistantEgg?.imageUrl;
-  const estimatedBubbleHeight = bubbleHasImage ? 252 : 86;
-  const assistantCenterY = btnPos.y + BUTTON_SIZE / 2;
-  const assistantBubbleTop = Math.min(
-    Math.max(assistantCenterY - estimatedBubbleHeight / 2, 72),
-    Math.max(window.innerHeight - estimatedBubbleHeight - 16, 72)
-  );
+  const estimatedBubbleHeight = bubbleHasImage ? (isMobileViewport() ? 220 : 252) : (isMobileViewport() ? 78 : 86);
+  const assistantCenterY = btnPos.y + buttonSize / 2;
+  const assistantCenterX = btnPos.x + buttonSize / 2;
+  const mobileViewport = isMobileViewport();
+  const spaceLeft = btnPos.x - bubbleGap - BUBBLE_SCREEN_MARGIN;
+  const spaceRight = window.innerWidth - (btnPos.x + buttonSize + bubbleGap) - BUBBLE_SCREEN_MARGIN;
+  const isNearLeftEdge = btnPos.x <= MOBILE_EDGE_THRESHOLD;
+  const isNearRightEdge = window.innerWidth - (btnPos.x + buttonSize) <= MOBILE_EDGE_THRESHOLD;
+  const canUseLeftBubble = spaceLeft >= MOBILE_MIN_SIDE_BUBBLE_WIDTH;
+  const canUseRightBubble = spaceRight >= MOBILE_MIN_SIDE_BUBBLE_WIDTH;
+  const bubblePlacement: BubblePlacement = (() => {
+    if (!mobileViewport) {
+      return btnPos.x + buttonSize + bubbleGap + bubbleWidth > window.innerWidth ? "left" : "right";
+    }
+    if (isNearRightEdge && canUseLeftBubble) return "left";
+    if (isNearLeftEdge && canUseRightBubble) return "right";
+    return btnPos.y - estimatedBubbleHeight - bubbleGap >= 72 ? "top" : "bottom";
+  })();
+  const resolvedBubbleWidth = mobileViewport && (bubblePlacement === "left" || bubblePlacement === "right")
+    ? Math.min(bubbleWidth, Math.max(
+      MOBILE_MIN_SIDE_BUBBLE_WIDTH,
+      bubblePlacement === "left" ? spaceLeft : spaceRight
+    ))
+    : bubbleWidth;
+  const assistantBubbleTop = bubblePlacement === "top"
+    ? Math.max(72, btnPos.y - estimatedBubbleHeight - bubbleGap)
+    : bubblePlacement === "bottom"
+      ? Math.min(btnPos.y + buttonSize + bubbleGap, Math.max(window.innerHeight - estimatedBubbleHeight - 16, 72))
+      : Math.min(
+        Math.max(assistantCenterY - estimatedBubbleHeight / 2, 72),
+        Math.max(window.innerHeight - estimatedBubbleHeight - 16, 72)
+      );
+  const assistantBubbleLeft = (() => {
+    if (bubblePlacement === "right") return btnPos.x + buttonSize + bubbleGap;
+    if (bubblePlacement === "left") return Math.max(btnPos.x - resolvedBubbleWidth - bubbleGap, BUBBLE_SCREEN_MARGIN);
+    return Math.min(
+      Math.max(assistantCenterX - resolvedBubbleWidth / 2, BUBBLE_SCREEN_MARGIN),
+      Math.max(window.innerWidth - resolvedBubbleWidth - BUBBLE_SCREEN_MARGIN, BUBBLE_SCREEN_MARGIN)
+    );
+  })();
   const assistantBubbleStyle: AssistantBubbleStyle = {
     top: assistantBubbleTop,
-    left: bubblePlacement === "right"
-      ? btnPos.x + BUTTON_SIZE + BUBBLE_GAP
-      : Math.max(btnPos.x - BUBBLE_WIDTH - BUBBLE_GAP, 8),
-    "--assistant-pointer-top": "22px",
+    left: assistantBubbleLeft,
+    width: resolvedBubbleWidth,
   };
-  const bubblePointerTop = Math.min(
-    Math.max(
-      btnPos.y + BUTTON_SIZE / 2 - assistantBubbleTop,
-      22
-    ),
-    bubbleHasImage ? 158 : estimatedBubbleHeight - 22
-  );
-  assistantBubbleStyle["--assistant-pointer-top"] = `${bubblePointerTop}px`;
+  if (bubblePlacement === "top" || bubblePlacement === "bottom") {
+    const bubblePointerLeft = Math.min(
+      Math.max(assistantCenterX - assistantBubbleLeft, 22),
+      resolvedBubbleWidth - 22
+    );
+    assistantBubbleStyle["--assistant-pointer-left"] = `${bubblePointerLeft}px`;
+  } else {
+    const bubblePointerTop = Math.min(
+      Math.max(
+        assistantCenterY - assistantBubbleTop,
+        22
+      ),
+      bubbleHasImage ? (mobileViewport ? 140 : 158) : estimatedBubbleHeight - 22
+    );
+    assistantBubbleStyle["--assistant-pointer-top"] = `${bubblePointerTop}px`;
+  }
 
   return (
     <>
