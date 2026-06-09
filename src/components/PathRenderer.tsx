@@ -76,7 +76,7 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
         }]
       : []),
     {
-      label: "龙门币变化",
+      label: "龙门币变化：",
       values: [
         { text: startLMD },
         { text: "->", type: "separator" },

@@ -215,6 +215,11 @@
   --ark-chart-point: #a8dcff;
   --ark-chart-point-hover: #d7efff;
   --ark-chart-axis-label: #526173;
+
+  /* 页脚 */
+  --ark-footer-bg: #e3e8ef;
+  --ark-footer-border: rgba(64, 74, 94, 0.18);
+  --ark-footer-text: #5a6478;
 }
 
 /* === 深色主题 === */
@@ -390,6 +395,11 @@
   --ark-chart-point: #a8dcff;
   --ark-chart-point-hover: #d7efff;
   --ark-chart-axis-label: rgba(176, 209, 236, 0.78);
+
+  /* 页脚 */
+  --ark-footer-bg: #111722;
+  --ark-footer-border: rgba(122, 193, 248, 0.16);
+  --ark-footer-text: #7f8ea3;
 }
 
 body {
@@ -824,24 +834,29 @@ html, body, #root {
 .footer {
   box-sizing: border-box;
   width: 100%;
-  background: transparent;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 18px;
+  background: var(--ark-footer-bg);
   text-align: center;
-  padding: var(--ark-space-md) var(--ark-space-lg);
-  border-top: 1px solid var(--ark-border-default);
+  padding: 18px var(--ark-space-lg);
+  border-top: 1px solid var(--ark-footer-border);
   margin-top: auto;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .footer p {
   margin: 3px 0;
-  color: var(--ark-neutral-500);
+  color: var(--ark-footer-text);
   font-size: 0.8rem;
 }
 
 .footer-link {
-  color: var(--ark-neutral-500);
+  color: var(--ark-footer-text);
   text-decoration: none;
-  margin-left: 8px;
   font-size: 0.8rem;
+  line-height: 1.55;
   transition: color var(--ark-transition-fast);
 }
 
@@ -911,6 +926,15 @@ html, body, #root {
 
   .nav-indicator {
     display: none;
+  }
+
+  .footer {
+    gap: 4px;
+    padding: 14px var(--ark-space-md);
+  }
+
+  .footer-link {
+    width: 100%;
   }
 }
 

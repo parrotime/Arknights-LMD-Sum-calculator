@@ -1591,6 +1591,10 @@
     text-rendering: optimizeLegibility;
   }
 
+  .short-input-box::placeholder {
+    font-family: var(--ark-font-display);
+  }
+
   .lmd-section .input-box:focus + .input-label,
   .lmd-section .input-box:not(:placeholder-shown) + .input-label {
     font-size: 0.78rem;

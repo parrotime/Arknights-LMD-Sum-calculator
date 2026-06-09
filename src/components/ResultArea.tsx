@@ -26,7 +26,7 @@ const LoadingTimer = ({ styles }: LoadingTimerProps) => {
         <span className={styles['pulse-dot']} />
         <span className={styles['pulse-dot']} />
       </div>
-      <p className={styles['loading-text']}>正在计算路径，请稍候...</p>
+      <p className={styles['loading-text']}>计算中，请稍候...</p>
       {elapsed >= 2 && (
         <p className={styles['loading-elapsed']}>已等待 {elapsed} 秒</p>
       )}

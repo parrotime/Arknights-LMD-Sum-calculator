@@ -57,8 +57,7 @@ const settingsOptions: SettingOption[] = [
     highlight: "只升级精零/一/二1级干员",
     helpText: [
       "请注意：",
-      <>这个设置的目的是<span className="setting-popover-keyword">排除</span>升级<span className="setting-popover-keyword">不是等级为1级</span>的干员，</>,
-      "因此当这个按钮开启时，",
+      <>这个设置的目的是<span className="setting-popover-keyword">排除</span>升级<span className="setting-popover-keyword">不是等级为1级</span>的干员，因此当这个按钮开启时，</>,
       "请确保其他三个升级开关中，至少有一个为开启状态。",
     ],
   },
