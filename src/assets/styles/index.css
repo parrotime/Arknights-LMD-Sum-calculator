@@ -892,18 +892,56 @@ html, body, #root {
 
   .nav-links {
     width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: var(--ark-space-xs);
+    gap: 6px;
   }
 
   .nav-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    white-space: nowrap;
     font-size: 0.95rem;
-    padding: 6px 14px;
+    padding: 6px 10px;
+    text-align: center;
   }
 
   .nav-indicator {
     display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-inner {
+    padding: 0 12px;
+  }
+
+  .nav-brand {
+    gap: 7px;
+    font-size: 1.08rem;
+  }
+
+  .nav-brand-icon {
+    height: 28px;
+  }
+
+  .nav-item {
+    font-size: 0.88rem;
+    padding: 6px 5px;
+  }
+}
+
+@media (max-width: 340px) {
+  .nav-links {
+    gap: 3px;
+  }
+
+  .nav-item {
+    font-size: 0.84rem;
+    padding: 5px 3px;
   }
 }
 
