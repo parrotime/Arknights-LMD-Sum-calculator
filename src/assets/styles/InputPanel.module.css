@@ -883,16 +883,20 @@
 }
 
 .diff-value {
+  --diff-copy-font-size: 1.12rem;
+  --diff-status-font-size: 1.08rem;
+  --diff-number-font-size: 1.2rem;
+  --diff-number-offset-y: 1px;
   position: relative;
   min-width: 0;
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   gap: 7px;
   color: var(--ark-primary-700);
   font-family: var(--ark-font-body);
-  font-size: 1.08rem;
-  line-height: 1.15;
+  font-size: var(--diff-copy-font-size);
+  line-height: 1;
   font-weight: 900;
   text-align: center;
   letter-spacing: 0.04em;
@@ -917,9 +921,7 @@
 }
 
 .diff-status-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   min-width: 54px;
   height: 28px;
   padding: 0 8px;
@@ -928,7 +930,10 @@
   border: 1px solid rgba(80, 155, 235, 0.42);
   background: rgba(80, 155, 235, 0.12);
   color: var(--ark-primary-800);
+  font-size: var(--diff-status-font-size);
   font-weight: 900;
+  line-height: 28px;
+  text-align: center;
   white-space: nowrap;
 }
 
@@ -936,11 +941,10 @@
   display: inline-flex;
   align-items: flex-end;
   color: var(--ark-primary-700);
-  font-size: 1.04rem;
+  font-size: var(--diff-copy-font-size);
   font-weight: 900;
   line-height: 1;
   white-space: nowrap;
-  transform: translateY(1px);
 }
 
 .diff-placeholder {
@@ -956,6 +960,7 @@
 
 .diff-status-text {
   display: inline-block;
+  line-height: 1;
   animation: diff-status-flip 320ms cubic-bezier(0.22, 1, 0.36, 1);
   transform-origin: center;
   will-change: transform, opacity;
@@ -963,17 +968,17 @@
 
 .rolling-number {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   gap: 1px;
   color: var(--ark-primary-700);
   font-family: var(--ark-font-body);
-  font-size: 1.2rem;
+  font-size: var(--diff-number-font-size);
   font-weight: 900;
   line-height: 1;
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
-  transform: translateY(3.4px);
+  transform: translateY(var(--diff-number-offset-y));
 }
 
 .rolling-digit-window {
@@ -1001,22 +1006,21 @@
 
 .rolling-separator {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   width: 0.28em;
   color: var(--ark-primary-600);
-  transform: translateY(-0.03em);
+  line-height: 1;
 }
 
 .diff-unit {
   display: inline-flex;
   align-items: flex-end;
   color: var(--ark-primary-700);
-  font-size: 1.02rem;
+  font-size: var(--diff-copy-font-size);
   font-weight: 900;
   line-height: 1;
   white-space: nowrap;
-  transform: translateY(2px);
 }
 
 :global([data-theme="dark"]) .diff-section {
@@ -1247,6 +1251,10 @@
   font-weight: 900;
   line-height: 1;
   letter-spacing: 0.06em;
+}
+
+.mode-select-code .mode-select-flip {
+  transform: translateY(0.5px);
 }
 
 .mode-select-flip {
@@ -1829,10 +1837,14 @@
   }
 
   .diff-value {
-    align-items: center;
+    --diff-copy-font-size: 0.94rem;
+    --diff-status-font-size: 0.94rem;
+    --diff-number-font-size: 1rem;
+    --diff-number-offset-y: 1px;
+    align-items: baseline;
     gap: 5px;
     font-family: var(--ark-font-body);
-    font-size: 1rem;
+    font-size: var(--diff-copy-font-size);
     font-weight: 900;
     line-height: 1;
     letter-spacing: 0;
@@ -1847,16 +1859,16 @@
     height: 24px;
     padding: 0 6px;
     font-family: var(--ark-font-body);
-    font-size: 1rem;
+    font-size: var(--diff-status-font-size);
     font-weight: 900;
-    line-height: 1;
+    line-height: 24px;
   }
 
   .diff-prefix,
   .diff-unit {
-    align-items: center;
+    align-items: flex-end;
     font-family: var(--ark-font-title);
-    font-size: 1rem;
+    font-size: var(--diff-copy-font-size);
     font-weight: 900;
     line-height: 1;
     letter-spacing: 0;
@@ -1870,14 +1882,14 @@
   .diff-placeholder,
   .rolling-number {
     font-family: var(--ark-font-body);
-    font-size: 1rem;
     font-weight: 900;
     line-height: 1;
   }
 
   .rolling-number {
-    align-items: center;
-    transform: none;
+    align-items: baseline;
+    font-size: var(--diff-number-font-size);
+    transform: translateY(var(--diff-number-offset-y));
   }
 
   .rolling-digit-window {

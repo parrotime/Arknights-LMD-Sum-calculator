@@ -10,7 +10,7 @@ import type { AssistantEggPayload } from "../types/calculator";
 const navItems = [
   { to: "/", text: "计算主页" },
   { to: "/note", text: "注意事项" },
-  { to: "/data", text: "数据部分" },
+  { to: "/data", text: "数据档案" },
   { to: "/about", text: "关于" },
 ];
 

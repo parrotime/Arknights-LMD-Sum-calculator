@@ -1,188 +1,96 @@
-# 明日方舟龙门币凑数路径计算器（2.0版本制作中）
+# 明日方舟龙门币凑数计算器
 
-这里是《明日方舟》龙门币凑数路径计算器网页，是我学习 React 和 Node.js 的一个简单的练习项目，没什么技术含量。最初想法是看到公招不再消耗龙门币之后，网上似乎没有相关的计算器，所以在亲爱的D老师和G老师的指导下硬造出来的，所以你会看到有很浓烈的AI味，菜鸟求轻喷orz
+## 🎯项目介绍
 
-## 在线使用（网页端移动端都适配）
+这里是明日方舟龙门币凑数计算器，通过计算多个可执行的获取/消耗龙门币方案，帮助你凑出任意龙门币尾数。
 
-访问 [龙门币凑数路径计算器](https://ark-lmd.top/) 
+本项目是我在2025年初学习前端时做的一个简单练习项目，当时遇到了凑龙门币尾数的需求，但发现此前另一位开发者的凑数计算器因公招不再消耗龙门币而失效，因此在亲爱的D老师和G老师的指导下完成并上线了1.0版本。
 
-## 食用说明
+上线之后，我一直在关注各个社交平台和游戏社区中的使用情况和反馈，针对各种问题陆续进行优化。
 
-1. 打开计算主页。
-2. 在左侧输入当前龙门币数量、目标龙门币数量（范围：0 - 99,999,999，差值限制：-5000 ~ 5000）以及允许升级的干员数量（0 ~ 10）和允许使用的理智数量（0 ~ 200）。
-3. 在右侧设置区域调整计算规则（例如禁用某些物品）。
-4. 点击“立即计算”按钮，查看生成的路径。
-5. 点击“上一路径”和“下一路径”按钮可以切换不同方案。
-6. 访问“注意事项”、“数据部分”和“关于”页面可以了解更多信息。
+![1.0 版本截图](./images/V1-0-snapshot.png)
 
-## 本地部署
+2026年1月，我开始尝试使用claude code和codex辅助开发，并且计划项目重构。2026年4月~6月期间，2.0版本对前端页面设计、移动端适配、计算结果展示和后端计算服务等方面做了较大调整，前端使用TypeScript重写，后端使用Go重构。
 
-### 注意事项
+![2.0 版本截图](./images/V2-0-snapshot.png)
 
-安装版本参考
-- Node.js (v22.13.0)
-- npm (v10.9.2)
+## 🌐在线使用
 
-并且需要修改./backend/server.js和./src/components/Transmission.js中的部分内容（看注释）
+点击访问：[https://ark-lmd.top/](https://ark-lmd.top/)
 
-### 安装步骤
+网页端和移动端均已适配。
+
+## 🔧食用说明
+
+- 打开计算主页。
+- 在输入面板中输入当前龙门币数量、目标龙门币数量（范围：0 ~ 99,999,999，差值限制：-5000 ~ 5000）、允许升级的干员数量（0 ~ 10）、允许使用的理智数量（0 ~ 210）和贸易站赤金订单数（0 ~ 10）。
+- 在配置面板自定义计算规则（例如禁用某些物品）。
+- 点击“立即计算”按钮，查看生成的方案。
+- 访问“注意事项”、“数据档案”和“关于”页面以了解更多信息。
+
+## 🗣️页面说明
+
+当前主要页面包括：
+
+- `计算主页`：输入龙门币数量、设置限制、调整计算规则并查看推荐方案。
+- `注意事项`：针对输入范围、升级误差、连续升级等容易误解的规则进行说明。
+- `数据档案`：展示升级消耗、物品价值、理智速查和方案样例。
+- `关于`：展示项目信息、运行统计、反馈入口、外部链接、版本时间轴和声明。
+- `维护页`：用于在维护期间显示维护状态和可参考的预制方案样例。
+- `后台统计页`：隐藏页面，用于查看服务状态。
+
+## 📦本地部署
+
+### 环境参考
+
+当前项目开发环境参考：
+
+- Node.js：v22.13.0
+- npm：10.9.2
+- Go：1.26.3
+- React：18.2.0
+- TypeScript：5.7.0
+- Vite：6.1.0
+
+### 安装与启动
 
 ```bash
-git clone https://github.com/parrotime/Arknights-LMD-Sum-calculator.git
 npm install
-npm start
 ```
-打开浏览器访问 `http://localhost:3000`
-
 
 ```bash
-cd backend
-npm install
-node server.js
+npm run dev
 ```
-后端在 `http://localhost:3002` 运行
 
-## 维护页状态开关
-
-维护页入口：
+Vite 默认会给出本地访问地址，通常是：
 
 ```text
-/#/maintenance
+http://localhost:5173/
 ```
 
-前端维护页会请求 Go 后端公开接口：
-
-```text
-GET /maintenance-status
-```
-
-对应后端代码位置：
-
-```text
-go-backend/internal/api/handler.go
-go-backend/internal/config/config.go
-go-backend/cmd/server/main.go
-```
-
-前端页面代码位置：
-
-```text
-src/pages/Maintenance.jsx
-src/assets/styles/Maintenance.module.css
-```
-
-### 本地开发时开启维护状态
-
-在启动 Go 后端前设置环境变量：
-
-```powershell
-cd go-backend
-$env:PORT="3003"
-$env:NODE_ENV="test"
-$env:MAINTENANCE_ENABLED="true"
-$env:MAINTENANCE_END_AT="2026-05-24T08:00:00+08:00"
-$env:MAINTENANCE_MESSAGE="网页维护中..."
-$env:MAINTENANCE_SUBTITLE="计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格"
-go run ./cmd/server
-```
-
-前端开发环境使用 `.env.development` 中的：
+前端开发环境会读取 `.env.development`：
 
 ```text
 VITE_API_URL=http://localhost:3003
 ```
 
-所以访问 `http://localhost:3000/#/maintenance` 时会读取本地 Go 后端状态。
-
-### 本地开发时关闭维护状态
-
-关闭维护只需要不设置或改为：
+如需本地调试完整计算功能，需要同时启动 Go 后端：
 
 ```powershell
-$env:MAINTENANCE_ENABLED="false"
+cd go-backend
+$env:PORT="3003"
+$env:NODE_ENV="test"
+go run ./cmd/server
 ```
 
-然后重启 Go 后端。
+默认端口是 `3003`。`NODE_ENV=test` 时会关闭接口限流，方便本地调试和测试。
 
-### 生产环境开启维护状态
+## 参考资料
 
-生产环境推荐修改 systemd 配置：
-
-```text
-go-backend/deploy/ark-lmd-go.service
-```
-
-把维护相关环境变量改成：
-
-```ini
-Environment=MAINTENANCE_ENABLED=true
-Environment=MAINTENANCE_END_AT=2026-05-24T08:00:00+08:00
-Environment=MAINTENANCE_MESSAGE=网页维护中...
-Environment=MAINTENANCE_SUBTITLE=计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格
-```
-
-上传/修改服务器上的 service 文件后执行：
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl restart ark-lmd-go
-sudo systemctl status ark-lmd-go
-```
-
-验证接口：
-
-```bash
-curl https://ark-lmd.top/maintenance-status
-```
-
-如果返回中包含：
-
-```json
-{"enabled":true}
-```
-
-则维护页会显示倒计时。倒计时使用后端返回的 `serverTime` 和 `endAt` 计算，用户本机时间不准也不会影响显示。
-
-### 生产环境关闭维护状态
-
-把 service 文件改回：
-
-```ini
-Environment=MAINTENANCE_ENABLED=false
-```
-
-然后重启：
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl restart ark-lmd-go
-```
-
-再次验证：
-
-```bash
-curl https://ark-lmd.top/maintenance-status
-```
-
-返回中 `enabled` 为 `false` 时，维护页会显示 `STANDBY / 维护未启用`。
-
-### 注意
-
-`MAINTENANCE_END_AT` 建议使用带时区的 RFC3339 时间，例如：
-
-```text
-2026-05-24T08:00:00+08:00
-```
-
-如果 `MAINTENANCE_ENABLED=true` 但没有设置 `MAINTENANCE_END_AT`，页面会显示“维护已启用，暂未设置恢复时间”，不会显示倒计时。
-
+- [干员升级经验及龙门币消耗成本统计(收束测试)](https://ngabbs.com/read.php?tid=16847042)
+- [[工具发布]凑龙门币~](https://bbs.nga.cn/read.php?tid=21247901)
+- [PRTS Wiki](https://prts.wiki/w/)
 
 ## 声明
 
 本项目仅用于学习交流使用。网页所涉及的游戏《明日方舟》相关的名称、数据、素材等均为其各自所有者的资产，仅供识别。
-
-## 参考资料
-
-- [干员升级经验及龙门币消耗成本统计](https://ngabbs.com/read.php?tid=16847042)
-- [另一位作者制作的计算器](https://bbs.nga.cn/read.php?tid=21247901)
-
