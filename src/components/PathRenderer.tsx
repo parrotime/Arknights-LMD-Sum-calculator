@@ -16,6 +16,7 @@ interface BuildPathTextParams {
   startLMD: number;
   totalSanity: number;
   planIndex: number;
+  compact?: boolean;
 }
 
 const buildPathText = ({
@@ -25,11 +26,16 @@ const buildPathText = ({
   startLMD,
   totalSanity,
   planIndex,
+  compact = false,
 }: BuildPathTextParams): string => {
   const endLMD = runningTotals[runningTotals.length - 1] ?? startLMD;
-  const header = `【龙门币凑数计算器 ark-lmd.top | PLAN ${formatPlanNumber(planIndex)}】`;
+  const header = compact
+    ? `【PLAN ${formatPlanNumber(planIndex)}】`
+    : `【龙门币凑数计算器 ark-lmd.top | PLAN ${formatPlanNumber(planIndex)}】`;
   const sanityPart = totalSanity > 0 ? ` | 消耗理智 ${totalSanity}` : "";
-  const summaryLine = `龙门币 ${startLMD} → ${endLMD} | 共 ${safePath.length} 步${sanityPart}`;
+  const summaryLine = compact
+    ? `共 ${safePath.length} 步${sanityPart}`
+    : `龙门币 ${startLMD} → ${endLMD} | 共 ${safePath.length} 步${sanityPart}`;
 
   const lines = safePath.map((step, i) => {
     const sd = stepData[i];
@@ -42,7 +48,62 @@ const buildPathText = ({
     return `${num} ${item.item_name} ×${step.count}次 → ${action} ${breakdown}${Math.abs(stepValue)} 龙门币（${label} ${runningTotals[i]}）`;
   });
 
-  return `${header}\n${summaryLine}\n\n${lines.join("\n")}`;
+  return `${header}\n${summaryLine}\n${lines.join("\n")}`;
+};
+
+interface BuildPathCopyTextParams {
+  path: CalculationPath;
+  initialLMD: number;
+  planIndex: number;
+  compact?: boolean;
+}
+
+export const buildPathCopyText = ({
+  path,
+  initialLMD,
+  planIndex,
+  compact = false,
+}: BuildPathCopyTextParams): string => {
+  const safePath = Array.isArray(path) ? path : [];
+  const startLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
+  const { steps: stepData, totalSanity } = computeStepData(safePath, getItemById);
+  const runningTotals = computeRunningTotals(stepData, startLMD);
+
+  return buildPathText({
+    safePath,
+    stepData,
+    runningTotals,
+    startLMD,
+    totalSanity,
+    planIndex,
+    compact,
+  });
+};
+
+interface BuildAllPathsCopyTextParams {
+  paths: CalculationPath[];
+  initialLMD: number;
+}
+
+export const buildAllPathsCopyText = ({
+  paths,
+  initialLMD,
+}: BuildAllPathsCopyTextParams): string => {
+  const safePaths = Array.isArray(paths) ? paths : [];
+  if (safePaths.length === 0) return "";
+
+  const firstPath = safePaths[0] ?? [];
+  const startLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
+  const { steps: firstStepData } = computeStepData(firstPath, getItemById);
+  const firstRunningTotals = computeRunningTotals(firstStepData, startLMD);
+  const endLMD = firstRunningTotals[firstRunningTotals.length - 1] ?? startLMD;
+  const header = `【龙门币凑数计算器 ark-lmd.top | ALL PLANS】\n共 ${safePaths.length} 个方案 龙门币 ${startLMD} → ${endLMD}`;
+  const divider = "\n==============================\n";
+  const planTexts = safePaths.map((path, index) => (
+    buildPathCopyText({ path, initialLMD, planIndex: index, compact: true })
+  ));
+
+  return `${header}${divider}${planTexts.join(divider)}`;
 };
 
 interface PathPlanCardProps {
@@ -122,7 +183,7 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
       ariaLabel={`方案 ${planIndex + 1}`}
       summaryItems={summaryItems}
       steps={steps}
-      copyText={buildPathText({ safePath, stepData, runningTotals, startLMD, totalSanity, planIndex })}
+      copyText={buildPathCopyText({ path: safePath, initialLMD: startLMD, planIndex })}
     />
   );
 };

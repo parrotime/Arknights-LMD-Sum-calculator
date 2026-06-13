@@ -37,6 +37,24 @@ yarn-error.log*
 /go-backend/profiles/**/*.out
 /go-backend/logs/
 
+# local logs and generated reports
+*.log
+/backend-out*.log
+/_log_analysis/
+
+# personal assistant/tooling config
+/.codex/
+/.claude/
+
+# local notes, drafts, and migration planning docs
+/update plan/
+/test.txt
+/eslint.config.mjs.bak
+/ADMIN_DASHBOARD_PLAN.md
+/BACKEND_TECH_FLOW.md
+/GO_BACKEND_MIGRATION_PLAN.md
+/TEST_STRATEGY_JS_GO.md
+
 
 JS_TO_TS_MIGRATION_PLAN.md
 

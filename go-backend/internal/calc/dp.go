@@ -206,7 +206,7 @@ func FindPathsWithOptions(ctx context.Context, target int, items []data.Item, li
 		}
 	}
 
-	return finalizeResult(calcState.DP, target, options.TargetPathCount, itemMap), nil
+	return finalizeResult(calcState.DP, target, options, itemMap), nil
 }
 
 func getMaxCountForID(id int, itemMap map[int]data.Item) int {
@@ -592,9 +592,8 @@ func savePath(ctx *contextState, sum int, path Path) bool {
 		st.Paths = insertPathByLength(st.Paths, normalized)
 		added = true
 	} else {
-		longest := st.Paths[len(st.Paths)-1]
-		if len(normalized) < len(longest) ||
-			(len(normalized) == len(longest) && totalCount(normalized) < totalCount(longest)) {
+		lowestQuality := st.Paths[len(st.Paths)-1]
+		if comparePathQuality(normalized, lowestQuality) < 0 {
 			st.Paths = st.Paths[:len(st.Paths)-1]
 			st.Paths = insertPathByLength(st.Paths, normalized)
 			added = true
@@ -795,11 +794,13 @@ type sumCounts struct {
 	Counts []int
 }
 
-func finalizeResult(dp map[int]*state, target int, maxPaths int, itemMap map[int]data.Item) []Path {
+func finalizeResult(dp map[int]*state, target int, options SearchOptions, itemMap map[int]data.Item) []Path {
 	targetState := dp[target]
 	if targetState == nil {
 		return []Path{}
 	}
+	options = normalizeSearchOptions(options)
+	maxPaths := options.TargetPathCount
 
 	unique := make(map[string]struct{})
 	final := make([]Path, 0, len(targetState.Paths))
@@ -821,28 +822,20 @@ func finalizeResult(dp map[int]*state, target int, maxPaths int, itemMap map[int
 		}
 	}
 
-	sort.SliceStable(final, func(i, j int) bool {
-		if len(final[i]) != len(final[j]) {
-			return len(final[i]) < len(final[j])
-		}
-		countA, countB := totalCount(final[i]), totalCount(final[j])
-		if countA != countB {
-			return countA < countB
-		}
-		idA, idB := 0, 0
-		if len(final[i]) > 0 {
-			idA = final[i][0].ID
-		}
-		if len(final[j]) > 0 {
-			idB = final[j][0].ID
-		}
-		return idA < idB
-	})
-	if len(final) > maxPaths*3 {
-		final = final[:maxPaths*3]
+	sortPathsByDisplayOrder(final)
+	candidateLimit := maxPaths * options.FinalCandidateMultiplier
+	if len(final) > candidateLimit {
+		final = final[:candidateLimit]
 	}
 
-	const maxPerSig = 4
+	if options.QualityFirst {
+		if len(final) > maxPaths {
+			final = final[:maxPaths]
+		}
+		return reorderPathsForResponse(final, itemMap)
+	}
+
+	maxPerSig := options.DiversityPerSignature
 	sigCounts := make(map[int]int)
 	diverse := make([]Path, 0, maxPaths)
 	overflow := make([]Path, 0)
@@ -882,8 +875,12 @@ func finalizeResult(dp map[int]*state, target int, maxPaths int, itemMap map[int
 	}
 	sortPathsByDisplayOrder(diverse)
 
-	reordered := make([]Path, 0, len(diverse))
-	for _, path := range diverse {
+	return reorderPathsForResponse(diverse, itemMap)
+}
+
+func reorderPathsForResponse(paths []Path, itemMap map[int]data.Item) []Path {
+	reordered := make([]Path, 0, len(paths))
+	for _, path := range paths {
 		positive := Path{}
 		negative := Path{}
 		for _, step := range path {
@@ -987,28 +984,14 @@ func sortPathsByLength(paths []Path) {
 
 func sortPathsByDisplayOrder(paths []Path) {
 	sort.SliceStable(paths, func(i, j int) bool {
-		if len(paths[i]) != len(paths[j]) {
-			return len(paths[i]) < len(paths[j])
-		}
-		countA, countB := totalCount(paths[i]), totalCount(paths[j])
-		if countA != countB {
-			return countA < countB
-		}
-		idA, idB := 0, 0
-		if len(paths[i]) > 0 {
-			idA = paths[i][0].ID
-		}
-		if len(paths[j]) > 0 {
-			idB = paths[j][0].ID
-		}
-		return idA < idB
+		return comparePathQuality(paths[i], paths[j]) < 0
 	})
 }
 
 func insertPathByLength(paths []Path, path Path) []Path {
 	insertAt := len(paths)
 	for i, existing := range paths {
-		if len(path) < len(existing) {
+		if comparePathQuality(path, existing) < 0 {
 			insertAt = i
 			break
 		}
@@ -1018,6 +1001,17 @@ func insertPathByLength(paths []Path, path Path) []Path {
 	copy(paths[insertAt+1:], paths[insertAt:])
 	paths[insertAt] = path
 	return paths
+}
+
+func comparePathQuality(a Path, b Path) int {
+	if len(a) != len(b) {
+		return len(a) - len(b)
+	}
+	countA, countB := totalCount(a), totalCount(b)
+	if countA != countB {
+		return countA - countB
+	}
+	return strings.Compare(pathKey(a), pathKey(b))
 }
 
 func pathExists(paths []Path, path Path) bool {

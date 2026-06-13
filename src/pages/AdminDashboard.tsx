@@ -97,9 +97,9 @@ const statusLabels: Record<string, string> = {
 };
 
 const modeLabels: Record<string, string> = {
-  fast: "快速模式",
-  strong: "加强模式",
-  boost: "加强模式",
+  fast: "Flash 模式",
+  strong: "Pro 模式",
+  boost: "Pro 模式",
 };
 
 const defaultTotals: AdminTotals = {
@@ -168,16 +168,16 @@ const trendMetrics: TrendMetric[] = [
   },
   {
     key: "fast",
-    code: "FAST",
-    label: "快速模式",
+    code: "FLASH",
+    label: "Flash 模式",
     unit: "次",
     value: (point) => point.fast || 0,
     format: (value) => `${formatNumber(value)} 次`,
   },
   {
     key: "boost",
-    code: "BOOST",
-    label: "加强模式",
+    code: "PRO",
+    label: "Pro 模式",
     unit: "次",
     value: (point) => point.boost || 0,
     format: (value) => `${formatNumber(value)} 次`,

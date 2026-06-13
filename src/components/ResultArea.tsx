@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
-import PathRenderer from "./PathRenderer";
+import React, { useState, useEffect, useMemo } from "react";
+import PathRenderer, { buildAllPathsCopyText } from "./PathRenderer";
 import type { CalcMeta, CalculatorState } from "../types/calculator";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
 import styles from "../assets/styles/ResultArea.module.css";
+
+const COPY_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/duplication.webp";
+const COPIED_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq10.webp";
 
 type ResultAreaStyles = typeof styles;
 
@@ -34,6 +37,46 @@ const LoadingTimer = ({ styles }: LoadingTimerProps) => {
   );
 };
 
+interface CopyAllButtonProps {
+  copyText: string;
+}
+
+const CopyAllButton = ({ copyText }: CopyAllButtonProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyAll = async () => {
+    if (!copyText) return;
+
+    try {
+      await navigator.clipboard.writeText(copyText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard not available */
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      className={copied ? styles['copy-all-btn-done'] : styles['copy-all-btn']}
+      onClick={handleCopyAll}
+      aria-label={copied ? "已复制全部方案" : "复制全部方案"}
+      aria-live="polite"
+    >
+      <img
+        src={copied ? COPIED_ICON_URL : COPY_ICON_URL}
+        alt=""
+        className={styles['copy-all-icon']}
+        loading="lazy"
+        decoding="async"
+      />
+      <span className={styles['copy-all-text-desktop']}>{copied ? "COPIED ALL" : "COPY ALL"}</span>
+      <span className={styles['copy-all-text-mobile']}>{copied ? "已复制全部" : "复制全部方案"}</span>
+    </button>
+  );
+};
+
 interface ResultAreaProps {
   state: CalculatorState;
   calcError: string;
@@ -45,6 +88,14 @@ const ResultArea = ({
   calcError,
   calcMeta,
 }: ResultAreaProps) => {
+  const initialLMD = parseInt(state.num1) || 0;
+  const allCopyText = useMemo(() => (
+    buildAllPathsCopyText({
+      paths: state.pathCache,
+      initialLMD,
+    })
+  ), [initialLMD, state.pathCache]);
+
   return (
     <div className={panelStyles['history-box']}>
       <div className={`${panelStyles['title-bar']} ${styles['result-title-bar']}`}>
@@ -84,11 +135,12 @@ const ResultArea = ({
             <div className={styles['result-summary-count']}>
               计算得到共 <strong>{state.pathCache.length}</strong> 个方案
             </div>
+            <CopyAllButton copyText={allCopyText} />
           </div>
 
           <PathRenderer
             paths={state.pathCache}
-            initialLMD={parseInt(state.num1) || 0}
+            initialLMD={initialLMD}
           />
         </div>
       ) : null}

@@ -13,14 +13,14 @@ import styles from "../assets/styles/InputPanel.module.css";
 const CALC_MODES = {
   fast: {
     label: "快速模式",
-    code: "FAST",
-    desc: "响应更快",
+    code: "Flash",
+    desc: "快速响应",
     badgeIcon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq04.webp",
     badgeLabel: "推荐",
   },
   strong: {
     label: "加强模式",
-    code: "BOOST",
+    code: "Pro",
     desc: "深度搜索",
     badgeIcon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq09.webp",
     badgeLabel: "深度",
@@ -280,7 +280,7 @@ const InputPanel = ({
     setModeMenuOpen(false);
 
     if (mode === "strong" && !hasWarnedStrongMode) {
-      onModeWarning?.("加强模式会消耗更多计算资源，建议在快速模式结果不满足时使用");
+      onModeWarning?.("Pro 模式会消耗更多计算资源，建议在 Flash 结果不满足时使用");
       setHasWarnedStrongMode(true);
     }
   };

@@ -73,7 +73,7 @@ func TestFinalizeFiltersRemovableZeroSumSubset(t *testing.T) {
 			},
 		},
 	}
-	result := finalizeResult(dp, 2500, TargetPathCount, itemMap)
+	result := finalizeResult(dp, 2500, FastOptions(), itemMap)
 	if hasPath(result, map[int]int{112: 2, 222: 1, 2: 4}) {
 		t.Fatalf("zero-sum removable path should be filtered, got %#v", result)
 	}
@@ -106,8 +106,47 @@ func TestFinalizeKeepsDisplayOrderAfterDiversityOverflow(t *testing.T) {
 		},
 	}
 
-	result := finalizeResult(dp, 2500, TargetPathCount, itemMap)
+	result := finalizeResult(dp, 2500, FastOptions(), itemMap)
 	assertPathsSortedByDisplayOrder(t, result)
+}
+
+func TestFinalizeQualityFirstIgnoresDiversityBeforeQuality(t *testing.T) {
+	items := loadTestItems(t)
+	itemMap := make(map[int]data.Item, len(items))
+	for _, item := range items {
+		itemMap[item.ID] = item
+	}
+
+	dp := map[int]*state{
+		2500: {
+			Paths: []Path{
+				{{ID: 117, Count: 1}, {ID: 118, Count: 1}},
+				{{ID: 117, Count: 2}, {ID: 100, Count: 5}},
+				{{ID: 117, Count: 2}, {ID: 101, Count: 3}},
+				{{ID: 117, Count: 2}, {ID: 102, Count: 2}},
+				{{ID: 117, Count: 2}, {ID: 103, Count: 1}},
+				{{ID: 118, Count: 1}, {ID: 100, Count: 10}},
+				{{ID: 118, Count: 1}, {ID: 101, Count: 5}},
+				{{ID: 118, Count: 1}, {ID: 102, Count: 4}},
+				{{ID: 118, Count: 1}, {ID: 103, Count: 3}},
+				{{ID: 119, Count: 1}, {ID: 100, Count: 5}},
+				{{ID: 117, Count: 1}, {ID: 101, Count: 2}, {ID: 102, Count: 2}},
+				{{ID: 118, Count: 1}, {ID: 101, Count: 2}, {ID: 102, Count: 2}},
+			},
+		},
+	}
+
+	result := finalizeResult(dp, 2500, StrongOptions(), itemMap)
+
+	if len(result) != TargetPathCount {
+		t.Fatalf("unexpected result count: got %d, want %d", len(result), TargetPathCount)
+	}
+	assertPathsSortedByDisplayOrder(t, result)
+	for _, path := range result {
+		if len(path) > 2 {
+			t.Fatalf("quality-first result should prefer all two-step paths before diverse three-step paths, got %#v in %#v", path, result)
+		}
+	}
 }
 
 func TestMergeAndSortPathCombinesAndOrdersSteps(t *testing.T) {
@@ -325,6 +364,24 @@ func TestInsertPathByLengthKeepsAscendingStableOrder(t *testing.T) {
 
 	if !pathSlicesEqual(inserted, expected) {
 		t.Fatalf("unexpected insert order: got %#v, want %#v", inserted, expected)
+	}
+}
+
+func TestInsertPathByLengthOrdersSameLengthByOperationCount(t *testing.T) {
+	paths := []Path{
+		{{ID: 1, Count: 4}, {ID: 2, Count: 4}},
+		{{ID: 3, Count: 1}, {ID: 4, Count: 8}},
+	}
+
+	inserted := insertPathByLength(paths, Path{{ID: 5, Count: 1}, {ID: 6, Count: 1}})
+	expected := []Path{
+		{{ID: 5, Count: 1}, {ID: 6, Count: 1}},
+		{{ID: 1, Count: 4}, {ID: 2, Count: 4}},
+		{{ID: 3, Count: 1}, {ID: 4, Count: 8}},
+	}
+
+	if !pathSlicesEqual(inserted, expected) {
+		t.Fatalf("unexpected quality order: got %#v, want %#v", inserted, expected)
 	}
 }
 

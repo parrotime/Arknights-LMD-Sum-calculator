@@ -8,36 +8,45 @@ const (
 )
 
 type SearchOptions struct {
-	Mode              SearchMode
-	MaxSteps          int
-	MaxPathsPerSum    int
-	MaxPathsForTarget int
-	TargetPathCount   int
-	PruneMin          int
-	PruneMax          int
+	Mode                     SearchMode
+	MaxSteps                 int
+	MaxPathsPerSum           int
+	MaxPathsForTarget        int
+	TargetPathCount          int
+	PruneMin                 int
+	PruneMax                 int
+	QualityFirst             bool
+	FinalCandidateMultiplier int
+	DiversityPerSignature    int
 }
 
 func FastOptions() SearchOptions {
 	return SearchOptions{
-		Mode:              ModeFast,
-		MaxSteps:          MaxSteps,
-		MaxPathsPerSum:    MaxPathsPerSum,
-		MaxPathsForTarget: MaxPathsForTarget,
-		TargetPathCount:   TargetPathCount,
-		PruneMin:          1000,
-		PruneMax:          3000,
+		Mode:                     ModeFast,
+		MaxSteps:                 MaxSteps,
+		MaxPathsPerSum:           MaxPathsPerSum,
+		MaxPathsForTarget:        MaxPathsForTarget,
+		TargetPathCount:          TargetPathCount,
+		PruneMin:                 1000,
+		PruneMax:                 3000,
+		QualityFirst:             false,
+		FinalCandidateMultiplier: 3,
+		DiversityPerSignature:    4,
 	}
 }
 
 func StrongOptions() SearchOptions {
 	return SearchOptions{
-		Mode:              ModeStrong,
-		MaxSteps:          7,
-		MaxPathsPerSum:    15,
-		MaxPathsForTarget: 30,
-		TargetPathCount:   TargetPathCount,
-		PruneMin:          1500,
-		PruneMax:          5000,
+		Mode:                     ModeStrong,
+		MaxSteps:                 7,
+		MaxPathsPerSum:           20,
+		MaxPathsForTarget:        75,
+		TargetPathCount:          TargetPathCount,
+		PruneMin:                 1500,
+		PruneMax:                 5000,
+		QualityFirst:             true,
+		FinalCandidateMultiplier: 5,
+		DiversityPerSignature:    6,
 	}
 }
 
@@ -74,8 +83,15 @@ func normalizeSearchOptions(options SearchOptions) SearchOptions {
 	if options.PruneMax < options.PruneMin {
 		options.PruneMax = options.PruneMin
 	}
+	if options.FinalCandidateMultiplier <= 0 {
+		options.FinalCandidateMultiplier = 3
+	}
+	if options.DiversityPerSignature <= 0 {
+		options.DiversityPerSignature = 4
+	}
 	if options.Mode != ModeStrong {
 		options.Mode = ModeFast
+		options.QualityFirst = false
 	}
 	return options
 }
