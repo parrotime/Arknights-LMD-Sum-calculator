@@ -243,121 +243,6 @@
   font-weight: 700;
 }
 
-.tables-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--ark-space-md);
-  width: 100%;
-  margin-top: var(--ark-space-md);
-}
-
-.mobile-table-container {
-  display: none;
-}
-
-.material-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--ark-inset-tint);
-  border: 1px solid var(--ark-border-subtle);
-  box-shadow: none;
-  overflow: hidden;
-}
-
-.material-table th,
-.material-table td {
-  padding: 11px 12px;
-  border: 1px solid var(--ark-table-border);
-  text-align: center;
-  font-size: 0.88rem;
-}
-
-.material-table th {
-  background: var(--ark-table-header-bg);
-  color: var(--ark-table-header-text);
-  font-weight: 900;
-  letter-spacing: 0.03em;
-}
-
-.table-head-chip,
-.table-count-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  box-sizing: border-box;
-  font-family: "Rajdhani", var(--ark-font-title), sans-serif;
-  font-weight: 900;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.table-count-chip {
-  min-height: 24px;
-  border: 1px solid var(--ark-accent-border);
-  background: var(--ark-tag-bg);
-  color: var(--ark-neutral-900);
-  font-size: 0.86rem;
-  letter-spacing: 0.04em;
-}
-
-.table-head-chip {
-  gap: 6px;
-}
-
-.table-head-icon {
-  display: block;
-  width: 25px;
-  height: 25px;
-  object-fit: contain;
-}
-
-.table-count-chip {
-  min-width: 36px;
-  padding: 2px 7px;
-  color: var(--ark-primary-500);
-}
-
-.material-table td {
-  color: var(--ark-text-body);
-  font-weight: 700;
-}
-
-.material-table td:first-child {
-  color: var(--ark-neutral-900);
-  font-weight: 900;
-}
-
-.material-table tr:nth-child(even) {
-  background-color: var(--ark-table-stripe);
-}
-
-.material-table tr:hover {
-  background-color: var(--ark-table-hover);
-  transition: background-color 0.16s ease;
-}
-
-.table-a,
-.table-b,
-.table-c,
-.table-d {
-  min-width: 300px;
-}
-
-.value-gain {
-  color: var(--ark-value-gain) !important;
-  font-weight: 900 !important;
-}
-
-.value-cost {
-  color: var(--ark-value-cost) !important;
-  font-weight: 900 !important;
-}
-
-.value-neutral {
-  color: var(--ark-neutral-600) !important;
-}
-
 .sanity-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -404,195 +289,6 @@
   font-size: 0.92rem;
   font-weight: 750;
   line-height: 1.45;
-}
-
-.path-cards {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ark-space-md);
-  width: 100%;
-  margin-top: var(--ark-space-md);
-}
-
-.path-card {
-  position: relative;
-  display: grid;
-  grid-template-columns: 86px 1fr;
-  background:
-    linear-gradient(135deg, var(--ark-accent-soft), transparent 34%),
-    var(--ark-surface-card);
-  border: 1px solid var(--ark-border-subtle);
-  border-top: 5px solid var(--ark-accent-line);
-  border-radius: var(--ark-radius-sm);
-  box-shadow: var(--ark-shadow-sm);
-  overflow: hidden;
-}
-
-.path-card::after {
-  content: "RHODES ISLAND";
-  position: absolute;
-  right: 16px;
-  bottom: 8px;
-  color: var(--ark-watermark);
-  font-size: 1.1rem;
-  font-weight: 900;
-  letter-spacing: 0.16em;
-  pointer-events: none;
-}
-
-.path-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 18px;
-  background: var(--ark-accent-soft);
-  color: var(--ark-primary-500);
-  font-family: "Rajdhani", "JetBrains Mono", "Fira Code", "Source Code Pro", monospace;
-  font-size: 1.3rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  border-right: 1px solid var(--ark-border-subtle);
-}
-
-.path-card-body {
-  padding: 16px 20px 18px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--ark-space-md);
-}
-
-.path-label {
-  width: fit-content;
-  margin-bottom: 8px;
-  padding: 2px 8px;
-  background: var(--ark-tag-bg);
-  color: var(--ark-neutral-900);
-  font-size: 0.78rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-}
-
-.path-steps {
-  margin: 0;
-  padding-left: 0;
-  color: var(--ark-text-body);
-  line-height: 1.75;
-  font-size: 0.92rem;
-  font-weight: 700;
-  list-style: none;
-}
-
-.path-step {
-  display: grid;
-  grid-template-columns: 34px 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--ark-step-line);
-}
-
-.path-step:last-child {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: 0;
-}
-
-.step-index {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 22px;
-  background: var(--ark-tag-bg);
-  color: var(--ark-primary-500);
-  font-family: "Rajdhani", "JetBrains Mono", "Fira Code", "Source Code Pro", monospace;
-  font-size: 0.82rem;
-  font-weight: 900;
-}
-
-.step-main {
-  min-width: 0;
-}
-
-.step-main p {
-  margin: 0;
-  color: var(--ark-text-body);
-  font-size: 0.92rem;
-  font-weight: 750;
-  line-height: 1.65;
-}
-
-.step-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 7px;
-}
-
-.step-meta span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 21px;
-  padding: 0 8px;
-  background: var(--ark-accent-soft);
-  border: 1px solid var(--ark-accent-border);
-  color: var(--ark-neutral-900);
-  font-family: "Rajdhani", "JetBrains Mono", "Fira Code", "Source Code Pro", monospace;
-  font-size: 0.78rem;
-  font-weight: 900;
-}
-
-.step-meta .meta-gain {
-  color: var(--ark-value-gain);
-  border-color: var(--ark-value-gain-border);
-}
-
-.step-meta .meta-cost {
-  color: var(--ark-value-cost);
-  border-color: var(--ark-value-cost-border);
-}
-
-.sample-path-container {
-  margin-top: var(--ark-space-md);
-  padding-right: 0;
-  padding-left: 0;
-}
-
-.sample-plan-card {
-  --sample-plan-identity-width: 220px;
-}
-
-.sample-plan-card :global(.sample-identity-label) {
-  display: inline-grid;
-  gap: 3px;
-  line-height: 1;
-}
-
-.sample-plan-card :global(.sample-identity-label) span {
-  color: var(--ark-plan-accent);
-  font-family: "Rajdhani", var(--ark-font-title), sans-serif;
-  font-size: 0.58rem;
-  font-weight: 900;
-  letter-spacing: 0.16em;
-}
-
-.sample-plan-card :global(.sample-identity-label) strong {
-  color: var(--ark-plan-muted);
-  font-size: 0.64rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-}
-
-.sample-item-name {
-  color: var(--ark-neutral-900);
-}
-
-.sample-target-mark {
-  font-family: var(--ark-font-title);
-  font-size: 1.56rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
 }
 
 @media (max-width: 900px) {
@@ -692,18 +388,8 @@
     transition: width 0.18s ease;
   }
 
-  .tables-container,
-  .path-card-body,
   .sanity-list {
     grid-template-columns: 1fr;
-  }
-
-  .desktop-table-container {
-    display: none;
-  }
-
-  .mobile-table-container {
-    display: grid;
   }
 
   .data-section {
@@ -755,8 +441,6 @@
   }
 
   .explain-text p,
-  .material-table th,
-  .material-table td,
   .sanity-row strong,
   .sanity-row span:last-child {
     font-family: "Rajdhani", var(--ark-font-title), sans-serif;
@@ -766,35 +450,6 @@
 
   .explain-text p {
     font-size: 0.95rem;
-  }
-
-  .material-table th,
-  .material-table td {
-    padding: 8px 7px;
-    font-size: 0.87rem;
-  }
-
-  .table-a,
-  .table-b,
-  .table-c,
-  .table-d {
-    min-width: 0;
-  }
-
-  .table-head-chip {
-    gap: 5px;
-  }
-
-  .table-count-chip {
-    min-width: 32px;
-    min-height: 22px;
-    padding: 1px 6px;
-    font-size: 0.82rem;
-  }
-
-  .table-head-icon {
-    width: 22px;
-    height: 22px;
   }
 
   .sanity-list {
@@ -819,19 +474,6 @@
     line-height: 1.38;
   }
 
-  .sample-plan-card :global(.sample-identity-label) span {
-    font-size: 0.54rem;
-  }
-
-  .sample-plan-card :global(.sample-identity-label) strong {
-    font-size: 0.6rem;
-  }
-
-  .sample-target-mark {
-    font-size: 1.16rem;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-  }
 }
 
 @media (max-width: 640px) {
@@ -859,27 +501,6 @@
     font-size: 0.74rem;
   }
 
-  .material-table th,
-  .material-table td {
-    padding: 7px 5px;
-    font-size: 0.86rem;
-  }
-
-  .table-head-chip {
-    gap: 4px;
-  }
-
-  .table-count-chip {
-    min-width: 30px;
-    padding: 1px 5px;
-    font-size: 0.78rem;
-  }
-
-  .table-head-icon {
-    width: 25px;
-    height: 25px;
-  }
-
   .section-header {
     align-items: flex-start;
     flex-direction: row;
@@ -897,22 +518,6 @@
   .section-header p {
     font-size: 0.68rem;
     letter-spacing: 0.1em;
-  }
-
-  .sample-target-mark {
-    font-size: 1.06rem;
-  }
-
-  .path-card {
-    grid-template-columns: 1fr;
-  }
-
-  .path-card-header {
-    justify-content: flex-start;
-    min-height: 42px;
-    padding: 8px 14px;
-    border-right: 0;
-    border-bottom: 1px solid var(--ark-border-subtle);
   }
 
   .sanity-row {
@@ -934,8 +539,4 @@
     font-size: 0.86rem;
   }
 
-  .path-step {
-    grid-template-columns: 1fr;
-    gap: 7px;
-  }
 }

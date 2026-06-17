@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import styles from '../assets/styles/About.module.css';
+import chartStyles from '../assets/styles/AboutChart.module.css';
+import noticeStyles from '../assets/styles/AboutNotice.module.css';
 import legacyLogStats from '../data/legacyLogStats.json';
 import {
   buildHourSeries,
@@ -438,10 +440,10 @@ function AboutPage() {
                 <div className={styles['card-label']}>CALCULATION LOG</div>
                 <div className={styles['card-title-row']}>
                   <div className={styles['card-title']}>累计完成计算次数</div>
-                  <span className={styles['sync-help-root']} data-about-sync-help-root="true">
+                  <span className={chartStyles['sync-help-root']} data-about-sync-help-root="true">
                     <button
                       type="button"
-                      className={styles['sync-help-trigger']}
+                      className={chartStyles['sync-help-trigger']}
                       ref={syncHelpTriggerRef}
                       aria-label="查看统计同步说明"
                       aria-expanded={syncHelpOpen}
@@ -452,13 +454,13 @@ function AboutPage() {
                     </button>
                     {syncHelpOpen && (
                       <span
-                        className={styles['sync-help-popover']}
+                        className={chartStyles['sync-help-popover']}
                         ref={syncHelpPopoverRef}
                         style={syncHelpStyle || undefined}
                       >
                         <button
                           type="button"
-                          className={styles['sync-help-close']}
+                          className={chartStyles['sync-help-close']}
                           aria-label="关闭统计同步说明"
                           onClick={() => setSyncHelpOpen(false)}
                         >
@@ -474,21 +476,21 @@ function AboutPage() {
             </div>
           </div>
 
-          <div className={`${styles['archive-card']} ${styles['chart-card']}`}>
-            <div className={styles['chart-header']}>
+          <div className={`${styles['archive-card']} ${chartStyles['chart-card']}`}>
+            <div className={chartStyles['chart-header']}>
               <div>
                 <div className={styles['card-label']}>TREND REPORT</div>
                 <div className={styles['card-title']}>计算次数趋势</div>
-                <div className={styles['chart-status']}>
+                <div className={chartStyles['chart-status']}>
                   {legacyDataNotice(combinedStats.baseline)} / 新增 {formatStatNumber(combinedStats.live.summary.totalRequests)} 次
                 </div>
               </div>
-              <div className={styles['range-tabs']} role="tablist" aria-label="统计周期">
+              <div className={chartStyles['range-tabs']} role="tablist" aria-label="统计周期">
                 {chartRanges.map((item) => (
                   <button
                     type="button"
                     key={item.key}
-                    className={activeRange === item.key ? styles['range-tab-active'] : styles['range-tab']}
+                    className={activeRange === item.key ? chartStyles['range-tab-active'] : chartStyles['range-tab']}
                     onClick={() => setActiveRange(item.key)}
                     aria-selected={activeRange === item.key}
                     role="tab"
@@ -500,12 +502,12 @@ function AboutPage() {
               </div>
             </div>
 
-            <div className={styles['chart-body']}>
-              <div className={styles['chart-plot']}>
+            <div className={chartStyles['chart-body']}>
+              <div className={chartStyles['chart-plot']}>
                 <svg
                   viewBox="0 0 280 128"
                   preserveAspectRatio={isMobileChart ? 'xMidYMid meet' : 'none'}
-                  className={styles['trend-chart']}
+                  className={chartStyles['trend-chart']}
                   aria-hidden="true"
                 >
                   <defs>
@@ -520,9 +522,9 @@ function AboutPage() {
                     </linearGradient>
                   </defs>
                   {[22, 52, 82].map((y) => (
-                    <line key={y} x1="10" y1={y} x2="270" y2={y} className={styles['chart-grid-line']} />
+                    <line key={y} x1="10" y1={y} x2="270" y2={y} className={chartStyles['chart-grid-line']} />
                   ))}
-                  <line x1="14" y1="104" x2="266" y2="104" className={styles['chart-axis-line']} />
+                  <line x1="14" y1="104" x2="266" y2="104" className={chartStyles['chart-axis-line']} />
                   {chartPoints.map((point, index) => {
                     const tick = activeTicks[index];
                     if (!tick?.label) return null;
@@ -534,19 +536,19 @@ function AboutPage() {
                         y1="18"
                         x2={point.x}
                         y2="104"
-                        className={styles['chart-axis-guide']}
+                        className={chartStyles['chart-axis-guide']}
                       />
                     );
                   })}
-                  <path d={chartAreaPath} className={styles['chart-area']} />
-                  <path d={chartPath} className={styles['chart-polyline-shadow']} />
-                  <path d={chartPath} className={styles['chart-polyline']} />
+                  <path d={chartAreaPath} className={chartStyles['chart-area']} />
+                  <path d={chartPath} className={chartStyles['chart-polyline-shadow']} />
+                  <path d={chartPath} className={chartStyles['chart-polyline']} />
                   {chartPoints.map((point, index) => {
                     const tick = activeTicks[index];
 
                     return (
-                      <g key={`point-${index}`} className={styles['chart-node']}>
-                        <circle cx={point.x} cy={point.y} r="7" className={styles['chart-hit-point']}>
+                      <g key={`point-${index}`} className={chartStyles['chart-node']}>
+                        <circle cx={point.x} cy={point.y} r="7" className={chartStyles['chart-hit-point']}>
                           <title>{`${tick?.title ?? ''}：${formatStatNumber(chartValues[index])} 次`}</title>
                         </circle>
                       </g>
@@ -554,22 +556,22 @@ function AboutPage() {
                   })}
                 </svg>
 
-                <div className={styles['chart-point-layer']}>
+                <div className={chartStyles['chart-point-layer']}>
                   {chartPoints.map((point, index) => {
                     const tick = activeTicks[index];
                     const value = formatStatNumber(chartValues[index]);
-                    const labelClass = point.y < 25 ? styles['chart-value-below'] : styles['chart-value-above'];
+                    const labelClass = point.y < 25 ? chartStyles['chart-value-below'] : chartStyles['chart-value-above'];
                     const isMaxPoint = index === chartExtremes.maxIndex;
                     const isMinPoint = index === chartExtremes.minIndex;
                     const extremeClass = isMaxPoint
-                      ? styles['chart-html-point-max']
-                      : (isMinPoint ? styles['chart-html-point-min'] : '');
+                      ? chartStyles['chart-html-point-max']
+                      : (isMinPoint ? chartStyles['chart-html-point-min'] : '');
 
                     return (
                       <button
                         type="button"
                         key={`html-point-${index}`}
-                        className={`${styles['chart-html-point']} ${labelClass} ${index === 0 ? styles['chart-value-edge-start'] : ''} ${index === chartPoints.length - 1 ? styles['chart-value-edge-end'] : ''} ${isMaxPoint || isMinPoint ? styles['chart-html-point-extreme'] : ''} ${extremeClass} ${isDenseChart ? styles['chart-html-point-dense'] : ''}`}
+                        className={`${chartStyles['chart-html-point']} ${labelClass} ${index === 0 ? chartStyles['chart-value-edge-start'] : ''} ${index === chartPoints.length - 1 ? chartStyles['chart-value-edge-end'] : ''} ${isMaxPoint || isMinPoint ? chartStyles['chart-html-point-extreme'] : ''} ${extremeClass} ${isDenseChart ? chartStyles['chart-html-point-dense'] : ''}`}
                         style={{
                           left: `${(point.x / 280) * 100}%`,
                           top: `${(point.y / 128) * 100}%`,
@@ -577,14 +579,14 @@ function AboutPage() {
                         aria-label={`${tick?.title ?? '统计点'}：${value} 次${isMaxPoint ? '，最高点' : ''}${isMinPoint ? '，最低点' : ''}`}
                         title={`${tick?.title ?? ''}：${value} 次`}
                       >
-                        <span className={styles['chart-html-dot']} />
-                        <span className={styles['chart-value-label']}>{value}</span>
+                        <span className={chartStyles['chart-html-dot']} />
+                        <span className={chartStyles['chart-value-label']}>{value}</span>
                       </button>
                     );
                   })}
                 </div>
 
-                <div className={styles['chart-axis-labels']} aria-hidden="true">
+                <div className={chartStyles['chart-axis-labels']} aria-hidden="true">
                   {chartPoints.map((point, index) => {
                     const tick = activeTicks[index];
                     if (!tick?.label) return null;
@@ -592,7 +594,7 @@ function AboutPage() {
                     return (
                       <span
                         key={`label-${index}`}
-                        className={styles['chart-axis-html-label']}
+                        className={chartStyles['chart-axis-html-label']}
                         style={{ left: `${(point.x / 280) * 100}%` }}
                       >
                         {tick.label}
@@ -669,47 +671,47 @@ function AboutPage() {
           </div>
         </section>
 
-        <div className={styles['notice-list']}>
-          <div className={styles['notice-item']}>
-            <div className={styles['notice-title']}>当前版本v2.0.0</div>
-            <div className={styles['notice-content']}>
-              <div className={styles['hanging-list']}>
-                <p className={styles['hanging-item']}>
-                  <span className={styles['hanging-index']}>1</span>
+        <div className={noticeStyles['notice-list']}>
+          <div className={noticeStyles['notice-item']}>
+            <div className={noticeStyles['notice-title']}>当前版本v2.0.0</div>
+            <div className={noticeStyles['notice-content']}>
+              <div className={noticeStyles['hanging-list']}>
+                <p className={noticeStyles['hanging-item']}>
+                  <span className={noticeStyles['hanging-index']}>1</span>
                   本网页是作者入门前端三件套和react框架的一个练习项目，没什么技术含量，存在不足之处，欢迎通过反馈渠道提出改进意见
                 </p>
-                <p className={styles['hanging-item']}>
-                  <span className={styles['hanging-index']}>2</span>
+                <p className={noticeStyles['hanging-item']}>
+                  <span className={noticeStyles['hanging-index']}>2</span>
                   如果遇到问题，请通过B站私信反馈或直接填写反馈问卷
                   <a
                     href="https://space.bilibili.com/32772539"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles['external-link3']}
+                    className={noticeStyles['external-link3']}
                   >
                     网页作者B站主页
                   </a>
                 </p>
-                <p className={styles['hanging-item']}>
-                  <span className={styles['hanging-index']}>3</span>
+                <p className={noticeStyles['hanging-item']}>
+                  <span className={noticeStyles['hanging-index']}>3</span>
                   网页源码：
                   <a
                     href="https://github.com/parrotime/Arknights-LMD-Sum-calculator"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles['external-link3']}
+                    className={noticeStyles['external-link3']}
                   >
                     github项目源码
                   </a>
                 </p>
-                <p className={styles['hanging-item']}>
-                  <span className={styles['hanging-index']}>4</span>
+                <p className={noticeStyles['hanging-item']}>
+                  <span className={noticeStyles['hanging-index']}>4</span>
                   本网页中所有数据与图片均来自于
                   <a
                     href="https://prts.wiki/w/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles['external-link3']}
+                    className={noticeStyles['external-link3']}
                   >
                     PRTS wiki
                   </a>
@@ -718,29 +720,29 @@ function AboutPage() {
               </div>
             </div>
 
-            <div className={styles['notice-title']}>参考文献</div>
-            <div className={styles['notice-content']}>
-              <div className={styles['hanging-list']}>
-                <p className={styles['hanging-item']}>
-                  <span className={styles['hanging-index']}>1</span>
+            <div className={noticeStyles['notice-title']}>参考文献</div>
+            <div className={noticeStyles['notice-content']}>
+              <div className={noticeStyles['hanging-list']}>
+                <p className={noticeStyles['hanging-item']}>
+                  <span className={noticeStyles['hanging-index']}>1</span>
                   <a
                     href="https://bbs.nga.cn/read.php?tid=21247901"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles['external-link3']}
+                    className={noticeStyles['external-link3']}
                   >
                     在公招需要花费龙门币时代，另一位作者的凑数计算器NGA帖子
                   </a>
                   ，也就是熟知的 https://cedric341561.gitee.io/777/（似乎已经失效）
                 </p>
-                <p className={styles['hanging-item']}>
-                  <span className={styles['hanging-index']}>2</span>
+                <p className={noticeStyles['hanging-item']}>
+                  <span className={noticeStyles['hanging-index']}>2</span>
                   龙门币消耗与各级所需经验值之间的数学关系研究：
                   <a
                     href="https://ngabbs.com/read.php?tid=16847042"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles['external-link3']}
+                    className={noticeStyles['external-link3']}
                   >
                     干员升级经验及龙门币消耗成本统计(收束测试)
                   </a>
@@ -748,35 +750,35 @@ function AboutPage() {
               </div>
             </div>
 
-            <div className={styles['notice-title']}>声明</div>
-            <div className={styles['notice-content']}>
-              <div className={styles['hanging-list']}>
-                <p className={styles['hanging-item']}>
-                  <span className={styles['hanging-index']}>1</span>
+            <div className={noticeStyles['notice-title']}>声明</div>
+            <div className={noticeStyles['notice-content']}>
+              <div className={noticeStyles['hanging-list']}>
+                <p className={noticeStyles['hanging-item']}>
+                  <span className={noticeStyles['hanging-index']}>1</span>
                   网页所涉及的游戏《明日方舟》相关的名称、数据、素材、表情包等均为其各自所有者的资产，仅供识别。
                 </p>
-                <p className={styles['hanging-item']}>
-                  <span className={styles['hanging-index']}>2</span>
+                <p className={noticeStyles['hanging-item']}>
+                  <span className={noticeStyles['hanging-index']}>2</span>
                   网页内使用的游戏图片素材、文本，仅用于介绍与说明，其版权均属于上海鹰角网络科技有限公司。
                 </p>
-                <p className={styles['hanging-item']}>
-                  <span className={styles['hanging-index']}>3</span>
+                <p className={noticeStyles['hanging-item']}>
+                  <span className={noticeStyles['hanging-index']}>3</span>
                   本项目为无偿开源项目，以便于明日方舟玩家能够凑出想要的龙门币数量，仅用于学习交流使用。
                 </p>
               </div>
             </div>
 
-            <div className={styles['notice-title']}>时间轴</div>
-            <div className={styles['notice-content']}>
-              <div className={styles.timeline}>
+            <div className={noticeStyles['notice-title']}>时间轴</div>
+            <div className={noticeStyles['notice-content']}>
+              <div className={noticeStyles.timeline}>
                 {timelineItems.map((item, i) => (
-                  <div className={styles['timeline-item']} key={i}>
-                    <div className={styles['timeline-dot']} />
+                  <div className={noticeStyles['timeline-item']} key={i}>
+                    <div className={noticeStyles['timeline-dot']} />
                     <div>
-                      <span className={styles['timeline-version']}>{item.version}</span>
-                      <span className={styles['timeline-date']}>{item.date}</span>
+                      <span className={noticeStyles['timeline-version']}>{item.version}</span>
+                      <span className={noticeStyles['timeline-date']}>{item.date}</span>
                     </div>
-                    <div className={styles['timeline-desc']}>{item.desc}</div>
+                    <div className={noticeStyles['timeline-desc']}>{item.desc}</div>
                   </div>
                 ))}
               </div>

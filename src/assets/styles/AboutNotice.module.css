@@ -1,0 +1,215 @@
+.notice-list {
+  display: block;
+}
+
+.notice-item {
+  background: var(--ark-archive-card-bg);
+  border: 1px solid var(--ark-border-subtle);
+  border-radius: var(--ark-radius-sm);
+  box-shadow: var(--ark-shadow-sm);
+  padding: var(--ark-space-md);
+  color: var(--ark-text-body);
+  line-height: 1.7;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.notice-title {
+  width: fit-content;
+  min-width: 132px;
+  font-weight: 900;
+  font-size: 1.12rem;
+  color: var(--ark-primary-500);
+  margin-bottom: var(--ark-space-sm);
+  padding-bottom: 6px;
+  border-bottom: 4px solid rgba(44, 146, 230, 0.46);
+  letter-spacing: 0.06em;
+}
+
+.notice-content {
+  padding-left: 0;
+  font-size: 1rem;
+  margin-bottom: 1.6rem;
+}
+
+.notice-content:last-child {
+  margin-bottom: 0;
+}
+
+.hanging-list {
+  display: grid;
+  gap: 10px;
+}
+
+.hanging-item {
+  position: relative;
+  margin: 0;
+  padding-left: 50px;
+}
+
+.hanging-index {
+  position: absolute;
+  left: 0;
+  top: 0.12em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 22px;
+  background: var(--ark-tag-bg);
+  border: 1px solid var(--ark-accent-border);
+  color: var(--ark-primary-500);
+  font-family: var(--ark-font-title);
+  font-weight: 900;
+  font-size: 0.8rem;
+  line-height: 1;
+  letter-spacing: 0.06em;
+}
+
+.external-link3 {
+  color: var(--ark-link);
+  text-decoration: none;
+  border-bottom: 2px dotted rgba(92, 158, 220, 0.38);
+  transition: color 0.16s ease, border-color 0.16s ease;
+  margin-left: 8px;
+  font-weight: 800;
+}
+
+.external-link3:hover {
+  color: var(--ark-link-hover);
+  border-bottom-style: solid;
+  border-bottom-color: currentColor;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 32px;
+  margin-top: 8px;
+  border-left: 3px solid var(--ark-border-default);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -40px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  background: var(--ark-primary-500);
+  border: 2px solid var(--ark-surface-inset);
+  box-shadow: 0 0 0 2px var(--ark-border-default);
+  transform: rotate(45deg);
+}
+
+.timeline-version {
+  font-family: var(--ark-font-title);
+  font-weight: 900;
+  color: var(--ark-primary-500);
+  margin-right: 8px;
+  letter-spacing: 0.06em;
+}
+
+.timeline-date {
+  font-size: 0.85rem;
+  color: var(--ark-text-muted);
+  font-weight: 800;
+}
+
+.timeline-desc {
+  margin-top: 4px;
+  line-height: 1.7;
+  color: var(--ark-text-body);
+}
+
+@media (max-width: 900px) {
+  .notice-item {
+    padding: 13px;
+    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.62;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .notice-title {
+    min-width: 112px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    font-family: var(--ark-font-title);
+    font-size: 1.06rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    border-bottom-width: 3px;
+  }
+
+  .notice-content {
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .hanging-list {
+    gap: 8px;
+  }
+
+  .hanging-item {
+    padding-left: 38px;
+  }
+
+  .hanging-index {
+    top: 0.16em;
+    min-width: 26px;
+    height: 19px;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+  }
+
+  .external-link3 {
+    display: inline;
+    margin-left: 5px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-break: anywhere;
+  }
+
+  .timeline {
+    padding-left: 24px;
+    margin-top: 6px;
+    border-left-width: 2px;
+  }
+
+  .timeline-item {
+    margin-bottom: 18px;
+  }
+
+  .timeline-dot {
+    left: -31px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+  }
+
+  .timeline-version,
+  .timeline-date,
+  .timeline-desc {
+    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .timeline-date {
+    font-size: 0.82rem;
+  }
+
+  .timeline-desc {
+    line-height: 1.62;
+  }
+}

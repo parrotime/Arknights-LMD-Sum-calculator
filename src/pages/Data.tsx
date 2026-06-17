@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styles from "../assets/styles/Data.module.css";
+import planStyles from "../assets/styles/DataPlans.module.css";
+import tableStyles from "../assets/styles/DataTables.module.css";
 import pathRendererStyles from "../assets/styles/PathRenderer.module.css";
 import { classifyData } from "../DataService";
 import type { ReactElement } from "react";
@@ -45,15 +47,15 @@ interface SanityRow {
 }
 
 const TableHeadChip = ({ icon, text, alt = "" }: TableHeadChipProps) => (
-  <span className={styles['table-head-chip']}>
+  <span className={tableStyles['table-head-chip']}>
     <img
       src={icon}
       alt={alt}
-      className={styles['table-head-icon']}
+      className={tableStyles['table-head-icon']}
       loading="lazy"
       decoding="async"
     />
-    {text && <span className={styles['table-count-chip']}>{text}</span>}
+    {text && <span className={tableStyles['table-count-chip']}>{text}</span>}
   </span>
 );
 
@@ -168,12 +170,12 @@ function DataPage() {
 
   const getValueClass = (value: string | number) => {
     const numericValue = Number(String(value).replace(/[+,]/g, ""));
-    if (Number.isNaN(numericValue) || numericValue === 0) return styles['value-neutral'];
-    return numericValue > 0 ? styles['value-gain'] : styles['value-cost'];
+    if (Number.isNaN(numericValue) || numericValue === 0) return tableStyles['value-neutral'];
+    return numericValue > 0 ? tableStyles['value-gain'] : tableStyles['value-cost'];
   };
 
   const generateStaticTable = (data: TwoColumnRow[]): ReactElement => (
-    <table className={`${styles['material-table']} ${styles['table-a']}`}>
+    <table className={`${tableStyles['material-table']} ${tableStyles['table-a']}`}>
       <thead>
         <tr>
           <th>等级</th>
@@ -194,7 +196,7 @@ function DataPage() {
   );
 
   const generateStaticTable2 = (data: ItemValueRow[]): ReactElement => (
-    <table className={`${styles['material-table']} ${styles['table-b']}`}>
+    <table className={`${tableStyles['material-table']} ${tableStyles['table-b']}`}>
       <thead>
         <tr>
           <th>使用方式</th>
@@ -215,16 +217,16 @@ function DataPage() {
   const generatePathCards = (data: SamplePlan[]) => {
     return renderSamplePathCards({
       data,
-      pathRendererClassName: `${pathRendererStyles['path-renderer-container']} ${styles['sample-path-container']}`,
+      pathRendererClassName: `${pathRendererStyles['path-renderer-container']} ${planStyles['sample-path-container']}`,
       planListClassName: pathRendererStyles['plan-list'],
-      cardClassName: styles['sample-plan-card'],
-      identityValueClassName: styles['sample-target-mark'],
-      itemClassName: styles['sample-item-name'],
+      cardClassName: planStyles['sample-plan-card'],
+      identityValueClassName: planStyles['sample-target-mark'],
+      itemClassName: planStyles['sample-item-name'],
     });
   };
 
   const generateUpgradeTable4 = (data: UpgradeOnlyRow[], startNumber = 1): ReactElement => (
-    <table className={`${styles['material-table']} ${styles['table-d']} ${styles['table-d1']}`}>
+    <table className={`${tableStyles['material-table']} ${tableStyles['table-d']}`}>
       <thead>
         <tr>
           <th><TableHeadChip icon={EXP_GREEN_ICON_URL} alt="基础作战记录数量" /></th>
@@ -236,7 +238,7 @@ function DataPage() {
       <tbody>
         {data.map((row, i) => (
           <tr key={i}>
-            <td><span className={styles['table-count-chip']}>×{startNumber + i}</span></td>
+            <td><span className={tableStyles['table-count-chip']}>×{startNumber + i}</span></td>
             <td className={getValueClass(row.value1)}>{row.value1}</td>
             <td className={getValueClass(row.value2)}>{row.value2}</td>
             <td className={getValueClass(row.value3)}>{row.value3}</td>
@@ -301,13 +303,13 @@ function DataPage() {
               </p>
             </div>
 
-            <div className={`${styles['tables-container']} ${styles['desktop-table-container']}`}>
+            <div className={`${tableStyles['tables-container']} ${tableStyles['desktop-table-container']}`}>
               {generateStaticTable(upgradeTable1)}
 
               {generateStaticTable(upgradeTable2)}
             </div>
 
-            <div className={`${styles['tables-container']} ${styles['mobile-table-container']}`}>
+            <div className={`${tableStyles['tables-container']} ${tableStyles['mobile-table-container']}`}>
               {generateStaticTable(upgradeRows)}
             </div>
           </div>
@@ -336,22 +338,22 @@ function DataPage() {
               </p>
             </div>
 
-            <div className={`${styles['tables-container']} ${styles['desktop-table-container']}`}>
+            <div className={`${tableStyles['tables-container']} ${tableStyles['desktop-table-container']}`}>
               {generateStaticTable2(itemTable1)}
 
               {generateStaticTable2(itemTable2)}
             </div>
 
-            <div className={`${styles['tables-container']} ${styles['mobile-table-container']}`}>
+            <div className={`${tableStyles['tables-container']} ${tableStyles['mobile-table-container']}`}>
               {generateStaticTable2([...itemTable1, ...itemTable2])}
             </div>
 
-            <div className={`${styles['tables-container']} ${styles['desktop-table-container']}`}>
+            <div className={`${tableStyles['tables-container']} ${tableStyles['desktop-table-container']}`}>
               {generateUpgradeTable4(upgradeData.slice(0, 15), 1)}
               {generateUpgradeTable4(upgradeData.slice(15, 30), 16)}
             </div>
 
-            <div className={`${styles['tables-container']} ${styles['mobile-table-container']}`}>
+            <div className={`${tableStyles['tables-container']} ${tableStyles['mobile-table-container']}`}>
               {generateUpgradeTable4(upgradeData)}
             </div>
           </div>

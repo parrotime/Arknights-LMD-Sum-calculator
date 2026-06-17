@@ -1,0 +1,64 @@
+.sample-path-container {
+  margin-top: var(--ark-space-md);
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.sample-plan-card {
+  --sample-plan-identity-width: 220px;
+}
+
+.sample-plan-card :global(.sample-identity-label) {
+  display: inline-grid;
+  gap: 3px;
+  line-height: 1;
+}
+
+.sample-plan-card :global(.sample-identity-label) span {
+  color: var(--ark-plan-accent);
+  font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.sample-plan-card :global(.sample-identity-label) strong {
+  color: var(--ark-plan-muted);
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.sample-item-name {
+  color: var(--ark-neutral-900);
+}
+
+.sample-target-mark {
+  font-family: var(--ark-font-title);
+  font-size: 1.56rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .sample-plan-card :global(.sample-identity-label) span {
+    font-size: 0.54rem;
+  }
+
+  .sample-plan-card :global(.sample-identity-label) strong {
+    font-size: 0.6rem;
+  }
+
+  .sample-target-mark {
+    font-size: 1.16rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .sample-target-mark {
+    font-size: 1.06rem;
+  }
+}

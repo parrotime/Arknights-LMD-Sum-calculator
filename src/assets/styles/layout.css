@@ -1,0 +1,324 @@
+/* Global layout, navigation, theme toggle, and footer styles. */
+
+/* === 顶部导航栏 === */
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--ark-nav-height);
+  background: var(--ark-primary-900);
+  border-bottom: 1px solid rgba(109, 179, 240, 0.2);
+  box-shadow: var(--ark-shadow-nav);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-inner {
+  width: 100%;
+  max-width: 1080px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--ark-space-lg);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--ark-font-title);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  text-shadow: 0 0 20px rgba(109, 179, 240, 0.3);
+}
+
+.nav-brand-icon {
+  height: 32px;
+  width: auto;
+}
+
+.nav-links {
+  display: flex;
+  gap: var(--ark-space-md);
+  align-items: center;
+  position: relative;
+}
+
+.nav-item {
+  color: rgba(232, 236, 241, 0.82);
+  text-decoration: none;
+  font-family: var(--ark-font-title);
+  font-size: 1.08rem;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: var(--ark-radius-md);
+  transition: color var(--ark-transition-fast),
+              text-shadow var(--ark-transition-fast);
+  position: relative;
+}
+
+.nav-item:hover {
+  color: #f8fbff;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.24);
+}
+
+.nav-item:focus-visible,
+.theme-toggle:focus-visible,
+.back-to-top:focus-visible {
+  outline: 2px solid var(--ark-border-focus);
+  outline-offset: 3px;
+}
+
+.nav-item.active {
+  color: #ffffff;
+  text-shadow: 0 0 14px rgba(154, 211, 252, 0.32);
+}
+
+.nav-indicator {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--ark-primary-300);
+  border-radius: 1px;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              width 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              opacity var(--ark-transition-fast);
+  will-change: transform, width;
+}
+
+.nav-indicator.ready {
+  opacity: 1;
+}
+
+/* === 主题切换按钮 === */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--ark-radius-md);
+  width: 42px;
+  height: 34px;
+  padding: 0;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--ark-transition-fast),
+              border-color var(--ark-transition-fast);
+  flex-shrink: 0;
+}
+
+.theme-toggle-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+  transition: filter var(--ark-transition-fast),
+              opacity var(--ark-transition-fast);
+}
+
+.theme-toggle-icon-day {
+  filter: brightness(0) invert(1) drop-shadow(0 0 7px rgba(255, 255, 255, 0.32));
+}
+
+.theme-toggle-icon-active {
+  animation: theme-toggle-icon-pop 340ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.theme-toggle:active {
+  transform: none;
+}
+
+@keyframes theme-toggle-icon-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  42% {
+    transform: scale(0.72);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 100vh;
+  padding-top: var(--ark-nav-height);
+}
+
+/* === 页脚 === */
+.footer {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 18px;
+  background: var(--ark-footer-bg);
+  text-align: center;
+  padding: 18px var(--ark-space-lg);
+  border-top: 1px solid var(--ark-footer-border);
+  margin-top: auto;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.footer p {
+  margin: 3px 0;
+  color: var(--ark-footer-text);
+  font-size: 0.8rem;
+}
+
+.footer-link {
+  color: var(--ark-footer-text);
+  text-decoration: none;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  transition: color var(--ark-transition-fast);
+}
+
+.footer-link:hover {
+  color: var(--ark-primary-500);
+}
+
+@media (max-width: 800px) {
+  .app-container {
+    flex-direction: column;
+    height: auto;
+    padding-top: 100px;
+  }
+
+  .top-nav {
+    height: auto;
+    min-height: var(--ark-nav-height);
+    padding: var(--ark-space-sm) 0;
+  }
+
+  .nav-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: var(--ark-space-sm);
+    padding: 0 var(--ark-space-md);
+    align-items: center;
+  }
+
+  .nav-brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .nav-links {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .theme-toggle {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .nav-brand {
+    font-size: 1.15rem;
+  }
+
+  .nav-links {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .nav-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    padding: 6px 10px;
+    text-align: center;
+  }
+
+  .nav-indicator {
+    display: none;
+  }
+
+  .footer {
+    gap: 4px;
+    padding: 14px var(--ark-space-md);
+  }
+
+  .footer-link {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-inner {
+    padding: 0 12px;
+  }
+
+  .nav-brand {
+    gap: 7px;
+    font-size: 1.08rem;
+  }
+
+  .nav-brand-icon {
+    height: 28px;
+  }
+
+  .nav-item {
+    font-size: 0.88rem;
+    padding: 6px 5px;
+  }
+}
+
+@media (max-width: 340px) {
+  .nav-links {
+    gap: 3px;
+  }
+
+  .nav-item {
+    font-size: 0.84rem;
+    padding: 5px 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-item,
+  .nav-indicator,
+  .theme-toggle {
+    transition: none;
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+  }
+
+  .theme-toggle:hover,
+  .theme-toggle:active {
+    transform: none;
+  }
+
+  .theme-toggle-icon-active {
+    animation: none;
+  }
+}
