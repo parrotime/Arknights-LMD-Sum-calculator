@@ -19,7 +19,6 @@ import {
 import { validateInput, buildLimits, buildCacheKey } from "../utils/calcLogic";
 import {
   buildDefaultSettings,
-  defaultState,
   getInitialState,
   persistCalculatorState,
 } from "../utils/calculatorPersistence";
@@ -232,10 +231,14 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
   const limitInputWarningRef = React.useRef<Partial<Record<LimitInputField, number>>>({});
   const activeCalculationIdRef = React.useRef(0);
 
-  const invalidateActiveCalculation = useCallback(() => {
+  const cancelActiveCalculation = useCallback(() => {
     activeCalculationIdRef.current += 1;
-    dispatch({ type: "CANCEL_CALCULATION" });
   }, []);
+
+  const invalidateActiveCalculation = useCallback(() => {
+    cancelActiveCalculation();
+    dispatch({ type: "CANCEL_CALCULATION" });
+  }, [cancelActiveCalculation]);
 
   const showAssistantText = useCallback((message: string, priority: AssistantEggPriority = "normal", duration?: number) => {
     onAssistantEgg?.({
@@ -318,16 +321,16 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
 
   const handleToggleChange = useCallback(
     (key: SettingKey) => {
-      invalidateActiveCalculation();
+      cancelActiveCalculation();
       dispatch({ type: "TOGGLE_SETTING", key });
     },
-    [invalidateActiveCalculation]
+    [cancelActiveCalculation]
   );
 
   const handleResetSettings = useCallback(() => {
-    invalidateActiveCalculation();
+    cancelActiveCalculation();
     dispatch({ type: "RESET_SETTINGS" });
-  }, [invalidateActiveCalculation]);
+  }, [cancelActiveCalculation]);
 
   const handleSwapNums = useCallback(() => {
     invalidateActiveCalculation();
@@ -374,7 +377,7 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
   }, [showAssistantText]);
 
   const handleUpgradeCountChange = useCallback((e: ChangeEvent<HTMLInputElement> | { target: { value: string } }, field: LimitInputField, min: number, max: number, label = "这个输入框") => {
-    invalidateActiveCalculation();
+    cancelActiveCalculation();
     const rawValue = String(e.target.value ?? "");
     const value = rawValue.replace(/[^\d]/g, "");
     if (value === "") {
@@ -392,7 +395,7 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
       notifyLimitInputWarning(field, `${label}的上限是 ${max}，已按上限处理`);
     }
     dispatch({ type: "SET_UPGRADE_COUNT", field, value: numValue.toString() });
-  }, [invalidateActiveCalculation, notifyLimitInputWarning]);
+  }, [cancelActiveCalculation, notifyLimitInputWarning]);
 
   const handleCalculate = useCallback(
     async (event?: CalculateTriggerEvent, calcMode: CalcMode = "fast") => {

@@ -152,15 +152,39 @@ const getDefaultInitialState = (): CalculatorState => ({
   settings: buildDefaultSettings(),
 });
 
+export const getStorageItem = (key: string): string | null => {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+export const setStorageItem = (key: string, value: string): void => {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Storage may be unavailable in private mode or when quota is exceeded.
+  }
+};
+
+export const removeStorageItem = (key: string): void => {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Ignore storage cleanup failures; app state can still live in memory.
+  }
+};
+
 export const parseStoredObject = <T,>(key: string, fallback: T | null = null): T | null => {
-  const saved = localStorage.getItem(key);
+  const saved = getStorageItem(key);
   if (!saved) return fallback;
 
   try {
     const parsed = JSON.parse(saved);
     return parsed && typeof parsed === "object" ? parsed as T : fallback;
   } catch {
-    localStorage.removeItem(key);
+    removeStorageItem(key);
     return fallback;
   }
 };
@@ -214,5 +238,5 @@ export const persistCalculatorState = (state: CalculatorState): void => {
       pathCache: state.pathCache,
     };
   }
-  localStorage.setItem("calculatorState", JSON.stringify(toSave));
+  setStorageItem("calculatorState", JSON.stringify(toSave));
 };

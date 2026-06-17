@@ -1,5 +1,9 @@
 import { findCalculationPaths } from "../services/calculatorService";
-import { parseStoredObject } from "./calculatorPersistence";
+import {
+  parseStoredObject,
+  removeStorageItem,
+  setStorageItem,
+} from "./calculatorPersistence";
 import type {
   ApiError,
   CalcMode,
@@ -16,7 +20,7 @@ const parseStoredArray = <T,>(key: string): T[] => {
 const getPathCacheQueue = (): string[] => {
   const parsed = parseStoredObject<string[]>("pathCacheQueue", []);
   if (Array.isArray(parsed)) return parsed;
-  localStorage.removeItem("pathCacheQueue");
+  removeStorageItem("pathCacheQueue");
   return [];
 };
 
@@ -24,7 +28,7 @@ export const checkPathCache = (cacheKey: string): CalculationPath[] | null => {
   const key = `pathCache_${cacheKey}`;
   const paths = parseStoredArray<CalculationPath>(key);
   if (paths.length > 0) return paths;
-  localStorage.removeItem(key);
+  removeStorageItem(key);
   return null;
 };
 
@@ -59,14 +63,14 @@ export const formatCalculatorError = (error: unknown): string => {
 };
 
 export const savePathCache = (cacheKey: string, paths: CalculationPath[]): void => {
-  localStorage.setItem(`pathCache_${cacheKey}`, JSON.stringify(paths));
+  setStorageItem(`pathCache_${cacheKey}`, JSON.stringify(paths));
 
   const cacheQueue = getPathCacheQueue();
   if (!cacheQueue.includes(cacheKey)) {
     cacheQueue.push(cacheKey);
     if (cacheQueue.length > 5) {
-      localStorage.removeItem(`pathCache_${cacheQueue.shift()}`);
+      removeStorageItem(`pathCache_${cacheQueue.shift()}`);
     }
-    localStorage.setItem("pathCacheQueue", JSON.stringify(cacheQueue));
+    setStorageItem("pathCacheQueue", JSON.stringify(cacheQueue));
   }
 };
