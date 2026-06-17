@@ -7,7 +7,7 @@ import type {
   UserLimits,
 } from "../types/calculator";
 
-export const Transmission = async (
+export const findCalculationPaths = async (
   target: number,
   settings: CalculatorSettings,
   {
@@ -24,26 +24,26 @@ export const Transmission = async (
   calcMode: CalcMode = "fast",
 ): Promise<CalculationPath[]> => {
   try {
-   const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/find-paths`, {
-     method: "POST",
-     headers: { "Content-Type": "application/json" },
-     body: JSON.stringify({
-       target,
-       settings,
-       userLimits: {
-         upgrade0Limit,
-         upgrade1Limit,
-         upgrade2Limit,
-         sanityLimit,
-         trade2Limit,
-         trade3Limit,
-         trade4Limit,
-         trade5Limit,
-       },
-       rawGoal,
-       calcMode,
-     }),
-   });
+    const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/find-paths`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        target,
+        settings,
+        userLimits: {
+          upgrade0Limit,
+          upgrade1Limit,
+          upgrade2Limit,
+          sanityLimit,
+          trade2Limit,
+          trade3Limit,
+          trade4Limit,
+          trade5Limit,
+        },
+        rawGoal,
+        calcMode,
+      }),
+    });
 
     if (!response.ok) {
       const errorData = {
@@ -76,12 +76,12 @@ export const Transmission = async (
   } catch (error) {
     if ((error as ApiError).status) {
       throw error;
-    } else {
-      const networkError: ApiError = new Error(
-        "无法连接到计算服务器，请检查网络连接或稍后再试。"
-      );
-      networkError.isNetworkError = true;
-      throw networkError;
     }
+
+    const networkError: ApiError = new Error(
+      "无法连接到计算服务器，请检查网络连接或稍后再试。"
+    );
+    networkError.isNetworkError = true;
+    throw networkError;
   }
 };

@@ -1,68 +1,16 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
-import type { ChangeEvent, CSSProperties, KeyboardEvent, MouseEvent } from "react";
-import { computeDiff } from "../utils/calcLogic";
+import React, { useState } from "react";
+import type { ChangeEvent, KeyboardEvent, MouseEvent } from "react";
 import type {
   CalcMode,
   CalculatorState,
   LimitInputField,
   LmdInputField,
 } from "../types/calculator";
+import LimitControlSection from "./LimitControlSection";
+import OperationPanel from "./OperationPanel";
+import SectionHeader from "./SectionHeader";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
 import styles from "../assets/styles/InputPanel.module.css";
-
-const CALC_MODES = {
-  fast: {
-    label: "快速模式",
-    code: "Flash",
-    desc: "快速响应",
-    badgeIcon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq04.webp",
-    badgeLabel: "推荐",
-  },
-  strong: {
-    label: "加强模式",
-    code: "Pro",
-    desc: "深度搜索",
-    badgeIcon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq09.webp",
-    badgeLabel: "深度",
-  },
-} satisfies Record<CalcMode, {
-  label: string;
-  code: string;
-  desc: string;
-  badgeIcon: string;
-  badgeLabel: string;
-}>;
-
-const MODE_TOGGLE_ICON = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/reset.webp";
-
-interface RollingNumberProps {
-  value: number;
-}
-
-interface RollingDigitStyle extends CSSProperties {
-  "--rolling-digit": number;
-  "--rolling-delay": string;
-}
-
-type LimitGroupLayout = "sanity" | "elite" | "trade";
-type LimitGroupRow = "top" | "bottom";
-
-interface LimitItem {
-  labelCn: string;
-  labelEn: string;
-  field: LimitInputField;
-  max: number;
-  icon: string;
-}
-
-interface LimitGroup {
-  title: string;
-  code: string;
-  row: LimitGroupRow;
-  layout: LimitGroupLayout;
-  resetLabel: string;
-  items: LimitItem[];
-}
 
 interface InputPanelProps {
   state: CalculatorState;
@@ -81,42 +29,6 @@ interface InputPanelProps {
   onModeWarning?: (message: string) => void;
 }
 
-const RollingNumber = ({ value }: RollingNumberProps) => {
-  const text = Math.abs(value).toLocaleString("zh-CN");
-
-  return (
-    <span className={styles['rolling-number']} aria-label={text}>
-      {Array.from(text).map((char, index) => {
-        if (!/\d/.test(char)) {
-          return (
-            <span className={styles['rolling-separator']} key={`${index}-${char}`}>
-              {char}
-            </span>
-          );
-        }
-
-        return (
-          <span className={styles['rolling-digit-window']} key={`${index}-${char}`}>
-            <span
-              className={styles['rolling-digit-strip']}
-              style={{
-                "--rolling-digit": Number(char),
-                "--rolling-delay": `${Math.max(0, text.length - index - 1) * 18}ms`,
-              } as RollingDigitStyle}
-            >
-              {"0123456789".split("").map((digit) => (
-                <span className={styles['rolling-digit']} key={digit}>
-                  {digit}
-                </span>
-              ))}
-            </span>
-          </span>
-        );
-      })}
-    </span>
-  );
-};
-
 const InputPanel = ({
   state,
   handleInputChange,
@@ -127,186 +39,13 @@ const InputPanel = ({
   onClearLmdInput,
   onModeWarning,
 }: InputPanelProps) => {
-  const [pressedCalculate, setPressedCalculate] = useState<CalcMode | null>(null);
-  const [limitResetAnimating, setLimitResetAnimating] = useState<LimitGroupLayout | null>(null);
   const [selectedCalcMode, setSelectedCalcMode] = useState<CalcMode>("fast");
-  const [modeMenuOpen, setModeMenuOpen] = useState(false);
-  const [hasWarnedStrongMode, setHasWarnedStrongMode] = useState(false);
-  const modeSelectRef = useRef<HTMLDivElement | null>(null);
-
-  // 实时计算差值
-  const diffInfo = useMemo(() => computeDiff(state.num1, state.num2), [state.num1, state.num2]);
-  const hasInputError = !!(state.error1 || state.error2);
-  const isDiffOutOfRange = hasInputError || diffInfo?.outOfRange;
-  const diffDisplay = hasInputError || diffInfo?.outOfRange
-    ? { prefix: "", label: "超出范围", amount: null }
-    : diffInfo
-      ? diffInfo.value > 0
-        ? { prefix: "需", label: "获取", amount: Math.abs(diffInfo.value) }
-        : diffInfo.value < 0
-          ? { prefix: "需", label: "消耗", amount: Math.abs(diffInfo.value) }
-          : { prefix: "", label: "无需变化", amount: null }
-      : { prefix: "", label: "—", amount: null };
-  const isDiffPlaceholder = !hasInputError && !diffInfo;
-  const selectedMode = CALC_MODES[selectedCalcMode];
-
-  useEffect(() => {
-    if (!modeMenuOpen) return undefined;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!modeSelectRef.current?.contains(event.target as Node)) {
-        setModeMenuOpen(false);
-      }
-    };
-    const handleEscape = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") setModeMenuOpen(false);
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [modeMenuOpen]);
-
-  const limitGroups: LimitGroup[] = [
-    {
-      title: "理智类",
-      code: "SANITY USAGE",
-      row: "top",
-      layout: "sanity",
-      resetLabel: "清空理智限制",
-      items: [
-        {
-          labelCn: "允许使用理智数量",
-          labelEn: "PERMITTED SANITY",
-          field: "sanityCount",
-          max: 210,
-          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/san.webp",
-        },
-      ],
-    },
-    {
-      title: "允许升级的干员人数",
-      code: "ALLOWED OPERATOR PROMOTION COUNT",
-      row: "top",
-      layout: "elite",
-      resetLabel: "清空干员人数限制",
-      items: [
-        {
-          labelCn: "精零人数",
-          labelEn: "ELITE-0",
-          field: "upgrade0Count",
-          max: 10,
-          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/elite_0.webp",
-        },
-        {
-          labelCn: "精一人数",
-          labelEn: "ELITE-I",
-          field: "upgrade1Count",
-          max: 10,
-          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/elite_1.webp",
-        },
-        {
-          labelCn: "精二人数",
-          labelEn: "ELITE-II",
-          field: "upgrade2Count",
-          max: 10,
-          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/elite_2.webp",
-        },
-      ],
-    },
-    {
-      title: "贸易站赤金订单数",
-      code: "TRADING POST PURE GOLD ORDERS",
-      row: "bottom",
-      layout: "trade",
-      resetLabel: "清空订单限制",
-      items: [
-        {
-          labelCn: "2赤金订单",
-          labelEn: "ORDER-2",
-          field: "trade2Count",
-          max: 10,
-          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_flow_gs.webp",
-        },
-        {
-          labelCn: "3赤金订单",
-          labelEn: "ORDER-3",
-          field: "trade3Count",
-          max: 10,
-          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_wtcost1.webp",
-        },
-        {
-          labelCn: "4赤金订单",
-          labelEn: "ORDER-4",
-          field: "trade4Count",
-          max: 10,
-          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_wtcost2.webp",
-        },
-        {
-          labelCn: "5赤金订单",
-          labelEn: "ORDER-5",
-          field: "trade5Count",
-          max: 10,
-          icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_against2.webp",
-        },
-      ],
-    },
-  ];
 
   // Enter 键触发计算
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !state.isCalculating) {
       handleCalculate(e, selectedCalcMode);
     }
-  };
-
-  const handleCalculateClick = (e: MouseEvent<HTMLButtonElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const originX = e.clientX
-      ? `${e.clientX - rect.left}px`
-      : "50%";
-
-    e.currentTarget.style.setProperty("--confirm-origin-x", originX);
-    setPressedCalculate(null);
-    requestAnimationFrame(() => setPressedCalculate(selectedCalcMode));
-    handleCalculate(e, selectedCalcMode);
-  };
-
-  const handleModeSelect = (mode: CalcMode) => {
-    setSelectedCalcMode(mode);
-    setModeMenuOpen(false);
-
-    if (mode === "strong" && !hasWarnedStrongMode) {
-      onModeWarning?.("Pro 模式会消耗更多计算资源，建议在 Flash 结果不满足时使用");
-      setHasWarnedStrongMode(true);
-    }
-  };
-
-  const handleLimitGroupReset = (group: LimitGroup) => {
-    setLimitResetAnimating(group.layout);
-    group.items.forEach(({ field, max }) => {
-      handleUpgradeCountChange({ target: { value: "" } }, field, 0, max);
-    });
-  };
-
-  const renderLimitInput = ({ labelCn, field, max }: Pick<LimitItem, "labelCn" | "field" | "max">) => {
-    return (
-      <input
-        type="text"
-        className={styles['short-input-box']}
-        min="0"
-        max={max}
-        inputMode="numeric"
-        pattern="[0-9]*"
-        placeholder="不限"
-        aria-label={`${labelCn}数量限制`}
-        value={state[field] ?? ""}
-        onChange={(e) => handleUpgradeCountChange(e, field, 0, max, labelCn)}
-      />
-    );
   };
 
   return (
@@ -319,11 +58,8 @@ const InputPanel = ({
     </div>
 
     <div className={styles['main-content']}>
-      <div className={`${styles['limit-section']} ${styles['lmd-section']}`}>
-        <div className={styles['limit-block-title']}>
-          <span className={styles['limit-block-title-main']}>龙门币统计清单</span>
-          <span className={styles['limit-block-title-code']}>LMD INVENTORY</span>
-        </div>
+      <div className={styles['lmd-section']}>
+        <SectionHeader title="龙门币统计清单" code="LMD INVENTORY" className={styles['lmd-block-title']} />
         <div className={styles['input-area-with-swap']}>
           <div className={styles['input-rows']}>
             <div className={`${styles['lmd-input-side']} ${styles['lmd-input-side-left']}`}>
@@ -445,211 +181,18 @@ const InputPanel = ({
         </div>
       </div>
 
-      <div className={styles['limit-section']}>
-        <div className={styles['limit-block-title']}>
-          <span className={styles['limit-block-title-main']}>数量限制</span>
-          <span className={styles['limit-block-title-note']}>未输入时采用默认上限</span>
-          <span className={styles['limit-block-title-code']}>LIMIT CONTROL</span>
-        </div>
-        <div className={styles['limit-category-list']}>
-          <div className={styles['limit-category-row']}>
-            {limitGroups.filter((group) => group.row === "top").map((group) => (
-              <div className={`${styles['limit-category']} ${styles[`limit-category-${group.layout}`]}`} key={group.code}>
-                <div className={styles['limit-category-header']}>
-                  <button
-                    type="button"
-                    className={`${styles['limit-reset-btn']} ${limitResetAnimating === group.layout ? styles['limit-reset-btn-active'] : ''}`}
-                    onClick={() => handleLimitGroupReset(group)}
-                    onAnimationEnd={() => setLimitResetAnimating(null)}
-                    title={group.resetLabel}
-                    aria-label={group.resetLabel}
-                  >
-                    <img
-                      className={styles['limit-reset-icon']}
-                      src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/clean.webp"
-                      alt=""
-                      aria-hidden="true"
-                      decoding="async"
-                    />
-                  </button>
-                  <span className={styles['limit-category-title']}>{group.title}</span>
-                  <span className={styles['limit-category-code']}>{group.code}</span>
-                </div>
-                <div className={`${styles['limit-card-grid']} ${styles[`limit-card-grid-${group.layout}`]}`}>
-                  {group.items.map(({ labelCn, labelEn, field, max, icon }) => (
-                    <label className={styles['limit-card']} key={field}>
-                      <img
-                        className={styles['limit-card-icon']}
-                        src={icon}
-                        alt=""
-                        aria-hidden="true"
-                        decoding="async"
-                      />
-                      <span className={styles['limit-card-text']}>
-                        <span className={styles['limit-card-label-cn']}>{labelCn}</span>
-                        <span className={styles['limit-card-label-en']}>{labelEn}</span>
-                      </span>
-                      <span className={styles['limit-input-field']}>
-                        {renderLimitInput({ labelCn, field, max })}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+      <LimitControlSection
+        state={state}
+        handleUpgradeCountChange={handleUpgradeCountChange}
+      />
 
-          {limitGroups.filter((group) => group.row === "bottom").map((group) => (
-            <div className={`${styles['limit-category']} ${styles[`limit-category-${group.layout}`]}`} key={group.code}>
-              <div className={styles['limit-category-header']}>
-                <button
-                  type="button"
-                  className={`${styles['limit-reset-btn']} ${limitResetAnimating === group.layout ? styles['limit-reset-btn-active'] : ''}`}
-                  onClick={() => handleLimitGroupReset(group)}
-                  onAnimationEnd={() => setLimitResetAnimating(null)}
-                  title={group.resetLabel}
-                  aria-label={group.resetLabel}
-                >
-                  <img
-                    className={styles['limit-reset-icon']}
-                    src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/clean.webp"
-                    alt=""
-                    aria-hidden="true"
-                    decoding="async"
-                  />
-                </button>
-                <span className={styles['limit-category-title']}>{group.title}</span>
-                <span className={styles['limit-category-code']}>{group.code}</span>
-              </div>
-              <div className={`${styles['limit-card-grid']} ${styles[`limit-card-grid-${group.layout}`]}`}>
-                {group.items.map(({ labelCn, labelEn, field, max, icon }) => (
-                  <label className={styles['limit-card']} key={field}>
-                    <img
-                      className={styles['limit-card-icon']}
-                      src={icon}
-                      alt=""
-                      aria-hidden="true"
-                      decoding="async"
-                    />
-                    <span className={styles['limit-card-text']}>
-                      <span className={styles['limit-card-label-cn']}>{labelCn}</span>
-                      <span className={styles['limit-card-label-en']}>{labelEn}</span>
-                    </span>
-                    <span className={styles['limit-input-field']}>
-                      {renderLimitInput({ labelCn, field, max })}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className={styles['operation-section']}>
-        <div className={styles['limit-block-title']}>
-          <span className={styles['limit-block-title-main']}>操作区域</span>
-          <span className={styles['limit-block-title-code']}>OPERATION AREA</span>
-        </div>
-        <div className={styles['operation-row']}>
-          <div
-            className={`${styles['diff-section']} ${isDiffOutOfRange ? styles['diff-out-of-range'] : ''}`}
-            aria-live="polite"
-          >
-            <span className={styles['diff-value']}>
-              {diffDisplay.prefix && (
-                <span className={styles['diff-prefix']}>{diffDisplay.prefix}</span>
-              )}
-              {isDiffPlaceholder ? (
-                <span className={styles['diff-placeholder']}>{diffDisplay.label}</span>
-              ) : (
-                <span className={styles['diff-status-chip']}>
-                  <span className={styles['diff-status-text']} key={diffDisplay.label}>
-                    {diffDisplay.label}
-                  </span>
-                </span>
-              )}
-              {diffDisplay.amount !== null && (
-                <>
-                  <RollingNumber value={diffDisplay.amount} />
-                  <span className={styles['diff-unit']}>龙门币</span>
-                </>
-              )}
-            </span>
-          </div>
-
-          <div className={styles['action-buttons']}>
-            <div className={styles['mode-select']} ref={modeSelectRef}>
-              <button
-                type="button"
-                className={`${styles['mode-select-trigger']} ${modeMenuOpen ? styles['mode-select-trigger-open'] : ''}`}
-                onClick={() => setModeMenuOpen(open => !open)}
-                aria-haspopup="listbox"
-                aria-expanded={modeMenuOpen}
-                disabled={state.isCalculating}
-              >
-                <span className={styles['mode-select-code']}>
-                  <span className={styles['mode-select-flip']} key={`code-${selectedCalcMode}`}>
-                    {selectedMode.code}
-                  </span>
-                </span>
-                <span className={styles['mode-select-label']}>
-                  <span className={styles['mode-select-flip']} key={`label-${selectedCalcMode}`}>
-                    {selectedMode.label}
-                  </span>
-                </span>
-                <span className={styles['mode-select-icon-wrap']} aria-hidden="true">
-                  <img
-                    className={styles['mode-select-icon']}
-                    src={MODE_TOGGLE_ICON}
-                    alt=""
-                    draggable="false"
-                    decoding="async"
-                  />
-                </span>
-              </button>
-              {modeMenuOpen && (
-                <div className={styles['mode-menu']} role="listbox" aria-label="计算模式">
-                  {(Object.entries(CALC_MODES) as Array<[CalcMode, typeof CALC_MODES[CalcMode]]>).map(([mode, item]) => (
-                    <button
-                      type="button"
-                      className={`${styles['mode-menu-item']} ${selectedCalcMode === mode ? styles['mode-menu-item-active'] : ''}`}
-                      role="option"
-                      aria-selected={selectedCalcMode === mode}
-                      onClick={() => handleModeSelect(mode)}
-                      key={mode}
-                    >
-                      <span className={styles['mode-menu-title']}>
-                        <img
-                          className={styles['mode-menu-badge-icon']}
-                          src={item.badgeIcon}
-                          alt={item.badgeLabel}
-                          draggable="false"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        <span>{item.label}</span>
-                      </span>
-                      <span className={styles['mode-menu-meta']}>
-                        <span className={styles['mode-menu-code']}>{item.code}</span>
-                        <span className={styles['mode-menu-desc']}>{item.desc}</span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button
-              className={`${styles['calculate-button']} ${pressedCalculate ? styles['calculate-button-confirming'] : ''}`}
-              onClick={handleCalculateClick}
-              onAnimationEnd={() => setPressedCalculate(null)}
-              disabled={state.isCalculating}
-            >
-              {state.isCalculating ? "计算中..." : "立即计算"}
-            </button>
-          </div>
-        </div>
-      </div>
+      <OperationPanel
+        state={state}
+        selectedCalcMode={selectedCalcMode}
+        onSelectedCalcModeChange={setSelectedCalcMode}
+        handleCalculate={handleCalculate}
+        onModeWarning={onModeWarning}
+      />
 
     </div>
   </div>
