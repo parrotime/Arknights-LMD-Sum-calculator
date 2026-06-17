@@ -36,6 +36,7 @@ yarn-error.log*
 /go-backend/*.test.exe
 /go-backend/profiles/**/*.out
 /go-backend/logs/
+/go-backend/profiles
 
 # local logs and generated reports
 *.log
