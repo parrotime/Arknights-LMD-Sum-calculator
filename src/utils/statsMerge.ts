@@ -45,6 +45,7 @@ interface LegacyStatsInput {
   summary?: Record<string, unknown>;
   series?: {
     byHourOfDay?: RawStatPoint[];
+    byExactHour?: RawStatPoint[];
     byDay?: RawStatPoint[];
     byWeek?: RawStatPoint[];
     byMonth?: RawStatPoint[];
@@ -123,6 +124,7 @@ export function normalizeLegacyStats(raw: LegacyStatsInput | null | undefined): 
     },
     series: {
       byHourOfDay: normalizeSeries(raw?.series?.byHourOfDay),
+      byExactHour: normalizeSeries(raw?.series?.byExactHour),
       byDay: normalizeSeries(raw?.series?.byDay),
       byWeek: normalizeSeries(raw?.series?.byWeek),
       byMonth: normalizeSeries(raw?.series?.byMonth),
@@ -202,6 +204,21 @@ export function buildRecentDaySeries(series: RawStatPoint[], count: number, now 
   });
 }
 
+export function buildRecentHourSeries(series: RawStatPoint[], count: number, now = new Date()): StatPoint[] {
+  const lookup = new Map(normalizeSeries(series).map((point) => [point.key, point]));
+  return Array.from({ length: count }, (_, index) => {
+    const date = new Date(now.getTime() - (count - 1 - index) * 60 * 60 * 1000);
+    date.setMinutes(0, 0, 0);
+    const key = formatHourKey(date);
+    const point = lookup.get(key);
+    return createStatPoint({
+      key,
+      label: `${String(date.getHours()).padStart(2, "0")}:00`,
+      count: point?.count || 0,
+    });
+  });
+}
+
 export function buildRecentMonthSeries(series: RawStatPoint[], count: number, now = new Date()): StatPoint[] {
   const lookup = new Map(normalizeSeries(series).map((point) => [point.key, point]));
   return Array.from({ length: count }, (_, index) => {
@@ -273,6 +290,10 @@ function formatDateKey(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function formatHourKey(date: Date): string {
+  return `${formatDateKey(date)}T${String(date.getHours()).padStart(2, "0")}`;
 }
 
 function formatMonthKey(date: Date): string {

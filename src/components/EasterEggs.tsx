@@ -15,7 +15,6 @@ export const zc325ImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/zc325.
 export const sami325ImageUrl = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/799is325.webp";
 export const typhoon799ImageUrls = [
   "https://ark-lmd.oss-cn-beijing.aliyuncs.com/typhoon_shock.webp",
-  "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bloodwolf799.webp",
 ];
 export const TYPHOON_799_PEEK = "typhoon799-peek";
 

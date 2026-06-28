@@ -23,6 +23,7 @@ export interface PlanStepItem {
   itemClassName?: string;
   itemStyle?: CSSProperties;
   count: string | number;
+  countUnit?: string;
   deltaText?: ReactNode;
   deltaType?: "gain" | "spend";
   totalLabel: string;
@@ -123,7 +124,7 @@ const PlanCard = ({
               >
                 {step.itemName}
               </span>
-              <span className={styles['count-tag']}>×{step.count}次</span>
+              <span className={styles['count-tag']}>×{step.count}{step.countUnit ?? "次"}</span>
             </span>
             <span className={styles['step-right']}>
               {step.deltaText && (

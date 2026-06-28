@@ -2,143 +2,265 @@
   "version": 1,
   "source": {
     "kind": "legacy-node-log",
-    "inputName": "backend-out (7).log",
-    "generatedAt": "2026-06-15T06:12:05.273Z",
+    "inputName": "backend-out (9).log",
+    "generatedAt": "2026-06-28T07:09:14.756Z",
     "firstTimestamp": "2026-01-10T13:02:43+08:00",
-    "lastTimestamp": "2026-06-14T00:09:03+08:00",
+    "lastTimestamp": "2026-06-28T14:32:51+08:00",
     "note": "趋势序列只包含旧日志中带时间戳的请求；总量包含早期无时间戳请求。"
   },
   "summary": {
-    "totalRequests": 25866,
-    "timestampedRequests": 8819,
+    "totalRequests": 26572,
+    "timestampedRequests": 9525,
     "undatedRequests": 17047,
-    "goalRequests": 8816,
-    "uniqueIPs": 13047,
-    "emptyResults": 817,
-    "activeDays": 156,
-    "avgDailyTimestampedRequests": 56.53
+    "goalRequests": 9522,
+    "uniqueIPs": 13412,
+    "emptyResults": 828,
+    "activeDays": 170,
+    "avgDailyTimestampedRequests": 56.03
   },
   "series": {
     "byHourOfDay": [
       {
         "key": "00",
         "label": "00:00",
-        "count": 509
+        "count": 554
       },
       {
         "key": "01",
         "label": "01:00",
-        "count": 361
+        "count": 390
       },
       {
         "key": "02",
         "label": "02:00",
-        "count": 161
+        "count": 172
       },
       {
         "key": "03",
         "label": "03:00",
-        "count": 121
+        "count": 127
       },
       {
         "key": "04",
         "label": "04:00",
-        "count": 117
+        "count": 125
       },
       {
         "key": "05",
         "label": "05:00",
-        "count": 63
+        "count": 70
       },
       {
         "key": "06",
         "label": "06:00",
-        "count": 54
+        "count": 57
       },
       {
         "key": "07",
         "label": "07:00",
-        "count": 102
+        "count": 114
       },
       {
         "key": "08",
         "label": "08:00",
-        "count": 252
+        "count": 287
       },
       {
         "key": "09",
         "label": "09:00",
-        "count": 405
+        "count": 446
       },
       {
         "key": "10",
         "label": "10:00",
-        "count": 466
+        "count": 540
       },
       {
         "key": "11",
         "label": "11:00",
-        "count": 562
+        "count": 590
       },
       {
         "key": "12",
         "label": "12:00",
-        "count": 518
+        "count": 543
       },
       {
         "key": "13",
         "label": "13:00",
-        "count": 459
+        "count": 486
       },
       {
         "key": "14",
         "label": "14:00",
-        "count": 404
+        "count": 431
       },
       {
         "key": "15",
         "label": "15:00",
-        "count": 420
+        "count": 452
       },
       {
         "key": "16",
         "label": "16:00",
-        "count": 365
+        "count": 411
       },
       {
         "key": "17",
         "label": "17:00",
-        "count": 444
+        "count": 482
       },
       {
         "key": "18",
         "label": "18:00",
-        "count": 458
+        "count": 492
       },
       {
         "key": "19",
         "label": "19:00",
-        "count": 422
+        "count": 440
       },
       {
         "key": "20",
         "label": "20:00",
-        "count": 440
+        "count": 469
       },
       {
         "key": "21",
         "label": "21:00",
-        "count": 515
+        "count": 563
       },
       {
         "key": "22",
         "label": "22:00",
-        "count": 599
+        "count": 648
       },
       {
         "key": "23",
         "label": "23:00",
-        "count": 602
+        "count": 636
+      }
+    ],
+    "byExactHour": [
+      {
+        "key": "2026-06-27T15",
+        "label": "15:00",
+        "count": 0
+      },
+      {
+        "key": "2026-06-27T16",
+        "label": "16:00",
+        "count": 11
+      },
+      {
+        "key": "2026-06-27T17",
+        "label": "17:00",
+        "count": 3
+      },
+      {
+        "key": "2026-06-27T18",
+        "label": "18:00",
+        "count": 1
+      },
+      {
+        "key": "2026-06-27T19",
+        "label": "19:00",
+        "count": 4
+      },
+      {
+        "key": "2026-06-27T20",
+        "label": "20:00",
+        "count": 2
+      },
+      {
+        "key": "2026-06-27T21",
+        "label": "21:00",
+        "count": 6
+      },
+      {
+        "key": "2026-06-27T22",
+        "label": "22:00",
+        "count": 6
+      },
+      {
+        "key": "2026-06-27T23",
+        "label": "23:00",
+        "count": 5
+      },
+      {
+        "key": "2026-06-28T00",
+        "label": "00:00",
+        "count": 7
+      },
+      {
+        "key": "2026-06-28T01",
+        "label": "01:00",
+        "count": 2
+      },
+      {
+        "key": "2026-06-28T02",
+        "label": "02:00",
+        "count": 2
+      },
+      {
+        "key": "2026-06-28T03",
+        "label": "03:00",
+        "count": 0
+      },
+      {
+        "key": "2026-06-28T04",
+        "label": "04:00",
+        "count": 0
+      },
+      {
+        "key": "2026-06-28T05",
+        "label": "05:00",
+        "count": 0
+      },
+      {
+        "key": "2026-06-28T06",
+        "label": "06:00",
+        "count": 0
+      },
+      {
+        "key": "2026-06-28T07",
+        "label": "07:00",
+        "count": 0
+      },
+      {
+        "key": "2026-06-28T08",
+        "label": "08:00",
+        "count": 1
+      },
+      {
+        "key": "2026-06-28T09",
+        "label": "09:00",
+        "count": 3
+      },
+      {
+        "key": "2026-06-28T10",
+        "label": "10:00",
+        "count": 24
+      },
+      {
+        "key": "2026-06-28T11",
+        "label": "11:00",
+        "count": 3
+      },
+      {
+        "key": "2026-06-28T12",
+        "label": "12:00",
+        "count": 0
+      },
+      {
+        "key": "2026-06-28T13",
+        "label": "13:00",
+        "count": 1
+      },
+      {
+        "key": "2026-06-28T14",
+        "label": "14:00",
+        "count": 2
       }
     ],
     "byDay": [
@@ -920,7 +1042,77 @@
       {
         "key": "2026-06-14",
         "label": "06-14",
-        "count": 3
+        "count": 37
+      },
+      {
+        "key": "2026-06-15",
+        "label": "06-15",
+        "count": 52
+      },
+      {
+        "key": "2026-06-16",
+        "label": "06-16",
+        "count": 68
+      },
+      {
+        "key": "2026-06-17",
+        "label": "06-17",
+        "count": 57
+      },
+      {
+        "key": "2026-06-18",
+        "label": "06-18",
+        "count": 33
+      },
+      {
+        "key": "2026-06-19",
+        "label": "06-19",
+        "count": 44
+      },
+      {
+        "key": "2026-06-20",
+        "label": "06-20",
+        "count": 53
+      },
+      {
+        "key": "2026-06-21",
+        "label": "06-21",
+        "count": 27
+      },
+      {
+        "key": "2026-06-22",
+        "label": "06-22",
+        "count": 54
+      },
+      {
+        "key": "2026-06-23",
+        "label": "06-23",
+        "count": 72
+      },
+      {
+        "key": "2026-06-24",
+        "label": "06-24",
+        "count": 44
+      },
+      {
+        "key": "2026-06-25",
+        "label": "06-25",
+        "count": 40
+      },
+      {
+        "key": "2026-06-26",
+        "label": "06-26",
+        "count": 24
+      },
+      {
+        "key": "2026-06-27",
+        "label": "06-27",
+        "count": 59
+      },
+      {
+        "key": "2026-06-28",
+        "label": "06-28",
+        "count": 45
       }
     ],
     "byWeek": [
@@ -1037,7 +1229,17 @@
       {
         "key": "2026-W24",
         "label": "2026-W24",
-        "count": 343
+        "count": 377
+      },
+      {
+        "key": "2026-W25",
+        "label": "2026-W25",
+        "count": 334
+      },
+      {
+        "key": "2026-W26",
+        "label": "2026-W26",
+        "count": 338
       }
     ],
     "byMonth": [
@@ -1069,7 +1271,7 @@
       {
         "key": "2026-06",
         "label": "2026-06",
-        "count": 680
+        "count": 1386
       }
     ]
   },
@@ -1077,223 +1279,223 @@
     "topTargets": [
       {
         "key": "-100",
-        "count": 4839
+        "count": 4960
       },
       {
         "key": "0",
-        "count": 4025
+        "count": 4123
       },
       {
         "key": "-200",
-        "count": 1172
+        "count": 1213
       },
       {
         "key": "-300",
-        "count": 922
+        "count": 957
       },
       {
         "key": "100",
-        "count": 841
+        "count": 860
       },
       {
         "key": "-400",
-        "count": 685
+        "count": 698
       },
       {
         "key": "-500",
-        "count": 602
+        "count": 618
       },
       {
         "key": "300",
-        "count": 561
+        "count": 577
       },
       {
         "key": "200",
-        "count": 509
+        "count": 523
       },
       {
         "key": "-600",
-        "count": 406
+        "count": 417
       },
       {
         "key": "-700",
-        "count": 405
+        "count": 416
       },
       {
         "key": "-1000",
-        "count": 368
+        "count": 377
       },
       {
         "key": "400",
-        "count": 354
+        "count": 370
       },
       {
         "key": "-900",
-        "count": 322
+        "count": 329
       },
       {
         "key": "500",
-        "count": 305
+        "count": 316
       },
       {
         "key": "-800",
-        "count": 278
-      },
-      {
-        "key": "-1100",
-        "count": 255
+        "count": 285
       },
       {
         "key": "-5000",
-        "count": 255
+        "count": 263
+      },
+      {
+        "key": "-1100",
+        "count": 259
       },
       {
         "key": "-2000",
-        "count": 243
+        "count": 249
       },
       {
-        "key": "600",
-        "count": 238
+        "key": "-1200",
+        "count": 246
       }
     ],
     "topGoals": [
       {
         "key": "114514",
-        "count": 657
+        "count": 730
       },
       {
         "key": "0",
-        "count": 562
+        "count": 627
       },
       {
         "key": "6666666",
-        "count": 276
+        "count": 294
       },
       {
         "key": "1314520",
-        "count": 271
+        "count": 286
       },
       {
         "key": "1145140",
-        "count": 267
+        "count": 283
       },
       {
         "key": "5201314",
-        "count": 239
+        "count": 247
       },
       {
         "key": "666666",
-        "count": 192
-      },
-      {
-        "key": "10000000",
-        "count": 189
+        "count": 211
       },
       {
         "key": "3250000",
-        "count": 182
+        "count": 201
+      },
+      {
+        "key": "10000000",
+        "count": 199
       },
       {
         "key": "8888888",
-        "count": 175
+        "count": 195
       },
       {
         "key": "325",
-        "count": 171
-      },
-      {
-        "key": "1145141",
-        "count": 144
+        "count": 184
       },
       {
         "key": "325799",
-        "count": 137
+        "count": 162
+      },
+      {
+        "key": "1145141",
+        "count": 149
       },
       {
         "key": "350234",
-        "count": 133
-      },
-      {
-        "key": "325325",
-        "count": 131
+        "count": 148
       },
       {
         "key": "888888",
-        "count": 124
+        "count": 139
+      },
+      {
+        "key": "325325",
+        "count": 136
+      },
+      {
+        "key": "4444444",
+        "count": 118
       },
       {
         "key": "1234567",
+        "count": 117
+      },
+      {
+        "key": "1919810",
         "count": 113
       },
       {
         "key": "9999999",
-        "count": 111
-      },
-      {
-        "key": "4444444",
-        "count": 103
-      },
-      {
-        "key": "999999",
-        "count": 103
+        "count": 113
       }
     ],
     "topLimitCombinations": [
       {
         "key": "none",
-        "count": 15113
+        "count": 15551
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":10,\"upgrade2Limit\":10,\"sanityLimit\":200}",
-        "count": 2376
+        "count": 2445
       },
       {
         "key": "nosanity",
-        "count": 1421
+        "count": 1442
       },
       {
         "key": "noupgrade",
-        "count": 584
+        "count": 590
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":10,\"upgrade2Limit\":10,\"sanityLimit\":10}",
-        "count": 421
+        "count": 428
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":10,\"upgrade2Limit\":10,\"sanityLimit\":100}",
-        "count": 410
+        "count": 422
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":10,\"upgrade2Limit\":10,\"sanityLimit\":null}",
-        "count": 343
+        "count": 350
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":0,\"upgrade2Limit\":0,\"sanityLimit\":200}",
-        "count": 188
+        "count": 197
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":10,\"upgrade2Limit\":0,\"sanityLimit\":200}",
-        "count": 162
+        "count": 163
       },
       {
         "key": "{\"upgrade0Limit\":null,\"upgrade1Limit\":0,\"upgrade2Limit\":0,\"sanityLimit\":null}",
-        "count": 127
-      },
-      {
-        "key": "{\"upgrade0Limit\":null,\"upgrade1Limit\":null,\"upgrade2Limit\":0,\"sanityLimit\":null}",
-        "count": 101
+        "count": 132
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":null,\"upgrade2Limit\":null,\"sanityLimit\":null}",
-        "count": 95
+        "count": 105
       },
       {
-        "key": "{\"upgrade0Limit\":1,\"upgrade1Limit\":1,\"upgrade2Limit\":1,\"sanityLimit\":1}",
-        "count": 74
+        "key": "{\"upgrade0Limit\":null,\"upgrade1Limit\":null,\"upgrade2Limit\":0,\"sanityLimit\":null}",
+        "count": 103
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":10,\"upgrade2Limit\":null,\"sanityLimit\":null}",
-        "count": 74
+        "count": 76
+      },
+      {
+        "key": "{\"upgrade0Limit\":1,\"upgrade1Limit\":1,\"upgrade2Limit\":1,\"sanityLimit\":1}",
+        "count": 75
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":10,\"upgrade2Limit\":10,\"sanityLimit\":50}",
@@ -1305,28 +1507,28 @@
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":0,\"upgrade2Limit\":0,\"sanityLimit\":null}",
-        "count": 59
+        "count": 63
+      },
+      {
+        "key": "{\"upgrade0Limit\":0,\"upgrade1Limit\":null,\"upgrade2Limit\":null,\"sanityLimit\":null}",
+        "count": 56
       },
       {
         "key": "{\"upgrade0Limit\":10,\"upgrade1Limit\":10,\"upgrade2Limit\":10,\"sanityLimit\":20}",
         "count": 55
       },
       {
-        "key": "{\"upgrade0Limit\":0,\"upgrade1Limit\":null,\"upgrade2Limit\":null,\"sanityLimit\":null}",
-        "count": 54
-      },
-      {
         "key": "{\"upgrade0Limit\":1,\"upgrade1Limit\":1,\"upgrade2Limit\":1,\"sanityLimit\":200}",
-        "count": 46
+        "count": 48
       }
     ],
     "specialNumberHits": {
-      "325": 1154,
-      "520": 659,
-      "799": 520,
-      "1314": 639,
-      "114514": 1290,
-      "350234": 179
+      "325": 1274,
+      "520": 684,
+      "799": 585,
+      "1314": 677,
+      "114514": 1398,
+      "350234": 194
     }
   }
 }

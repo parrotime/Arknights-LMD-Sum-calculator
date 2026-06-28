@@ -8,6 +8,9 @@ import styles from "../assets/styles/PathRenderer.module.css";
 const CIRCLED_NUMS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
 
 const formatPlanNumber = (index: number): string => String(index + 1).padStart(2, "0");
+const getStepCountUnit = (itemType?: string): string => (
+  itemType?.startsWith("upgrade_only_") ? "人次" : "次"
+);
 
 interface BuildPathTextParams {
   safePath: CalculationPath;
@@ -45,7 +48,7 @@ const buildPathText = ({
     const action = stepValue > 0 ? "获得" : "消耗";
     const label = i === safePath.length - 1 ? "结果" : "当前";
     const breakdown = step.count > 1 ? `(${Math.abs(item.item_value)}×${step.count}=)` : "";
-    return `${num} ${item.item_name} ×${step.count}次 → ${action} ${breakdown}${Math.abs(stepValue)} 龙门币（${label} ${runningTotals[i]}）`;
+    return `${num} ${item.item_name} ×${step.count}${getStepCountUnit(item.type)} → ${action} ${breakdown}${Math.abs(stepValue)} 龙门币（${label} ${runningTotals[i]}）`;
   });
 
   return `${header}\n${summaryLine}\n${lines.join("\n")}`;
@@ -168,6 +171,7 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
       itemName: item.item_name,
       itemStyle: { color: getRarityColor(item.rarity) },
       count: step.count,
+      countUnit: getStepCountUnit(item.type),
       deltaText: `${isGain ? "+" : "-"}${step.count > 1 ? `(${Math.abs(item.item_value)}×${step.count}=)` : ""}${Math.abs(stepValue)} 龙门币`,
       deltaType: isGain ? "gain" as const : "spend" as const,
       totalLabel: i === safePath.length - 1 ? "结果" : "当前",

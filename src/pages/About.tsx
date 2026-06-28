@@ -7,6 +7,7 @@ import legacyLogStats from '../data/legacyLogStats.json';
 import {
   buildHourSeries,
   buildRecentDaySeries,
+  buildRecentHourSeries,
   buildRecentMonthSeries,
   formatStatNumber,
   legacyDataNotice,
@@ -248,6 +249,14 @@ function formatRuntime(now: number): RuntimeParts {
   };
 }
 
+function getBaselineReferenceDate(source: Record<string, unknown>, fallback: Date): Date {
+  const rawTimestamp = source.lastTimestamp;
+  if (typeof rawTimestamp !== 'string') return fallback;
+
+  const parsed = new Date(rawTimestamp);
+  return Number.isNaN(parsed.getTime()) ? fallback : parsed;
+}
+
 function AboutPage() {
   const [now, setNow] = useState(() => Date.now());
   const [activeRange, setActiveRange] = useState<ChartRangeKey>('day');
@@ -265,8 +274,9 @@ function AboutPage() {
     const currentDate = new Date(now);
     if (activeRange === 'day') {
       const liveHours = buildHourSeries(combinedStats.live.series.last24Hours);
-      const hasLiveHours = liveHours.some((point) => point.count > 0);
-      return hasLiveHours ? liveHours : combinedStats.baseline.series.byHourOfDay;
+      return liveHours.length
+        ? liveHours
+        : buildRecentHourSeries(combinedStats.baseline.series.byExactHour, 24, getBaselineReferenceDate(combinedStats.baseline.source, currentDate));
     }
     if (activeRange === 'week') return buildRecentDaySeries(combinedStats.merged.series.byDay, 7, currentDate);
     if (activeRange === 'month') return buildRecentDaySeries(combinedStats.merged.series.byDay, 30, currentDate);
