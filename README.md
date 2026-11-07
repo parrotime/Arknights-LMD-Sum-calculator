@@ -54,6 +54,22 @@
 
 ### 安装与启动
 
+Windows 本地开发可以双击项目根目录的 `start-dev.cmd`，或在 PowerShell 中执行：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\start-dev.ps1
+```
+
+脚本需要已安装 Node.js、Go，并在项目根目录执行过 `npm install`。它会先检查端口和前端依赖，再启动 Go 后端，等待后端就绪后启动前端。
+
+- 前端地址：`http://localhost:3000/`，启动后手动在浏览器中打开。
+- 后端地址：`http://localhost:3003/`，使用 `NODE_ENV=test`，关闭本地调试限流。
+- 开发 API 地址和跨域来源由脚本统一配置，端口被占用时会提示并停止。
+- 在启动终端按 `Ctrl+C` 可停止前后端；修改 Go 代码后需要停止并重新启动。
+- 前后端输出显示在同一终端，后端运行日志保存在 `go-backend/logs/`；本地后端可执行文件也生成在该目录，不纳入 Git。
+
+也可以分别启动前后端。前端命令：
+
 ```bash
 npm install
 npm run dev
@@ -62,7 +78,7 @@ npm run dev
 Vite 默认会给出本地访问地址，通常是：
 
 ```text
-http://localhost:5173/
+http://localhost:3000/
 ```
 
 前端开发环境会读取 `.env.development`：
@@ -77,6 +93,7 @@ VITE_API_URL=http://localhost:3003
 cd go-backend
 $env:PORT="3003"
 $env:NODE_ENV="test"
+$env:CORS_ORIGIN="http://localhost:3000"
 go run ./cmd/server
 ```
 

@@ -73,7 +73,18 @@ function ActionLinkIcon({ name }: { name: ActionIconName }) {
 }
 
 const timelineItems: TimelineItem[] = [
-  { version: "v2.0.0", date: "2026年6月", desc: (
+  { version: "v2.0.1", date: "2026年11月", desc: (
+    <>
+      新增了适配10次代理作战的方案
+      <br />
+      调整了部分文本内容以减少歧义。
+      <br />
+      在导航栏右侧新增了快捷访问“填写反馈问卷”的按钮。
+      <br />
+      外语适配施工中...
+    </>
+  ), },
+  { version: "v2.0.0", date: "2026年6月28日", desc: (
     <>
       根据各个社交平台的反馈进行2.0版本大更新。
       <br />

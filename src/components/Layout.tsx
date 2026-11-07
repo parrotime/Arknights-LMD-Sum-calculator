@@ -5,6 +5,7 @@ import ClickCursor from "./ClickCursor";
 import { useCursorState } from "./CursorContext";
 import FloatingAssistant from "./FloatingAssistant";
 import TyphoonPeek from "./TyphoonPeek";
+import LanguageSwitcher from "./LanguageSwitcher";
 import type { AssistantEggPayload } from "../types/calculator";
 
 const navItems = [
@@ -124,25 +125,44 @@ const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }:
               aria-hidden="true"
             />
           </div>
-          <button
-            className="theme-toggle"
-            onClick={handleThemeToggle}
-            aria-label={dark ? "切换到浅色模式" : "切换到深色模式"}
-            title={dark ? "浅色模式" : "深色模式"}
-          >
-            <img
-              className={`theme-toggle-icon ${dark ? "theme-toggle-icon-day" : "theme-toggle-icon-night"} ${themeToggleAnimating ? "theme-toggle-icon-active" : ""}`}
-              src={
-                dark
-                  ? "https://ark-lmd.oss-cn-beijing.aliyuncs.com/day_mod.webp"
-                  : "https://ark-lmd.oss-cn-beijing.aliyuncs.com/night_mod.webp"
-              }
-              alt=""
-              aria-hidden="true"
-              decoding="async"
-              onAnimationEnd={() => setThemeToggleAnimating(false)}
-            />
-          </button>
+          <div className="nav-actions">
+            <LanguageSwitcher />
+            <a
+              className="nav-survey-link"
+              href="https://v.wjx.cn/vm/wJwEJn8.aspx#"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="填写反馈问卷（在新标签页打开）"
+              title="填写反馈问卷"
+            >
+              <img
+                className="nav-survey-icon"
+                src="https://ark-lmd.oss-cn-beijing.aliyuncs.com/survey.svg"
+                alt=""
+                aria-hidden="true"
+                decoding="async"
+              />
+            </a>
+            <button
+              className="theme-toggle"
+              onClick={handleThemeToggle}
+              aria-label={dark ? "切换到浅色模式" : "切换到深色模式"}
+              title={dark ? "浅色模式" : "深色模式"}
+            >
+              <img
+                className={`theme-toggle-icon ${dark ? "theme-toggle-icon-day" : "theme-toggle-icon-night"} ${themeToggleAnimating ? "theme-toggle-icon-active" : ""}`}
+                src={
+                  dark
+                    ? "https://ark-lmd.oss-cn-beijing.aliyuncs.com/day_mod.webp"
+                    : "https://ark-lmd.oss-cn-beijing.aliyuncs.com/night_mod.webp"
+                }
+                alt=""
+                aria-hidden="true"
+                decoding="async"
+                onAnimationEnd={() => setThemeToggleAnimating(false)}
+              />
+            </button>
+          </div>
         </div>
       </nav>
 
