@@ -1996,5 +1996,50 @@
     "rarity": 5,
     "type": "trade",
     "consume": 0
+  },
+  {
+    "id": 223,
+    "item_id": "2-3-42",
+    "item_name": "三星通关7次1-7",
+    "item_value": 504,
+    "rarity": 5,
+    "type": "3_star",
+    "consume": 42
+  },
+  {
+    "id": 224,
+    "item_id": "2-3-24",
+    "item_name": "三星通关4次1-7",
+    "item_value": 288,
+    "rarity": 5,
+    "type": "3_star",
+    "consume": 24
+  },
+  {
+    "id": 225,
+    "item_id": "2-3-48",
+    "item_name": "三星通关8次1-7",
+    "item_value": 576,
+    "rarity": 5,
+    "type": "3_star",
+    "consume": 48
+  },
+  {
+    "id": 226,
+    "item_id": "2-3-54",
+    "item_name": "三星通关9次1-7",
+    "item_value": 648,
+    "rarity": 5,
+    "type": "3_star",
+    "consume": 54
+  },
+  {
+    "id": 227,
+    "item_id": "2-3-60",
+    "item_name": "三星通关10次1-7",
+    "item_value": 720,
+    "rarity": 5,
+    "type": "3_star",
+    "consume": 60
   }
 ]

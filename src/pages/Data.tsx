@@ -162,10 +162,15 @@ function DataPage() {
     { consume: "15理智", level: "作战记录LS-2，技巧概要CA-2，" },
     { consume: "18理智", level: "3次1-7，芯片本1，" },
     { consume: "20理智", level: "作战记录LS-3，技巧概要CA-3，" },
-    { consume: "21理智", level: "活动关后三分之一关" },
+    { consume: "21理智", level: "活动关刷材料关" },
+    { consume: "24理智", level: "4次1-7" },
     { consume: "25理智", level: "作战记录LS-4，技巧概要CA-4，" },
     { consume: "30理智", level: "5次1-7，作战记录LS-5，技巧概要CA-5，" },
     { consume: "36理智", level: "6次1-7，作战记录LS-6，芯片本2，" },
+    { consume: "42理智", level: "7次1-7，2次活动关刷材料关" },
+    { consume: "48理智", level: "8次1-7" },
+    { consume: "54理智", level: "9次1-7" },
+    { consume: "60理智", level: "10次1-7" },
   ], []);
 
   const getValueClass = (value: string | number) => {
