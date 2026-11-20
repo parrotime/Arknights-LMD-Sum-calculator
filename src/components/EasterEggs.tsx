@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
 import type { CalculatorSettings } from "../types/calculator";
 
@@ -129,22 +130,28 @@ export const useHeartEffect = (): [ReactNode, (event?: MouseEvent<HTMLElement> |
 };
 
 // 设置警告弹窗
-export const SettingsWarningModal = ({ settings, onClose, styles }: SettingsWarningModalProps) => (
-  <div className={styles["modal-overlay"]}>
-    <div className={styles["modal-content"]}>
-      <h3>提醒</h3>
-      <p>
-        您已开启"只允许连续多次对精零/精一/精二1级干员进行升级"开关，请检查以下开关至少有一个是打开的，否则无法计算出结果。当前开关状态：
-      </p>
-      <div>
-        <p>允许连续多次对精零1级干员进行升级：{settings.allowUpgradeOnly0 ? "已开启" : "未开启"}</p>
-        <p>允许连续多次对精一1级干员进行升级：{settings.allowUpgradeOnly1 ? "已开启" : "未开启"}</p>
-        <p>允许连续多次对精二1级干员进行升级：{settings.allowUpgradeOnly2 ? "已开启" : "未开启"}</p>
+export const SettingsWarningModal = ({ settings, onClose, styles }: SettingsWarningModalProps) => {
+  const { t } = useTranslation("calculator");
+  return (
+    <div className={`${styles["modal-overlay"]} ${styles.show}`}>
+      <div className={styles["modal-content"]}>
+        <h3>{t("settings.warning.title")}</h3>
+        <p>
+          {t("settings.warning.description")}
+        </p>
+        <div>
+          {(["allowUpgradeOnly0", "allowUpgradeOnly1", "allowUpgradeOnly2"] as const).map((key) => (
+            <p key={key}>{t("settings.warning.status", {
+              setting: t(`settings.options.${key}.text`),
+              status: t(settings[key] ? "settings.warning.enabled" : "settings.warning.disabled"),
+            })}</p>
+          ))}
+        </div>
+        <button onClick={onClose}>{t("settings.warning.close")}</button>
       </div>
-      <button onClick={onClose}>关闭</button>
     </div>
-  </div>
-);
+  );
+};
 
 // 彩蛋弹窗
 export const BonusModal = ({ show, onClose, styles }: BonusModalProps) => (

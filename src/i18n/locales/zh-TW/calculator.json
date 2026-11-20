@@ -1,0 +1,97 @@
+{
+  "input": {
+    "title": "羅德島物資清點",
+    "inventory": "龍門幣統計清單",
+    "current": "請輸入目前龍門幣數量",
+    "target": "請輸入目標龍門幣數量",
+    "clearCurrent": "清除目前龍門幣數量",
+    "clearTarget": "清除目標龍門幣數量",
+    "swap": "交換數字",
+    "reset": "清空數字"
+  },
+  "limits": {
+    "title": "數量限制",
+    "note": "未輸入時採用預設上限",
+    "placeholder": "不限",
+    "accessibleLabel": "{{label}}數量限制",
+    "groups": {
+      "sanity": { "title": "理智類", "reset": "清空理智限制" },
+      "elite": { "title": "允許升級的幹員人數", "reset": "清空幹員人數限制" },
+      "trade": { "title": "貿易站赤金訂單數", "reset": "清空訂單限制" }
+    },
+    "fields": {
+      "sanityCount": "允許使用理智數量",
+      "upgrade0Count": "精零人數",
+      "upgrade1Count": "精一人數",
+      "upgrade2Count": "精二人數",
+      "trade2Count": "2赤金訂單",
+      "trade3Count": "3赤金訂單",
+      "trade4Count": "4赤金訂單",
+      "trade5Count": "5赤金訂單"
+    },
+    "warning": "{{label}}的上限是 {{max}}，已按上限處理"
+  },
+  "operation": {
+    "title": "操作區域",
+    "calculate": "立即計算",
+    "calculating": "計算中...",
+    "mode": "計算模式",
+    "difference": {
+      "outOfRange": "超出範圍",
+      "need": "需",
+      "gain": "獲取",
+      "spend": "消耗",
+      "unchanged": "無需變化",
+      "currency": "龍門幣"
+    },
+    "modes": {
+      "fast": { "label": "快速模式", "description": "快速回應", "badge": "推薦" },
+      "strong": { "label": "加強模式", "description": "深度搜尋", "badge": "深度" }
+    },
+    "strongWarning": "Pro 模式會消耗更多計算資源，建議在 Flash 結果不符合需求時使用"
+  },
+  "settings": {
+    "title": "計算設定",
+    "reset": "恢復預設設定",
+    "showHelp": "查看設定說明",
+    "closeHelp": "關閉設定說明",
+    "groups": {
+      "sanity": "理智使用設定",
+      "base": "基建相關設定",
+      "token": "代幣使用設定",
+      "operator": "幹員相關設定"
+    },
+    "options": {
+      "allow3Star": { "text": "允許使用理智三星通關", "highlight": "三星通關" },
+      "allow2Star": { "text": "允許使用理智二星通關", "highlight": "二星通關" },
+      "allowExt25": { "text": "允許透過25理智剿滅獲取250龍門幣", "highlight": "剿滅作戰" },
+      "allowCE": { "text": "允許使用龍門幣副本(CE系列關卡)", "highlight": "CE龍門幣副本" },
+      "allowMaterial": { "text": "允許使用加工站合成菁英材料", "highlight": "菁英材料合成" },
+      "allowTrade": { "text": "允許使用貿易站販售赤金", "highlight": "赤金販售" },
+      "allowOrundumsGreen": { "text": "允許使用綠土搓玉生產源石碎片", "highlight": "綠土搓玉" },
+      "allowOrundumsDevice": { "text": "允許使用裝置搓玉生產源石碎片", "highlight": "裝置搓玉" },
+      "allowStore10": { "text": "允許使用活動商店1代幣換10龍門幣", "highlight": "1代幣換10龍門幣" },
+      "allowStore20": { "text": "允許使用活動商店1代幣換20龍門幣", "highlight": "1代幣換20龍門幣" },
+      "allowStore70": { "text": "允許使用危機合約1代幣換70龍門幣", "highlight": "1代幣換70龍門幣" },
+      "allowStore2000": { "text": "允許使用活動商店5代幣換2000龍門幣", "highlight": "5代幣換2000龍門幣" },
+      "allowStore5000": { "text": "允許使用活動商店7代幣換5000龍門幣", "highlight": "7代幣換5000龍門幣" },
+      "allowUpgradeOnly0": { "text": "允許連續多次對精零1級幹員進行升級", "highlight": "升級精零1級幹員" },
+      "allowUpgradeOnly1": { "text": "允許連續多次對精一1級幹員進行升級", "highlight": "升級精一1級幹員" },
+      "allowUpgradeOnly2": { "text": "允許連續多次對精二1級幹員進行升級", "highlight": "升級精二1級幹員" },
+      "allowUpgradeOnlyFor1": { "text": "只允許連續多次對精零/一/二1級幹員進行升級", "highlight": "只升級精零/一/二1級幹員" }
+    },
+    "help": {
+      "notice": "請注意：",
+      "explanation": "這個設定的目的是<keyword>排除</keyword>升級<keyword>不是等級為1級</keyword>的幹員，因此當這個按鈕開啟時，",
+      "requirement": "請確保其他三個升級開關中，至少有一個為開啟狀態。"
+    },
+    "warning": {
+      "title": "提醒",
+      "description": "您已開啟\"只允許連續多次對精零/精一/精二1級幹員進行升級\"開關，請檢查以下開關至少有一個是開啟的，否則無法計算出結果。目前開關狀態：",
+      "status": "{{setting}}：{{status}}",
+      "enabled": "已開啟",
+      "disabled": "未開啟",
+      "close": "關閉"
+    }
+  }
+}

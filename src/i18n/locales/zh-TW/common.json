@@ -1,0 +1,31 @@
+{
+  "app": {
+    "name": "龍門幣湊數計算器",
+    "currency": "龍門幣"
+  },
+  "nav": {
+    "home": "計算主頁",
+    "note": "注意事項",
+    "data": "資料檔案",
+    "about": "關於",
+    "goTo": "前往{{page}}"
+  },
+  "language": {
+    "select": "選擇語言",
+    "current": "目前使用",
+    "comingSoon": "籌備中",
+    "preview": "試用",
+    "scope": "繁體中文已涵蓋導覽列、計算輸入和方案結果。錯誤提示與其他頁面仍在適配。"
+  },
+  "survey": {
+    "title": "填寫回饋問卷",
+    "open": "填寫回饋問卷（在新分頁開啟）"
+  },
+  "theme": {
+    "switchToLight": "切換至淺色模式",
+    "switchToDark": "切換至深色模式",
+    "light": "淺色模式",
+    "dark": "深色模式"
+  },
+  "loading": "載入中..."
+}

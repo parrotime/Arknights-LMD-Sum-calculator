@@ -1,0 +1,97 @@
+{
+  "input": {
+    "title": "罗德岛物资清点",
+    "inventory": "龙门币统计清单",
+    "current": "请输入当前龙门币数量",
+    "target": "请输入目标龙门币数量",
+    "clearCurrent": "清除当前龙门币数量",
+    "clearTarget": "清除目标龙门币数量",
+    "swap": "交换数字",
+    "reset": "清空数字"
+  },
+  "limits": {
+    "title": "数量限制",
+    "note": "未输入时采用默认上限",
+    "placeholder": "不限",
+    "accessibleLabel": "{{label}}数量限制",
+    "groups": {
+      "sanity": { "title": "理智类", "reset": "清空理智限制" },
+      "elite": { "title": "允许升级的干员人数", "reset": "清空干员人数限制" },
+      "trade": { "title": "贸易站赤金订单数", "reset": "清空订单限制" }
+    },
+    "fields": {
+      "sanityCount": "允许使用理智数量",
+      "upgrade0Count": "精零人数",
+      "upgrade1Count": "精一人数",
+      "upgrade2Count": "精二人数",
+      "trade2Count": "2赤金订单",
+      "trade3Count": "3赤金订单",
+      "trade4Count": "4赤金订单",
+      "trade5Count": "5赤金订单"
+    },
+    "warning": "{{label}}的上限是 {{max}}，已按上限处理"
+  },
+  "operation": {
+    "title": "操作区域",
+    "calculate": "立即计算",
+    "calculating": "计算中...",
+    "mode": "计算模式",
+    "difference": {
+      "outOfRange": "超出范围",
+      "need": "需",
+      "gain": "获取",
+      "spend": "消耗",
+      "unchanged": "无需变化",
+      "currency": "龙门币"
+    },
+    "modes": {
+      "fast": { "label": "快速模式", "description": "快速响应", "badge": "推荐" },
+      "strong": { "label": "加强模式", "description": "深度搜索", "badge": "深度" }
+    },
+    "strongWarning": "Pro 模式会消耗更多计算资源，建议在 Flash 结果不满足时使用"
+  },
+  "settings": {
+    "title": "计算配置",
+    "reset": "恢复默认设置",
+    "showHelp": "查看设置说明",
+    "closeHelp": "关闭设置说明",
+    "groups": {
+      "sanity": "理智使用设置",
+      "base": "基建相关设置",
+      "token": "代币使用设置",
+      "operator": "干员相关设置"
+    },
+    "options": {
+      "allow3Star": { "text": "允许使用理智三星通关", "highlight": "三星通关" },
+      "allow2Star": { "text": "允许使用理智二星通关", "highlight": "二星通关" },
+      "allowExt25": { "text": "允许通过25理智剿灭获取250龙门币", "highlight": "剿灭作战" },
+      "allowCE": { "text": "允许使用龙门币副本(CE系列关卡)", "highlight": "CE龙门币副本" },
+      "allowMaterial": { "text": "允许使用加工站合成精英材料", "highlight": "精英材料合成" },
+      "allowTrade": { "text": "允许使用贸易站售卖赤金", "highlight": "赤金售卖" },
+      "allowOrundumsGreen": { "text": "允许使用绿土搓玉生产源石碎片", "highlight": "绿土搓玉" },
+      "allowOrundumsDevice": { "text": "允许使用装置搓玉生产源石碎片", "highlight": "装置搓玉" },
+      "allowStore10": { "text": "允许使用活动商店1代币换10龙门币", "highlight": "1代币换10龙门币" },
+      "allowStore20": { "text": "允许使用活动商店1代币换20龙门币", "highlight": "1代币换20龙门币" },
+      "allowStore70": { "text": "允许使用危机合约1代币换70龙门币", "highlight": "1代币换70龙门币" },
+      "allowStore2000": { "text": "允许使用活动商店5代币换2000龙门币", "highlight": "5代币换2000龙门币" },
+      "allowStore5000": { "text": "允许使用活动商店7代币换5000龙门币", "highlight": "7代币换5000龙门币" },
+      "allowUpgradeOnly0": { "text": "允许连续多次对精零1级干员进行升级", "highlight": "升级精零1级干员" },
+      "allowUpgradeOnly1": { "text": "允许连续多次对精一1级干员进行升级", "highlight": "升级精一1级干员" },
+      "allowUpgradeOnly2": { "text": "允许连续多次对精二1级干员进行升级", "highlight": "升级精二1级干员" },
+      "allowUpgradeOnlyFor1": { "text": "只允许连续多次对精零/一/二1级干员进行升级", "highlight": "只升级精零/一/二1级干员" }
+    },
+    "help": {
+      "notice": "请注意：",
+      "explanation": "这个设置的目的是<keyword>排除</keyword>升级<keyword>不是等级为1级</keyword>的干员，因此当这个按钮开启时，",
+      "requirement": "请确保其他三个升级开关中，至少有一个为开启状态。"
+    },
+    "warning": {
+      "title": "提醒",
+      "description": "您已开启\"只允许连续多次对精零/精一/精二1级干员进行升级\"开关，请检查以下开关至少有一个是打开的，否则无法计算出结果。当前开关状态：",
+      "status": "{{setting}}：{{status}}",
+      "enabled": "已开启",
+      "disabled": "未开启",
+      "close": "关闭"
+    }
+  }
+}

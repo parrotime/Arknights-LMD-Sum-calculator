@@ -1,4 +1,8 @@
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { getItemById } from "../DataService";
+import type { GameItem } from "../DataService";
+import traditionalItemNames from "../i18n/locales/zh-TW/gameItems.json";
 import { getRarityColor, computeStepData, computeRunningTotals } from "../utils/calcLogic";
 import PlanCard from "./PlanCard";
 import type { PlanStepItem, PlanSummaryItem } from "./PlanCard";
@@ -8,11 +12,21 @@ import styles from "../assets/styles/PathRenderer.module.css";
 const CIRCLED_NUMS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
 
 const formatPlanNumber = (index: number): string => String(index + 1).padStart(2, "0");
-const getStepCountUnit = (itemType?: string): string => (
-  itemType?.startsWith("upgrade_only_") ? "人次" : "次"
+const getStepCountUnit = (translate: TFunction<"results">, itemType?: string): string => (
+  translate(itemType?.startsWith("upgrade_only_") ? "people" : "times")
 );
 
-interface BuildPathTextParams {
+const itemNamesById: Partial<Record<number, string>> = traditionalItemNames;
+
+const getItemName = (item: GameItem, language?: string): string =>
+  (language === "zh-TW" ? itemNamesById[item.id]?.trim() : undefined) || item.item_name;
+
+interface ResultLocale {
+  t: TFunction<"results">;
+  language?: string;
+}
+
+interface BuildPathTextParams extends ResultLocale {
   safePath: CalculationPath;
   stepData: Array<StepData | null>;
   runningTotals: number[];
@@ -30,42 +44,58 @@ const buildPathText = ({
   totalSanity,
   planIndex,
   compact = false,
+  t: translate,
+  language,
 }: BuildPathTextParams): string => {
   const endLMD = runningTotals[runningTotals.length - 1] ?? startLMD;
+  const heading = translate("copyPlanHeading", { number: formatPlanNumber(planIndex) });
   const header = compact
-    ? `【PLAN ${formatPlanNumber(planIndex)}】`
-    : `【龙门币凑数计算器 ark-lmd.top | PLAN ${formatPlanNumber(planIndex)}】`;
-  const sanityPart = totalSanity > 0 ? ` | 消耗理智 ${totalSanity}` : "";
+    ? `【${heading}】`
+    : `【${translate("site")} ark-lmd.top | ${heading}】`;
+  const sanityPart = totalSanity > 0 ? ` | ${translate("copySanity", { sanity: totalSanity })}` : "";
+  const stepCount = translate("copyStepCount", { count: safePath.length });
   const summaryLine = compact
-    ? `共 ${safePath.length} 步${sanityPart}`
-    : `龙门币 ${startLMD} → ${endLMD} | 共 ${safePath.length} 步${sanityPart}`;
+    ? `${stepCount}${sanityPart}`
+    : `${translate("copyBalance", { start: startLMD, end: endLMD })} | ${stepCount}${sanityPart}`;
 
   const lines = safePath.map((step, i) => {
     const sd = stepData[i];
-    if (!sd) return `${i + 1}. 未知物品`;
+    if (!sd) return `${i + 1}. ${translate("unknown")}`;
     const { item, stepValue } = sd;
     const num = i < CIRCLED_NUMS.length ? CIRCLED_NUMS[i] : `${i + 1}.`;
-    const action = stepValue > 0 ? "获得" : "消耗";
-    const label = i === safePath.length - 1 ? "结果" : "当前";
+    const action = translate(stepValue > 0 ? "gain" : "spend");
+    const label = translate(i === safePath.length - 1 ? "final" : "current");
     const breakdown = step.count > 1 ? `(${Math.abs(item.item_value)}×${step.count}=)` : "";
-    return `${num} ${item.item_name} ×${step.count}${getStepCountUnit(item.type)} → ${action} ${breakdown}${Math.abs(stepValue)} 龙门币（${label} ${runningTotals[i]}）`;
+    const line = translate("copyAction", {
+      name: getItemName(item, language),
+      count: step.count,
+      unit: getStepCountUnit(translate, item.type),
+      action,
+      breakdown,
+      amount: Math.abs(stepValue),
+      label,
+      balance: runningTotals[i],
+    });
+    return `${num} ${line}`;
   });
 
   return `${header}\n${summaryLine}\n${lines.join("\n")}`;
 };
 
-interface BuildPathCopyTextParams {
+interface BuildPathCopyTextParams extends ResultLocale {
   path: CalculationPath;
   initialLMD: number;
   planIndex: number;
   compact?: boolean;
 }
 
-export const buildPathCopyText = ({
+const buildPathCopyText = ({
   path,
   initialLMD,
   planIndex,
   compact = false,
+  t: translate,
+  language,
 }: BuildPathCopyTextParams): string => {
   const safePath = Array.isArray(path) ? path : [];
   const startLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
@@ -80,10 +110,12 @@ export const buildPathCopyText = ({
     totalSanity,
     planIndex,
     compact,
+    t: translate,
+    language,
   });
 };
 
-interface BuildAllPathsCopyTextParams {
+interface BuildAllPathsCopyTextParams extends ResultLocale {
   paths: CalculationPath[];
   initialLMD: number;
 }
@@ -91,6 +123,8 @@ interface BuildAllPathsCopyTextParams {
 export const buildAllPathsCopyText = ({
   paths,
   initialLMD,
+  t: translate,
+  language,
 }: BuildAllPathsCopyTextParams): string => {
   const safePaths = Array.isArray(paths) ? paths : [];
   if (safePaths.length === 0) return "";
@@ -100,10 +134,13 @@ export const buildAllPathsCopyText = ({
   const { steps: firstStepData } = computeStepData(firstPath, getItemById);
   const firstRunningTotals = computeRunningTotals(firstStepData, startLMD);
   const endLMD = firstRunningTotals[firstRunningTotals.length - 1] ?? startLMD;
-  const header = `【龙门币凑数计算器 ark-lmd.top | ALL PLANS】\n共 ${safePaths.length} 个方案 龙门币 ${startLMD} → ${endLMD}`;
+  const heading = `【${translate("site")} ark-lmd.top | ${translate("copyAllHeading")}】`;
+  const planCount = translate("copyPlanCount", { count: safePaths.length });
+  const balance = translate("copyBalance", { start: startLMD, end: endLMD });
+  const header = `${heading}\n${planCount} ${balance}`;
   const divider = "\n==============================\n";
   const planTexts = safePaths.map((path, index) => (
-    buildPathCopyText({ path, initialLMD, planIndex: index, compact: true })
+    buildPathCopyText({ path, initialLMD, planIndex: index, compact: true, t: translate, language })
   ));
 
   return `${header}${divider}${planTexts.join(divider)}`;
@@ -116,10 +153,12 @@ interface PathPlanCardProps {
 }
 
 const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
+  const { t: translate, i18n } = useTranslation("results");
+  const language = i18n.resolvedLanguage;
   const safePath = Array.isArray(path) ? path : [];
 
   if (safePath.length === 0) {
-    return <div className={styles['path-renderer-error']}>没有找到合适的路径</div>;
+    return <div className={styles['path-renderer-error']}>{translate("noPath")}</div>;
   }
 
   const startLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
@@ -129,18 +168,18 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
 
   const summaryItems: PlanSummaryItem[] = [
     {
-      label: "步骤共",
+      label: translate("steps"),
       values: [{ text: safePath.length }],
-      suffix: "步",
+      suffix: translate("stepUnit"),
     },
     ...(totalSanity > 0
       ? [{
-          label: "理智消耗",
+          label: translate("sanity"),
           values: [{ text: totalSanity }],
         }]
       : []),
     {
-      label: "龙门币变化：",
+      label: translate("balance"),
       values: [
         { text: startLMD },
         { text: "->", type: "separator" },
@@ -151,15 +190,18 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
 
   const steps: PlanStepItem[] = safePath.map((step, i) => {
     const sd = stepData[i];
+    const isFinal = i === safePath.length - 1;
+    const totalLabel = translate(isFinal ? "final" : "current");
 
     if (!sd) {
       return {
         key: `unknown-${i}`,
-        itemName: `未知物品ID: ${step.id}`,
+        itemName: translate("unknownId", { id: step.id }),
         count: step.count,
-        totalLabel: i === safePath.length - 1 ? "结果" : "当前",
+        countUnit: getStepCountUnit(translate),
+        totalLabel,
         runningTotal: runningTotals[i] ?? startLMD,
-        isFinal: i === safePath.length - 1,
+        isFinal,
       };
     }
 
@@ -168,15 +210,15 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
 
     return {
       key: `${step.id}-${i}`,
-      itemName: item.item_name,
+      itemName: getItemName(item, language),
       itemStyle: { color: getRarityColor(item.rarity) },
       count: step.count,
-      countUnit: getStepCountUnit(item.type),
-      deltaText: `${isGain ? "+" : "-"}${step.count > 1 ? `(${Math.abs(item.item_value)}×${step.count}=)` : ""}${Math.abs(stepValue)} 龙门币`,
+      countUnit: getStepCountUnit(translate, item.type),
+      deltaText: `${isGain ? "+" : "-"}${step.count > 1 ? `(${Math.abs(item.item_value)}×${step.count}=)` : ""}${Math.abs(stepValue)} ${translate("currency")}`,
       deltaType: isGain ? "gain" as const : "spend" as const,
-      totalLabel: i === safePath.length - 1 ? "结果" : "当前",
+      totalLabel,
       runningTotal: runningTotals[i] ?? startLMD,
-      isFinal: i === safePath.length - 1,
+      isFinal,
     };
   });
 
@@ -184,10 +226,14 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
     <PlanCard
       identityLabel="RECOMMENDED PLAN"
       identityValue={`PLAN-${formatPlanNumber(planIndex)}`}
-      ariaLabel={`方案 ${planIndex + 1}`}
+      ariaLabel={translate("plan", { number: planIndex + 1 })}
       summaryItems={summaryItems}
       steps={steps}
-      copyText={buildPathCopyText({ path: safePath, initialLMD: startLMD, planIndex })}
+      copyText={buildPathText({ safePath, stepData, runningTotals, startLMD, totalSanity, planIndex, t: translate, language })}
+      copyLabel={translate("copy")}
+      copiedLabel={translate("copied")}
+      copyButtonText={translate("copyShort")}
+      copiedButtonText={translate("copiedShort")}
     />
   );
 };
@@ -198,10 +244,11 @@ interface PathRendererProps {
 }
 
 const PathRenderer = ({ paths, initialLMD }: PathRendererProps) => {
+  const { t: translate } = useTranslation("results");
   const safePaths = Array.isArray(paths) ? paths : [];
 
   if (safePaths.length === 0) {
-    return <div className={styles['path-renderer-error']}>没有找到合适的路径</div>;
+    return <div className={styles['path-renderer-error']}>{translate("noPath")}</div>;
   }
 
   return (

@@ -1,0 +1,31 @@
+{
+  "app": {
+    "name": "龙门币凑数计算器",
+    "currency": "龙门币"
+  },
+  "nav": {
+    "home": "计算主页",
+    "note": "注意事项",
+    "data": "数据档案",
+    "about": "关于",
+    "goTo": "前往{{page}}"
+  },
+  "language": {
+    "select": "选择语言",
+    "current": "当前使用",
+    "comingSoon": "筹备中",
+    "preview": "试用",
+    "scope": "繁体中文已覆盖导航、计算输入和方案结果。错误提示与其他页面仍在适配中。"
+  },
+  "survey": {
+    "title": "填写反馈问卷",
+    "open": "填写反馈问卷（在新标签页打开）"
+  },
+  "theme": {
+    "switchToLight": "切换到浅色模式",
+    "switchToDark": "切换到深色模式",
+    "light": "浅色模式",
+    "dark": "深色模式"
+  },
+  "loading": "加载中..."
+}

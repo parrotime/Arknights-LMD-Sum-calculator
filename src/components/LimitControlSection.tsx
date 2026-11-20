@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ChangeEvent } from "react";
 import type { CalculatorState, LimitInputField } from "../types/calculator";
 import SectionHeader from "./SectionHeader";
@@ -8,7 +9,6 @@ type LimitGroupLayout = "sanity" | "elite" | "trade";
 type LimitGroupRow = "top" | "bottom";
 
 interface LimitItem {
-  labelCn: string;
   labelEn: string;
   field: LimitInputField;
   max: number;
@@ -16,11 +16,9 @@ interface LimitItem {
 }
 
 interface LimitGroup {
-  title: string;
   code: string;
   row: LimitGroupRow;
   layout: LimitGroupLayout;
-  resetLabel: string;
   items: LimitItem[];
 }
 
@@ -37,14 +35,11 @@ interface LimitControlSectionProps {
 
 const LIMIT_GROUPS: LimitGroup[] = [
   {
-    title: "理智类",
     code: "SANITY USAGE",
     row: "top",
     layout: "sanity",
-    resetLabel: "清空理智限制",
     items: [
       {
-        labelCn: "允许使用理智数量",
         labelEn: "PERMITTED SANITY",
         field: "sanityCount",
         max: 210,
@@ -53,28 +48,23 @@ const LIMIT_GROUPS: LimitGroup[] = [
     ],
   },
   {
-    title: "允许升级的干员人数",
     code: "ALLOWED OPERATOR PROMOTION COUNT",
     row: "top",
     layout: "elite",
-    resetLabel: "清空干员人数限制",
     items: [
       {
-        labelCn: "精零人数",
         labelEn: "ELITE-0",
         field: "upgrade0Count",
         max: 10,
         icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/elite_0.webp",
       },
       {
-        labelCn: "精一人数",
         labelEn: "ELITE-I",
         field: "upgrade1Count",
         max: 10,
         icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/elite_1.webp",
       },
       {
-        labelCn: "精二人数",
         labelEn: "ELITE-II",
         field: "upgrade2Count",
         max: 10,
@@ -83,35 +73,29 @@ const LIMIT_GROUPS: LimitGroup[] = [
     ],
   },
   {
-    title: "贸易站赤金订单数",
     code: "TRADING POST PURE GOLD ORDERS",
     row: "bottom",
     layout: "trade",
-    resetLabel: "清空订单限制",
     items: [
       {
-        labelCn: "2赤金订单",
         labelEn: "ORDER-2",
         field: "trade2Count",
         max: 10,
         icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_flow_gs.webp",
       },
       {
-        labelCn: "3赤金订单",
         labelEn: "ORDER-3",
         field: "trade3Count",
         max: 10,
         icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_wtcost1.webp",
       },
       {
-        labelCn: "4赤金订单",
         labelEn: "ORDER-4",
         field: "trade4Count",
         max: 10,
         icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/Bskill_tra_wtcost2.webp",
       },
       {
-        labelCn: "5赤金订单",
         labelEn: "ORDER-5",
         field: "trade5Count",
         max: 10,
@@ -122,6 +106,7 @@ const LIMIT_GROUPS: LimitGroup[] = [
 ];
 
 const LimitControlSection = ({ state, handleUpgradeCountChange }: LimitControlSectionProps) => {
+  const { t } = useTranslation("calculator");
   const [limitResetAnimating, setLimitResetAnimating] = useState<LimitGroupLayout | null>(null);
 
   const handleLimitGroupReset = (group: LimitGroup) => {
@@ -131,7 +116,7 @@ const LimitControlSection = ({ state, handleUpgradeCountChange }: LimitControlSe
     });
   };
 
-  const renderLimitInput = ({ labelCn, field, max }: Pick<LimitItem, "labelCn" | "field" | "max">) => (
+  const renderLimitInput = ({ field, max }: Pick<LimitItem, "field" | "max">) => (
     <input
       type="text"
       className={styles.input}
@@ -139,10 +124,10 @@ const LimitControlSection = ({ state, handleUpgradeCountChange }: LimitControlSe
       max={max}
       inputMode="numeric"
       pattern="[0-9]*"
-      placeholder="不限"
-      aria-label={`${labelCn}数量限制`}
+      placeholder={t("limits.placeholder")}
+      aria-label={t("limits.accessibleLabel", { label: t(`limits.fields.${field}`) })}
       value={state[field] ?? ""}
-      onChange={(event) => handleUpgradeCountChange(event, field, 0, max, labelCn)}
+      onChange={(event) => handleUpgradeCountChange(event, field, 0, max, t(`limits.fields.${field}`))}
     />
   );
 
@@ -154,8 +139,8 @@ const LimitControlSection = ({ state, handleUpgradeCountChange }: LimitControlSe
           className={`${styles.resetButton} ${limitResetAnimating === group.layout ? styles.resetButtonActive : ""}`}
           onClick={() => handleLimitGroupReset(group)}
           onAnimationEnd={() => setLimitResetAnimating(null)}
-          title={group.resetLabel}
-          aria-label={group.resetLabel}
+          title={t(`limits.groups.${group.layout}.reset`)}
+          aria-label={t(`limits.groups.${group.layout}.reset`)}
         >
           <img
             className={styles.resetIcon}
@@ -165,11 +150,11 @@ const LimitControlSection = ({ state, handleUpgradeCountChange }: LimitControlSe
             decoding="async"
           />
         </button>
-        <span className={styles.categoryTitle}>{group.title}</span>
+        <span className={styles.categoryTitle}>{t(`limits.groups.${group.layout}.title`)}</span>
         <span className={styles.categoryCode}>{group.code}</span>
       </div>
       <div className={`${styles.cardGrid} ${styles[`cardGrid-${group.layout}`]}`}>
-        {group.items.map(({ labelCn, labelEn, field, max, icon }) => (
+        {group.items.map(({ labelEn, field, max, icon }) => (
           <label className={styles.card} key={field}>
             <img
               className={styles.cardIcon}
@@ -179,11 +164,11 @@ const LimitControlSection = ({ state, handleUpgradeCountChange }: LimitControlSe
               decoding="async"
             />
             <span className={styles.cardText}>
-              <span className={styles.cardLabelCn}>{labelCn}</span>
+              <span className={styles.cardLabelCn}>{t(`limits.fields.${field}`)}</span>
               <span className={styles.cardLabelEn}>{labelEn}</span>
             </span>
             <span className={styles.inputField}>
-              {renderLimitInput({ labelCn, field, max })}
+              {renderLimitInput({ field, max })}
             </span>
           </label>
         ))}
@@ -193,7 +178,7 @@ const LimitControlSection = ({ state, handleUpgradeCountChange }: LimitControlSe
 
   return (
     <div className={styles.section}>
-      <SectionHeader title="数量限制" note="未输入时采用默认上限" code="LIMIT CONTROL" />
+      <SectionHeader title={t("limits.title")} note={t("limits.note")} code="LIMIT CONTROL" />
       <div className={styles.categoryList}>
         <div className={styles.categoryRow}>
           {LIMIT_GROUPS.filter((group) => group.row === "top").map(renderGroup)}

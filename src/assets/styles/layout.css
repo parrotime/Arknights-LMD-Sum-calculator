@@ -224,6 +224,14 @@
   font-size: 0.75rem;
 }
 
+.nav-language-description {
+  margin: 6px 10px;
+  color: var(--ark-text-muted);
+  font-family: var(--ark-font-body);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
 @keyframes theme-toggle-icon-pop {
   0% {
     transform: scale(1);

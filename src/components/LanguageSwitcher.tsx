@@ -1,19 +1,24 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { isSupportedLanguage } from "../i18n";
 
 const languages = [
   { code: "zh-CN", label: "简体中文", available: true },
-  { code: "zh-TW", label: "繁體中文", available: false },
+  { code: "zh-TW", label: "繁體中文", available: true },
   { code: "ja", label: "日本語", available: false },
   { code: "en", label: "English", available: false },
   { code: "ko", label: "한국어", available: false },
 ];
 
 const LanguageSwitcher = () => {
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const currentLanguageRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
+  const descriptionId = `${panelId}-description`;
+  const currentLanguage = i18n.resolvedLanguage;
 
   useEffect(() => {
     if (!open) return;
@@ -48,8 +53,8 @@ const LanguageSwitcher = () => {
         type="button"
         className="nav-language-toggle"
         ref={triggerRef}
-        aria-label="选择语言 / Language"
-        title="选择语言 / Language"
+        aria-label={`${t("language.select")} / Language`}
+        title={`${t("language.select")} / Language`}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((current) => !current)}
@@ -61,24 +66,33 @@ const LanguageSwitcher = () => {
         </svg>
       </button>
       {open && (
-        <div className="nav-language-panel" id={panelId} role="group" aria-label="选择语言">
+        <div className="nav-language-panel" id={panelId} role="group" aria-label={t("language.select")} aria-describedby={descriptionId}>
           {languages.map((language) => (
             <button
               key={language.code}
               type="button"
               className="nav-language-option"
-              ref={language.available ? currentLanguageRef : undefined}
+              ref={language.code === currentLanguage ? currentLanguageRef : undefined}
               disabled={!language.available}
-              aria-current={language.available ? "true" : undefined}
+              aria-current={language.code === currentLanguage ? "true" : undefined}
               onClick={() => {
+                if (!isSupportedLanguage(language.code)) return;
+                void i18n.changeLanguage(language.code);
                 setOpen(false);
                 triggerRef.current?.focus();
               }}
             >
               <span lang={language.code}>{language.label}</span>
-              <span className="nav-language-status">{language.available ? "当前使用" : "筹备中"}</span>
+              <span className="nav-language-status">
+                {language.code === currentLanguage
+                  ? t("language.current")
+                  : !language.available
+                    ? t("language.comingSoon")
+                    : language.code === "zh-TW" ? t("language.preview") : ""}
+              </span>
             </button>
           ))}
+          <p className="nav-language-description" id={descriptionId}>{t("language.scope")}</p>
         </div>
       )}
     </div>

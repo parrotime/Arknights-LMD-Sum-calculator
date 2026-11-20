@@ -42,6 +42,8 @@ interface PlanCardProps {
   copyText: string;
   copyLabel?: string;
   copiedLabel?: string;
+  copyButtonText?: string;
+  copiedButtonText?: string;
 }
 
 const PlanCard = ({
@@ -55,6 +57,8 @@ const PlanCard = ({
   copyText,
   copyLabel = "复制当前方案",
   copiedLabel = "已复制当前方案",
+  copyButtonText = "COPY",
+  copiedButtonText = "COPIED",
 }: PlanCardProps) => {
   const [copied, setCopied] = useState(false);
 
@@ -106,7 +110,7 @@ const PlanCard = ({
             loading="lazy"
             decoding="async"
           />
-          <span>{copied ? "COPIED" : "COPY"}</span>
+          <span>{copied ? copiedButtonText : copyButtonText}</span>
         </button>
       </div>
 

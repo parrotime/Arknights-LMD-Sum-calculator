@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ChangeEvent, KeyboardEvent, MouseEvent, ReactNode } from "react";
 import { useCursorState } from "./CursorContext";
 import {
@@ -224,6 +225,7 @@ const reducer = (state: CalculatorState, action: CalculatorAction): CalculatorSt
 };
 
 export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControllerOptions) => {
+  const { t } = useTranslation("calculator");
   const [state, dispatch] = useReducer(reducer, undefined, getInitialState);
   const [showModal, setShowModal] = useState(false);
   const [heartsElement, triggerHeart] = useHeartEffect() as [ReactNode, HeartEffectTrigger];
@@ -376,7 +378,7 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
     showAssistantText(message, "high", 5000);
   }, [showAssistantText]);
 
-  const handleUpgradeCountChange = useCallback((e: ChangeEvent<HTMLInputElement> | { target: { value: string } }, field: LimitInputField, min: number, max: number, label = "这个输入框") => {
+  const handleUpgradeCountChange = useCallback((e: ChangeEvent<HTMLInputElement> | { target: { value: string } }, field: LimitInputField, min: number, max: number, label = t(`limits.fields.${field}`)) => {
     cancelActiveCalculation();
     const rawValue = String(e.target.value ?? "");
     const value = rawValue.replace(/[^\d]/g, "");
@@ -392,10 +394,10 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
     }
     if (numValue > max) {
       numValue = max;
-      notifyLimitInputWarning(field, `${label}的上限是 ${max}，已按上限处理`);
+      notifyLimitInputWarning(field, t("limits.warning", { label, max }));
     }
     dispatch({ type: "SET_UPGRADE_COUNT", field, value: numValue.toString() });
-  }, [cancelActiveCalculation, notifyLimitInputWarning]);
+  }, [cancelActiveCalculation, notifyLimitInputWarning, t]);
 
   const handleCalculate = useCallback(
     async (event?: CalculateTriggerEvent, calcMode: CalcMode = "fast") => {

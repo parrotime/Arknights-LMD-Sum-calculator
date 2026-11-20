@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ClickCursor from "./ClickCursor";
 import { useCursorState } from "./CursorContext";
 import FloatingAssistant from "./FloatingAssistant";
@@ -9,11 +10,11 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import type { AssistantEggPayload } from "../types/calculator";
 
 const navItems = [
-  { to: "/", text: "计算主页" },
-  { to: "/note", text: "注意事项" },
-  { to: "/data", text: "数据档案" },
-  { to: "/about", text: "关于" },
-];
+  { to: "/", labelKey: "nav.home" },
+  { to: "/note", labelKey: "nav.note" },
+  { to: "/data", labelKey: "nav.data" },
+  { to: "/about", labelKey: "nav.about" },
+] as const;
 
 type NavPath = typeof navItems[number]["to"];
 
@@ -30,6 +31,7 @@ const loadTheme = (): boolean => {
 };
 
 const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }: LayoutProps) => {
+  const { t, i18n } = useTranslation();
   const { isCalculating } = useCursorState();
   const [dark, setDark] = useState(loadTheme);
   const [themeToggleAnimating, setThemeToggleAnimating] = useState(false);
@@ -76,7 +78,7 @@ const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }:
 
   useLayoutEffect(() => {
     updateNavIndicator();
-  }, [updateNavIndicator]);
+  }, [updateNavIndicator, i18n.resolvedLanguage]);
 
   useEffect(() => {
     const onResize = () => updateNavIndicator();
@@ -97,23 +99,23 @@ const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }:
       <nav className="top-nav">
         <div className="nav-inner">
           <div className="nav-brand">
-            <img src="/LMD.webp" alt="龙门币" className="nav-brand-icon" decoding="async" />
-            龙门币凑数计算器
+            <img src="/LMD.webp" alt={t("app.currency")} className="nav-brand-icon" decoding="async" />
+            {t("app.name")}
           </div>
           <div className="nav-links" ref={navLinksRef}>
-            {navItems.map(({ to, text }) => (
+            {navItems.map(({ to, labelKey }) => (
               <NavLink
                 to={to}
                 end={to === "/"}
                 className={({ isActive }) => `nav-item${isActive ? " active" : ""}`}
-                aria-label={`前往${text}`}
+                aria-label={t("nav.goTo", { page: t(labelKey) })}
                 ref={(node) => {
                   if (node) navItemRefs.current[to] = node;
                   else delete navItemRefs.current[to];
                 }}
                 key={to}
               >
-                {text}
+                {t(labelKey)}
               </NavLink>
             ))}
             <span
@@ -132,8 +134,8 @@ const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }:
               href="https://v.wjx.cn/vm/wJwEJn8.aspx#"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="填写反馈问卷（在新标签页打开）"
-              title="填写反馈问卷"
+              aria-label={t("survey.open")}
+              title={t("survey.title")}
             >
               <img
                 className="nav-survey-icon"
@@ -146,8 +148,8 @@ const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }:
             <button
               className="theme-toggle"
               onClick={handleThemeToggle}
-              aria-label={dark ? "切换到浅色模式" : "切换到深色模式"}
-              title={dark ? "浅色模式" : "深色模式"}
+              aria-label={t(dark ? "theme.switchToLight" : "theme.switchToDark")}
+              title={t(dark ? "theme.light" : "theme.dark")}
             >
               <img
                 className={`theme-toggle-icon ${dark ? "theme-toggle-icon-day" : "theme-toggle-icon-night"} ${themeToggleAnimating ? "theme-toggle-icon-active" : ""}`}
@@ -183,7 +185,7 @@ const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }:
           鄂ICP备2025105560号-1
         </a>
         <a className="footer-link">
-          © 2025~2026 龙门币凑数计算器（https://ark-lmd.top）
+          © 2025~2026 {t("app.name")}（https://ark-lmd.top）
         </a>
       </div>
     </div>

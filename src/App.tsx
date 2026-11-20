@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useCallback, useState } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Layout from "./components/Layout";
 import MainCalculator from "./components/MainCalculator";
 import { CursorProvider } from "./components/CursorContext";
@@ -12,6 +13,7 @@ const MaintenancePage = lazy(() => import("./pages/Maintenance"));
 const AdminDashboardPage = lazy(() => import("./pages/AdminDashboard"));
 
 const AppContent = () => {
+  const { t } = useTranslation();
   const [assistantEgg, setAssistantEgg] = useState<AssistantEggPayload | null>(null);
   const [typhoonPeekKey, setTyphoonPeekKey] = useState(0);
   const assistantEggRef = React.useRef<AssistantEggPayload | null>(null);
@@ -50,7 +52,7 @@ const AppContent = () => {
         setAssistantEgg(null);
       }}
     >
-      <Suspense fallback={<div style={{ textAlign: "center", padding: "2rem" }}>加载中...</div>}>
+      <Suspense fallback={<div style={{ textAlign: "center", padding: "2rem" }}>{t("loading")}</div>}>
         <Routes>
           <Route path="/" element={<MainCalculator onAssistantEgg={handleAssistantEgg} />} />
           <Route path="/note" element={<NotePage />} />

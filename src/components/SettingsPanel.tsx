@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import type { CSSProperties, ReactNode } from "react";
 import type { CalculatorSettings } from "../types/calculator";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
@@ -8,19 +9,11 @@ type SettingKey = keyof CalculatorSettings;
 type SettingsLayout = "sanity" | "base" | "token" | "operator";
 type SettingsPanelStyles = typeof styles;
 
-interface SettingOption {
-  text: string;
-  key: SettingKey;
-  highlight: string;
-  helpText?: ReactNode[];
-}
-
 interface SettingGroup {
-  title: string;
   code: string;
   icon: string;
   layout: SettingsLayout;
-  items: SettingOption[];
+  items: SettingKey[];
 }
 
 interface HelpPopoverStyle extends CSSProperties {
@@ -34,59 +27,33 @@ interface SettingsPanelProps {
   onReset: () => void;
 }
 
-const settingsOptions: SettingOption[] = [
-  { text: "允许使用理智三星通关", key: "allow3Star", highlight: "三星通关" },
-  { text: "允许使用理智二星通关", key: "allow2Star", highlight: "二星通关" },
-  { text: "允许通过25理智剿灭获取250龙门币", key: "allowExt25", highlight: "剿灭作战" },
-  { text: "允许使用龙门币副本(CE系列关卡)", key: "allowCE", highlight: "CE龙门币副本" },
-  { text: "允许使用加工站合成精英材料", key: "allowMaterial", highlight: "精英材料合成" },
-  { text: "允许使用贸易站售卖赤金", key: "allowTrade", highlight: "赤金售卖" },
-  { text: "允许使用绿土搓玉生产源石碎片", key: "allowOrundumsGreen", highlight: "绿土搓玉" },
-  { text: "允许使用装置搓玉生产源石碎片", key: "allowOrundumsDevice", highlight: "装置搓玉" },
-  { text: "允许使用活动商店1代币换10龙门币", key: "allowStore10", highlight: "1代币换10龙门币" },
-  { text: "允许使用活动商店1代币换20龙门币", key: "allowStore20", highlight: "1代币换20龙门币" },
-  { text: "允许使用危机合约1代币换70龙门币", key: "allowStore70", highlight: "1代币换70龙门币" },
-  { text: "允许使用活动商店5代币换2000龙门币", key: "allowStore2000", highlight: "5代币换2000龙门币" },
-  { text: "允许使用活动商店7代币换5000龙门币", key: "allowStore5000", highlight: "7代币换5000龙门币" },
-  { text: "允许连续多次对精零1级干员进行升级", key: "allowUpgradeOnly0", highlight: "升级精零1级干员" },
-  { text: "允许连续多次对精一1级干员进行升级", key: "allowUpgradeOnly1", highlight: "升级精一1级干员" },
-  { text: "允许连续多次对精二1级干员进行升级", key: "allowUpgradeOnly2", highlight: "升级精二1级干员" },
-  {
-    text: "只允许连续多次对精零/一/二1级干员进行升级",
-    key: "allowUpgradeOnlyFor1",
-    highlight: "只升级精零/一/二1级干员",
-    helpText: [
-      "请注意：",
-      <>这个设置的目的是<span className="setting-popover-keyword">排除</span>升级<span className="setting-popover-keyword">不是等级为1级</span>的干员，因此当这个按钮开启时，</>,
-      "请确保其他三个升级开关中，至少有一个为开启状态。",
-    ],
-  },
+const settingsOptions: SettingKey[] = [
+  "allow3Star", "allow2Star", "allowExt25", "allowCE",
+  "allowMaterial", "allowTrade", "allowOrundumsGreen", "allowOrundumsDevice",
+  "allowStore10", "allowStore20", "allowStore70", "allowStore2000", "allowStore5000",
+  "allowUpgradeOnly0", "allowUpgradeOnly1", "allowUpgradeOnly2", "allowUpgradeOnlyFor1",
 ];
 
 const groups: SettingGroup[] = [
   {
-    title: "理智使用设置",
     code: "SANITY USAGE SETTINGS",
     icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/AP_GAMEPLAY.webp",
     layout: "sanity",
     items: settingsOptions.slice(0, 4),
   },
   {
-    title: "基建相关设置",
     code: "BASE INFRASTRUCTURE SETTINGS",
     icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/premium_material_issue_voucher.webp",
     layout: "base",
     items: settingsOptions.slice(4, 8),
   },
   {
-    title: "代币使用设置",
     code: "TOKEN USAGE SETTINGS",
     icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/act2mainss_token_courage.webp",
     layout: "token",
     items: settingsOptions.slice(8, 13),
   },
   {
-    title: "干员相关设置",
     code: "OPERATOR SETTINGS",
     icon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/sprite_exp_card_t4.webp",
     layout: "operator",
@@ -111,6 +78,7 @@ const renderSettingText = (text: string, highlight: string | undefined, styles: 
 };
 
 const SettingsPanel = ({ settings, onToggle, onReset }: SettingsPanelProps) => {
+  const { t, i18n } = useTranslation("calculator");
   const [openHelpKey, setOpenHelpKey] = useState<SettingKey | null>(null);
   const [helpPopoverStyle, setHelpPopoverStyle] = useState<HelpPopoverStyle | null>(null);
   const [resetAnimating, setResetAnimating] = useState(false);
@@ -164,7 +132,7 @@ const SettingsPanel = ({ settings, onToggle, onReset }: SettingsPanelProps) => {
       window.removeEventListener("scroll", updateHelpPopoverPosition);
       window.removeEventListener("resize", updateHelpPopoverPosition);
     };
-  }, [openHelpKey, updateHelpPopoverPosition]);
+  }, [openHelpKey, updateHelpPopoverPosition, i18n.resolvedLanguage]);
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -188,15 +156,15 @@ const SettingsPanel = ({ settings, onToggle, onReset }: SettingsPanelProps) => {
   return (
     <div className={`${panelStyles['content-panel']} ${styles['right-panel']}`}>
       <div className={`${panelStyles['title-bar']} ${styles['settings-title-bar']}`}>
-        <h1>// [02] 计算配置</h1>
+        <h1>// [02] {t("settings.title")}</h1>
         <p className={panelStyles['title-code']}>CALCULATION CONFIGURATION</p>
         <button
           type="button"
           className={`${styles['reset-settings-btn']} ${resetAnimating ? styles['reset-settings-btn-active'] : ''}`}
           onClick={handleResetClick}
           onAnimationEnd={() => setResetAnimating(false)}
-          title="恢复默认设置"
-          aria-label="恢复默认设置"
+          title={t("settings.reset")}
+          aria-label={t("settings.reset")}
         >
           <img
             className={styles['reset-settings-icon']}
@@ -210,8 +178,8 @@ const SettingsPanel = ({ settings, onToggle, onReset }: SettingsPanelProps) => {
 
       <div className={styles['toggle-wrapper']}>
         <div className={styles['settings-grid']}>
-          {groups.map(({ title, code, icon, layout, items }) => (
-            <section className={`${styles['settings-card']} ${styles[`settings-card-${layout}`]}`} key={title}>
+          {groups.map(({ code, icon, layout, items }) => (
+            <section className={`${styles['settings-card']} ${styles[`settings-card-${layout}`]}`} key={layout}>
                   <div className={styles['settings-card-header']}>
                     <img
                       className={styles['settings-card-icon']}
@@ -221,18 +189,30 @@ const SettingsPanel = ({ settings, onToggle, onReset }: SettingsPanelProps) => {
                       decoding="async"
                     />
                     <div className={styles['settings-card-title']}>
-                      <span className={styles['settings-card-title-main']}>{title}</span>
+                      <span className={styles['settings-card-title-main']}>{t(`settings.groups.${layout}`)}</span>
                       <span className={styles['settings-card-title-code']}>{code}</span>
                     </div>
                   </div>
 
                   <div className={styles['settings-card-options']}>
-                    {items.map(({ text, key, highlight, helpText }) => {
+                    {items.map((key) => {
+                      const text = t(`settings.options.${key}.text`);
+                      const highlight = t(`settings.options.${key}.highlight`);
+                      const helpText = key === "allowUpgradeOnlyFor1" ? [
+                        t("settings.help.notice"),
+                        <Trans
+                          t={t}
+                          i18nKey="settings.help.explanation"
+                          components={{ keyword: <span className="setting-popover-keyword" /> }}
+                        />,
+                        t("settings.help.requirement"),
+                      ] : undefined;
                       const switchControl = (
                         <label className={styles['toggle-switch']}>
                           <input
                             type="checkbox"
                             checked={settings[key]}
+                            aria-label={text}
                             onChange={() => onToggle(key)}
                           />
                           <span className={styles.slider} />
@@ -251,7 +231,7 @@ const SettingsPanel = ({ settings, onToggle, onReset }: SettingsPanelProps) => {
                                 delete helpTriggerRefs.current[key];
                               }
                             }}
-                            aria-label="查看设置说明"
+                            aria-label={t("settings.showHelp")}
                             aria-expanded={openHelpKey === key}
                             onClick={() => setOpenHelpKey((currentKey) => (currentKey === key ? null : key))}
                             onMouseEnter={() => setOpenHelpKey(key)}
@@ -267,7 +247,7 @@ const SettingsPanel = ({ settings, onToggle, onReset }: SettingsPanelProps) => {
                               <button
                                 type="button"
                                 className={styles['setting-help-close']}
-                                aria-label="关闭设置说明"
+                                aria-label={t("settings.closeHelp")}
                                 onClick={() => setOpenHelpKey(null)}
                               >
                                 ×

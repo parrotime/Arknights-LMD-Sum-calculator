@@ -5,8 +5,10 @@
   "type": "module",
   "homepage": "https://ark-lmd.top",
   "dependencies": {
+    "i18next": "^27.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-i18next": "^18.0.3",
     "react-router-dom": "^7.1.5"
   },
   "scripts": {
@@ -14,6 +16,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "tsx --test src/utils/calcLogic.test.ts",
+    "test:i18n": "tsx --test src/i18n/index.test.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint --ext .ts,.tsx src vite.config.ts",
     "analyze:legacy-logs": "node _log_analysis/analyze-legacy-logs.mjs",

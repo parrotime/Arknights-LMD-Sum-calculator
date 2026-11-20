@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { CSSProperties, KeyboardEvent, MouseEvent } from "react";
 import { computeDiff } from "../utils/calcLogic";
 import type { CalcMode, CalculatorState } from "../types/calculator";
@@ -7,25 +8,16 @@ import styles from "../assets/styles/OperationPanel.module.css";
 
 const CALC_MODES = {
   fast: {
-    label: "快速模式",
     code: "Flash",
-    desc: "快速响应",
     badgeIcon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq04.webp",
-    badgeLabel: "推荐",
   },
   strong: {
-    label: "加强模式",
     code: "Pro",
-    desc: "深度搜索",
     badgeIcon: "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq09.webp",
-    badgeLabel: "深度",
   },
 } satisfies Record<CalcMode, {
-  label: string;
   code: string;
-  desc: string;
   badgeIcon: string;
-  badgeLabel: string;
 }>;
 
 const MODE_TOGGLE_ICON = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/reset.webp";
@@ -48,7 +40,8 @@ interface OperationPanelProps {
 }
 
 const RollingNumber = ({ value }: RollingNumberProps) => {
-  const text = Math.abs(value).toLocaleString("zh-CN");
+  const { i18n } = useTranslation();
+  const text = Math.abs(value).toLocaleString(i18n.resolvedLanguage);
 
   return (
     <span className={styles.rollingNumber} aria-label={text}>
@@ -90,6 +83,7 @@ const OperationPanel = ({
   handleCalculate,
   onModeWarning,
 }: OperationPanelProps) => {
+  const { t } = useTranslation("calculator");
   const [pressedCalculate, setPressedCalculate] = useState<CalcMode | null>(null);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const [hasWarnedStrongMode, setHasWarnedStrongMode] = useState(false);
@@ -99,13 +93,13 @@ const OperationPanel = ({
   const hasInputError = !!(state.error1 || state.error2);
   const isDiffOutOfRange = hasInputError || diffInfo?.outOfRange;
   const diffDisplay = hasInputError || diffInfo?.outOfRange
-    ? { prefix: "", label: "超出范围", amount: null }
+    ? { prefix: "", label: t("operation.difference.outOfRange"), amount: null }
     : diffInfo
       ? diffInfo.value > 0
-        ? { prefix: "需", label: "获取", amount: Math.abs(diffInfo.value) }
+        ? { prefix: t("operation.difference.need"), label: t("operation.difference.gain"), amount: Math.abs(diffInfo.value) }
         : diffInfo.value < 0
-          ? { prefix: "需", label: "消耗", amount: Math.abs(diffInfo.value) }
-          : { prefix: "", label: "无需变化", amount: null }
+          ? { prefix: t("operation.difference.need"), label: t("operation.difference.spend"), amount: Math.abs(diffInfo.value) }
+          : { prefix: "", label: t("operation.difference.unchanged"), amount: null }
       : { prefix: "", label: "—", amount: null };
   const isDiffPlaceholder = !hasInputError && !diffInfo;
   const selectedMode = CALC_MODES[selectedCalcMode];
@@ -147,14 +141,14 @@ const OperationPanel = ({
     setModeMenuOpen(false);
 
     if (mode === "strong" && !hasWarnedStrongMode) {
-      onModeWarning?.("Pro 模式会消耗更多计算资源，建议在 Flash 结果不满足时使用");
+      onModeWarning?.(t("operation.strongWarning"));
       setHasWarnedStrongMode(true);
     }
   };
 
   return (
     <div className={styles.section}>
-      <SectionHeader title="操作区域" code="OPERATION AREA" className={styles.sectionHeader} />
+      <SectionHeader title={t("operation.title")} code="OPERATION AREA" className={styles.sectionHeader} />
       <div className={styles.operationRow}>
         <div
           className={`${styles.diffSection} ${isDiffOutOfRange ? styles.diffOutOfRange : ""}`}
@@ -176,7 +170,7 @@ const OperationPanel = ({
             {diffDisplay.amount !== null && (
               <>
                 <RollingNumber value={diffDisplay.amount} />
-                <span className={styles.diffUnit}>龙门币</span>
+                <span className={styles.diffUnit}>{t("operation.difference.currency")}</span>
               </>
             )}
           </span>
@@ -199,7 +193,7 @@ const OperationPanel = ({
               </span>
               <span className={styles.modeSelectLabel}>
                 <span className={styles.modeSelectFlip} key={`label-${selectedCalcMode}`}>
-                  {selectedMode.label}
+                  {t(`operation.modes.${selectedCalcMode}.label`)}
                 </span>
               </span>
               <span className={styles.modeSelectIconWrap} aria-hidden="true">
@@ -213,7 +207,7 @@ const OperationPanel = ({
               </span>
             </button>
             {modeMenuOpen && (
-              <div className={styles.modeMenu} role="listbox" aria-label="计算模式">
+              <div className={styles.modeMenu} role="listbox" aria-label={t("operation.mode")}>
                 {(Object.entries(CALC_MODES) as Array<[CalcMode, typeof CALC_MODES[CalcMode]]>).map(([mode, item]) => (
                   <button
                     type="button"
@@ -227,16 +221,16 @@ const OperationPanel = ({
                       <img
                         className={styles.modeMenuBadgeIcon}
                         src={item.badgeIcon}
-                        alt={item.badgeLabel}
+                        alt={t(`operation.modes.${mode}.badge`)}
                         draggable="false"
                         loading="lazy"
                         decoding="async"
                       />
-                      <span>{item.label}</span>
+                      <span>{t(`operation.modes.${mode}.label`)}</span>
                     </span>
                     <span className={styles.modeMenuMeta}>
                       <span className={styles.modeMenuCode}>{item.code}</span>
-                      <span className={styles.modeMenuDesc}>{item.desc}</span>
+                      <span className={styles.modeMenuDesc}>{t(`operation.modes.${mode}.description`)}</span>
                     </span>
                   </button>
                 ))}
@@ -249,7 +243,7 @@ const OperationPanel = ({
             onAnimationEnd={() => setPressedCalculate(null)}
             disabled={state.isCalculating}
           >
-            {state.isCalculating ? "计算中..." : "立即计算"}
+            {t(state.isCalculating ? "operation.calculating" : "operation.calculate")}
           </button>
         </div>
       </div>

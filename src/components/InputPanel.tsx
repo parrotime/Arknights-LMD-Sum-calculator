@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { ChangeEvent, KeyboardEvent, MouseEvent } from "react";
 import type {
   CalcMode,
@@ -39,6 +40,7 @@ const InputPanel = ({
   onClearLmdInput,
   onModeWarning,
 }: InputPanelProps) => {
+  const { t } = useTranslation("calculator");
   const [selectedCalcMode, setSelectedCalcMode] = useState<CalcMode>("fast");
 
   // Enter 键触发计算
@@ -52,14 +54,14 @@ const InputPanel = ({
   <div className={`${panelStyles['content-panel']} ${styles['left-panel']}`}>
     <div className={panelStyles['title-bar']}>
       <h1>
-        <span data-assistant-anchor="main-title">// [01] 罗德岛物资清点</span>
+        <span data-assistant-anchor="main-title">// [01] {t("input.title")}</span>
       </h1>
       <p className={panelStyles['title-code']}>RHODES ISLAND MATERIAL INVENTORY</p>
     </div>
 
     <div className={styles['main-content']}>
       <div className={styles['lmd-section']}>
-        <SectionHeader title="龙门币统计清单" code="LMD INVENTORY" className={styles['lmd-block-title']} />
+        <SectionHeader title={t("input.inventory")} code="LMD INVENTORY" className={styles['lmd-block-title']} />
         <div className={styles['input-area-with-swap']}>
           <div className={styles['input-rows']}>
             <div className={`${styles['lmd-input-side']} ${styles['lmd-input-side-left']}`}>
@@ -90,15 +92,15 @@ const InputPanel = ({
                     onKeyDown={handleKeyDown}
                   />
                   <label className={styles['input-label']} htmlFor="current-lmd-input">
-                    请输入当前龙门币数量
+                    {t("input.current")}
                   </label>
                   {state.num1 && (
                     <button
                       type="button"
                       className={styles['input-clear-btn']}
                       onClick={() => onClearLmdInput("num1")}
-                      title="清除当前龙门币数量"
-                      aria-label="清除当前龙门币数量"
+                      title={t("input.clearCurrent")}
+                      aria-label={t("input.clearCurrent")}
                     >
                       ×
                     </button>
@@ -129,15 +131,15 @@ const InputPanel = ({
                     onKeyDown={handleKeyDown}
                   />
                   <label className={styles['input-label']} htmlFor="target-lmd-input">
-                    请输入目标龙门币数量
+                    {t("input.target")}
                   </label>
                   {state.num2 && (
                     <button
                       type="button"
                       className={styles['input-clear-btn']}
                       onClick={() => onClearLmdInput("num2")}
-                      title="清除目标龙门币数量"
-                      aria-label="清除目标龙门币数量"
+                      title={t("input.clearTarget")}
+                      aria-label={t("input.clearTarget")}
                     >
                       ×
                     </button>
@@ -149,8 +151,8 @@ const InputPanel = ({
                 type="button"
                 className={styles['swap-btn']}
                 onClick={onSwap}
-                title="交换数字"
-                aria-label="交换数字"
+                title={t("input.swap")}
+                aria-label={t("input.swap")}
               >
                 <img
                   className={styles['swap-icon']}
@@ -165,8 +167,8 @@ const InputPanel = ({
                 type="button"
                 className={`${styles['swap-btn']} ${styles['clean-btn']}`}
                 onClick={onResetInputs}
-                title="清空数字"
-                aria-label="清空数字"
+                title={t("input.reset")}
+                aria-label={t("input.reset")}
               >
                 <img
                   className={styles['swap-icon']}
