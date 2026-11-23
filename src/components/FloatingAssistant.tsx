@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import type { CSSProperties } from "react";
 import type { AssistantEggPayload, AssistantEggType } from "../types/calculator";
 
@@ -13,7 +15,6 @@ const MOBILE_BUBBLE_GAP = 10;
 const MOBILE_EDGE_THRESHOLD = 28;
 const BUBBLE_SCREEN_MARGIN = 8;
 const MOBILE_VIEWPORT_QUERY = "(max-width: 800px)";
-const WELCOME_MESSAGE = "博士你好，点击我可以快速到达网页底部或者回到顶部哦";
 const FAST_DRAG_SPEED_THRESHOLD = 1.5;
 const FAST_DRAG_MIN_DISTANCE_RATIO = 1.5;
 const FAST_DRAG_COOLDOWN = 8000;
@@ -119,31 +120,37 @@ const getTitleAnchorPos = (): Position => {
 
 const getInitialAssistantPos = (): Position => isMobileViewport() ? getDefaultPos() : getTitleAnchorPos();
 
-const getAssistantMessage = (type?: AssistantEggType | "dizzy"): AssistantMessage => {
-  if (type === "recalculate") return "计算设置发生变化，请注意重新计算";
+const getAssistantMessage = (
+  translate: TFunction<"assistant">,
+  type?: AssistantEggType | "dizzy",
+): AssistantMessage => {
   if (type === "dizzy") {
     return {
-      text: "博士快停下，我要晕掉了",
+      text: translate("dizzy"),
       kaomoji: "(@︿@)",
     };
   }
   if (type === "funny") {
     return {
-      text: "有几个臭钱很了不起呀",
+      text: translate("funny"),
       kaomoji: "ヽ(#`Д´)ﾉ",
     };
   }
-  if (type === "sami325") return "呼呼呼！";
-  if (type === "typhoon799") return "检测到799信号，萨米地区气压异常";
-  if (type === "zc325") return "苦也，这也言周";
-  if (type === "memory350234") return "博士，往日种种，你还记得吗...";
-  if (type === "romantic") {
-    return "计算器终端已收到一份特殊心意。\n祝博士和喜欢的干员都能迎来好天气。";
+  switch (type) {
+    case "recalculate":
+    case "sami325":
+    case "typhoon799":
+    case "zc325":
+    case "memory350234":
+    case "romantic":
+      return translate(type);
+    default:
+      return translate("heart");
   }
-  return "给心心";
 };
 
 const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssistantProps) => {
+  const { t, i18n } = useTranslation(["assistant", "errors", "calculator"]);
   const [scrollDir, setScrollDir] = useState<ScrollDirection>("down");
   const [welcomeVisible, setWelcomeVisible] = useState(true);
   const [welcomeClosing, setWelcomeClosing] = useState(false);
@@ -158,6 +165,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
   const dragEggClosingRef = useRef(false);
   const lastFastDragAtRef = useRef(0);
   const assistantClosingRef = useRef(false);
+  const assistantCloseTimerRef = useRef<number | undefined>(undefined);
   const scrollTravelTargetRef = useRef<ScrollDirection | null>(null);
   const scrollTravelTimerRef = useRef<number | undefined>(undefined);
   const robotPressRef = useRef<HTMLSpanElement | null>(null);
@@ -328,7 +336,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
     if (!assistantEgg || assistantClosingRef.current) return;
     assistantClosingRef.current = true;
     setAssistantClosing(true);
-    window.setTimeout(() => {
+    assistantCloseTimerRef.current = window.setTimeout(() => {
       setAssistantVisible(false);
       setAssistantClosing(false);
       assistantClosingRef.current = false;
@@ -350,7 +358,10 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
     const timer = window.setTimeout(() => {
       closeAssistantBubble();
     }, assistantEgg.duration ?? 5000);
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(assistantCloseTimerRef.current);
+    };
   }, [assistantEgg, closeAssistantBubble]);
 
   const handleScrollBtn = useCallback(() => {
@@ -482,8 +493,25 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
     resetPointerDrag(e, false);
   }, [resetPointerDrag]);
 
-  const assistantMessage = assistantEgg?.message ?? getAssistantMessage(assistantEgg?.type);
-  const dragEggMessage = getAssistantMessage("dizzy");
+  const assistantMessage = (() => {
+    if (assistantEgg?.inputError) return t(assistantEgg.inputError, { ns: "errors" });
+    if (assistantEgg?.limitWarning) {
+      const { field, max } = assistantEgg.limitWarning;
+      const label = t(`limits.fields.${field}`, { ns: "calculator" });
+      return t("limits.warning", { ns: "calculator", label, max });
+    }
+    if (assistantEgg?.type === "strong-warning") {
+      return t("operation.strongWarning", { ns: "calculator" });
+    }
+    if (assistantEgg?.difference !== undefined) {
+      const { difference } = assistantEgg;
+      if (difference === 0) return t("same");
+      const amount = Math.abs(difference).toLocaleString(i18n.resolvedLanguage);
+      return t(difference > 0 ? "gain" : "spend", { amount });
+    }
+    return getAssistantMessage(t, assistantEgg?.type);
+  })();
+  const dragEggMessage = getAssistantMessage(t, "dizzy");
   const showAssistantBubble = assistantVisible && !!assistantEgg;
   const showDragBubble = dragEggVisible && !showAssistantBubble;
   const showWelcomeBubble = welcomeVisible && !showAssistantBubble && !showDragBubble;
@@ -591,9 +619,9 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
           e.preventDefault();
           handleScrollBtn();
         }}
-        aria-label={scrollDir === "down" ? "前往页面底部" : "返回页面顶部"}
+        aria-label={t(scrollDir === "down" ? "bottom" : "top")}
         aria-describedby={(showWelcomeBubble || showDragBubble || showAssistantBubble) ? "assistant-bubble-message" : undefined}
-        title="可拖动"
+        title={t("draggable")}
       >
         <span className="assistant-robot-idle" aria-hidden="true">
           <span
@@ -623,13 +651,13 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
             type="button"
             className="assistant-bubble-close"
             onClick={showWelcomeBubble ? closeWelcomeBubble : showDragBubble ? closeDragEggBubble : closeAssistantBubble}
-            aria-label="关闭助手提示"
+            aria-label={t("close")}
           >
             ×
           </button>
           <p id="assistant-bubble-message" className="assistant-bubble-text">
             {showWelcomeBubble ? (
-              WELCOME_MESSAGE
+              t("welcome")
             ) : typeof activeMessage === "string" ? (
               activeMessage
             ) : (
@@ -643,7 +671,7 @@ const FloatingAssistant = ({ assistantEgg, onAssistantEggClose }: FloatingAssist
             <div className="assistant-bubble-image-wrap">
               <img
                 src={assistantEgg.imageUrl}
-                alt="彩蛋"
+                alt={t("egg")}
                 className="assistant-bubble-image"
                 loading="lazy"
                 decoding="async"

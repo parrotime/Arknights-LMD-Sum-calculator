@@ -16,7 +16,7 @@
 
 .sample-plan-card :global(.sample-identity-label) span {
   color: var(--ark-plan-accent);
-  font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+  font-family: var(--ark-font-body);
   font-size: 0.58rem;
   font-weight: 900;
   letter-spacing: 0.16em;

@@ -68,28 +68,39 @@ export interface CalcMeta {
   elapsed: number;
 }
 
+export interface CalculatorResult {
+  signature: string;
+  initialLMD: number;
+  paths: CalculationPath[];
+  meta: CalcMeta | null;
+}
+
 export interface CalculatorState extends LimitInputState {
   num1: string;
   num2: string;
-  result: string;
-  error1: string;
-  error2: string;
+  error1: InputErrorKey | "";
+  error2: InputErrorKey | "";
   history: CalculatorHistoryEntry[];
-  differenceError: string;
-  calcError: string;
-  calcMeta: CalcMeta | null;
-  pathCache: CalculationPath[];
-  currentPathIndex: number;
-  clickCount: number;
+  differenceError: InputErrorKey | "";
+  calcError: CalculatorError | null;
+  lastResult: CalculatorResult | null;
   isCalculating: boolean;
-  settingsDirty: boolean;
-  resultInvalidated?: boolean;
   settings: CalculatorSettings;
 }
 
+export type InputErrorKey = "missing" | "same" | "difference" | "balanceTooLarge";
+
+export type CalculationErrorKey =
+  | "noSolution" | "network" | "badRequest" | "rateLimit" | "busy"
+  | "maintenance" | "timeout" | "server" | "unknown";
+
+export type CalculatorError =
+  | { key: CalculationErrorKey }
+  | { key: "request"; status: number };
+
 export type ValidationResult =
   | {
-      error: string;
+      error: InputErrorKey;
       difference?: never;
       num1Val?: never;
       num2Val?: never;
@@ -119,15 +130,11 @@ export interface CalculateResponse {
   error?: string;
 }
 
-export interface ApiError extends Error {
-  status?: number;
-  isNetworkError?: boolean;
-}
-
 export type AssistantEggPriority = "normal" | "high";
 
 export type AssistantEggType =
   | "message"
+  | "strong-warning"
   | "recalculate"
   | "romantic"
   | "funny"
@@ -141,7 +148,9 @@ export interface AssistantEggPayload {
   id?: number;
   imageUrl?: string;
   type?: AssistantEggType;
-  message?: string;
+  difference?: number;
+  inputError?: InputErrorKey;
+  limitWarning?: { field: LimitInputField; max: number };
   priority?: AssistantEggPriority;
   duration?: number;
 }

@@ -19,7 +19,7 @@ const AppContent = () => {
   const assistantEggRef = React.useRef<AssistantEggPayload | null>(null);
 
   const handleAssistantEgg = useCallback((payload: AssistantEggPayload | null) => {
-    if (!payload || (!payload.imageUrl && !payload.type && !payload.message)) {
+    if (!payload || (!payload.imageUrl && !payload.type)) {
       setAssistantEgg(null);
       assistantEggRef.current = null;
       return;
@@ -43,14 +43,16 @@ const AppContent = () => {
     });
   }, []);
 
+  const closeAssistantEgg = useCallback(() => {
+    assistantEggRef.current = null;
+    setAssistantEgg(null);
+  }, []);
+
   return (
     <Layout
       assistantEgg={assistantEgg}
       typhoonPeekKey={typhoonPeekKey}
-      onAssistantEggClose={() => {
-        assistantEggRef.current = null;
-        setAssistantEgg(null);
-      }}
+      onAssistantEggClose={closeAssistantEgg}
     >
       <Suspense fallback={<div style={{ textAlign: "center", padding: "2rem" }}>{t("loading")}</div>}>
         <Routes>

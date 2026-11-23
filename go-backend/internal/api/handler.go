@@ -158,7 +158,7 @@ func (h *Handler) AdminOverview(w http.ResponseWriter, r *http.Request) {
 	}
 	cacheStats := h.cache.Stats()
 	stats := map[string]any{
-		"admin": h.adminStats.Snapshot(),
+		"admin": h.adminStats.AdminSnapshot(),
 		"cache": cacheStats,
 		"server": map[string]any{
 			"maxConcurrency": h.maxConc,

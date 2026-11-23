@@ -1,13 +1,13 @@
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { getItemById } from "../DataService";
-import type { GameItem } from "../DataService";
-import traditionalItemNames from "../i18n/locales/zh-TW/gameItems.json";
+import { getLocalizedItemName } from "../i18n/gameItems";
 import { getRarityColor, computeStepData, computeRunningTotals } from "../utils/calcLogic";
 import PlanCard from "./PlanCard";
 import type { PlanStepItem, PlanSummaryItem } from "./PlanCard";
 import type { CalculationPath, StepData } from "../types/calculator";
 import styles from "../assets/styles/PathRenderer.module.css";
+import planStyles from "../assets/styles/PlanCard.module.css";
 
 const CIRCLED_NUMS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳";
 
@@ -15,11 +15,6 @@ const formatPlanNumber = (index: number): string => String(index + 1).padStart(2
 const getStepCountUnit = (translate: TFunction<"results">, itemType?: string): string => (
   translate(itemType?.startsWith("upgrade_only_") ? "people" : "times")
 );
-
-const itemNamesById: Partial<Record<number, string>> = traditionalItemNames;
-
-const getItemName = (item: GameItem, language?: string): string =>
-  (language === "zh-TW" ? itemNamesById[item.id]?.trim() : undefined) || item.item_name;
 
 interface ResultLocale {
   t: TFunction<"results">;
@@ -67,7 +62,7 @@ const buildPathText = ({
     const label = translate(i === safePath.length - 1 ? "final" : "current");
     const breakdown = step.count > 1 ? `(${Math.abs(item.item_value)}×${step.count}=)` : "";
     const line = translate("copyAction", {
-      name: getItemName(item, language),
+      name: getLocalizedItemName(item, language),
       count: step.count,
       unit: getStepCountUnit(translate, item.type),
       action,
@@ -164,8 +159,6 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
   const startLMD = Number.isInteger(initialLMD) ? initialLMD : 0;
   const { steps: stepData, totalSanity } = computeStepData(safePath, getItemById);
   const runningTotals = computeRunningTotals(stepData, startLMD);
-  const endLMD = runningTotals[runningTotals.length - 1] ?? startLMD;
-
   const summaryItems: PlanSummaryItem[] = [
     {
       label: translate("steps"),
@@ -178,14 +171,6 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
           values: [{ text: totalSanity }],
         }]
       : []),
-    {
-      label: translate("balance"),
-      values: [
-        { text: startLMD },
-        { text: "->", type: "separator" },
-        { text: endLMD },
-      ],
-    },
   ];
 
   const steps: PlanStepItem[] = safePath.map((step, i) => {
@@ -210,7 +195,7 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
 
     return {
       key: `${step.id}-${i}`,
-      itemName: getItemName(item, language),
+      itemName: getLocalizedItemName(item, language),
       itemStyle: { color: getRarityColor(item.rarity) },
       count: step.count,
       countUnit: getStepCountUnit(translate, item.type),
@@ -224,7 +209,7 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
 
   return (
     <PlanCard
-      identityLabel="RECOMMENDED PLAN"
+      className={planStyles['recommended-plan']}
       identityValue={`PLAN-${formatPlanNumber(planIndex)}`}
       ariaLabel={translate("plan", { number: planIndex + 1 })}
       summaryItems={summaryItems}
@@ -232,8 +217,8 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
       copyText={buildPathText({ safePath, stepData, runningTotals, startLMD, totalSanity, planIndex, t: translate, language })}
       copyLabel={translate("copy")}
       copiedLabel={translate("copied")}
-      copyButtonText={translate("copyShort")}
-      copiedButtonText={translate("copiedShort")}
+      copyButtonText={translate("copyPlanButton")}
+      copiedButtonText={translate("copiedPlanButton")}
     />
   );
 };

@@ -186,7 +186,7 @@
   width: 204px;
   max-width: calc(100vw - 24px);
   padding: 6px;
-  background: var(--ark-archive-card-bg);
+  background: var(--ark-surface-card);
   border: 1px solid var(--ark-border-default);
   border-radius: var(--ark-radius-md);
   box-shadow: var(--ark-shadow-nav);
@@ -210,26 +210,13 @@
 }
 
 .nav-language-option[aria-current="true"] {
-  background: var(--ark-tag-bg);
-  color: var(--ark-primary-500);
-}
-
-.nav-language-option:disabled {
-  color: var(--ark-text-muted);
-  cursor: default;
+  background: var(--ark-primary-50);
+  color: var(--ark-text-heading);
 }
 
 .nav-language-status {
   color: var(--ark-text-muted);
   font-size: 0.75rem;
-}
-
-.nav-language-description {
-  margin: 6px 10px;
-  color: var(--ark-text-muted);
-  font-family: var(--ark-font-body);
-  font-size: 0.75rem;
-  line-height: 1.6;
 }
 
 @keyframes theme-toggle-icon-pop {
@@ -343,7 +330,7 @@
     width: 100%;
     display: flex;
     flex-wrap: nowrap;
-    justify-content: center;
+    justify-content: space-evenly;
     gap: 6px;
   }
 

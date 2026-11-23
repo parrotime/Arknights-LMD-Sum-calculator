@@ -33,7 +33,7 @@ export interface PlanStepItem {
 
 interface PlanCardProps {
   className?: string;
-  identityLabel: ReactNode;
+  identityLabel?: ReactNode;
   identityValue: ReactNode;
   identityValueClassName?: string;
   ariaLabel: string;
@@ -78,7 +78,7 @@ const PlanCard = ({
     <article className={`${styles['plan-card']} ${className}`}>
       <div className={styles['plan-card-header']}>
         <div className={styles['plan-identity']} aria-label={ariaLabel}>
-          <span className={styles['plan-mark-label']}>{identityLabel}</span>
+          {identityLabel && <span className={styles['plan-mark-label']}>{identityLabel}</span>}
           <span className={`${styles['plan-mark-number']} ${identityValueClassName}`}>{identityValue}</span>
         </div>
 
@@ -118,7 +118,6 @@ const PlanCard = ({
         {steps.map((step, index) => (
           <div key={step.key || index} className={styles['step-card']}>
             <span className={styles['step-index']}>
-              <span>STEP</span>
               <strong>{String(index + 1).padStart(2, "0")}</strong>
             </span>
             <span className={styles['step-desc']} title={step.title}>

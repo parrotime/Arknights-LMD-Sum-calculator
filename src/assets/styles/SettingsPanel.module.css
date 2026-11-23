@@ -538,7 +538,7 @@ input:checked + .slider::after {
     overflow: visible;
     text-overflow: clip;
     padding-right: 0;
-    font-family: "Rajdhani", var(--ark-font-title);
+    font-family: var(--ark-font-body);
     font-size: 0.95rem;
     font-weight: 800;
     line-height: 1.38;
@@ -553,7 +553,7 @@ input:checked + .slider::after {
     display: flex;
     align-items: center;
     min-height: 28px;
-    font-family: "Rajdhani", var(--ark-font-title);
+    font-family: var(--ark-font-body);
     font-size: 0.95rem;
     font-weight: 800;
     line-height: 1;
@@ -567,7 +567,7 @@ input:checked + .slider::after {
   .advanced-rule-badge {
     height: 20px;
     padding: 0 8px;
-    font-family: "Rajdhani", var(--ark-font-title);
+    font-family: var(--ark-font-body);
     font-size: 0.7rem;
     letter-spacing: 0.06em;
   }
@@ -576,7 +576,7 @@ input:checked + .slider::after {
     width: 20px;
     height: 20px;
     margin-left: 3px;
-    font-family: "Rajdhani", var(--ark-font-title);
+    font-family: var(--ark-font-body);
     font-size: 0.82rem;
   }
 
@@ -590,7 +590,7 @@ input:checked + .slider::after {
     max-width: none;
     box-sizing: border-box;
     padding: 12px 32px 12px 12px;
-    font-family: "Rajdhani", var(--ark-font-title);
+    font-family: var(--ark-font-body);
     font-size: 0.78rem;
     line-height: 1.42;
     transform: translateX(-50%);
@@ -655,7 +655,7 @@ input:checked + .slider::after {
   .setting-mobile-keyword,
   .setting-mobile-desc {
     min-width: 0;
-    font-family: "Rajdhani", var(--ark-font-title);
+    font-family: var(--ark-font-body);
     letter-spacing: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

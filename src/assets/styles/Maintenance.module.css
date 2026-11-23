@@ -126,7 +126,7 @@
   padding: 0 9px;
   background: var(--ark-primary-500);
   color: var(--ark-code-label-text);
-  font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+  font-family: var(--ark-font-body);
   font-size: 0.7rem;
   font-weight: 900;
   letter-spacing: 0.14em;
@@ -244,7 +244,7 @@
 
 .timer-number {
   color: var(--ark-primary-500);
-  font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+  font-family: "Rajdhani", var(--ark-font-body);
   font-size: 2.32rem;
   font-weight: 900;
   line-height: 0.95;
@@ -264,7 +264,7 @@
 
 .timer-separator {
   color: var(--ark-primary-500);
-  font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+  font-family: "Rajdhani", var(--ark-font-body);
   font-size: 2.1rem;
   font-weight: 900;
   line-height: 1;
@@ -281,7 +281,7 @@
 
 .status-readout strong {
   color: var(--ark-primary-500);
-  font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+  font-family: var(--ark-font-body);
   font-size: 1.42rem;
   font-weight: 900;
   line-height: 1;
@@ -379,7 +379,7 @@
 
 .maintenance-sample-plan-card :global(.sample-identity-label) span {
   color: var(--ark-plan-accent);
-  font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+  font-family: var(--ark-font-body);
   font-size: 0.58rem;
   font-weight: 900;
   letter-spacing: 0.16em;
@@ -462,7 +462,7 @@
   }
 
   .hero-section p {
-    font-family: var(--ark-font-title);
+    font-family: var(--ark-font-body);
     font-size: 0.96rem;
     line-height: 1.58;
     letter-spacing: 0.01em;
@@ -487,7 +487,7 @@
   }
 
   .contact-panel p {
-    font-family: var(--ark-font-title);
+    font-family: var(--ark-font-body);
     font-size: 0.92rem;
     line-height: 1.55;
     text-rendering: geometricPrecision;
@@ -554,7 +554,7 @@
   }
 
   .sample-note {
-    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-family: var(--ark-font-body);
     font-size: 0.95rem;
     line-height: 1.62;
     text-rendering: geometricPrecision;

@@ -185,7 +185,7 @@ const Layout = ({ children, assistantEgg, typhoonPeekKey, onAssistantEggClose }:
           鄂ICP备2025105560号-1
         </a>
         <a className="footer-link">
-          © 2025~2026 {t("app.name")}（https://ark-lmd.top）
+          © 2025~2026 {t("app.name")}
         </a>
       </div>
     </div>

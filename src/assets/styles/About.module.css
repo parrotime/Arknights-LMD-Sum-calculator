@@ -1,6 +1,6 @@
 .main-about-content {
   width: 100%;
-  background: transparent;
+  background: var(--ark-surface-page);
   display: flex;
   justify-content: center;
   min-height: 100vh;
@@ -30,10 +30,8 @@
   left: -8px;
   pointer-events: none;
   z-index: 0;
-  background:
-    linear-gradient(var(--ark-panel-frame-top), var(--ark-panel-frame-top)) top / 100% 12px no-repeat,
-    linear-gradient(var(--ark-panel-frame-side), var(--ark-panel-frame-side)) left top / 12px 100% no-repeat,
-    linear-gradient(var(--ark-panel-frame-side), var(--ark-panel-frame-side)) right top / 12px 100% no-repeat;
+  border-top: 12px solid var(--ark-panel-frame-top);
+  border-inline: 12px solid var(--ark-panel-frame-side);
 }
 
 .about-page::after {
@@ -88,7 +86,7 @@
 
 .archive-card,
 .action-panel {
-  background: var(--ark-archive-card-bg);
+  background: var(--ark-surface-inset);
   border: 1px solid var(--ark-border-subtle);
   border-radius: var(--ark-radius-sm);
   box-shadow: var(--ark-shadow-sm);
@@ -108,13 +106,13 @@
 }
 
 .status-card {
-  min-height: 96px;
+  min-height: 72px;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   flex-direction: row;
   gap: var(--ark-space-lg);
-  padding: var(--ark-space-md);
+  padding: 10px var(--ark-space-md);
   overflow: visible;
   position: relative;
 }
@@ -205,7 +203,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--ark-space-md);
-  margin-bottom: var(--ark-space-lg);
+  margin-bottom: var(--ark-space-md);
 }
 
 .action-panel {
@@ -287,10 +285,8 @@
     top: -4px;
     right: -4px;
     left: -4px;
-    background:
-      linear-gradient(var(--ark-panel-frame-top), var(--ark-panel-frame-top)) top / 100% 6px no-repeat,
-      linear-gradient(var(--ark-panel-frame-side), var(--ark-panel-frame-side)) left top / 6px 100% no-repeat,
-      linear-gradient(var(--ark-panel-frame-side), var(--ark-panel-frame-side)) right top / 6px 100% no-repeat;
+    border-top-width: 6px;
+    border-inline-width: 6px;
   }
 
   .about-page::after {
@@ -320,7 +316,8 @@
     grid-template-columns: 1fr;
   }
 
-  .archive-grid {
+  .archive-grid,
+  .action-grid {
     gap: 13px;
     margin-bottom: 13px;
   }
@@ -378,7 +375,7 @@
   }
 
   .runtime-readout small {
-    font-family: var(--ark-font-title);
+    font-family: var(--ark-font-body);
     font-size: 0.9rem;
     font-weight: 900;
     text-rendering: geometricPrecision;

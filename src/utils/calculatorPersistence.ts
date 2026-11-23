@@ -1,7 +1,10 @@
 import { isCEOpenInBeijing } from "./ceSchedule";
+import { restoreCalculationError } from "./calculatorErrors";
 import type {
   CalcMeta,
   CalculationPath,
+  CalculatorError,
+  CalculatorResult,
   CalculatorSettings,
   CalculatorState,
   LimitInputField,
@@ -31,31 +34,26 @@ interface LegacySettings {
 
 interface ResultSnapshot {
   signature: string;
-  result?: string;
-  calcError?: string;
+  calcError?: CalculatorError | string | null;
   calcMeta?: CalcMeta | null;
   pathCache?: CalculationPath[];
 }
 
 type PersistedCalculatorState = Partial<Pick<CalculatorState, PersistedKey>> & {
   resultSnapshot?: ResultSnapshot;
+  lastResult?: CalculatorResult;
 };
 
 export const defaultState: CalculatorState = {
   num1: "", // 当前数量
   num2: "", // 目标数量
-  result: "", // 两者相差
   error1: "", // num1错误信息
   error2: "", // num2错误信息
   history: [], // 计算历史记录
   differenceError: "", // 差值错误信息
-  calcError: "", // 计算结果错误（显示在ResultArea）
-  calcMeta: null, // { fromCache: bool, elapsed: number } 计算元信息
-  pathCache: [], // 计算出来的路径缓存
-  currentPathIndex: 0, // 路径索引
-  clickCount: 0, // 路径切换次数
+  calcError: null,
+  lastResult: null,
   isCalculating: false,
-  settingsDirty: false,
   settings: {
     allow3Star: true,
     allow2Star: true,
@@ -142,7 +140,7 @@ const SIGNATURE_KEYS = [
   "trade5Count",
 ] satisfies SignatureKey[];
 
-const buildResultSignature = (state: CalculatorState): string => JSON.stringify({
+export const buildResultSignature = (state: CalculatorState): string => JSON.stringify({
   inputs: Object.fromEntries(SIGNATURE_KEYS.map((key) => [key, state[key] ?? ""])),
   settings: state.settings,
 });
@@ -206,16 +204,28 @@ export const getInitialState = (): CalculatorState => {
     }
   }
   restored.settings = { ...defaultState.settings, ...migrateSettings(restored.settings) };
+  const savedSignature = buildResultSignature(restored);
   restored.settings.allowCE = isCEOpenInBeijing();
   const resultSnapshot = parsed.resultSnapshot;
+  const lastResult = parsed.lastResult;
   if (
-    resultSnapshot?.signature === buildResultSignature(restored) &&
-    (Array.isArray(resultSnapshot.pathCache) || resultSnapshot.calcError)
+    lastResult && typeof lastResult.signature === "string" &&
+    Number.isInteger(lastResult.initialLMD) && Array.isArray(lastResult.paths) && lastResult.paths.length > 0
   ) {
-    restored.result = resultSnapshot.result || "";
-    restored.calcError = resultSnapshot.calcError || "";
-    restored.calcMeta = resultSnapshot.calcMeta || null;
-    restored.pathCache = Array.isArray(resultSnapshot.pathCache) ? resultSnapshot.pathCache : [];
+    restored.lastResult = lastResult;
+  } else if (
+    resultSnapshot?.signature === savedSignature &&
+    Array.isArray(resultSnapshot.pathCache) && resultSnapshot.pathCache.length > 0
+  ) {
+    restored.lastResult = {
+      signature: resultSnapshot.signature,
+      initialLMD: parseInt(restored.num1, 10) || 0,
+      paths: resultSnapshot.pathCache,
+      meta: resultSnapshot.calcMeta ?? null,
+    };
+  }
+  if (resultSnapshot?.signature === buildResultSignature(restored)) {
+    restored.calcError = restoreCalculationError(resultSnapshot.calcError);
   }
   return restored;
 };
@@ -229,13 +239,13 @@ export const persistCalculatorState = (state: CalculatorState): void => {
       toSave[key] = state[key];
     }
   }
-  if (state.pathCache.length > 0 || state.calcError) {
+  if (state.lastResult) {
+    toSave.lastResult = state.lastResult;
+  }
+  if (state.calcError) {
     toSave.resultSnapshot = {
       signature: buildResultSignature(state),
-      result: state.result,
       calcError: state.calcError,
-      calcMeta: state.calcMeta,
-      pathCache: state.pathCache,
     };
   }
   setStorageItem("calculatorState", JSON.stringify(toSave));

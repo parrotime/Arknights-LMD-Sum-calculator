@@ -242,13 +242,16 @@ export function buildHourSeries(points: RawStatPoint[] = []): StatPoint[] {
   }));
 }
 
-export function legacyDataNotice(baseline: Pick<NormalizedStats, "source">): string {
+export function formatLegacyBaselineEnd(baseline: Pick<NormalizedStats, "source">, locale = "zh-CN"): string | null {
   const last = baseline?.source?.lastTimestamp;
-  if (!last) return "旧版日志基线已接入";
-  if (typeof last !== "string") return "旧版日志基线已接入";
+  if (!last || typeof last !== "string") return null;
   const date = new Date(last);
-  if (Number.isNaN(date.getTime())) return `旧版日志基线截至 ${last}`;
-  return `旧版日志基线截至 ${date.toLocaleDateString("zh-CN")}`;
+  return Number.isNaN(date.getTime()) ? last : date.toLocaleDateString(locale);
+}
+
+export function legacyDataNotice(baseline: Pick<NormalizedStats, "source">): string {
+  const end = formatLegacyBaselineEnd(baseline);
+  return end ? `旧版日志基线截至 ${end}` : "旧版日志基线已接入";
 }
 
 function normalizeSeries(points: RawStatPoint[] = []): StatPoint[] {

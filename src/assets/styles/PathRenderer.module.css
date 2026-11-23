@@ -9,7 +9,7 @@
 .plan-list {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--ark-space-md) * 1.35);
+  gap: 24px;
 }
 
 .path-renderer-error {
@@ -31,6 +31,6 @@
   .plan-list {
     margin-left: -4px;
     margin-right: -4px;
-    gap: var(--ark-space-md);
+    gap: 22px;
   }
 }

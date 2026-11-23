@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
-import { access, mkdir } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,6 +55,17 @@ function monitorService(child, name) {
   });
 }
 
+async function loadLocalAdminToken(tokenFile) {
+  try {
+    await writeFile(tokenFile, randomBytes(32).toString("hex") + "\n", { flag: "wx", mode: 0o600 });
+  } catch (error) {
+    if (error.code !== "EEXIST") throw error;
+  }
+  const token = (await readFile(tokenFile, "utf8")).trim();
+  if (!token) throw new Error(`Local admin token file is empty: ${tokenFile}`);
+  return token;
+}
+
 async function main() {
   try {
     await access(viteEntry);
@@ -65,6 +77,9 @@ async function main() {
 
   const logDirectory = join(backendRoot, "logs");
   await mkdir(logDirectory, { recursive: true });
+  const adminTokenFile = join(logDirectory, "local-admin-token.txt");
+  const configuredAdminToken = process.env.ADMIN_TOKEN?.trim();
+  const adminToken = configuredAdminToken || await loadLocalAdminToken(adminTokenFile);
   const backendExecutable = join(logDirectory, process.platform === "win32" ? "start-dev-backend.exe" : "start-dev-backend");
   console.log("Building Go backend...");
   await new Promise((resolve, reject) => {
@@ -76,7 +91,13 @@ async function main() {
 
   const backend = startProcess(backendExecutable, [], {
     cwd: backendRoot,
-    env: { ...process.env, PORT: "3003", NODE_ENV: "test", CORS_ORIGIN: "http://localhost:3000" },
+    env: {
+      ...process.env,
+      PORT: "3003",
+      NODE_ENV: "test",
+      CORS_ORIGIN: "http://localhost:3000",
+      ADMIN_TOKEN: adminToken,
+    },
   });
   monitorService(backend, "Go backend");
 
@@ -98,6 +119,8 @@ async function main() {
 
   console.log(`Backend logs: ${logDirectory}`);
   console.log("Open http://localhost:3000/ in your browser.");
+  console.log("Admin dashboard: http://localhost:3000/#/admin-dashboard");
+  console.log(configuredAdminToken ? "Admin token: using ADMIN_TOKEN from the environment." : `Local admin token file: ${adminTokenFile}`);
   console.log("Press Ctrl+C in this terminal to stop both services.");
   const frontend = startProcess(process.execPath, [viteEntry, "--host", "localhost", "--port", "3000", "--strictPort"], {
     cwd: projectRoot,

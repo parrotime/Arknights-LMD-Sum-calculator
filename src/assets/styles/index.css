@@ -5,7 +5,7 @@
 /* === 自定义字体 === */
 @font-face {
   font-family: "WenYuan Serif";
-  src: url('/fonts/WenYuanSerif-title.woff2') format('woff2');
+  src: url('/fonts/WenYuanSerif-title.woff2?v=2') format('woff2');
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -96,8 +96,9 @@
   /* 字体 */
   --ark-font-title: "WenYuan Serif", "Noto Serif SC", "Source Han Serif CN", serif;
   --ark-font-display: "Noto Serif SC", "Source Han Serif CN", "STSong", serif;
-  --ark-font-body: "Rajdhani", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB",
+  --ark-font-body: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB",
                    "Noto Sans SC", system-ui, sans-serif;
+  --ark-font-numeric: "Rajdhani", var(--ark-font-body);
 
   /* 文本色 */
   --ark-text-heading: #1a1a1a;
@@ -168,11 +169,9 @@
   --ark-status-line-soft: linear-gradient(90deg, #2a6a9e, rgba(42, 106, 158, 0.34), transparent);
 
   /* 推荐方案卡片 */
-  --ark-plan-card-bg: linear-gradient(90deg, rgba(14, 93, 177, 0.08), transparent 34%),
-                      #eef3f8;
+  --ark-plan-card-bg: #eef3f8;
   --ark-plan-border: #aab8c8;
-  --ark-plan-identity-bg: linear-gradient(135deg, rgba(14, 93, 177, 0.08), transparent 44%),
-                          rgba(255, 255, 255, 0.5);
+  --ark-plan-identity-bg: #f5f8fc;
   --ark-plan-watermark: rgba(30, 77, 122, 0.065);
   --ark-plan-muted: #526176;
   --ark-plan-label: #334158;
@@ -181,8 +180,7 @@
   --ark-plan-index-bg: #f8fafc;
   --ark-plan-index-border: rgba(30, 77, 122, 0.42);
   --ark-plan-step-line: rgba(30, 77, 122, 0.22);
-  --ark-plan-step-hover-bg: linear-gradient(90deg, rgba(14, 93, 177, 0.08), transparent 58%),
-                            rgba(14, 93, 177, 0.04);
+  --ark-plan-step-hover-bg: #e5edf6;
   --ark-plan-timeline: rgba(30, 77, 122, 0.34);
   --ark-plan-chip-bg: rgba(14, 93, 177, 0.1);
   --ark-plan-chip-border: rgba(14, 93, 177, 0.48);
@@ -348,11 +346,9 @@
   --ark-status-line-soft: linear-gradient(90deg, rgba(122, 193, 248, 0.62), rgba(122, 193, 248, 0.14), transparent);
 
   /* 推荐方案卡片 */
-  --ark-plan-card-bg: linear-gradient(90deg, rgba(122, 193, 248, 0.1), transparent 34%),
-                      var(--ark-surface-inset);
+  --ark-plan-card-bg: var(--ark-surface-inset);
   --ark-plan-border: var(--ark-border-default);
-  --ark-plan-identity-bg: linear-gradient(135deg, rgba(122, 193, 248, 0.11), transparent 44%),
-                          rgba(255, 255, 255, 0.035);
+  --ark-plan-identity-bg: #1b2535;
   --ark-plan-watermark: rgba(122, 193, 248, 0.052);
   --ark-plan-muted: var(--ark-neutral-500);
   --ark-plan-label: var(--ark-neutral-600);
@@ -361,8 +357,7 @@
   --ark-plan-index-bg: var(--ark-surface-inset);
   --ark-plan-index-border: rgba(122, 193, 248, 0.36);
   --ark-plan-step-line: rgba(122, 193, 248, 0.12);
-  --ark-plan-step-hover-bg: linear-gradient(90deg, rgba(122, 193, 248, 0.08), transparent 58%),
-                            rgba(122, 193, 248, 0.035);
+  --ark-plan-step-hover-bg: #1d2a3c;
   --ark-plan-timeline: rgba(122, 193, 248, 0.26);
   --ark-plan-chip-bg: rgba(122, 193, 248, 0.1);
   --ark-plan-chip-border: rgba(122, 193, 248, 0.34);
@@ -434,7 +429,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* 表单元素继承 body 字体（让 Rajdhani 数字生效） */
+/* 表单元素继承所在区域的字体 */
 input, select, textarea, button {
   font-family: inherit;
 }

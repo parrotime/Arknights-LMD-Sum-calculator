@@ -242,6 +242,7 @@
   border: 1px solid var(--ark-input-border);
   border-radius: 0;
   font-size: 0.9rem;
+  font-family: var(--ark-font-numeric);
   line-height: normal;
   text-align: center;
   background: var(--ark-input-bg);

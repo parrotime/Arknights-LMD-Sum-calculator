@@ -3,7 +3,7 @@
 }
 
 .notice-item {
-  background: var(--ark-archive-card-bg);
+  background: var(--ark-surface-inset);
   border: 1px solid var(--ark-border-subtle);
   border-radius: var(--ark-radius-sm);
   box-shadow: var(--ark-shadow-sm);
@@ -44,7 +44,7 @@
 .hanging-item {
   position: relative;
   margin: 0;
-  padding-left: 50px;
+  padding-left: 36px;
 }
 
 .hanging-index {
@@ -54,12 +54,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 34px;
+  min-width: 26px;
   height: 22px;
   background: var(--ark-tag-bg);
   border: 1px solid var(--ark-accent-border);
   color: var(--ark-primary-500);
-  font-family: var(--ark-font-title);
+  font-family: var(--ark-font-body);
   font-weight: 900;
   font-size: 0.8rem;
   line-height: 1;
@@ -111,7 +111,7 @@
 }
 
 .timeline-version {
-  font-family: var(--ark-font-title);
+  font-family: var(--ark-font-body);
   font-weight: 900;
   color: var(--ark-primary-500);
   margin-right: 8px;
@@ -133,7 +133,7 @@
 @media (max-width: 900px) {
   .notice-item {
     padding: 13px;
-    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-family: var(--ark-font-body);
     font-size: 0.95rem;
     line-height: 1.62;
     text-rendering: geometricPrecision;
@@ -161,12 +161,14 @@
   }
 
   .hanging-item {
-    padding-left: 38px;
+    padding-left: 28px;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .hanging-index {
     top: 0.16em;
-    min-width: 26px;
+    min-width: 20px;
     height: 19px;
     font-size: 0.72rem;
     letter-spacing: 0.03em;
@@ -200,7 +202,7 @@
   .timeline-version,
   .timeline-date,
   .timeline-desc {
-    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-family: var(--ark-font-body);
     text-rendering: geometricPrecision;
     -webkit-font-smoothing: antialiased;
   }

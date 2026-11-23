@@ -407,7 +407,7 @@
   .case-intro p,
   .case-copy p,
   .image-caption {
-    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-family: var(--ark-font-body);
     text-rendering: geometricPrecision;
     -webkit-font-smoothing: antialiased;
   }

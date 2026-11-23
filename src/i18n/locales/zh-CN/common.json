@@ -12,10 +12,7 @@
   },
   "language": {
     "select": "选择语言",
-    "current": "当前使用",
-    "comingSoon": "筹备中",
-    "preview": "试用",
-    "scope": "繁体中文已覆盖导航、计算输入和方案结果。错误提示与其他页面仍在适配中。"
+    "current": "当前使用"
   },
   "survey": {
     "title": "填写反馈问卷",

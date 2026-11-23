@@ -56,6 +56,8 @@ type Snapshot struct {
 	StatusCounts  map[string]int            `json:"statusCounts"`
 	RecentEvents  []RecentEvent             `json:"recentEvents"`
 	Series        SeriesSnapshot            `json:"series"`
+	UsageDays     map[string]usageDay       `json:"usageDays,omitempty"`
+	UsageVersion  int                       `json:"usageVersion,omitempty"`
 }
 
 type SourceSnapshot struct {
@@ -128,17 +130,19 @@ type RecentEvent struct {
 }
 
 type calcLogEvent struct {
-	Time       string `json:"time"`
-	Event      string `json:"event"`
-	LmdDiff    int    `json:"lmd_diff"`
-	Target     int    `json:"target"`
-	CalcMode   string `json:"calc_mode"`
-	Cache      string `json:"cache"`
-	DurationMs int64  `json:"duration_ms"`
-	PathsCount int    `json:"paths_count"`
-	Status     string `json:"status"`
-	ErrorType  string `json:"error_type"`
-	IPHash     string `json:"ip_hash"`
+	Time         string `json:"time"`
+	Event        string `json:"event"`
+	LmdDiff      int    `json:"lmd_diff"`
+	Target       int    `json:"target"`
+	TargetLMD    int    `json:"target_lmd"`
+	HasTargetLMD bool   `json:"has_target_lmd"`
+	CalcMode     string `json:"calc_mode"`
+	Cache        string `json:"cache"`
+	DurationMs   int64  `json:"duration_ms"`
+	PathsCount   int    `json:"paths_count"`
+	Status       string `json:"status"`
+	ErrorType    string `json:"error_type"`
+	IPHash       string `json:"ip_hash"`
 }
 
 func New(options Options) (*Service, error) {
@@ -176,6 +180,7 @@ func New(options Options) (*Service, error) {
 	} else {
 		changed = service.Update()
 	}
+	changed = service.initializeUsage() || changed
 	if changed {
 		if err := service.Flush(); err != nil {
 			service.logWarn("flush admin stats snapshot failed", "error", err)
@@ -195,7 +200,8 @@ func (s *Service) Start(stop <-chan struct{}) {
 				_ = s.Flush()
 				return
 			case <-ticker.C:
-				if changed := s.Update(); changed {
+				changed := s.Update()
+				if s.initializeUsage() || changed {
 					if err := s.Flush(); err != nil {
 						s.logWarn("flush admin stats snapshot failed", "error", err)
 					}
@@ -215,7 +221,13 @@ func (s *Service) Stop(stop chan<- struct{}) {
 func (s *Service) Snapshot() Snapshot {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+	return s.snapshot()
+}
+
+func (s *Service) snapshot() Snapshot {
 	snapshot := s.stats
+	snapshot.UsageDays = nil
+	snapshot.UsageVersion = 0
 	snapshot.ByHour = cloneMap(s.stats.ByHour)
 	snapshot.ByHourDetail = cloneMetricMap(s.stats.ByHourDetail)
 	snapshot.ByDay = cloneMap(s.stats.ByDay)
@@ -293,6 +305,7 @@ func (s *Service) Update() bool {
 		Size:   info.Size(),
 	}
 	s.stats.UpdatedAt = nowBeijing().Format(time.RFC3339)
+	pruneUsageDays(s.stats.UsageDays, nowBeijing())
 	return true
 }
 
@@ -365,6 +378,7 @@ func (s *Service) Flush() error {
 	payload.ModeCounts = cloneMap(s.stats.ModeCounts)
 	payload.StatusCounts = cloneMap(s.stats.StatusCounts)
 	payload.RecentEvents = append([]RecentEvent(nil), s.stats.RecentEvents...)
+	payload.UsageDays = cloneUsageDays(s.stats.UsageDays)
 	s.mu.RUnlock()
 
 	bytes, err := json.MarshalIndent(payload, "", "  ")
@@ -415,6 +429,9 @@ func newSnapshot(logFileName string) Snapshot {
 }
 
 func normalizeSnapshot(snapshot *Snapshot, logFileName string) {
+	if snapshot.UsageVersion == currentUsageVersion && snapshot.UsageDays == nil {
+		snapshot.UsageDays = make(map[string]usageDay)
+	}
 	if snapshot.Version == 0 {
 		snapshot.Version = 1
 	}
@@ -524,6 +541,9 @@ func applyEvent(snapshot *Snapshot, event calcLogEvent, recentLimit int) bool {
 	}
 	if event.LmdDiff == 0 {
 		event.LmdDiff = event.Target
+	}
+	if snapshot.UsageDays != nil {
+		applyUsage(snapshot.UsageDays, usageCutoff(nowBeijing()), event)
 	}
 
 	recent := RecentEvent{

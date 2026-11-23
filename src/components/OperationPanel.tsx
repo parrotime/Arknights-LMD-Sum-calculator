@@ -36,7 +36,7 @@ interface OperationPanelProps {
   selectedCalcMode: CalcMode;
   onSelectedCalcModeChange: (mode: CalcMode) => void;
   handleCalculate: (event?: MouseEvent<HTMLElement> | KeyboardEvent<HTMLInputElement>, calcMode?: CalcMode) => void;
-  onModeWarning?: (message: string) => void;
+  onModeWarning?: () => void;
 }
 
 const RollingNumber = ({ value }: RollingNumberProps) => {
@@ -141,7 +141,7 @@ const OperationPanel = ({
     setModeMenuOpen(false);
 
     if (mode === "strong" && !hasWarnedStrongMode) {
-      onModeWarning?.(t("operation.strongWarning"));
+      onModeWarning?.();
       setHasWarnedStrongMode(true);
     }
   };

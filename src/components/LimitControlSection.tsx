@@ -29,7 +29,6 @@ interface LimitControlSectionProps {
     field: LimitInputField,
     min: number,
     max: number,
-    label?: string,
   ) => void;
 }
 
@@ -127,7 +126,7 @@ const LimitControlSection = ({ state, handleUpgradeCountChange }: LimitControlSe
       placeholder={t("limits.placeholder")}
       aria-label={t("limits.accessibleLabel", { label: t(`limits.fields.${field}`) })}
       value={state[field] ?? ""}
-      onChange={(event) => handleUpgradeCountChange(event, field, 0, max, t(`limits.fields.${field}`))}
+      onChange={(event) => handleUpgradeCountChange(event, field, 0, max)}
     />
   );
 

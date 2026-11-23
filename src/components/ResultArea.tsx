@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import PathRenderer, { buildAllPathsCopyText } from "./PathRenderer";
-import type { CalcMeta, CalculatorState } from "../types/calculator";
+import { getItemById } from "../DataService";
+import { computeRunningTotals, computeStepData } from "../utils/calcLogic";
+import { buildResultSignature } from "../utils/calculatorPersistence";
+import type { CalculationPath, CalculatorState } from "../types/calculator";
 import panelStyles from "../assets/styles/PanelFrame.module.css";
 import styles from "../assets/styles/ResultArea.module.css";
 
 const COPY_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/duplication.webp";
 const COPIED_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/bq10.webp";
+const EMPTY_PATHS: CalculationPath[] = [];
 
 type ResultAreaStyles = typeof styles;
 
@@ -74,40 +78,40 @@ const CopyAllButton = ({ copyText }: CopyAllButtonProps) => {
         loading="lazy"
         decoding="async"
       />
-      <span className={styles['copy-all-text-desktop']}>{t(copied ? "copiedAllDesktop" : "copyAllDesktop")}</span>
-      <span className={styles['copy-all-text-mobile']}>{t(copied ? "copiedAllMobile" : "copyAll")}</span>
+      <span className={styles['copy-all-text']}>{t(copied ? "copiedAllShort" : "copyAll")}</span>
     </button>
   );
 };
 
 interface ResultAreaProps {
   state: CalculatorState;
-  calcError: string;
-  calcMeta: CalcMeta | null;
 }
 
-const ResultArea = ({
-  state,
-  calcError,
-  calcMeta,
-}: ResultAreaProps) => {
+const ResultArea = ({ state }: ResultAreaProps) => {
   const { t, i18n } = useTranslation("results");
+  const { t: translateError } = useTranslation("errors");
+  const { calcError, lastResult } = state;
+  const isStale = !!lastResult && lastResult.signature !== buildResultSignature(state);
   const language = i18n.resolvedLanguage;
-  const initialLMD = parseInt(state.num1) || 0;
+  const initialLMD = lastResult?.initialLMD ?? 0;
+  const paths = lastResult?.paths ?? EMPTY_PATHS;
+  const calcMeta = lastResult?.meta;
+  const { steps } = computeStepData(paths[0] ?? [], getItemById);
+  const balances = computeRunningTotals(steps, initialLMD);
+  const finalLMD = balances[balances.length - 1] ?? initialLMD;
   const allCopyText = useMemo(() => (
     buildAllPathsCopyText({
-      paths: state.pathCache,
+      paths,
       initialLMD,
       t,
       language,
     })
-  ), [initialLMD, state.pathCache, t, language]);
+  ), [initialLMD, paths, t, language]);
 
   return (
-    <div className={panelStyles['history-box']}>
+    <div className={`${panelStyles['history-box']} ${styles['result-area']}`}>
       <div className={`${panelStyles['title-bar']} ${styles['result-title-bar']}`}>
         <h1>// [03] {t("title")}</h1>
-        <p className={panelStyles['title-code']}>RECOMMENDED PLAN</p>
       </div>
 
       {state.isCalculating ? (
@@ -115,10 +119,16 @@ const ResultArea = ({
       ) : calcError ? (
         <div className={styles['calc-error-card']}>
           <div className={styles['calc-error-icon']}>!</div>
-          <div className={styles['calc-error-text']}>{calcError}</div>
+          <div className={styles['calc-error-text']} role="alert">
+            {calcError.key === "request" ? translateError("request", { status: calcError.status }) : translateError(calcError.key)}
+          </div>
         </div>
-      ) : state.pathCache.length > 0 ? (
-        <div className={styles['fade-in']}>
+      ) : null}
+      <div role="status">
+        {isStale && <p className={styles['stale-notice']}>{t("staleNotice")}</p>}
+      </div>
+      {paths.length > 0 && (
+        <div className={`${styles['fade-in']}${isStale ? ` ${styles['stale-results']}` : ""}`}>
           <div className={styles['result-summary-bar']}>
             <div className={styles['result-summary-source']}>
               <span className={styles['result-summary-source-label']}>
@@ -139,24 +149,34 @@ const ResultArea = ({
                 )}
               </span>
             </div>
-            <div className={styles['result-summary-count']}>
-              <Trans
-                ns="results"
-                t={t}
-                i18nKey="count"
-                values={{ count: state.pathCache.length }}
-                components={{ total: <strong /> }}
-              />
-            </div>
             <CopyAllButton copyText={allCopyText} />
+            <div className={styles['result-summary-details']}>
+              <div className={styles['result-summary-count']}>
+                <Trans
+                  ns="results"
+                  t={t}
+                  i18nKey="count"
+                  values={{ count: paths.length }}
+                  components={{ total: <strong /> }}
+                />
+              </div>
+              <div className={styles['result-summary-balance']}>
+                <span>{t("balance")}</span>
+                <span className={styles['result-summary-values']}>
+                  <strong>{initialLMD}</strong>
+                  <span aria-hidden="true">→</span>
+                  <strong>{finalLMD}</strong>
+                </span>
+              </div>
+            </div>
           </div>
 
           <PathRenderer
-            paths={state.pathCache}
+            paths={paths}
             initialLMD={initialLMD}
           />
         </div>
-      ) : null}
+      )}
     </div>
   );
 };

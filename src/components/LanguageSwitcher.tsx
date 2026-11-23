@@ -1,14 +1,11 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { isSupportedLanguage } from "../i18n";
+import type { SupportedLanguage } from "../i18n";
 
 const languages = [
-  { code: "zh-CN", label: "简体中文", available: true },
-  { code: "zh-TW", label: "繁體中文", available: true },
-  { code: "ja", label: "日本語", available: false },
-  { code: "en", label: "English", available: false },
-  { code: "ko", label: "한국어", available: false },
-];
+  { code: "zh-CN", label: "简体中文" },
+  { code: "zh-TW", label: "繁體中文" },
+] satisfies { code: SupportedLanguage; label: string }[];
 
 const LanguageSwitcher = () => {
   const { t, i18n } = useTranslation();
@@ -17,7 +14,6 @@ const LanguageSwitcher = () => {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const currentLanguageRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
-  const descriptionId = `${panelId}-description`;
   const currentLanguage = i18n.resolvedLanguage;
 
   useEffect(() => {
@@ -66,33 +62,26 @@ const LanguageSwitcher = () => {
         </svg>
       </button>
       {open && (
-        <div className="nav-language-panel" id={panelId} role="group" aria-label={t("language.select")} aria-describedby={descriptionId}>
+        <div className="nav-language-panel" id={panelId} role="group" aria-label={t("language.select")}>
           {languages.map((language) => (
             <button
               key={language.code}
               type="button"
               className="nav-language-option"
               ref={language.code === currentLanguage ? currentLanguageRef : undefined}
-              disabled={!language.available}
               aria-current={language.code === currentLanguage ? "true" : undefined}
               onClick={() => {
-                if (!isSupportedLanguage(language.code)) return;
                 void i18n.changeLanguage(language.code);
                 setOpen(false);
                 triggerRef.current?.focus();
               }}
             >
               <span lang={language.code}>{language.label}</span>
-              <span className="nav-language-status">
-                {language.code === currentLanguage
-                  ? t("language.current")
-                  : !language.available
-                    ? t("language.comingSoon")
-                    : language.code === "zh-TW" ? t("language.preview") : ""}
-              </span>
+              {language.code === currentLanguage && (
+                <span className="nav-language-status">{t("language.current")}</span>
+              )}
             </button>
           ))}
-          <p className="nav-language-description" id={descriptionId}>{t("language.scope")}</p>
         </div>
       )}
     </div>

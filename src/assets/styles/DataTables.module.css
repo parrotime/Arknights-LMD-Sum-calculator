@@ -41,7 +41,7 @@
   justify-content: center;
   width: fit-content;
   box-sizing: border-box;
-  font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+  font-family: var(--ark-font-body);
   font-weight: 900;
   line-height: 1;
   white-space: nowrap;
@@ -128,7 +128,7 @@
 
   .material-table th,
   .material-table td {
-    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
+    font-family: var(--ark-font-body);
     text-rendering: geometricPrecision;
     -webkit-font-smoothing: antialiased;
   }

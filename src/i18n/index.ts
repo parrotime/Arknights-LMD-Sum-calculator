@@ -6,6 +6,18 @@ import simplifiedCalculator from "./locales/zh-CN/calculator.json";
 import traditionalCalculator from "./locales/zh-TW/calculator.json";
 import simplifiedResults from "./locales/zh-CN/results.json";
 import traditionalResults from "./locales/zh-TW/results.json";
+import simplifiedErrors from "./locales/zh-CN/errors.json";
+import traditionalErrors from "./locales/zh-TW/errors.json";
+import simplifiedNote from "./locales/zh-CN/note.json";
+import traditionalNote from "./locales/zh-TW/note.json";
+import simplifiedData from "./locales/zh-CN/data.json";
+import traditionalData from "./locales/zh-TW/data.json";
+import simplifiedAbout from "./locales/zh-CN/about.json";
+import traditionalAbout from "./locales/zh-TW/about.json";
+import simplifiedMaintenance from "./locales/zh-CN/maintenance.json";
+import traditionalMaintenance from "./locales/zh-TW/maintenance.json";
+import simplifiedAssistant from "./locales/zh-CN/assistant.json";
+import traditionalAssistant from "./locales/zh-TW/assistant.json";
 
 export const LANGUAGE_STORAGE_KEY = "ark_lmd_language";
 export const supportedLanguages = ["zh-CN", "zh-TW"] as const;
@@ -44,15 +56,15 @@ i18n.on("languageChanged", syncLanguage);
 
 void i18n.use(initReactI18next).init({
   resources: {
-    "zh-CN": { common: simplifiedChinese, calculator: simplifiedCalculator, results: simplifiedResults },
-    "zh-TW": { common: traditionalChinese, calculator: traditionalCalculator, results: traditionalResults },
+    "zh-CN": { common: simplifiedChinese, calculator: simplifiedCalculator, results: simplifiedResults, errors: simplifiedErrors, note: simplifiedNote, data: simplifiedData, about: simplifiedAbout, maintenance: simplifiedMaintenance, assistant: simplifiedAssistant },
+    "zh-TW": { common: traditionalChinese, calculator: traditionalCalculator, results: traditionalResults, errors: traditionalErrors, note: traditionalNote, data: traditionalData, about: traditionalAbout, maintenance: traditionalMaintenance, assistant: traditionalAssistant },
   },
   lng: getInitialLanguage(),
   fallbackLng: "zh-CN",
   supportedLngs: [...supportedLanguages],
   load: "currentOnly",
   defaultNS: "common",
-  ns: ["common", "calculator", "results"],
+  ns: ["common", "calculator", "results", "errors", "note", "data", "about", "maintenance", "assistant"],
   initAsync: false,
   returnNull: false,
   returnEmptyString: false,

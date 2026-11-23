@@ -7,28 +7,11 @@
   padding: 0;
   overflow: hidden;
   background: var(--ark-plan-card-bg);
+  font-family: var(--ark-font-numeric);
   border: 1px solid var(--ark-plan-border);
   border-radius: 0;
   box-sizing: border-box;
-}
-
-.plan-card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  height: 4px;
-  background: var(--ark-status-line-main);
-  pointer-events: none;
-}
-
-.plan-card:nth-child(3n + 2)::before {
-  background: var(--ark-status-line-alt);
-}
-
-.plan-card:nth-child(3n)::before {
-  background: var(--ark-status-line-soft);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 .plan-card::after {
@@ -49,18 +32,19 @@
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: var(--sample-plan-identity-width, 176px) minmax(0, 1fr) 112px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: stretch;
   min-width: 0;
   border-bottom: 1px solid var(--ark-plan-border);
+  border-top: 2px solid var(--ark-plan-accent);
 }
 
 .plan-identity {
   display: grid;
   align-content: center;
   justify-items: start;
-  min-height: 56px;
-  padding: 9px 14px;
+  min-height: 44px;
+  padding: 6px 12px;
   background: var(--ark-plan-identity-bg);
   border-right: 1px solid var(--ark-plan-border);
   box-sizing: border-box;
@@ -75,16 +59,19 @@
 }
 
 .plan-mark-number {
-  margin-top: 5px;
+  margin-top: 0;
   color: var(--ark-plan-accent);
   font-family: var(--ark-font-title);
   font-size: 1.15rem;
   font-weight: 900;
   line-height: 1;
   letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 .summary {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,6 +120,8 @@
 
 .copy-btn,
 .copy-btn-done {
+  grid-column: 3;
+  grid-row: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -175,6 +164,10 @@
   box-shadow: inset 0 -2px 0 var(--ark-plan-success);
 }
 
+.recommended-plan :is(.copy-btn, .copy-btn-done) span {
+  font-family: var(--ark-font-title);
+}
+
 .copy-icon {
   width: 19px;
   height: 19px;
@@ -183,8 +176,9 @@
 }
 
 .copy-icon-copy {
-  filter: invert(78%) sepia(24%) saturate(876%) hue-rotate(177deg) brightness(112%) contrast(96%)
-          drop-shadow(0 0 6px rgba(122, 193, 248, 0.2));
+  filter: var(--ark-copy-icon-filter,
+    invert(78%) sepia(24%) saturate(876%) hue-rotate(177deg) brightness(112%) contrast(96%)
+    drop-shadow(0 0 6px rgba(122, 193, 248, 0.2)));
 }
 
 .copy-icon-done {
@@ -192,7 +186,8 @@
 }
 
 :global([data-theme="light"]) .copy-icon-copy {
-  filter: invert(20%) sepia(34%) saturate(1274%) hue-rotate(174deg) brightness(92%) contrast(94%);
+  filter: var(--ark-copy-icon-filter,
+    invert(20%) sepia(34%) saturate(1274%) hue-rotate(174deg) brightness(92%) contrast(94%));
 }
 
 .step-list {
@@ -200,31 +195,21 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  padding: 8px 12px 12px;
-}
-
-.step-list::before {
-  content: "LOG / MATERIAL ACCOUNTING / AUTO-SEQUENCE";
-  display: block;
-  margin: 0 0 4px 70px;
-  color: var(--ark-plan-muted);
-  font-size: 0.62rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
+  padding: 4px 10px 6px;
 }
 
 .step-card {
   position: relative;
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr) auto;
+  grid-template-columns: 32px minmax(0, 1fr) minmax(0, 44%);
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-height: 42px;
-  padding: 7px 0;
+  padding: 5px 0;
   border-bottom: 1px solid var(--ark-plan-step-line);
   color: var(--ark-plan-text);
   font-size: 1rem;
-  line-height: 1.45;
+  line-height: 1.3;
   transition: background-color 0.15s ease;
 }
 
@@ -236,43 +221,19 @@
   background: var(--ark-plan-step-hover-bg);
 }
 
-.step-card::before {
-  content: "";
-  position: absolute;
-  left: 28px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--ark-plan-timeline);
-}
-
-.step-card:first-child::before {
-  top: 50%;
-}
-
-.step-card:last-child::before {
-  bottom: 50%;
-}
-
 .step-index {
   position: relative;
   z-index: 1;
   display: grid;
   align-content: center;
   justify-items: center;
-  width: 56px;
-  height: 30px;
+  width: 30px;
+  height: 28px;
   background: var(--ark-plan-index-bg);
   border: 1px solid var(--ark-plan-index-border);
+  border-radius: 4px;
   color: var(--ark-plan-muted);
   box-sizing: border-box;
-}
-
-.step-index span {
-  font-size: 0.52rem;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: 0.12em;
 }
 
 .step-index strong {
@@ -312,19 +273,22 @@
 }
 
 .step-right {
-  display: grid;
-  grid-template-columns: minmax(118px, auto) minmax(128px, auto);
+  display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: end;
-  gap: 12px;
-  margin-left: auto;
-  white-space: nowrap;
+  gap: 4px 12px;
+  min-width: 0;
+  width: 100%;
   font-variant-numeric: tabular-nums;
 }
 
 .gain,
 .spend {
-  justify-self: end;
+  flex: 1 1 150px;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
   font-weight: 900;
   letter-spacing: 0.02em;
   filter: var(--ark-plan-delta-filter);
@@ -338,6 +302,16 @@
   color: var(--ark-plan-danger);
 }
 
+.recommended-plan :is(.gain, .spend) {
+  flex: 0 1 auto;
+  padding: 1px 6px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  background: color-mix(in srgb, currentColor 12%, var(--ark-plan-card-bg));
+  filter: none;
+  text-align: right;
+}
+
 .running-total,
 .running-total-final {
   display: inline-flex;
@@ -347,6 +321,11 @@
   color: var(--ark-plan-text);
   font-size: 1rem;
   font-weight: 900;
+  flex: 0 0 auto;
+  max-width: 100%;
+  margin-left: auto;
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
 }
 
 .running-total b,
@@ -377,6 +356,28 @@
   color: var(--ark-plan-accent);
 }
 
+.recommended-plan :is(.running-total, .running-total-final) {
+  margin-left: 0;
+}
+
+@media (width > 800px) {
+  .recommended-plan .step-right {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 8.5rem);
+    column-gap: 18px;
+  }
+
+  .recommended-plan :is(.gain, .spend) {
+    grid-column: 1;
+    justify-self: end;
+  }
+
+  .recommended-plan :is(.running-total, .running-total-final) {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .copy-btn,
   .copy-btn-done,
@@ -394,13 +395,13 @@
   }
 
   .plan-card-header {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: stretch;
   }
 
   .plan-identity {
-    min-height: 52px;
-    padding: 8px 10px 7px;
+    min-height: 44px;
+    padding: 6px 10px;
     border-right: 0;
   }
 
@@ -421,13 +422,12 @@
   .summary {
     grid-column: 1 / -1;
     grid-row: 2;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: minmax(24px, auto) minmax(20px, auto);
-    gap: 3px 10px;
-    padding: 7px 10px 6px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 5px 14px;
+    padding: 5px 10px;
     border-top: 1px solid var(--ark-plan-border);
-    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
     font-size: 0.82rem;
   }
 
@@ -441,9 +441,12 @@
     white-space: nowrap;
   }
 
+  .recommended-plan .summary {
+    justify-content: center;
+  }
+
   .summary b {
     color: var(--ark-plan-label);
-    font-family: var(--ark-font-title);
     font-size: 0.78rem;
     font-weight: 900;
     line-height: 1;
@@ -466,53 +469,11 @@
     line-height: 1;
   }
 
-  .summary span:last-child {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    gap: 5px;
-    min-width: 0;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--ark-plan-step-line);
-    overflow: hidden;
-  }
-
-  .summary span:last-child b {
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    font-size: 0.82rem;
-    text-overflow: ellipsis;
-  }
-
-  .summary span:last-child strong,
-  .summary span:last-child em {
-    flex: 0 0 auto;
-    white-space: nowrap;
-  }
-
-  .summary span:last-child strong {
-    color: var(--ark-plan-accent);
-    font-size: 1.08rem;
-  }
-
-  .summary span:last-child strong:last-of-type {
-    color: var(--ark-plan-text);
-  }
-
-  .summary span:not(:last-child) {
-    grid-row: 2;
-    min-height: 20px;
-  }
-
-  .summary span:not(:last-child):nth-child(2) {
-    justify-content: flex-end;
-  }
-
   .copy-btn,
   .copy-btn-done {
     width: 76px;
     min-width: 76px;
-    min-height: 52px;
+    min-height: 44px;
     padding: 0 8px;
     gap: 5px;
     border-left: 1px solid var(--ark-plan-border);
@@ -526,46 +487,27 @@
   }
 
   .step-list {
-    padding: 6px 8px 10px;
-  }
-
-  .step-list::before {
-    margin: 0 0 6px;
-    padding: 2px 0 3px;
-    border-top: 1px solid var(--ark-plan-step-line);
-    border-bottom: 1px solid var(--ark-plan-step-line);
-    text-align: center;
-    font-size: 0.55rem;
-    letter-spacing: 0.08em;
+    padding: 3px 8px 5px;
   }
 
   .step-card {
-    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-columns: 32px minmax(0, 1fr);
     grid-template-rows: auto auto;
     align-items: start;
     gap: 4px 7px;
     min-height: 42px;
-    padding: 7px 0;
+    padding: 5px 0;
   }
 
   .step-index {
     grid-row: 1 / 3;
-    width: 42px;
-    height: 26px;
+    width: 30px;
+    height: 28px;
     margin-top: 1px;
-  }
-
-  .step-index span {
-    font-size: 0.47rem;
-    letter-spacing: 0.08em;
   }
 
   .step-index strong {
     font-size: 0.78rem;
-  }
-
-  .step-card::before {
-    left: 21px;
   }
 
   .step-desc {
@@ -581,7 +523,6 @@
     min-width: 0;
     overflow: visible;
     color: inherit;
-    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
     font-size: 0.95rem;
     line-height: 1.24;
     text-overflow: clip;
@@ -599,24 +540,25 @@
 
   .step-right {
     grid-column: 2;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 8px;
-    justify-content: stretch;
+    gap: 4px 12px;
+    justify-content: flex-end;
     margin-left: 0;
-    white-space: nowrap;
     font-size: 0.84rem;
   }
 
   .gain,
   .spend {
-    justify-self: start;
+    flex: 1 1 140px;
     min-width: 0;
-    overflow: hidden;
-    font-family: "Rajdhani", var(--ark-font-title), sans-serif;
     font-size: 0.86rem;
-    text-overflow: ellipsis;
+  }
+
+  .recommended-plan :is(.gain, .spend) {
+    margin-right: auto;
+    text-align: left;
   }
 
   .running-total,
@@ -628,7 +570,6 @@
 
   .running-total b,
   .running-total-final b {
-    font-family: var(--ark-font-title);
     font-size: 0.78rem;
     letter-spacing: 0.02em;
   }

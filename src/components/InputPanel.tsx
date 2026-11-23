@@ -21,13 +21,12 @@ interface InputPanelProps {
     field: LimitInputField,
     min: number,
     max: number,
-    label?: string,
   ) => void;
   handleCalculate: (event?: MouseEvent<HTMLElement> | KeyboardEvent<HTMLInputElement>, calcMode?: CalcMode) => void;
   onSwap: () => void;
   onResetInputs: () => void;
   onClearLmdInput: (field: LmdInputField) => void;
-  onModeWarning?: (message: string) => void;
+  onModeWarning?: () => void;
 }
 
 const InputPanel = ({

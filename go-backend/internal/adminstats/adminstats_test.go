@@ -1,11 +1,95 @@
 package adminstats
 
 import (
+	"compress/gzip"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
+
+func TestUsageBackfillsAndPersistsWithoutDoubleCounting(t *testing.T) {
+	dir := t.TempDir()
+	now := nowBeijing()
+	yesterday := now.AddDate(0, 0, -1)
+	active := filepath.Join(dir, defaultLogFileName)
+	archive := active + ".2.gz"
+	event := func(at time.Time, diff, target int, hasTarget bool) string {
+		return fmt.Sprintf("{\"time\":%q,\"status\":\"success\",\"lmd_diff\":%d,\"target_lmd\":%d,\"has_target_lmd\":%t}\n",
+			at.Format(time.RFC3339), diff, target, hasTarget)
+	}
+	file, err := os.Create(archive)
+	if err != nil {
+		t.Fatal(err)
+	}
+	zip := gzip.NewWriter(file)
+	if _, err := zip.Write([]byte(event(yesterday, 5_000, 20, true))); err != nil {
+		t.Fatal(err)
+	}
+	if err := zip.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		t.Fatal(err)
+	}
+	activeEvents := event(now, -100, 0, true) + event(now, 99, 0, false) + event(now, 0, 0, true) +
+		event(now, -5_000, 0, false) + event(now, 5_001, 0, false) + event(now, -5_001, 0, false)
+	if err := os.WriteFile(active, []byte(activeEvents), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	service, err := New(Options{LogDir: dir, RecentLimit: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	usage := buildUsage(service.stats, now)
+	day := usage.Periods["day"]
+	if day.Buckets[0].Gain != (UsageSide{Count: 1, Amount: 99}) ||
+		day.Buckets[1].Spend != (UsageSide{Count: 1, Amount: 100}) ||
+		day.Buckets[4].Max != 5_000 || day.Buckets[4].Spend != (UsageSide{Count: 1, Amount: 5_000}) ||
+		day.Totals.Gain.Count != 1 || day.Totals.Spend.Count != 2 ||
+		len(day.TopTargets) != 1 || day.TopTargets[0] != (RankedTarget{Amount: 0, Count: 2}) {
+		t.Fatalf("unexpected daily usage: %+v", day)
+	}
+	archivedDay := (int(yesterday.Weekday()) + 6) % 7
+	if got := usage.Heatmap[archivedDay].Hours[yesterday.Hour()]; got != 1 {
+		t.Fatalf("archived heatmap count = %d, want 1", got)
+	}
+	if len(service.Snapshot().UsageDays) != 0 {
+		t.Fatal("internal usage days leaked from base snapshot")
+	}
+
+	if err := os.WriteFile(active, []byte(activeEvents+event(now, 101, 5, true)), 0644); err != nil {
+		t.Fatal(err)
+	}
+	reopened, err := New(Options{LogDir: dir})
+	if err != nil {
+		t.Fatal(err)
+	}
+	day = buildUsage(reopened.stats, now).Periods["day"]
+	if day.Totals.Gain != (UsageSide{Count: 2, Amount: 200}) || len(day.TopTargets) != 2 || day.TopTargets[0].Count != 2 {
+		t.Fatalf("unexpected daily usage after restart: %+v", day)
+	}
+
+	dayKey := now.Format("2006-01-02")
+	oldDay := reopened.stats.UsageDays[dayKey]
+	oldDay.Buckets[4].Gain = UsageSide{Count: 1, Amount: 100_000}
+	reopened.stats.UsageDays[dayKey] = oldDay
+	reopened.stats.UsageVersion = 0
+	if err := reopened.Flush(); err != nil {
+		t.Fatal(err)
+	}
+	migrated, err := New(Options{LogDir: dir})
+	if err != nil {
+		t.Fatal(err)
+	}
+	migratedDay := buildUsage(migrated.stats, now).Periods["day"]
+	if migratedDay.Totals != day.Totals || migrated.stats.Totals != reopened.stats.Totals {
+		t.Fatalf("unexpected totals after changing bucket limits: %+v", migratedDay)
+	}
+}
 
 func TestServiceAggregatesIncrementalLog(t *testing.T) {
 	dir := t.TempDir()

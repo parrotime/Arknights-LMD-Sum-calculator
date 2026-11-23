@@ -82,17 +82,14 @@
 }
 
 .diffOutOfRange {
-  background:
-    linear-gradient(90deg, rgba(90, 175, 244, 0.16), transparent 24%, transparent 76%, rgba(90, 175, 244, 0.16)),
-    var(--ark-input-bg);
-  border-color: var(--ark-primary-300);
-  box-shadow: inset 0 0 0 1px rgba(80, 155, 235, 0.16),
-              0 2px 10px rgba(10, 22, 40, 0.06);
+  background: var(--ark-danger-bg);
+  border-color: var(--ark-danger);
+  box-shadow: none;
 }
 
 .diffOutOfRange::before,
 .diffOutOfRange::after {
-  background: var(--ark-primary-300);
+  background: var(--ark-danger);
 }
 
 .diffStatusChip {
@@ -147,7 +144,7 @@
   justify-content: center;
   gap: 1px;
   color: var(--ark-primary-700);
-  font-family: var(--ark-font-body);
+  font-family: var(--ark-font-numeric);
   font-size: var(--diff-number-font-size);
   font-weight: 900;
   line-height: 1;
@@ -205,8 +202,7 @@
 }
 
 :global([data-theme="dark"]) .diffOutOfRange {
-  box-shadow: inset 0 0 0 1px rgba(154, 211, 252, 0.18),
-              0 0 18px rgba(80, 155, 235, 0.16);
+  box-shadow: none;
 }
 
 :global([data-theme="dark"]) .diffValue,
@@ -226,6 +222,14 @@
   background: rgba(122, 193, 248, 0.12);
   color: var(--ark-primary-300);
   box-shadow: inset 0 0 0 1px rgba(122, 193, 248, 0.08);
+}
+
+.diffOutOfRange .diffStatusChip {
+  border-color: var(--ark-danger-border);
+  background: color-mix(in srgb, var(--ark-danger) 8%, var(--ark-danger-bg));
+  color: var(--ark-danger);
+  box-shadow: none;
+  text-shadow: none;
 }
 
 .calculateButton {
@@ -715,7 +719,7 @@
   .diffPrefix,
   .diffUnit {
     align-items: flex-end;
-    font-family: var(--ark-font-title);
+    font-family: var(--ark-font-body);
     font-size: var(--diff-copy-font-size);
     font-weight: 900;
     line-height: 1;
@@ -729,7 +733,6 @@
 
   .diffPlaceholder,
   .rollingNumber {
-    font-family: var(--ark-font-body);
     font-weight: 900;
     line-height: 1;
   }

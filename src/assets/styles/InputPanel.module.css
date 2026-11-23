@@ -140,7 +140,7 @@
   border: 1px solid var(--ark-input-border);
   border-radius: 0;
   font-size: 1.12rem;
-  font-family: var(--ark-font-body);
+  font-family: var(--ark-font-numeric);
   font-weight: 800;
   text-align: left;
   background: var(--ark-input-bg);

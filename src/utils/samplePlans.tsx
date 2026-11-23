@@ -1,5 +1,9 @@
 import React from "react";
 import type { ReactElement } from "react";
+import { useTranslation } from "react-i18next";
+import { classifyData } from "../DataService";
+import { getLocalizedItemName } from "../i18n/gameItems";
+import traditionalSampleNames from "../i18n/locales/zh-TW/sampleItems.json";
 import PlanCard from "../components/PlanCard";
 import type { PlanStepItem, PlanSummaryItem } from "../components/PlanCard";
 
@@ -16,8 +20,7 @@ interface SampleStepPart {
   actionType: "获得" | "花费" | "";
   actionValue: number;
   runningTotal: number;
-  stepValue: number;
-  text: string;
+  hasRunningTotal: boolean;
 }
 
 interface SampleBounds {
@@ -33,6 +36,7 @@ interface SamplePathCardProps {
   className?: string;
   identityValueClassName?: string;
   itemClassName?: string;
+  localized?: boolean;
 }
 
 interface RenderSamplePathCardsOptions {
@@ -42,6 +46,7 @@ interface RenderSamplePathCardsOptions {
   cardClassName?: string;
   identityValueClassName?: string;
   itemClassName?: string;
+  localized?: boolean;
 }
 
 export const acquireSamplePlans: SamplePlan[] = [
@@ -163,8 +168,7 @@ const parseSampleStepParts = (step: string, previousValue: number): SampleStepPa
     actionType: action?.[1] === "获得" || action?.[1] === "花费" ? action[1] : "",
     actionValue: action ? Math.abs(Number(action[2])) : 0,
     runningTotal: current ? Number(current[1]) : previousValue + stepValue,
-    stepValue,
-    text: step,
+    hasRunningTotal: !!current,
   };
 };
 
@@ -180,21 +184,8 @@ const getSampleBounds = (target: string): SampleBounds => {
 
 const formatPlanNumber = (index: number) => String(index + 1).padStart(2, "0");
 
-const formatSampleTargetLabel = (target: string): string => {
-  const value = Math.abs(Number(String(target).replace("+", "")));
-  return Number.isNaN(value)
-    ? target
-    : `${Number(String(target).replace("+", "")) >= 0 ? "获取" : "消耗"}${value}龙门币`;
-};
-
-const buildSamplePathText = ({ target, way, planIndex }: Pick<SamplePathCardProps, "target" | "way" | "planIndex">): string => {
-  const steps = parseSampleSteps(way);
-  const { start, end } = getSampleBounds(target);
-  const header = `【龙门币凑数计算器 ark-lmd.top | DATA SAMPLE PLAN ${formatPlanNumber(planIndex)}】`;
-  const summary = `目标差值 ${target} | 龙门币 ${start} -> ${end} | 共 ${steps.length} 步`;
-
-  return `${header}\n${summary}\n\n${steps.join("\n")}`;
-};
+const sampleNamesByText: Partial<Record<string, string>> = traditionalSampleNames;
+const gameItemsByName = new Map(classifyData.map(item => [item.item_name, item]));
 
 export const SamplePathCard = ({
   target,
@@ -204,23 +195,28 @@ export const SamplePathCard = ({
   className = "",
   identityValueClassName = "",
   itemClassName = "",
+  localized = false,
 }: SamplePathCardProps): ReactElement => {
+  const { i18n, t } = useTranslation(["data", "results"], { lng: localized ? undefined : "zh-CN" });
+  const traditional = localized && i18n.resolvedLanguage === "zh-TW";
   const steps = parseSampleSteps(way);
   const { start, end } = getSampleBounds(target);
+  const currency = t("currency", { ns: "results" });
+  const targetLabel = t("sample.target");
   let previousValue = start;
 
   const summaryItems: PlanSummaryItem[] = [
     {
-      label: "目标差值",
+      label: targetLabel,
       values: [{ text: target }],
     },
     {
-      label: "步骤共",
+      label: t("steps", { ns: "results" }),
       values: [{ text: steps.length }],
-      suffix: "步",
+      suffix: t("stepUnit", { ns: "results" }),
     },
     {
-      label: "龙门币变化",
+      label: t("sample.delta"),
       values: [
         { text: start },
         { text: "->", type: "separator" },
@@ -233,20 +229,39 @@ export const SamplePathCard = ({
     const part = parseSampleStepParts(step, previousValue);
     previousValue = part.runningTotal;
     const isGain = part.actionType === "获得";
+    const gameItem = gameItemsByName.get(part.itemName);
+    const itemName = traditional
+      ? (gameItem ? getLocalizedItemName(gameItem, "zh-TW") : sampleNamesByText[part.itemName] || part.itemName)
+      : part.itemName;
+    const title = traditional
+      ? t("sample.step", {
+          number: i + 1,
+          count: part.count,
+          name: itemName,
+          action: t(isGain ? "gain" : "spend", { ns: "results" }),
+          amount: part.actionValue,
+        }) + (part.hasRunningTotal ? t("sample.balance", { value: part.runningTotal }) : "")
+      : step;
 
     return {
       key: `${planIndex}-${i}`,
-      title: part.text,
-      itemName: part.itemName,
+      title,
+      itemName,
       itemClassName,
       count: part.count,
-      deltaText: part.actionValue > 0 ? `${isGain ? "+" : "-"}${Math.abs(part.stepValue)} 龙门币` : "",
+      deltaText: part.actionValue > 0 ? `${isGain ? "+" : "-"}${part.actionValue} ${currency}` : "",
       deltaType: isGain ? "gain" : "spend",
-      totalLabel: i === steps.length - 1 ? "结果" : "当前",
+      totalLabel: t(i === steps.length - 1 ? "final" : "current", { ns: "results" }),
       runningTotal: part.runningTotal,
       isFinal: i === steps.length - 1,
     };
   });
+  const sampleHeading = t("sample.heading", { number: formatPlanNumber(planIndex) });
+  const siteName = t("site", { ns: "results" });
+  const stepCount = t("copyStepCount", { ns: "results", count: steps.length });
+  const header = `【${siteName} ark-lmd.top | ${sampleHeading}】`;
+  const summary = `${targetLabel} ${target} | ${currency} ${start} -> ${end} | ${stepCount}`;
+  const copyText = `${header}\n${summary}\n\n${planSteps.map(step => step.title).join("\n")}`;
 
   return (
     <PlanCard
@@ -257,14 +272,16 @@ export const SamplePathCard = ({
           <strong>SAMPLE {variant}</strong>
         </span>
       }
-      identityValue={formatSampleTargetLabel(target)}
+      identityValue={t(start < end ? "sample.acquire" : "sample.consume", { value: Math.abs(end - start) })}
       identityValueClassName={identityValueClassName}
-      ariaLabel={`样例方案 ${planIndex + 1}`}
+      ariaLabel={t("sample.aria", { number: planIndex + 1 })}
       summaryItems={summaryItems}
       steps={planSteps}
-      copyText={buildSamplePathText({ target, way, planIndex })}
-      copyLabel="复制当前样例方案"
-      copiedLabel="已复制当前样例方案"
+      copyText={copyText}
+      copyLabel={t("sample.copy")}
+      copiedLabel={t("sample.copied")}
+      copyButtonText={t("copyShort", { ns: "results" })}
+      copiedButtonText={t("copiedShort", { ns: "results" })}
     />
   );
 };
@@ -276,6 +293,7 @@ export const renderSamplePathCards = ({
   cardClassName = "",
   identityValueClassName = "",
   itemClassName = "",
+  localized = false,
 }: RenderSamplePathCardsOptions): ReactElement => {
   let activeTarget = "";
   const targetCounts: Record<string, number> = {};
@@ -299,6 +317,7 @@ export const renderSamplePathCards = ({
               className={cardClassName}
               identityValueClassName={identityValueClassName}
               itemClassName={itemClassName}
+              localized={localized}
             />
           );
         })}

@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import styles from '../assets/styles/AdminDashboard.module.css';
+import AdminUsageCharts from '../components/AdminUsageCharts';
+import type { AdminUsage } from '../components/AdminUsageCharts';
 import legacyLogStats from '../data/legacyLogStats.json';
 import {
   formatStatNumber,
@@ -45,6 +47,7 @@ interface AdminOverview extends LiveStatsOverview {
     modeCounts?: Record<string, number>;
     statusCounts?: Record<string, number>;
     recentEvents?: AdminRecentEvent[];
+    usage?: AdminUsage;
   };
   server?: {
     running?: number;
@@ -501,6 +504,8 @@ function AdminDashboard() {
                 </div>
               </div>
             </section>
+
+            <AdminUsageCharts usage={admin?.usage} />
 
             <section className={`${styles['archive-card']} ${styles['event-card']}`} aria-label="最近事件">
               <div className={styles['section-heading']}>

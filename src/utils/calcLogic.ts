@@ -20,16 +20,16 @@ import type { GameItem } from "../DataService";
 /** 校验两个龙门币输入，返回 { error, difference, num1Val, num2Val } */
 export const validateInput = (num1: string, num2: string): ValidationResult => {
   if (!num1 || !num2) {
-    return { error: "请检查当前/目标龙门币数量是否填写完整~" };
+    return { error: "missing" };
   }
   if (num1 === num2) {
-    return { error: "好像输入了两个相同的数字，要不检查一下?" };
+    return { error: "same" };
   }
   const num1Val = parseInt(num1, 10);
   const num2Val = parseInt(num2, 10);
   const difference = num2Val - num1Val;
   if (Math.abs(difference) > 5000) {
-    return { error: "差值需在-5000~5000之间" };
+    return { error: "difference" };
   }
   return { error: null, difference, num1Val, num2Val };
 };

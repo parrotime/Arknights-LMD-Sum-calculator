@@ -12,10 +12,7 @@
   },
   "language": {
     "select": "選擇語言",
-    "current": "目前使用",
-    "comingSoon": "籌備中",
-    "preview": "試用",
-    "scope": "繁體中文已涵蓋導覽列、計算輸入和方案結果。錯誤提示與其他頁面仍在適配。"
+    "current": "当前使用"
   },
   "survey": {
     "title": "填寫回饋問卷",

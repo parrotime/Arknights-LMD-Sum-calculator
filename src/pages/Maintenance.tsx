@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import pathRendererStyles from "../assets/styles/PathRenderer.module.css";
 import styles from "../assets/styles/Maintenance.module.css";
 import type { SamplePlan } from "../utils/samplePlans";
@@ -7,11 +8,6 @@ import {
   consumeSamplePlans,
   renderSamplePathCards,
 } from "../utils/samplePlans";
-
-const DEFAULT_TITLE = "网页维护中...";
-const DEFAULT_SUBTITLE = "计算功能暂时无法使用，如有凑龙门币数字的需要，请查看下方表格";
-const NORMAL_TITLE = "网页维护未启用";
-const NORMAL_SUBTITLE = "当前计算服务未进入维护状态，下方表格可作为离线参考备用";
 
 interface MaintenanceStatusResponse {
   enabled?: boolean;
@@ -34,6 +30,7 @@ interface MaintenanceStatusState {
 interface FlipUnitProps {
   value: string;
   label: string;
+  unit: string;
 }
 
 const fetchMaintenanceStatus = async (): Promise<MaintenanceStatusResponse> => {
@@ -58,26 +55,36 @@ const formatTimeParts = (milliseconds: number): string[] => {
   return [hours, minutes, seconds].map((value) => String(value).padStart(2, "0"));
 };
 
-const FlipUnit = ({ value, label }: FlipUnitProps) => (
-  <span className={styles['timer-unit']} aria-label={`${value} ${label}`}>
+const FlipUnit = ({ value, label, unit }: FlipUnitProps) => (
+  <span className={styles['timer-unit']} aria-label={`${value} ${unit}`}>
     <span key={value} className={styles['timer-number']}>{value}</span>
     <span className={styles['timer-label']}>{label}</span>
   </span>
 );
 
 const MaintenancePage = () => {
+  const { t } = useTranslation("maintenance");
   const [status, setStatus] = useState<MaintenanceStatusState>({
     loading: true,
     error: false,
     enabled: false,
-    title: DEFAULT_TITLE,
-    subtitle: DEFAULT_SUBTITLE,
+    title: "",
+    subtitle: "",
     endAtMs: null,
     serverOffsetMs: 0,
   });
   const [remainingMs, setRemainingMs] = useState(0);
   const [hours, minutes, seconds] = formatTimeParts(remainingMs);
   const hasCountdown = status.enabled && status.endAtMs !== null;
+  const maintenanceCopy = (value: string, key: "maintenanceTitle" | "maintenanceSubtitle") =>
+    value && value !== t(key, { lng: "zh-CN" }) ? value : t(key);
+  const title = status.loading ? t("loadingTitle") : status.enabled
+    ? maintenanceCopy(status.title, "maintenanceTitle")
+    : t("normalTitle");
+  const subtitle = status.loading ? t("loadingSubtitle") : status.enabled
+    ? maintenanceCopy(status.subtitle, "maintenanceSubtitle")
+    : t("normalSubtitle");
+  const timerLabel = t(status.enabled ? "timer" : "status");
 
   useEffect(() => {
     let ignore = false;
@@ -97,8 +104,8 @@ const MaintenancePage = () => {
           loading: false,
           error: false,
           enabled,
-          title: enabled ? (data.title || DEFAULT_TITLE) : NORMAL_TITLE,
-          subtitle: enabled ? (data.subtitle || DEFAULT_SUBTITLE) : NORMAL_SUBTITLE,
+          title: data.title || "",
+          subtitle: data.subtitle || "",
           endAtMs: enabled && hasValidEndAt ? endAtMs : null,
           serverOffsetMs,
         });
@@ -109,8 +116,8 @@ const MaintenancePage = () => {
           loading: false,
           error: true,
           enabled: true,
-          title: DEFAULT_TITLE,
-          subtitle: DEFAULT_SUBTITLE,
+          title: "",
+          subtitle: "",
           endAtMs: null,
           serverOffsetMs: 0,
         });
@@ -139,6 +146,7 @@ const MaintenancePage = () => {
 
   const renderMaintenanceSamples = (data: SamplePlan[]) => renderSamplePathCards({
     data,
+    localized: true,
     pathRendererClassName: `${pathRendererStyles['path-renderer-container']} ${styles['maintenance-sample-path-container']}`,
     planListClassName: pathRendererStyles['plan-list'],
     cardClassName: styles['maintenance-sample-plan-card'],
@@ -151,64 +159,52 @@ const MaintenancePage = () => {
       <main className={`${styles['maintenance-page']} ${!status.enabled ? styles['maintenance-page-normal'] : ""}`}>
         <section className={styles['hero-section']} aria-labelledby="maintenance-title">
           <span className={styles['status-chip']}>
-            {status.loading ? "STATUS SYNCING" : status.enabled ? "SYSTEM MAINTENANCE" : "SYSTEM ONLINE"}
+            {t(status.loading ? "syncing" : status.error ? "unreachable" : status.enabled ? "maintaining" : "online")}
           </span>
-          <h1 id="maintenance-title">{status.loading ? "正在同步维护状态..." : status.title}</h1>
-          <p>{status.loading ? "正在从服务器读取当前维护配置，请稍候" : status.subtitle}</p>
+          <h1 id="maintenance-title">{title}</h1>
+          <p>{subtitle}</p>
         </section>
 
-        <section className={styles['contact-panel']} aria-label="维护反馈联系方式">
+        <section className={styles['contact-panel']} aria-label={t("contactLabel")}>
           <span className={styles['contact-code']}>CONTACT</span>
           <p>
-            如有问题需要反馈，请点击
-            <a
-              href="https://space.bilibili.com/32772539"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              B站链接私信
-            </a>或直接提交表单
-            <a
-              href="https://v.wjx.cn/vm/wJwEJn8.aspx#"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              提交反馈
-            </a>查看
-            <a
-              href="https://docs.qq.com/sheet/DT2hmVUhLbHVxYUtC?tab=BB08J2"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              反馈详情
-            </a>
+            <Trans
+              ns="maintenance"
+              t={t}
+              i18nKey="contact"
+              components={{
+                message: <a href="https://space.bilibili.com/32772539" target="_blank" rel="noopener noreferrer" />,
+                survey: <a href="https://v.wjx.cn/vm/wJwEJn8.aspx#" target="_blank" rel="noopener noreferrer" />,
+                detailsLink: <a href="https://docs.qq.com/sheet/DT2hmVUhLbHVxYUtC?tab=BB08J2" target="_blank" rel="noopener noreferrer" />,
+              }}
+            />
           </p>
         </section>
 
-        <section className={styles['timer-panel']} aria-label="预计恢复倒计时">
+        <section className={styles['timer-panel']} aria-label={timerLabel}>
           <div className={styles['timer-copy']}>
-            <span>{status.enabled ? "预计恢复倒计时" : "维护状态"}</span>
+            <span>{timerLabel}</span>
             <strong>{status.enabled ? "MAINTENANCE TIMER" : "MAINTENANCE SWITCH"}</strong>
           </div>
           {hasCountdown ? (
             <div className={styles['timer-readout']} aria-live="polite">
-              <FlipUnit value={hours} label="HRS" />
+              <FlipUnit value={hours} label="HRS" unit={t("hours")} />
               <span className={styles['timer-separator']}>:</span>
-              <FlipUnit value={minutes} label="MIN" />
+              <FlipUnit value={minutes} label="MIN" unit={t("minutes")} />
               <span className={styles['timer-separator']}>:</span>
-              <FlipUnit value={seconds} label="SEC" />
+              <FlipUnit value={seconds} label="SEC" unit={t("seconds")} />
             </div>
           ) : (
             <div className={`${styles['timer-readout']} ${styles['status-readout']}`} aria-live="polite">
-              <strong>{status.loading ? "SYNCING" : status.error ? "CONFIG UNREACHABLE" : status.enabled ? "WAITING" : "STANDBY"}</strong>
+              <strong>{t(status.loading ? "syncing" : status.error ? "unreachable" : status.enabled ? "waiting" : "standby")}</strong>
               <span>
-                {status.loading
-                  ? "正在读取维护配置"
+                {t(status.loading
+                  ? "reading"
                   : status.error
-                    ? "无法连接状态接口，已保留离线参考表格"
+                    ? "offline"
                     : status.enabled
-                      ? "维护已启用，暂未设置恢复时间"
-                      : "维护未启用"}
+                      ? "noEnd"
+                      : "inactive")}
               </span>
             </div>
           )}
@@ -218,13 +214,13 @@ const MaintenancePage = () => {
           <div className={styles['section-header']}>
             <span className={styles['section-code']}>OFFLINE 01</span>
             <div>
-              <h2>临时参考方案：需要获取龙门币</h2>
+              <h2>{t("acquire")}</h2>
               <p>OFFLINE REFERENCE / ACQUIRE</p>
             </div>
           </div>
           <div className={styles['section-content']}>
             <p className={styles['sample-note']}>
-              以下路径用于维护期间快速查找，不一定是最适合、最简单的路径方案，仅供参考。（默认初始龙门币为0，目标龙门币为对应值）
+              {t("acquireNote")}
             </p>
             {renderMaintenanceSamples(acquireSamplePlans)}
           </div>
@@ -234,13 +230,13 @@ const MaintenancePage = () => {
           <div className={styles['section-header']}>
             <span className={styles['section-code']}>OFFLINE 02</span>
             <div>
-              <h2>临时参考方案：需要消耗龙门币</h2>
+              <h2>{t("consume")}</h2>
               <p>OFFLINE REFERENCE / CONSUME</p>
             </div>
           </div>
           <div className={styles['section-content']}>
             <p className={styles['sample-note']}>
-              以下路径用于维护期间快速查找，不一定是最适合、最简单的路径方案，仅供参考。（默认初始龙门币为对应值，目标龙门币为0）
+              {t("consumeNote")}
             </p>
             {renderMaintenanceSamples(consumeSamplePlans)}
           </div>

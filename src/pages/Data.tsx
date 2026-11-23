@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { getLocalizedItemName } from "../i18n/gameItems";
 import styles from "../assets/styles/Data.module.css";
 import planStyles from "../assets/styles/DataPlans.module.css";
 import tableStyles from "../assets/styles/DataTables.module.css";
@@ -12,6 +14,7 @@ import {
   renderSamplePathCards,
 } from "../utils/samplePlans";
 
+const SANITY_COSTS = [6, 9, 10, 12, 15, 18, 20, 21, 24, 25, 30, 36, 42, 48, 54, 60] as const;
 const DATA_SECTION_IDS = ["upgrade-expense", "item-value", "sanity-index", "plan-sample"];
 const EXP_GREEN_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/exp_green.webp";
 const EXP_BLUE_ICON_URL = "https://ark-lmd.oss-cn-beijing.aliyuncs.com/exp_blue.webp";
@@ -60,6 +63,7 @@ const TableHeadChip = ({ icon, text, alt = "" }: TableHeadChipProps) => (
 );
 
 function DataPage() {
+  const { t, i18n } = useTranslation("data");
   const [activeSection, setActiveSection] = useState("upgrade-expense");
 
   const scrollToSection = (sectionId: string) => {
@@ -118,7 +122,7 @@ function DataPage() {
       const [, elite, level] = item.item_id.split("-");
       const pair = classifyData.find(i => i.item_id === `1-${elite}-${level}-2`);
       return {
-        name: `${eliteNames[elite]}${level}级`,
+        name: t("eliteLevel", { elite: eliteNames[elite], level }),
         value1: String(item.item_value),
         value2: pair ? String(pair.item_value) : "",
         eliteOrder: Number(elite),
@@ -139,7 +143,7 @@ function DataPage() {
     const item = classifyData.find(i => i.id === id);
     if (!item) return { name: "", value: "" };
     const v = item.item_value;
-    return { name: item.item_name, value: v > 0 ? `+${v}` : String(v) };
+    return { name: getLocalizedItemName(item, i18n.resolvedLanguage), value: v > 0 ? `+${v}` : String(v) };
   };
   const itemTable1 = [87,88,89,210,90,91,107,92,108,106,109,110,93,94,95,211,96,97,111,98,112,113,114].map(fmt);
   const itemTable2 = [100,101,102,103,105,104,99,213,212,117,118,119,219,218,217,216,215,214,220,221].map(fmt);
@@ -154,24 +158,10 @@ function DataPage() {
     return { value1: v("upgrade_only_0","1-0"), value2: v("upgrade_only_1","1-1"), value3: v("upgrade_only_2","1-2") };
   });
 
-  const sanityRows = useMemo(() => [
-    { consume: "6理智", level: "1-7" },
-    { consume: "9理智", level: "活动前三分之一关" },
-    { consume: "10理智", level: "作战记录LS-1，技巧概要CA-1，" },
-    { consume: "12理智", level: "活动中间三分之一关，2次1-7" },
-    { consume: "15理智", level: "作战记录LS-2，技巧概要CA-2，" },
-    { consume: "18理智", level: "3次1-7，芯片本1，" },
-    { consume: "20理智", level: "作战记录LS-3，技巧概要CA-3，" },
-    { consume: "21理智", level: "活动关刷材料关" },
-    { consume: "24理智", level: "4次1-7" },
-    { consume: "25理智", level: "作战记录LS-4，技巧概要CA-4，" },
-    { consume: "30理智", level: "5次1-7，作战记录LS-5，技巧概要CA-5，" },
-    { consume: "36理智", level: "6次1-7，作战记录LS-6，芯片本2，" },
-    { consume: "42理智", level: "7次1-7，2次活动关刷材料关" },
-    { consume: "48理智", level: "8次1-7" },
-    { consume: "54理智", level: "9次1-7" },
-    { consume: "60理智", level: "10次1-7" },
-  ], []);
+  const sanityRows = SANITY_COSTS.map((value) => ({
+    consume: t("sanityCost", { value }),
+    level: t(`stages.${value}`),
+  }));
 
   const getValueClass = (value: string | number) => {
     const numericValue = Number(String(value).replace(/[+,]/g, ""));
@@ -183,9 +173,9 @@ function DataPage() {
     <table className={`${tableStyles['material-table']} ${tableStyles['table-a']}`}>
       <thead>
         <tr>
-          <th>等级</th>
-          <th><TableHeadChip icon={EXP_GREEN_ICON_URL} text="×1" alt="基础作战记录" /></th>
-          <th><TableHeadChip icon={EXP_BLUE_ICON_URL} text="×1" alt="初级作战记录" /></th>
+          <th>{t("level")}</th>
+          <th><TableHeadChip icon={EXP_GREEN_ICON_URL} text="×1" alt={t("basic")} /></th>
+          <th><TableHeadChip icon={EXP_BLUE_ICON_URL} text="×1" alt={t("beginner")} /></th>
         </tr>
       </thead>
       <tbody>
@@ -204,8 +194,8 @@ function DataPage() {
     <table className={`${tableStyles['material-table']} ${tableStyles['table-b']}`}>
       <thead>
         <tr>
-          <th>使用方式</th>
-          <th><TableHeadChip icon={LMD_ICON_URL} alt="龙门币" /></th>
+          <th>{t("method")}</th>
+          <th><TableHeadChip icon={LMD_ICON_URL} alt={t("currency")} /></th>
         </tr>
       </thead>
       <tbody>
@@ -222,6 +212,7 @@ function DataPage() {
   const generatePathCards = (data: SamplePlan[]) => {
     return renderSamplePathCards({
       data,
+      localized: true,
       pathRendererClassName: `${pathRendererStyles['path-renderer-container']} ${planStyles['sample-path-container']}`,
       planListClassName: pathRendererStyles['plan-list'],
       cardClassName: planStyles['sample-plan-card'],
@@ -234,10 +225,10 @@ function DataPage() {
     <table className={`${tableStyles['material-table']} ${tableStyles['table-d']}`}>
       <thead>
         <tr>
-          <th><TableHeadChip icon={EXP_GREEN_ICON_URL} alt="基础作战记录数量" /></th>
-          <th><TableHeadChip icon={LMD_ICON_URL} text="精零1级" alt="龙门币" /></th>
-          <th><TableHeadChip icon={LMD_ICON_URL} text="精一1级" alt="龙门币" /></th>
-          <th><TableHeadChip icon={LMD_ICON_URL} text="精二1级" alt="龙门币" /></th>
+          <th><TableHeadChip icon={EXP_GREEN_ICON_URL} alt={t("basicCount")} /></th>
+          <th><TableHeadChip icon={LMD_ICON_URL} text={t("eliteLevel", { elite: eliteNames["0"], level: 1 })} alt={t("currency")} /></th>
+          <th><TableHeadChip icon={LMD_ICON_URL} text={t("eliteLevel", { elite: eliteNames["1"], level: 1 })} alt={t("currency")} /></th>
+          <th><TableHeadChip icon={LMD_ICON_URL} text={t("eliteLevel", { elite: eliteNames["2"], level: 1 })} alt={t("currency")} /></th>
         </tr>
       </thead>
       <tbody>
@@ -253,58 +244,62 @@ function DataPage() {
     </table>
   );
 
-  const generateSanityList = (data: SanityRow[]): ReactElement => (
-    <div className={styles['sanity-list']}>
-      {[data.slice(0, 6), data.slice(6)].map((column, columnIndex) => (
-        <div className={styles['sanity-column']} key={`sanity-column-${columnIndex}`}>
-          {column.map((row, i) => {
-            const rowIndex = columnIndex === 0 ? i : i + 6;
+  const generateSanityList = (data: SanityRow[]): ReactElement => {
+    const rowsPerColumn = Math.ceil(data.length / 2);
 
-            return (
-              <div className={styles['sanity-row']} key={`${row.consume}-${rowIndex}`}>
-                <span className={styles['sanity-code']}>{String(rowIndex + 1).padStart(2, "0")}</span>
-                <strong>{row.consume}</strong>
-                <span>{row.level}</span>
-              </div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  );
+    return (
+      <div className={styles['sanity-list']}>
+        {[data.slice(0, rowsPerColumn), data.slice(rowsPerColumn)].map((column, columnIndex) => (
+          <div className={styles['sanity-column']} key={`sanity-column-${columnIndex}`}>
+            {column.map((row, index) => {
+              const rowIndex = columnIndex * rowsPerColumn + index;
+
+              return (
+                <div className={styles['sanity-row']} key={`${row.consume}-${rowIndex}`}>
+                  <span className={styles['sanity-code']}>{String(rowIndex + 1).padStart(2, "0")}</span>
+                  <strong>{row.consume}</strong>
+                  <span>{row.level}</span>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className={styles['main-data-content']}>
       <main className={styles['data-page']}>
         <header className={styles['data-title-bar']}>
-          <h1>// [04] 数据档案</h1>
+          <h1>// [04] {t("title")}</h1>
           <p>DATA ARCHIVE</p>
         </header>
 
-        <nav className={styles['data-floating-index']} aria-label="数据档案索引">
+        <nav className={styles['data-floating-index']} aria-label={t("index")}>
           <span className={styles['floating-index-label']}>INDEX</span>
-          <button type="button" className={activeSection === "upgrade-expense" ? styles.active : ""} aria-current={activeSection === "upgrade-expense" ? "location" : undefined} onClick={() => scrollToSection("upgrade-expense")}>升级消耗</button>
-          <button type="button" className={activeSection === "item-value" ? styles.active : ""} aria-current={activeSection === "item-value" ? "location" : undefined} onClick={() => scrollToSection("item-value")}>物品价值</button>
-          <button type="button" className={activeSection === "sanity-index" ? styles.active : ""} aria-current={activeSection === "sanity-index" ? "location" : undefined} onClick={() => scrollToSection("sanity-index")}>理智速查</button>
-          <button type="button" className={activeSection === "plan-sample" ? styles.active : ""} aria-current={activeSection === "plan-sample" ? "location" : undefined} onClick={() => scrollToSection("plan-sample")}>方案样例</button>
+          <button type="button" className={activeSection === "upgrade-expense" ? styles.active : ""} aria-current={activeSection === "upgrade-expense" ? "location" : undefined} onClick={() => scrollToSection("upgrade-expense")}>{t("upgrade")}</button>
+          <button type="button" className={activeSection === "item-value" ? styles.active : ""} aria-current={activeSection === "item-value" ? "location" : undefined} onClick={() => scrollToSection("item-value")}>{t("items")}</button>
+          <button type="button" className={activeSection === "sanity-index" ? styles.active : ""} aria-current={activeSection === "sanity-index" ? "location" : undefined} onClick={() => scrollToSection("sanity-index")}>{t("sanity")}</button>
+          <button type="button" className={activeSection === "plan-sample" ? styles.active : ""} aria-current={activeSection === "plan-sample" ? "location" : undefined} onClick={() => scrollToSection("plan-sample")}>{t("samples")}</button>
         </nav>
 
         <section id="upgrade-expense" className={styles['data-section']}>
           <div className={styles['section-header']}>
             <span className={styles['section-code']}>TABLE 01</span>
             <div>
-              <h2>升级消耗</h2>
+              <h2>{t("upgrade")}</h2>
               <p>OPERATOR EXPENSE</p>
             </div>
           </div>
           <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
-                下面是计算过程中使用到的数据，负数表示使用龙门币，正数表示获得龙门币。
+                {t("upgradeIntro")}
                 <br />
-                基础作战记录和初级作战记录相对而言更容易获得，且对应消耗的龙门币较少，易于计算，因此本网页的计算过程只使用到这两种作战记录。
+                {t("records")}
                 <br />
-                为减少计算量，相关数据只使用到常见等级对应的数据（例如5的倍数，10的倍数）。
+                {t("levels")}
               </p>
             </div>
 
@@ -324,22 +319,22 @@ function DataPage() {
           <div className={styles['section-header']}>
             <span className={styles['section-code']}>TABLE 02</span>
             <div>
-              <h2>物品价值</h2>
+              <h2>{t("items")}</h2>
               <p>ITEM VALUE</p>
             </div>
           </div>
           <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
-                普通关卡获得龙门币数量计算公式：
+                {t("formula")}
                 <br />
-                *三星通关获得龙门币数量 = 使用理智数量 × 12
+                {t("threeStars")}
                 <br />
-                *二星通关获得龙门币数量 = 使用理智数量 × 10
+                {t("twoStars")}
                 <br />
-                “龙门币副本CE系列关卡”以及“剿灭系列关卡”不适用上述公式。
+                {t("exceptions")}
                 <br />
-                由于每日信用商店刷新龙门币数量具有随机性，每日任务/每周任务获取龙门币具有时效性，比较复杂，因此在计算中不考虑此部分。
+                {t("excluded")}
               </p>
             </div>
 
@@ -368,16 +363,16 @@ function DataPage() {
           <div className={styles['section-header']}>
             <span className={styles['section-code']}>TABLE 03</span>
             <div>
-              <h2>理智速查</h2>
+              <h2>{t("sanity")}</h2>
               <p>SANITY INDEX</p>
             </div>
           </div>
           <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
-                此部分为理智消耗与对应关卡速查表。
+                {t("sanityIntro")}
                 <br />
-                这里不包含“龙门币副本CE系列关卡”以及“剿灭系列关卡”的相关数据，因为此类关卡的龙门币掉落数量是特定的，与理智消耗数量无关。
+                {t("sanityExcluded")}
               </p>
               {generateSanityList(sanityRows)}
             </div>
@@ -388,14 +383,14 @@ function DataPage() {
           <div className={styles['section-header']}>
             <span className={styles['section-code']}>PLAN 01</span>
             <div>
-              <h2>方案样例：需要获取龙门币</h2>
+              <h2>{t("acquire")}</h2>
               <p>PLAN SAMPLE / ACQUIRE</p>
             </div>
           </div>
           <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
-                以下方案用于快速查阅，不一定是最适合、最简单的方案，仅供参考。（默认初始龙门币为0，目标龙门币为对应值）
+                {t("acquireIntro")}
               </p>
             </div>
             <div>
@@ -408,14 +403,14 @@ function DataPage() {
           <div className={styles['section-header']}>
             <span className={styles['section-code']}>PLAN 02</span>
             <div>
-              <h2>方案样例：需要消耗龙门币</h2>
+              <h2>{t("consume")}</h2>
               <p>PLAN SAMPLE / CONSUME</p>
             </div>
           </div>
           <div className={styles['section-content']}>
             <div className={styles['explain-text']}>
               <p>
-                以下方案用于快速查阅，不一定是最适合、最简单的方案，仅供参考。（默认初始龙门币为对应值，目标龙门币为0）
+                {t("consumeIntro")}
               </p>
             </div>
             <div>

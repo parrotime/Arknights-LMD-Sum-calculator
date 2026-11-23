@@ -1,5 +1,5 @@
+import { CalculationRequestError, getHttpCalculationError } from "../utils/calculatorErrors";
 import type {
-  ApiError,
   CalculatorSettings,
   CalculationPath,
   CalcMode,
@@ -23,9 +23,12 @@ export const findCalculationPaths = async (
   rawGoal: number,
   calcMode: CalcMode = "fast",
 ): Promise<CalculationPath[]> => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 18000);
   try {
     const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/find-paths`, {
       method: "POST",
+      signal: controller.signal,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         target,
@@ -45,43 +48,24 @@ export const findCalculationPaths = async (
       }),
     });
 
+    if (!response.ok && response.status !== 503) {
+      throw new CalculationRequestError(getHttpCalculationError(response.status));
+    }
+
+    const data = await response.json().catch(() => null) as
+      (Partial<Omit<CalculateResponse, "paths">> & { paths?: CalculationPath[] | null; maintenance?: unknown }) | null;
+    if (controller.signal.aborted) throw new CalculationRequestError({ key: "timeout" });
     if (!response.ok) {
-      const errorData = {
-        message: `服务器响应错误: ${response.status} ${response.statusText}`,
-      };
-      try {
-        const data = await response.json() as Partial<CalculateResponse>;
-        if (data && data.error) {
-          errorData.message = data.error;
-        }
-      } catch {
-        // 解析错误响应失败，使用默认错误信息
-      }
-      const error: ApiError = new Error(errorData.message);
-      error.status = response.status;
-      throw error;
+      throw new CalculationRequestError(getHttpCalculationError(response.status, Boolean(data?.maintenance)));
     }
-
-    const data = await response.json() as CalculateResponse;
-
-    if (!data.success) {
-      const error: ApiError = new Error(
-        data.error || "后端标记计算失败，但未提供错误信息"
-      );
-      error.status = 500;
-      throw error;
+    if (data?.success !== true || (data.paths !== null && !Array.isArray(data.paths))) {
+      throw new CalculationRequestError({ key: "server" });
     }
-
-    return data.paths;
+    return data.paths ?? [];
   } catch (error) {
-    if ((error as ApiError).status) {
-      throw error;
-    }
-
-    const networkError: ApiError = new Error(
-      "无法连接到计算服务器，请检查网络连接或稍后再试。"
-    );
-    networkError.isNetworkError = true;
-    throw networkError;
+    if (error instanceof CalculationRequestError) throw error;
+    throw new CalculationRequestError({ key: controller.signal.aborted ? "timeout" : "network" });
+  } finally {
+    clearTimeout(timer);
   }
 };

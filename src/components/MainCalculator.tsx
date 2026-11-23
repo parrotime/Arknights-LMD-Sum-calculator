@@ -16,7 +16,7 @@ const MainCalculator = ({ onAssistantEgg }: MainCalculatorProps) => {
     showModal,
     setShowModal,
     heartsElement,
-    showAssistantText,
+    showModeWarning,
     handleToggleChange,
     handleResetSettings,
     handleSwapNums,
@@ -40,7 +40,7 @@ const MainCalculator = ({ onAssistantEgg }: MainCalculatorProps) => {
               onSwap={handleSwapNums}
               onResetInputs={handleResetInputs}
               onClearLmdInput={handleClearLmdInput}
-              onModeWarning={(message: string) => showAssistantText(message, "high")}
+              onModeWarning={showModeWarning}
             />
             <SettingsPanel
               settings={state.settings}
@@ -48,11 +48,7 @@ const MainCalculator = ({ onAssistantEgg }: MainCalculatorProps) => {
               onReset={handleResetSettings}
             />
           </div>
-          <ResultArea
-            state={state}
-            calcError={state.calcError}
-            calcMeta={state.calcMeta}
-          />
+          <ResultArea state={state} />
         </div>
       </div>
 
