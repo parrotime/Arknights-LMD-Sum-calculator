@@ -93,7 +93,11 @@ const OperationPanel = ({
   const hasInputError = !!(state.error1 || state.error2);
   const isDiffOutOfRange = hasInputError || diffInfo?.outOfRange;
   const diffDisplay = hasInputError || diffInfo?.outOfRange
-    ? { prefix: "", label: t("operation.difference.outOfRange"), amount: null }
+    ? {
+      prefix: "",
+      label: t(hasInputError ? "operation.difference.outOfRange" : "operation.difference.outOfRangeWithLimit"),
+      amount: null,
+    }
     : diffInfo
       ? diffInfo.value > 0
         ? { prefix: t("operation.difference.need"), label: t("operation.difference.gain"), amount: Math.abs(diffInfo.value) }

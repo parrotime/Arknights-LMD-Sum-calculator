@@ -1,5 +1,13 @@
 .result-area {
+  --result-status-duration: 180ms;
+  --ark-copy-icon-filter: brightness(1) saturate(100%) invert(78%) sepia(24%) saturate(876%) hue-rotate(177deg) brightness(112%) contrast(96%)
+    drop-shadow(0 0 6px rgba(122, 193, 248, 0.2));
   font-family: var(--ark-font-numeric);
+}
+
+:global([data-theme="light"]) .result-area {
+  --ark-copy-icon-filter: brightness(1) saturate(100%) invert(20%) sepia(34%) saturate(1274%) hue-rotate(174deg) brightness(92%) contrast(94%)
+    drop-shadow(0 0 6px transparent);
 }
 
 .result-area .result-title-bar h1 {
@@ -67,18 +75,26 @@
   margin: 0;
 }
 
-.fade-in {
-  animation: fadeIn 0.4s ease-out;
+@media (prefers-reduced-motion: no-preference) {
+  [data-result-enter="pending"]:not(:focus-within) .result-summary-bar {
+    opacity: 0;
+  }
+
+  [data-result-enter="playing"] .result-summary-bar {
+    animation: result-fade-in 230ms ease-out;
+  }
+
+  .stale-notice {
+    animation: result-fade-in var(--result-status-duration) ease-out;
+  }
 }
 
-@keyframes fadeIn {
+@keyframes result-fade-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -134,8 +150,10 @@
   text-align: center;
 }
 
-.stale-results {
-  --ark-copy-icon-filter: brightness(0) saturate(100%) invert(30%) sepia(96%) saturate(1093%) hue-rotate(13deg) brightness(86%) contrast(95%);
+.stale-results,
+:global([data-theme="light"]) .stale-results {
+  --ark-copy-icon-filter: brightness(0) saturate(100%) invert(30%) sepia(96%) saturate(1093%) hue-rotate(13deg) brightness(86%) contrast(95%)
+    drop-shadow(0 0 6px transparent);
   --ark-plan-accent: var(--result-stale-accent);
   --ark-plan-border: var(--ark-warning-border);
   --ark-plan-chip-border: var(--ark-warning-border);
@@ -155,7 +173,8 @@
 }
 
 :global([data-theme="dark"]) .stale-results {
-  --ark-copy-icon-filter: brightness(0) saturate(100%) invert(78%) sepia(96%) saturate(1107%) hue-rotate(349deg) brightness(103%) contrast(98%);
+  --ark-copy-icon-filter: brightness(0) saturate(100%) invert(78%) sepia(96%) saturate(1107%) hue-rotate(349deg) brightness(103%) contrast(98%)
+    drop-shadow(0 0 6px transparent);
 }
 
 .result-summary-bar {
@@ -287,9 +306,10 @@
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.16s ease,
-              color 0.16s ease,
-              box-shadow 0.16s ease;
+  transition: background-color var(--result-status-duration) ease-out,
+              border-color var(--result-status-duration) ease-out,
+              color var(--result-status-duration) ease-out,
+              box-shadow var(--result-status-duration) ease-out;
 }
 
 .copy-all-btn:hover {
@@ -317,30 +337,56 @@
   height: 17px;
   display: block;
   object-fit: contain;
-  filter: invert(78%) sepia(24%) saturate(876%) hue-rotate(177deg) brightness(112%) contrast(96%)
-          drop-shadow(0 0 6px rgba(122, 193, 248, 0.2));
+}
+
+.copy-all-btn .copy-all-icon {
+  filter: var(--ark-copy-icon-filter);
 }
 
 .copy-all-btn-done .copy-all-icon {
   filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.22));
 }
 
-:global([data-theme="light"]) .copy-all-icon {
-  filter: invert(20%) sepia(34%) saturate(1274%) hue-rotate(174deg) brightness(92%) contrast(94%);
-}
-
-.stale-results .copy-all-btn .copy-all-icon {
-  filter: var(--ark-copy-icon-filter);
-}
-
 .copy-all-text {
+  display: grid;
   font-family: var(--ark-font-title);
+  text-align: center;
+}
+
+.copy-all-text > span {
+  grid-area: 1 / 1;
+}
+
+.copy-all-text-hidden {
+  visibility: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .copy-all-btn,
   .copy-all-btn-done {
     transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .result-summary-bar,
+  .result-summary-source {
+    transition: background-color var(--result-status-duration) ease-out,
+                border-color var(--result-status-duration) ease-out;
+  }
+
+  .result-summary-source::before {
+    transition: background-color var(--result-status-duration) ease-out;
+  }
+
+  .result-summary-source-label,
+  .result-summary-source-value,
+  .result-summary-details strong {
+    transition: color var(--result-status-duration) ease-out;
+  }
+
+  .copy-all-btn .copy-all-icon {
+    transition: filter var(--result-status-duration) ease-out;
   }
 }
 

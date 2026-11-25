@@ -19,7 +19,7 @@ import {
   isTyphoon799Number,
   useHeartEffect,
 } from "./EasterEggs";
-import { validateInput, buildLimits, buildCacheKey } from "../utils/calcLogic";
+import { validateInput, computeDiff, buildLimits, buildCacheKey } from "../utils/calcLogic";
 import {
   buildDefaultSettings,
   buildResultSignature,
@@ -108,6 +108,7 @@ const reducer = (state: CalculatorState, action: CalculatorAction): CalculatorSt
       return {
         ...state,
         lastResult: action.result,
+        resultVersion: state.resultVersion + 1,
       };
     case "APPEND_HISTORY":
       return {
@@ -296,9 +297,18 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
       showInputError("balanceTooLarge");
       return;
     }
+    const nextValue = numValue.toString();
+    const nextDiff = computeDiff(
+      field === "num1" ? nextValue : state.num1,
+      field === "num2" ? nextValue : state.num2,
+    );
+    if (nextDiff?.outOfRange && !computeDiff(state.num1, state.num2)?.outOfRange) {
+      showInputError("difference");
+    }
+
     cancelActiveCalculation();
-    dispatch({ type: "SET_NUM", field, value: numValue.toString() });
-  }, [cancelActiveCalculation, showInputError]);
+    dispatch({ type: "SET_NUM", field, value: nextValue });
+  }, [cancelActiveCalculation, showInputError, state.num1, state.num2]);
 
   const notifyLimitInputWarning = useCallback((field: LimitInputField, max: number) => {
     const now = Date.now();

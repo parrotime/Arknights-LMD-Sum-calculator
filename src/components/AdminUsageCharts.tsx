@@ -191,7 +191,7 @@ function UsageHeatmap({ days }: { days: AdminUsage['heatmap'] }) {
   );
 }
 
-function Comparison({ label, gain, spend }: { label: string; gain: number; spend: number }) {
+function Comparison({ label, gain, spend, periodKey }: { label: string; gain: number; spend: number; periodKey: PeriodKey }) {
   const total = gain + spend;
   return (
     <div className={styles['comparison']}>
@@ -202,10 +202,10 @@ function Comparison({ label, gain, spend }: { label: string; gain: number; spend
       </div>
       <div className={styles['comparison-track']} aria-hidden="true">
         {total > 0 && (
-          <>
+          <div key={periodKey} className={styles['comparison-fill']}>
             <span style={{ flexGrow: gain / total }} />
             <span style={{ flexGrow: spend / total }} />
-          </>
+          </div>
         )}
       </div>
     </div>
@@ -261,8 +261,8 @@ export default function AdminUsageCharts({ usage }: { usage?: AdminUsage }) {
               <span>获取龙门币</span>
               <span>花费龙门币</span>
             </div>
-            <Comparison label="计算次数（次）" gain={totals.gain.count} spend={totals.spend.count} />
-            <Comparison label="差额合计（龙门币）" gain={totals.gain.amount} spend={totals.spend.amount} />
+            <Comparison label="计算次数（次）" gain={totals.gain.count} spend={totals.spend.count} periodKey={periodKey} />
+            <Comparison label="差额合计（龙门币）" gain={totals.gain.amount} spend={totals.spend.amount} periodKey={periodKey} />
           </div>
           <table className={styles['usage-buckets']}>
             <caption>差额区间分布 <span>条长表示计算次数</span></caption>
@@ -274,7 +274,7 @@ export default function AdminUsageCharts({ usage }: { usage?: AdminUsage }) {
                 <th scope="col">花费龙门币</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody key={periodKey}>
               {buckets.map(({ min, max, gain, spend }) => (
                 <tr key={min}>
                   <td><BucketValue side={gain} maximum={maximumBucketCount} /></td>
@@ -295,9 +295,9 @@ export default function AdminUsageCharts({ usage }: { usage?: AdminUsage }) {
           {topTargets.length === 0 ? (
             <p className={styles['usage-empty']}>这段时间暂无带目标金额的计算记录。</p>
           ) : (
-            <ol className={styles['usage-ranking']}>
+            <ol key={periodKey} className={styles['usage-ranking']}>
               {topTargets.map(({ amount, count }, index) => (
-                <li key={amount}>
+                <li key={amount} style={{ animationDelay: `${index * 35}ms` }}>
                   <span className={styles['usage-rank']}>{String(index + 1).padStart(2, '0')}</span>
                   <span className={styles['ranking-amount']}>
                     <span><strong>{formatNumber(amount)}</strong> 龙门币</span>

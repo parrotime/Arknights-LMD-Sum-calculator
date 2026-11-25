@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import type { Ref } from "react";
 import type { TFunction } from "i18next";
 import { getItemById } from "../DataService";
 import { getLocalizedItemName } from "../i18n/gameItems";
@@ -145,9 +146,10 @@ interface PathPlanCardProps {
   path: CalculationPath;
   initialLMD: number;
   planIndex: number;
+  enterDelay: number;
 }
 
-const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
+const PathPlanCard = ({ path, initialLMD, planIndex, enterDelay }: PathPlanCardProps) => {
   const { t: translate, i18n } = useTranslation("results");
   const language = i18n.resolvedLanguage;
   const safePath = Array.isArray(path) ? path : [];
@@ -210,6 +212,7 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
   return (
     <PlanCard
       className={planStyles['recommended-plan']}
+      style={{ animationDelay: `${enterDelay}ms` }}
       identityValue={`PLAN-${formatPlanNumber(planIndex)}`}
       ariaLabel={translate("plan", { number: planIndex + 1 })}
       summaryItems={summaryItems}
@@ -226,9 +229,10 @@ const PathPlanCard = ({ path, initialLMD, planIndex }: PathPlanCardProps) => {
 interface PathRendererProps {
   paths: CalculationPath[];
   initialLMD: number;
+  listRef: Ref<HTMLDivElement>;
 }
 
-const PathRenderer = ({ paths, initialLMD }: PathRendererProps) => {
+const PathRenderer = ({ paths, initialLMD, listRef }: PathRendererProps) => {
   const { t: translate } = useTranslation("results");
   const safePaths = Array.isArray(paths) ? paths : [];
 
@@ -236,15 +240,18 @@ const PathRenderer = ({ paths, initialLMD }: PathRendererProps) => {
     return <div className={styles['path-renderer-error']}>{translate("noPath")}</div>;
   }
 
+  const cardStagger = Math.min(60, 180 / Math.max(1, safePaths.length - 1));
+
   return (
     <div className={styles['path-renderer-container']}>
-      <div className={styles['plan-list']}>
+      <div className={styles['plan-list']} ref={listRef}>
         {safePaths.map((path, index) => (
           <PathPlanCard
             key={`${index}-${path.length}`}
             path={path}
             initialLMD={initialLMD}
             planIndex={index}
+            enterDelay={65 + index * cardStagger}
           />
         ))}
       </div>

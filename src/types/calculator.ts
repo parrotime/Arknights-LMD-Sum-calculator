@@ -84,6 +84,7 @@ export interface CalculatorState extends LimitInputState {
   differenceError: InputErrorKey | "";
   calcError: CalculatorError | null;
   lastResult: CalculatorResult | null;
+  resultVersion: number;
   isCalculating: boolean;
   settings: CalculatorSettings;
 }

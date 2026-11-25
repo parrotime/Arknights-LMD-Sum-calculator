@@ -111,6 +111,17 @@
   line-height: 1;
 }
 
+.chart-stage {
+  position: relative;
+}
+
+.chart-baseline {
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  pointer-events: none;
+}
+
 .chart-plot {
   position: relative;
   height: 232px;
@@ -184,8 +195,9 @@
 }
 
 .chart-bar-value {
+  --chart-value-offset: 4px;
   position: absolute;
-  bottom: calc(var(--chart-bar-height) + 4px);
+  bottom: calc(var(--chart-bar-height) + var(--chart-value-offset));
   left: 50%;
   color: var(--ark-text-body);
   font-weight: 700;
@@ -196,10 +208,10 @@
 }
 
 .chart-bar-value[data-raised="true"] {
-  bottom: calc(var(--chart-bar-height) + 4px + 1.2em);
+  --chart-value-offset: calc(4px + 1.2em);
 }
 
-.chart-bar-target[aria-pressed="true"] {
+.chart-bar-target[data-selected="true"] {
   background: var(--ark-accent-soft);
 }
 
@@ -210,6 +222,68 @@
   color: var(--ark-chart-axis-label);
   transform: translateX(-50%);
   white-space: nowrap;
+}
+
+.chart-plot[data-phase="outgoing"] {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .chart-plot[data-phase="entering"] {
+    --chart-rise-duration: 480ms;
+    --chart-rise-easing: cubic-bezier(0.24, 0.72, 0.36, 1);
+  }
+
+  .chart-plot[data-phase="waiting"] :is(.chart-bar, .chart-bar-value) {
+    opacity: 0;
+  }
+
+  .chart-plot[data-phase="entering"] .chart-bar {
+    transform-origin: center bottom;
+    animation: chart-bar-rise var(--chart-rise-duration) var(--chart-rise-easing) var(--chart-bar-delay) backwards;
+  }
+
+  .chart-plot[data-phase="entering"] .chart-bar-value {
+    animation:
+      chart-value-rise var(--chart-rise-duration) var(--chart-rise-easing) var(--chart-bar-delay) backwards,
+      chart-plot-fade-in 260ms ease-out calc(var(--chart-bar-delay) + 130ms) backwards;
+  }
+
+  .chart-plot[data-crossfade-in="true"] {
+    animation: chart-plot-fade-in 200ms ease-in-out;
+  }
+
+  .chart-plot[data-phase="outgoing"] {
+    animation: chart-plot-fade-out 200ms ease-in-out forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-plot[data-phase="outgoing"] {
+    display: none;
+  }
+}
+
+@keyframes chart-bar-rise {
+  from { transform: translateX(-50%) scaleY(0); }
+  to { transform: translateX(-50%) scaleY(1); }
+}
+
+@keyframes chart-value-rise {
+  from { bottom: var(--chart-value-offset); }
+  to { bottom: calc(var(--chart-bar-height) + var(--chart-value-offset)); }
+}
+
+@keyframes chart-plot-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes chart-plot-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 .sync-help-root {

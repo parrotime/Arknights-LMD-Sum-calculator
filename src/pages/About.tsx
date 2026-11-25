@@ -62,6 +62,16 @@ const timelineItems = [
 const chartRanges = ['day', 'week', 'month', 'year'] as const;
 type ChartRangeKey = (typeof chartRanges)[number];
 
+interface ChartPlotData {
+  series: StatPoint[];
+  maximum: number;
+  ticks: number[];
+  labeledIndexes: Set<number>;
+  valueIndexes: Set<number>;
+  raisedIndex: number;
+  selectedKey: string | null;
+}
+
 function getChartScale(peak: number) {
   const desiredStep = Math.max(1, peak / 4);
   const magnitude = 10 ** Math.floor(Math.log10(desiredStep));
@@ -108,6 +118,8 @@ function AboutPage() {
   const { t, i18n } = useTranslation(['about', 'common']);
   const [now, setNow] = useState(() => Date.now());
   const [activeRange, setActiveRange] = useState<ChartRangeKey>('day');
+  const [chartEntrance, setChartEntrance] = useState<'waiting' | 'entering' | 'ready'>('waiting');
+  const [outgoingPlot, setOutgoingPlot] = useState<ChartPlotData | null>(null);
   const [selectedBarKey, setSelectedBarKey] = useState<string | null>(null);
   const [liveStats, setLiveStats] = useState<LiveStatsOverview | null>(null);
   const [syncHelpOpen, setSyncHelpOpen] = useState(false);
@@ -116,6 +128,7 @@ function AboutPage() {
     typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches
   ));
   const rangeSwipeStart = useRef<{ pointerId: number; x: number; y: number } | null>(null);
+  const chartBaselineRef = useRef<HTMLSpanElement | null>(null);
   const syncHelpTriggerRef = useRef<HTMLButtonElement | null>(null);
   const syncHelpPopoverRef = useRef<HTMLSpanElement | null>(null);
   const runtime = useMemo(() => formatRuntime(now), [now]);
@@ -151,11 +164,25 @@ function AboutPage() {
       Math.round(index * (chartSeries.length - 1) / Math.max(1, labelCount - 1))
     )),
   );
+  const chartPlot: ChartPlotData = {
+    series: chartSeries,
+    maximum: chartMaximum,
+    ticks: chartTicks,
+    labeledIndexes,
+    valueIndexes: new Set(showAllValues ? counts.map((_, index) => index) : [peakIndex, lowestIndex]),
+    raisedIndex: staggerExtremes ? peakIndex : -1,
+    selectedKey: selectedBarKey,
+  };
   const formatBarLabel = (point: StatPoint) => (
     t('pointValue', { date: formatChartPeriod(point.key), value: formatStatNumber(point.count) })
   );
 
   const selectRange = (range: ChartRangeKey) => {
+    if (range !== activeRange) {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      setOutgoingPlot(reduceMotion ? null : chartPlot);
+      setChartEntrance(reduceMotion ? 'ready' : 'entering');
+    }
     setActiveRange(range);
     setSelectedBarKey(null);
   };
@@ -209,6 +236,115 @@ function AboutPage() {
 
   const handleChartPointerSlide = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) selectBarAtPointer(event);
+  };
+
+  useEffect(() => {
+    const baseline = chartBaselineRef.current;
+    if (!baseline || chartEntrance !== 'waiting') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setChartEntrance('ready');
+      return;
+    }
+    if (typeof IntersectionObserver === 'undefined') {
+      setChartEntrance('entering');
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) setChartEntrance((phase) => phase === 'waiting' ? 'entering' : phase);
+    });
+    observer.observe(baseline);
+    return () => observer.disconnect();
+  }, [chartEntrance]);
+
+  useEffect(() => {
+    if (chartEntrance !== 'entering') return;
+    const timer = window.setTimeout(() => setChartEntrance('ready'), 840);
+    return () => window.clearTimeout(timer);
+  }, [activeRange, chartEntrance]);
+
+  useEffect(() => {
+    if (!outgoingPlot) return;
+    const timer = window.setTimeout(() => setOutgoingPlot(null), 250);
+    return () => window.clearTimeout(timer);
+  }, [outgoingPlot]);
+
+  const renderChartPlot = (plot: ChartPlotData, phase: typeof chartEntrance | 'outgoing') => {
+    const isOutgoing = phase === 'outgoing';
+
+    return (
+      <div
+        key={`${isOutgoing ? 'outgoing' : 'current'}-${activeRange}`}
+        className={chartStyles['chart-plot']}
+        data-phase={phase}
+        data-crossfade-in={!isOutgoing && outgoingPlot ? true : undefined}
+        aria-hidden={isOutgoing || undefined}
+        style={{ '--chart-scale-width': `${formatStatNumber(plot.maximum).length}ch` } as CSSProperties}
+      >
+        <div className={chartStyles['chart-grid']} aria-hidden="true">
+          {plot.ticks.map((tick) => (
+            <div
+              className={chartStyles['chart-grid-line']}
+              key={tick}
+              style={{ bottom: `${tick / plot.maximum * 100}%` }}
+            >
+              <span>{formatStatNumber(tick)}</span>
+            </div>
+          ))}
+        </div>
+        <div
+          className={chartStyles['chart-bars']}
+          style={{ gridTemplateColumns: `repeat(${plot.series.length}, minmax(0, 1fr))` }}
+          onPointerDown={isOutgoing ? undefined : handleChartPointerDown}
+          onPointerMove={isOutgoing ? undefined : handleChartPointerSlide}
+          onPointerUp={isOutgoing ? undefined : handleChartPointerSlide}
+        >
+          {plot.series.map((point, index) => (
+            <div
+              key={point.key}
+              className={chartStyles['chart-column']}
+              style={{
+                '--chart-bar-height': `${point.count / plot.maximum * 100}%`,
+                '--chart-bar-delay': `${index / Math.max(1, plot.series.length - 1) * 300}ms`,
+              } as CSSProperties}
+            >
+              {isOutgoing ? (
+                <span className={chartStyles['chart-bar-target']} data-selected={point.key === plot.selectedKey}>
+                  <span className={chartStyles['chart-bar']} />
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  className={chartStyles['chart-bar-target']}
+                  data-selected={point.key === plot.selectedKey}
+                  aria-pressed={point.key === plot.selectedKey}
+                  aria-label={formatBarLabel(point)}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType === 'mouse') setSelectedBarKey(point.key);
+                  }}
+                  onFocus={() => setSelectedBarKey(point.key)}
+                  onClick={() => setSelectedBarKey(point.key)}
+                >
+                  <span className={chartStyles['chart-bar']} aria-hidden="true" />
+                </button>
+              )}
+              {plot.valueIndexes.has(index) && (
+                <span
+                  className={chartStyles['chart-bar-value']}
+                  data-raised={index === plot.raisedIndex}
+                  aria-hidden="true"
+                >
+                  {formatStatNumber(point.count)}
+                </span>
+              )}
+              {plot.labeledIndexes.has(index) && (
+                <span className={chartStyles['chart-axis-label']} aria-hidden="true">{point.label}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   const isMobileHelpLayout = useCallback(() => (
@@ -484,10 +620,7 @@ function AboutPage() {
               </div>
             </div>
 
-            <div
-              className={chartStyles['chart-body']}
-              style={{ '--chart-scale-width': `${formatStatNumber(chartMaximum).length}ch` } as CSSProperties}
-            >
+            <div className={chartStyles['chart-body']}>
               {readout && (
                 <div className={chartStyles['chart-readout']}>
                   <span className={chartStyles['chart-readout-date']}>{formatChartPeriod(readout.key, true)}</span>
@@ -496,59 +629,10 @@ function AboutPage() {
                   </span>
                 </div>
               )}
-              <div className={chartStyles['chart-plot']}>
-                <div className={chartStyles['chart-grid']} aria-hidden="true">
-                  {chartTicks.map((tick) => (
-                    <div
-                      className={chartStyles['chart-grid-line']}
-                      key={tick}
-                      style={{ bottom: `${tick / chartMaximum * 100}%` }}
-                    >
-                      <span>{formatStatNumber(tick)}</span>
-                    </div>
-                  ))}
-                </div>
-                <div
-                  className={chartStyles['chart-bars']}
-                  style={{ gridTemplateColumns: `repeat(${chartSeries.length}, minmax(0, 1fr))` }}
-                  onPointerDown={handleChartPointerDown}
-                  onPointerMove={handleChartPointerSlide}
-                  onPointerUp={handleChartPointerSlide}
-                >
-                  {chartSeries.map((point, index) => (
-                    <div
-                      key={point.key}
-                      className={chartStyles['chart-column']}
-                      style={{ '--chart-bar-height': (point.count / chartMaximum * 100) + '%' } as CSSProperties}
-                    >
-                      <button
-                        type="button"
-                        className={chartStyles['chart-bar-target']}
-                        aria-pressed={point.key === selectedBarKey}
-                        aria-label={formatBarLabel(point)}
-                        onPointerEnter={(event) => {
-                          if (event.pointerType === 'mouse') setSelectedBarKey(point.key);
-                        }}
-                        onFocus={() => setSelectedBarKey(point.key)}
-                        onClick={() => setSelectedBarKey(point.key)}
-                      >
-                        <span className={chartStyles['chart-bar']} aria-hidden="true" />
-                      </button>
-                      {(showAllValues || index === peakIndex || index === lowestIndex) && (
-                        <span
-                          className={chartStyles['chart-bar-value']}
-                          data-raised={staggerExtremes && index === peakIndex}
-                          aria-hidden="true"
-                        >
-                          {formatStatNumber(point.count)}
-                        </span>
-                      )}
-                      {labeledIndexes.has(index) && (
-                        <span className={chartStyles['chart-axis-label']} aria-hidden="true">{point.label}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
+              <div className={chartStyles['chart-stage']}>
+                {renderChartPlot(chartPlot, chartEntrance)}
+                {outgoingPlot && renderChartPlot(outgoingPlot, 'outgoing')}
+                <span ref={chartBaselineRef} className={chartStyles['chart-baseline']} aria-hidden="true" />
               </div>
             </div>
           </div>

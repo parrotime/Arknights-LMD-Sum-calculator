@@ -53,6 +53,7 @@ export const defaultState: CalculatorState = {
   differenceError: "", // 差值错误信息
   calcError: null,
   lastResult: null,
+  resultVersion: 0,
   isCalculating: false,
   settings: {
     allow3Star: true,

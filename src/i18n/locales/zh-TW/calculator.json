@@ -38,6 +38,7 @@
     "mode": "計算模式",
     "difference": {
       "outOfRange": "超出範圍",
+      "outOfRangeWithLimit": "超出範圍（±5000）",
       "need": "需",
       "gain": "獲取",
       "spend": "消耗",

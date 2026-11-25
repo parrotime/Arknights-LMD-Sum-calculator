@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import PathRenderer, { buildAllPathsCopyText } from "./PathRenderer";
 import { getItemById } from "../DataService";
@@ -78,7 +78,10 @@ const CopyAllButton = ({ copyText }: CopyAllButtonProps) => {
         loading="lazy"
         decoding="async"
       />
-      <span className={styles['copy-all-text']}>{t(copied ? "copiedAllShort" : "copyAll")}</span>
+      <span className={styles['copy-all-text']} aria-hidden="true">
+        <span className={copied ? styles['copy-all-text-hidden'] : undefined}>{t("copyAll")}</span>
+        <span className={copied ? undefined : styles['copy-all-text-hidden']}>{t("copiedAllShort")}</span>
+      </span>
     </button>
   );
 };
@@ -90,11 +93,15 @@ interface ResultAreaProps {
 const ResultArea = ({ state }: ResultAreaProps) => {
   const { t, i18n } = useTranslation("results");
   const { t: translateError } = useTranslation("errors");
-  const { calcError, lastResult } = state;
+  const { calcError, lastResult, resultVersion } = state;
   const isStale = !!lastResult && lastResult.signature !== buildResultSignature(state);
   const language = i18n.resolvedLanguage;
   const initialLMD = lastResult?.initialLMD ?? 0;
   const paths = lastResult?.paths ?? EMPTY_PATHS;
+  const planListRef = useRef<HTMLDivElement>(null);
+  const [enteredVersion, setEnteredVersion] = useState<number | null>(null);
+  const isEntryPending = paths.length > 0 && enteredVersion === null &&
+    typeof IntersectionObserver !== "undefined";
   const calcMeta = lastResult?.meta;
   const { steps } = computeStepData(paths[0] ?? [], getItemById);
   const balances = computeRunningTotals(steps, initialLMD);
@@ -107,6 +114,21 @@ const ResultArea = ({ state }: ResultAreaProps) => {
       language,
     })
   ), [initialLMD, paths, t, language]);
+
+  useEffect(() => {
+    if (!isEntryPending) return;
+    const planList = planListRef.current;
+    if (!planList) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || !planList.isConnected) return;
+      observer.disconnect();
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      setEnteredVersion(reducedMotion ? -1 : resultVersion);
+    }, { rootMargin: "0px 0px -24px 0px" });
+    observer.observe(planList);
+    return () => observer.disconnect();
+  }, [isEntryPending, resultVersion]);
 
   return (
     <div className={`${panelStyles['history-box']} ${styles['result-area']}`}>
@@ -128,7 +150,11 @@ const ResultArea = ({ state }: ResultAreaProps) => {
         {isStale && <p className={styles['stale-notice']}>{t("staleNotice")}</p>}
       </div>
       {paths.length > 0 && (
-        <div className={`${styles['fade-in']}${isStale ? ` ${styles['stale-results']}` : ""}`}>
+        <div
+          key={resultVersion}
+          className={isStale ? styles['stale-results'] : undefined}
+          data-result-enter={isEntryPending ? "pending" : enteredVersion === resultVersion ? "playing" : undefined}
+        >
           <div className={styles['result-summary-bar']}>
             <div className={styles['result-summary-source']}>
               <span className={styles['result-summary-source-label']}>
@@ -174,6 +200,7 @@ const ResultArea = ({ state }: ResultAreaProps) => {
           <PathRenderer
             paths={paths}
             initialLMD={initialLMD}
+            listRef={planListRef}
           />
         </div>
       )}

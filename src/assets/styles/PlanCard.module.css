@@ -374,7 +374,8 @@
 
   .recommended-plan :is(.running-total, .running-total-final) {
     grid-column: 2;
-    justify-content: flex-start;
+    justify-content: flex-end;
+    text-align: right;
   }
 }
 
@@ -383,6 +384,53 @@
   .copy-btn-done,
   .step-card {
     transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-result-enter="pending"]:not(:focus-within) .recommended-plan {
+    opacity: 0;
+  }
+
+  [data-result-enter="playing"] .recommended-plan {
+    animation: plan-enter 300ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .recommended-plan,
+  .recommended-plan :is(.plan-card-header, .summary, .summary span) {
+    transition: border-color var(--result-status-duration) ease-out;
+  }
+
+  .recommended-plan :is(.plan-identity, .step-index, .count-tag) {
+    transition: background-color var(--result-status-duration) ease-out,
+                border-color var(--result-status-duration) ease-out,
+                color var(--result-status-duration) ease-out;
+  }
+
+  .recommended-plan :is(.plan-mark-number, .summary em, .step-index strong, .running-total-final b, .running-total-final strong) {
+    transition: color var(--result-status-duration) ease-out;
+  }
+
+  .recommended-plan :is(.copy-btn, .copy-btn-done) {
+    transition: background-color var(--result-status-duration) ease-out,
+                border-color var(--result-status-duration) ease-out,
+                color var(--result-status-duration) ease-out,
+                box-shadow var(--result-status-duration) ease-out;
+  }
+
+  .recommended-plan .copy-icon-copy {
+    transition: filter var(--result-status-duration) ease-out;
+  }
+}
+
+@keyframes plan-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

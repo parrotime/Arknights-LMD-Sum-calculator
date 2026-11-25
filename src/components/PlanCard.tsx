@@ -33,6 +33,7 @@ export interface PlanStepItem {
 
 interface PlanCardProps {
   className?: string;
+  style?: CSSProperties;
   identityLabel?: ReactNode;
   identityValue: ReactNode;
   identityValueClassName?: string;
@@ -48,6 +49,7 @@ interface PlanCardProps {
 
 const PlanCard = ({
   className = "",
+  style,
   identityLabel,
   identityValue,
   identityValueClassName = "",
@@ -75,7 +77,7 @@ const PlanCard = ({
   };
 
   return (
-    <article className={`${styles['plan-card']} ${className}`}>
+    <article className={`${styles['plan-card']} ${className}`} style={style}>
       <div className={styles['plan-card-header']}>
         <div className={styles['plan-identity']} aria-label={ariaLabel}>
           {identityLabel && <span className={styles['plan-mark-label']}>{identityLabel}</span>}
