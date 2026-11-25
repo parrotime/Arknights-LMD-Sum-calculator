@@ -123,7 +123,7 @@ function UsageHeatmap({ days }: { days: AdminUsage['heatmap'] }) {
         <div>
           <h2 id="admin-usage-heatmap">一周使用热力图</h2>
           <p className={styles['section-note']}>
-            最近 7 天 · 北京时间
+            最近 7 天 · 北京时间 · 后端记录的请求
           </p>
         </div>
       </div>
@@ -253,7 +253,7 @@ export default function AdminUsageCharts({ usage }: { usage?: AdminUsage }) {
           <div className={styles['section-heading']}>
             <div>
               <h2 id="admin-usage-diff">龙门币凑数分布</h2>
-              <p className={styles['section-note']}>按提交计算的差额统计</p>
+              <p className={styles['section-note']}>按后端记录的请求差额统计</p>
             </div>
           </div>
           <div className={styles['usage-comparisons']}>
@@ -289,7 +289,7 @@ export default function AdminUsageCharts({ usage }: { usage?: AdminUsage }) {
           <div className={styles['section-heading']}>
             <div>
               <h2 id="admin-usage-targets">目标金额 Top 10</h2>
-              <p className={styles['section-note']}>按目标余额被输入并提交计算的次数排名。</p>
+              <p className={styles['section-note']}>按后端日志中各目标余额的请求次数排名。</p>
             </div>
           </div>
           {topTargets.length === 0 ? (

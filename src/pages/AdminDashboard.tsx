@@ -96,6 +96,7 @@ const statusLabels: Record<string, string> = {
   timeout: "超时",
   queue_full: "队列满",
   bad_request: "参数错误",
+  canceled: "客户端已取消",
   error: "异常",
 };
 

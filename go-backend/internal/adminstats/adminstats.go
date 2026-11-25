@@ -1,9 +1,9 @@
 package adminstats
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
+	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -61,9 +61,11 @@ type Snapshot struct {
 }
 
 type SourceSnapshot struct {
-	File   string `json:"file"`
-	Offset int64  `json:"offset"`
-	Size   int64  `json:"size"`
+	File     string `json:"file"`
+	Offset   int64  `json:"offset"`
+	Size     int64  `json:"size"`
+	TailSize int    `json:"tailSize,omitempty"`
+	TailHash string `json:"tailHash,omitempty"`
 }
 
 type TotalsSnapshot struct {
@@ -242,68 +244,56 @@ func (s *Service) snapshot() Snapshot {
 }
 
 func (s *Service) Update() bool {
-	logPath := filepath.Join(s.options.LogDir, s.options.LogFileName)
-	info, err := os.Stat(logPath)
-	if err != nil {
-		if !errors.Is(err, os.ErrNotExist) {
-			s.logWarn("stat calc log failed", "error", err, "path", logPath)
-		}
-		return false
-	}
-
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	offset := s.stats.Source.Offset
-	if info.Size() < offset {
-		offset = 0
-	}
-	if info.Size() == offset {
-		s.stats.Source.Size = info.Size()
-		return false
-	}
-
+	logPath := filepath.Join(s.options.LogDir, s.options.LogFileName)
 	file, err := os.Open(logPath)
 	if err != nil {
-		s.logWarn("open calc log failed", "error", err, "path", logPath)
+		if !errors.Is(err, os.ErrNotExist) {
+			s.logWarn("open calc log failed", "error", err, "path", logPath)
+		}
 		return false
 	}
 	defer file.Close()
-
-	if _, err := file.Seek(offset, 0); err != nil {
-		s.logWarn("seek calc log failed", "error", err, "path", logPath, "offset", offset)
+	info, err := file.Stat()
+	if err != nil {
+		s.logWarn("stat calc log failed", "error", err, "path", logPath)
 		return false
 	}
 
-	reader := bufio.NewReader(file)
-	scanner := bufio.NewScanner(reader)
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
-	readOffset := offset
-	changed := false
-	for scanner.Scan() {
-		line := scanner.Bytes()
-		readOffset += int64(len(line)) + 1
-		var event calcLogEvent
-		if err := json.Unmarshal(line, &event); err != nil {
-			continue
+	source := s.stats.Source
+	matches, err := matchActiveLog(file, info.Size(), &source)
+	if err != nil {
+		s.logWarn("verify calc log position failed", "error", err, "path", logPath)
+		return false
+	}
+	apply := func(event calcLogEvent) { applyEvent(&s.stats, event, s.options.RecentLimit) }
+	if !matches {
+		events, found, err := recoverRotatedEvents(s.options.LogDir, s.options.LogFileName, source)
+		if err != nil {
+			s.logWarn("recover rotated calc logs failed", "error", err)
+			return false
 		}
-		if applyEvent(&s.stats, event, s.options.RecentLimit) {
-			changed = true
+		if !found {
+			s.logWarn("previous calc log position not found in archives", "offset", source.Offset)
+		}
+		for _, event := range events {
+			apply(event)
+		}
+		source = SourceSnapshot{File: s.options.LogFileName}
+	}
+	if source.Offset < info.Size() {
+		reader := io.NewSectionReader(file, source.Offset, info.Size()-source.Offset)
+		if err := scanCalcLog(reader, &source, apply); err != nil {
+			s.logWarn("scan calc log failed", "error", err, "path", logPath)
 		}
 	}
-	if err := scanner.Err(); err != nil {
-		s.logWarn("scan calc log failed", "error", err, "path", logPath)
-		return changed
+	source.Size = info.Size()
+	if source == s.stats.Source && matches {
+		return false
 	}
-	if readOffset > info.Size() {
-		readOffset = info.Size()
-	}
-
-	s.stats.Source = SourceSnapshot{
-		File:   s.options.LogFileName,
-		Offset: readOffset,
-		Size:   info.Size(),
-	}
+	s.stats.Source = source
 	s.stats.UpdatedAt = nowBeijing().Format(time.RFC3339)
 	pruneUsageDays(s.stats.UsageDays, nowBeijing())
 	return true
@@ -327,34 +317,17 @@ func (s *Service) Rebuild() bool {
 	defer file.Close()
 
 	next := newSnapshot(s.options.LogFileName)
-	reader := bufio.NewReader(file)
-	scanner := bufio.NewScanner(reader)
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
-	readOffset := int64(0)
 	changed := false
-	for scanner.Scan() {
-		line := scanner.Bytes()
-		readOffset += int64(len(line)) + 1
-		var event calcLogEvent
-		if err := json.Unmarshal(line, &event); err != nil {
-			continue
-		}
+	reader := io.NewSectionReader(file, 0, info.Size())
+	if err := scanCalcLog(reader, &next.Source, func(event calcLogEvent) {
 		if applyEvent(&next, event, s.options.RecentLimit) {
 			changed = true
 		}
-	}
-	if err := scanner.Err(); err != nil {
+	}); err != nil {
 		s.logWarn("scan calc log failed", "error", err, "path", logPath)
 		return false
 	}
-	if readOffset > info.Size() {
-		readOffset = info.Size()
-	}
-	next.Source = SourceSnapshot{
-		File:   s.options.LogFileName,
-		Offset: readOffset,
-		Size:   info.Size(),
-	}
+	next.Source.Size = info.Size()
 	next.UpdatedAt = nowBeijing().Format(time.RFC3339)
 
 	s.mu.Lock()
@@ -527,6 +500,7 @@ func applyEvent(snapshot *Snapshot, event calcLogEvent, recentLimit int) bool {
 		snapshot.Totals.QueueFull++
 	case "bad_request":
 		snapshot.Totals.BadRequest++
+	case "canceled":
 	default:
 		snapshot.Totals.Error++
 	}
@@ -576,6 +550,7 @@ func applyMetric(values map[string]MetricSnapshot, key string, event calcLogEven
 		metric.QueueFull++
 	case "bad_request":
 		metric.BadRequest++
+	case "canceled":
 	default:
 		metric.Error++
 	}

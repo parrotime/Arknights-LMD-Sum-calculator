@@ -21,9 +21,9 @@ export const findCalculationPaths = async (
     trade5Limit,
   }: UserLimits,
   rawGoal: number,
+  controller: AbortController,
   calcMode: CalcMode = "fast",
 ): Promise<CalculationPath[]> => {
-  const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 18000);
   try {
     const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/find-paths`, {

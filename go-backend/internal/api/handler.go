@@ -376,6 +376,10 @@ func (h *Handler) handleCalcError(w http.ResponseWriter, err error) {
 
 func (h *Handler) logCalcFailure(requestID, ip string, ipHash string, targetLMD int, hasTargetLMD bool, lmdDiff int, mode string, cacheStatus string, started time.Time, err error) {
 	duration := time.Since(started).Milliseconds()
+	if errors.Is(err, context.Canceled) {
+		h.logCalcEvent("calc_canceled", requestID, ip, ipHash, targetLMD, hasTargetLMD, lmdDiff, mode, cacheStatus, duration, 0, "canceled", "")
+		return
+	}
 	status := "error"
 	errorType := "calculation_error"
 	currentLMD, hasCurrentLMD := calcCurrentLMD(targetLMD, hasTargetLMD, lmdDiff)

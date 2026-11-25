@@ -231,3 +231,96 @@ func TestServicePersistsAndHandlesRotatedLog(t *testing.T) {
 		t.Fatalf("unexpected totals after rotation: %+v", snapshot.Totals)
 	}
 }
+
+func TestServiceRecoversUnreadRotationsAfterRestart(t *testing.T) {
+	dir := t.TempDir()
+	logPath := filepath.Join(dir, defaultLogFileName)
+	now := nowBeijing()
+	event := func(diff int) string {
+		return fmt.Sprintf(`{"time":%q,"status":"success","lmd_diff":%d,"target_lmd":100,"has_target_lmd":true}`+"\n",
+			now.Format(time.RFC3339), diff)
+	}
+	write := func(path, data string) {
+		t.Helper()
+		if err := os.WriteFile(path, []byte(data), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write(logPath, event(10))
+	options := Options{LogDir: dir}
+	if _, err := New(options); err != nil {
+		t.Fatal(err)
+	}
+
+	file, err := os.Create(logPath + ".2.gz")
+	if err != nil {
+		t.Fatal(err)
+	}
+	compressed := gzip.NewWriter(file)
+	if _, err := compressed.Write([]byte(event(10) + event(20))); err != nil {
+		t.Fatal(err)
+	}
+	if err := compressed.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		t.Fatal(err)
+	}
+	write(logPath+".1", event(30))
+	incomplete := event(50)
+	partial := len(incomplete) / 2
+	write(logPath, event(40)+incomplete[:partial])
+
+	service, err := New(options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	requireTotals := func(service *Service, want UsageSide) {
+		t.Helper()
+		if got := service.Snapshot().Totals.Calculations; got != want.Count {
+			t.Fatalf("calculations = %d, want %d", got, want.Count)
+		}
+		daily := buildUsage(service.stats, now).Periods["day"]
+		if daily.Totals.Gain != want || len(daily.TopTargets) != 1 || daily.TopTargets[0].Count != want.Count {
+			t.Fatalf("daily usage = %+v, want %+v", daily, want)
+		}
+	}
+	requireTotals(service, UsageSide{Count: 4, Amount: 100})
+	if got := service.Snapshot().Source.Offset; got != int64(len(event(40))) {
+		t.Fatalf("offset = %d, want end of last complete line", got)
+	}
+	write(logPath, event(40)+incomplete)
+	service.Update()
+	requireTotals(service, UsageSide{Count: 5, Amount: 150})
+	if err := service.Flush(); err != nil {
+		t.Fatal(err)
+	}
+	reopened, err := New(options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	requireTotals(reopened, UsageSide{Count: 5, Amount: 150})
+}
+
+func TestTopTargetsKeepsTenAndBreaksTiesByAmount(t *testing.T) {
+	now := nowBeijing()
+	today := now.Format("2006-01-02")
+	yesterday := now.AddDate(0, 0, -1).Format("2006-01-02")
+	targets := make(map[int]int)
+	for amount := 1; amount <= 20; amount++ {
+		targets[amount] = 1
+	}
+	days := map[string]usageDay{
+		today:     {Targets: targets},
+		yesterday: {Targets: map[int]int{20: 1}},
+	}
+	rank := summarizeUsage(days, now.AddDate(0, 0, -1), now).TopTargets
+	if len(rank) != 10 || rank[0] != (RankedTarget{Amount: 20, Count: 2}) {
+		t.Fatalf("unexpected ranking: %+v", rank)
+	}
+	for index := 1; index < len(rank); index++ {
+		if rank[index] != (RankedTarget{Amount: index, Count: 1}) {
+			t.Fatalf("unexpected rank %d: %+v", index+1, rank[index])
+		}
+	}
+}

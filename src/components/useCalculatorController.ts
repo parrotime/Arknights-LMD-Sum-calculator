@@ -184,9 +184,12 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
   const { setCalculating } = useCursorState();
   const limitInputWarningRef = React.useRef<Partial<Record<LimitInputField, number>>>({});
   const activeCalculationIdRef = React.useRef(0);
+  const activeRequestRef = React.useRef<AbortController | null>(null);
 
   const cancelActiveCalculation = useCallback(() => {
     activeCalculationIdRef.current += 1;
+    activeRequestRef.current?.abort();
+    activeRequestRef.current = null;
   }, []);
 
   useEffect(() => cancelActiveCalculation, [cancelActiveCalculation]);
@@ -402,8 +405,8 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
       dispatch({ type: "SET_CALC_ERROR", value: null });
       dispatch({ type: "SET_CALCULATING", value: true });
 
-      const calculationId = activeCalculationIdRef.current + 1;
-      activeCalculationIdRef.current = calculationId;
+      cancelActiveCalculation();
+      const calculationId = activeCalculationIdRef.current;
       const limits = buildLimits(state);
       const signature = buildResultSignature(state);
       const cacheKey = buildCacheKey(difference, state.settings, limits, calcMode);
@@ -419,8 +422,10 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
         return;
       }
 
+      const controller = new AbortController();
+      activeRequestRef.current = controller;
       try {
-        const paths = await findCalculationPaths(difference, state.settings, limits, num2Val, calcMode);
+        const paths = await findCalculationPaths(difference, state.settings, limits, num2Val, controller, calcMode);
         if (!isCurrentCalculation()) return;
         const elapsed = Math.round(performance.now() - t0);
         if (paths.length === 0) {
@@ -438,12 +443,14 @@ export const useCalculatorController = ({ onAssistantEgg }: UseCalculatorControl
         dispatch({ type: "APPEND_HISTORY", entry: i18n.t("history", { ns: "errors", message }) });
       } finally {
         if (isCurrentCalculation()) {
+          activeRequestRef.current = null;
           dispatch({ type: "SET_CALCULATING", value: false });
         }
       }
     },
     [
       state,
+      cancelActiveCalculation,
       onAssistantEgg,
       triggerHeart,
       showInputError,

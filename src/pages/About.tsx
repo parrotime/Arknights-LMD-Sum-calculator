@@ -50,7 +50,7 @@ function ActionLinkIcon({ name }: { name: ActionIconName }) {
 }
 
 const timelineItems = [
-  { version: "v2.0.1", date: "2026年11月", lines: ["release_v201_1", "release_v201_2", "release_v201_3", "release_v201_4"] },
+  { version: "v2.0.1", date: "2026年11月25日", lines: ["release_v201_1", "release_v201_2", "release_v201_3", "release_v201_4"] },
   { version: "v2.0.0", date: "2026年6月28日", lines: ["release_v200_1", "release_v200_2", "release_v200_3", "release_v200_4"] },
   { version: "v1.1.3", date: "2025年10月9日", lines: ["release_v113_1", "release_v113_2"] },
   { version: "v1.1.2", date: "2025年8月7日", lines: ["release_v112_1", "release_v112_2", "release_v112_3"] },
@@ -640,7 +640,7 @@ function AboutPage() {
 
         <div className={noticeStyles['notice-list']}>
           <div className={noticeStyles['notice-item']}>
-            <div className={noticeStyles['notice-title']}>{t("release", { version: "v2.0.0" })}</div>
+            <div className={noticeStyles['notice-title']}>{t("release", { version: "v2.0.1" })}</div>
             <div className={noticeStyles['notice-content']}>
               <div className={noticeStyles['hanging-list']}>
                 <p className={noticeStyles['hanging-item']}>

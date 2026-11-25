@@ -1,16 +1,11 @@
 package adminstats
 
 import (
-	"bufio"
-	"compress/gzip"
-	"encoding/json"
 	"errors"
 	"io"
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -88,7 +83,7 @@ func (s *Service) initializeUsage() bool {
 	if s.stats.UsageVersion == currentUsageVersion {
 		return false
 	}
-	entries, err := os.ReadDir(s.options.LogDir)
+	archives, err := calcLogArchives(s.options.LogDir, s.options.LogFileName)
 	if err != nil {
 		s.logWarn("list archived calc logs failed", "error", err)
 		return false
@@ -97,18 +92,9 @@ func (s *Service) initializeUsage() bool {
 	days := make(map[string]usageDay)
 	now := nowBeijing()
 	cutoff := usageCutoff(now)
-	prefix := s.options.LogFileName + "."
-	for _, entry := range entries {
-		name := entry.Name()
-		if entry.IsDir() || !strings.HasPrefix(name, prefix) {
-			continue
-		}
-		suffix := strings.TrimSuffix(strings.TrimPrefix(name, prefix), ".gz")
-		if number, err := strconv.Atoi(suffix); err != nil || number < 1 {
-			continue
-		}
-		if err := readUsageLog(filepath.Join(s.options.LogDir, name), -1, days, cutoff); err != nil {
-			s.logWarn("backfill archived calc log failed", "file", name, "error", err)
+	for _, path := range archives {
+		if err := readUsageLog(path, -1, days, cutoff); err != nil {
+			s.logWarn("backfill archived calc log failed", "file", path, "error", err)
 			return false
 		}
 	}
@@ -131,32 +117,19 @@ func (s *Service) initializeUsage() bool {
 }
 
 func readUsageLog(path string, limit int64, days map[string]usageDay, cutoff string) error {
-	file, err := os.Open(path)
+	reader, closeLog, err := openCalcLog(path)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
-	var reader io.Reader = file
-	if strings.HasSuffix(path, ".gz") {
-		compressed, err := gzip.NewReader(file)
-		if err != nil {
-			return err
-		}
-		defer compressed.Close()
-		reader = compressed
-	}
+	defer closeLog()
 	if limit >= 0 {
 		reader = io.LimitReader(reader, limit)
 	}
-	scanner := bufio.NewScanner(reader)
-	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
-	for scanner.Scan() {
-		var event calcLogEvent
-		if json.Unmarshal(scanner.Bytes(), &event) == nil && event.Status != "" {
+	return scanCalcLog(reader, &SourceSnapshot{}, func(event calcLogEvent) {
+		if event.Status != "" {
 			applyUsage(days, cutoff, event)
 		}
-	}
-	return scanner.Err()
+	})
 }
 
 func applyUsage(days map[string]usageDay, cutoff string, event calcLogEvent) {
@@ -260,11 +233,12 @@ func buildUsage(snapshot Snapshot, now time.Time) UsageSnapshot {
 }
 
 func summarizeUsage(days map[string]usageDay, start, end time.Time) UsagePeriod {
+	const rankingLimit = 10
 	period := UsagePeriod{
 		StartDate:  start.Format("2006-01-02"),
 		EndDate:    end.Format("2006-01-02"),
 		Buckets:    make([]UsageBucket, len(diffLimits)),
-		TopTargets: []RankedTarget{},
+		TopTargets: make([]RankedTarget, 0, rankingLimit),
 	}
 	minimum := uint64(1)
 	for index, limit := range diffLimits {
@@ -284,17 +258,20 @@ func summarizeUsage(days map[string]usageDay, start, end time.Time) UsagePeriod 
 		}
 	}
 	for amount, count := range targets {
-		period.TopTargets = append(period.TopTargets, RankedTarget{Amount: amount, Count: count})
-	}
-	sort.Slice(period.TopTargets, func(left, right int) bool {
-		a, b := period.TopTargets[left], period.TopTargets[right]
-		if a.Count == b.Count {
-			return a.Amount < b.Amount
+		top := period.TopTargets
+		index := sort.Search(len(top), func(index int) bool {
+			entry := top[index]
+			return count > entry.Count || (count == entry.Count && amount < entry.Amount)
+		})
+		if index == rankingLimit {
+			continue
 		}
-		return a.Count > b.Count
-	})
-	if len(period.TopTargets) > 10 {
-		period.TopTargets = period.TopTargets[:10]
+		if len(top) < rankingLimit {
+			top = append(top, RankedTarget{})
+		}
+		copy(top[index+1:], top[index:])
+		top[index] = RankedTarget{Amount: amount, Count: count}
+		period.TopTargets = top
 	}
 	return period
 }
