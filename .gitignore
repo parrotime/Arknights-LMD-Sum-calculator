@@ -65,3 +65,10 @@ JS_TO_TS_MIGRATION_PLAN.md
 /server_test_results_260608
 
 /test-plan
+
+
+/start-dev.cmd
+/start-dev.ps1
+/start-dev.mjs
+
+/网站发布操作手册.md
